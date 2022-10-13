@@ -9,7 +9,7 @@ from .parsers import LTIOutcomeXMLParser
 
 def validation_errors_to_description(errors):
     # errors is a dict mapping serializer field names to error strings
-    l = []
+    l = [] # noqa: E741
     for field_name, errors_list in errors.items():
         l.append(field_name + ': ' + ', '.join(errors_list))
     return '; '.join(l)
@@ -19,20 +19,20 @@ class LTIOutcomeResponseRenderer(renderers.BaseRenderer):
     media_type = 'application/xml'
     format = 'xml'
     charset = 'utf-8'
-    
+
     template_name = 'external_services/lti_outcome_response.xml'
-    
+
     CODE_MAJOR_SUCCESS = 'success'
     CODE_MAJOR_FAILURE = 'failure'
     CODE_MAJOR_UNSUPPORTED = 'unsupported'
     CODE_MINOR_INVALID_SOURCE_DATA = 'invalidsourcedata'
     # LTI status info codes: IMS General Web Services WSDL Binding Guidelines
     # https://www.imsglobal.org/gws/gwsv1p0/imsgws_wsdlBindv1p0.html#1642084
-    
+    # pylint: disable-next=arguments-renamed unused-argument too-many-locals
     def render(self, data, media_type=None, renderer_context=None):
-        
+
         renderer_context = renderer_context or {}
-        
+
         success = True
         code_major = data.get('code_major', self.CODE_MAJOR_SUCCESS)
         code_minor = None
@@ -47,7 +47,7 @@ class LTIOutcomeResponseRenderer(renderers.BaseRenderer):
             error_detail = validation_errors_to_description(error_detail)
         elif isinstance(error_detail, list):
             error_detail = '; '.join(error_detail)
-        
+
         if error_detail or (response and (response.exception or
                             response.status_code >= status.HTTP_400_BAD_REQUEST)):
             code_major = self.CODE_MAJOR_FAILURE
@@ -55,12 +55,15 @@ class LTIOutcomeResponseRenderer(renderers.BaseRenderer):
             if response.status_code == status.HTTP_400_BAD_REQUEST:
                 # probably validation or parse error
                 code_minor = self.CODE_MINOR_INVALID_SOURCE_DATA
-        
+
         # define the description for the response
         if success:
             operation = data.get('req_type')
             if operation == LTIOutcomeXMLParser.TYPE_REPLACE:
-                description = 'Score {} added to sourcedId {}'.format(data.get('score', ''), data.get('sourced_id', ''))
+                description = 'Score {} added to sourcedId {}'.format(
+                    data.get('score', ''),
+                    data.get('sourced_id', '')
+                )
             elif operation == LTIOutcomeXMLParser.TYPE_READ:
                 description = 'SourcedId {} has the score {}'.format(data.get('sourced_id', ''), data.get('score', ''))
             else:
@@ -75,9 +78,9 @@ class LTIOutcomeResponseRenderer(renderers.BaseRenderer):
                     # only set keys to data that do not exist there yet
                     for key, val in request.data.items():
                         data.setdefault(key, val)
-            except:
+            except: # noqa: E722
                 pass
-        
+
         ctx = {
             'msg_id': uuid.uuid4().hex, # new unique id, 32 characters
             'code_major': code_major,

@@ -1,18 +1,16 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.utils import timezone
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from django.core.exceptions import ValidationError
 
 from exercise.exercise_summary import UserExerciseSummary
-from .exercise_models import BaseExercise, LearningObject
+from .exercise_models import BaseExercise
 from .submission_models import Submission
-from userprofile.models import UserProfile
-from course.models import CourseInstance, CourseModule, LearningObjectCategory
+from course.models import LearningObjectCategory
 
 
 
@@ -72,12 +70,14 @@ class ExerciseCollection(BaseExercise):
             return None
 
 
-        timing, d1 = self.get_timing([user.userprofile],timezone.now())
+        timing, _d1 = self.get_timing([user.userprofile],timezone.now())
 
-        if (timing == self.TIMING.CLOSED_AFTER or
+        if (
+            timing == self.TIMING.CLOSED_AFTER or # pylint: disable=consider-using-in
             timing == self.TIMING.ARCHIVED or
             timing == self.TIMING.CLOSED_BEFORE or
-            timing == self.TIMING.UNOFFICIAL):
+            timing == self.TIMING.UNOFFICIAL
+        ):
             return None
 
         for exercise in self.exercises:
@@ -98,7 +98,7 @@ class ExerciseCollection(BaseExercise):
 
 
     # Used when staff forces regrading
-    def grade(self, submission, request=None):
+    def grade(self, submission, request=None): # pylint: disable=arguments-differ
         user = list(submission.submitters.all())[0]
         self.check_submission(user, forced=True)
 
@@ -209,7 +209,7 @@ class ExerciseCollection(BaseExercise):
 # Updates submissions if new submission is in any ExerciseCollection's target category.
 # ! Probably needs Cache-optimization
 @receiver(post_save, sender=Submission)
-def update_exercise_collection_submission(sender, instance, **kwargs):
+def update_exercise_collection_submission(sender, instance, **kwargs): # pylint: disable=unused-argument
     collections = ExerciseCollection.objects.filter(target_category=instance.exercise.category)
     if not collections:
         return

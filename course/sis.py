@@ -10,7 +10,7 @@ logger = logging.getLogger('aplus.course')
 class StudentInfoSystem:
     """Base class for university-specific SIS system extensions, such as SISU at Aalto."""
 
-    def get_instances(self, course: str) -> List[Tuple[str, str]]:
+    def get_instances(self, _course: str) -> List[Tuple[str, str]]:
         """
         Get active course instances from SIS based on the course code.
 
@@ -27,7 +27,7 @@ class StudentInfoSystem:
         """
         return []
 
-    def get_course_data(self, id: str) -> dict:
+    def get_course_data(self, _id: str) -> dict:
         """
         Get course data (teachers, start/end times) from the SIS system.
 
@@ -35,7 +35,7 @@ class StudentInfoSystem:
         ----------
         id
             SIS identifier of the course instance
-        
+
         Returns
         -------
         Dictionary of course data. Currently possible keys are 'starting_time',
@@ -43,7 +43,7 @@ class StudentInfoSystem:
         """
         return {}
 
-    def get_participants(self, id: str) -> List[str]:
+    def get_participants(self, _id: str) -> List[str]:
         """
         Get participating students from the SIS system.
 
@@ -69,7 +69,10 @@ def get_sis_configuration() -> StudentInfoSystem:
     functionality and APIs for SIS interactions.
     '''
     if not hasattr(settings, 'SIS_PLUGIN_MODULE') or not hasattr(settings, 'SIS_PLUGIN_CLASS'):
-        logger.debug('"course.sis.get_sis_configuration()" called but SIS settings are missing. Check "settings.SIS_PLUGIN_MODULE" and "settings.SIS_PLUGIN_CLASS".')
+        logger.debug(
+            '"course.sis.get_sis_configuration()" called but SIS settings are missing. '
+            'Check "settings.SIS_PLUGIN_MODULE" and "settings.SIS_PLUGIN_CLASS".'
+        )
         return None
 
     mod = importlib.import_module(settings.SIS_PLUGIN_MODULE, package='course')

@@ -1,4 +1,5 @@
-import json, re
+import json
+import re
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance, LearningObjectCategory
@@ -40,7 +41,7 @@ class Command(BaseCommand):
             exercise = BaseExercise.objects.get(id=eid)
             for s in exercise.submissions.all():
                 if s.submission_data:
-                    for key,val in s.submission_data:
+                    for key, _val in s.submission_data:
                         fields.add(key)
         fields = sorted(fields)
         n = 0
@@ -68,7 +69,7 @@ class Command(BaseCommand):
                         fields.add(key)
             fields = sorted(fields)
 
-        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade']#, 'Feedback', 'A.Feedback' ]
+        header = [ 'EID', 'Exercise', 'Time', 'UID', 'Student ID', 'Email', 'Status', 'Grade']
         header += fields
         if print_header:
             self.print_row(header)
@@ -134,6 +135,7 @@ class Command(BaseCommand):
         labels = ['UID','Student ID','Email','Name','Tags','Total']
         labels.extend(c.name for c in table.categories)
         labels.extend(difficulties)
+
         def label(exercise):
             return "{} ({})".format(str(exercise), exercise.difficulty)
         labels.extend([label(e) for e in table.exercises])
@@ -189,7 +191,10 @@ class Command(BaseCommand):
             raise CommandError('Course instance not found.')
 
         students = [u['id'] for u in instance.students.values('id')]
-        displays = [d for d in LearningObjectDisplay.objects.prefetch_related('profile', 'learning_object').all() if d.profile.id in students]
+        displays = [d for d in (LearningObjectDisplay.objects
+            .prefetch_related('profile', 'learning_object')
+            .all()
+        ) if d.profile.id in students]
 
         self.print_row(['Time', 'UID', 'Email', 'MID', 'Module', 'EID', 'Exercise'])
         for d in displays:

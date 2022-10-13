@@ -52,9 +52,9 @@ class SisTest(StudentInfoSystem):
         self.data = origdata
         if hasattr(settings, 'SIS_TEST_FILE'):
             try:
-                with open(settings.SIS_TEST_FILE, "r") as f:
+                with open(settings.SIS_TEST_FILE, "r", encoding="utf-8") as f:
                     self.data = json.load(f)
-            except Exception as error:
+            except Exception:
                 logger.exception("File read error.")
 
     def get_instances(self, course: str) -> List[Tuple[str, str]]:
@@ -62,13 +62,12 @@ class SisTest(StudentInfoSystem):
         ret = list(map(lambda k: (k['id'], k['instance']), selected))
         return ret
 
-    def get_course_data(self, id: str) -> dict:
+    def get_course_data(self, id: str) -> dict: # pylint: disable=redefined-builtin
         selected = next(filter(lambda d: d['id'] == id, self.data), None)
         return selected
 
-    def get_participants(self, id: str) -> List[str]:
+    def get_participants(self, id: str) -> List[str]: # pylint: disable=redefined-builtin
         selected = next(filter(lambda d: d['id'] == id, self.data), None)
         if selected:
             return selected['participants']
-        else:
-            return []
+        return []

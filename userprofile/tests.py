@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.test import TestCase
 from django.utils import timezone
 from django.conf import settings
@@ -113,10 +113,22 @@ class UserProfileTest(TestCase):
         self.assertEqual("superuser (Super User, superuser@aplus.com)", str(self.superuser_profile))
 
     def test_userprofile_gravatar_url(self):
-        self.assertEqual("http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon", self.student_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/e2321e37326539393fbae72b7558df8e?d=identicon", self.grader_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/1bfe4ecc42454c9c1dc02bf93073a414?d=identicon", self.teacher_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/f35e575136edbfb920643d10560e8814?d=identicon", self.superuser_profile.avatar_url)
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon",
+            self.student_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/e2321e37326539393fbae72b7558df8e?d=identicon",
+            self.grader_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/1bfe4ecc42454c9c1dc02bf93073a414?d=identicon",
+            self.teacher_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/f35e575136edbfb920643d10560e8814?d=identicon",
+            self.superuser_profile.avatar_url
+        )
 
     def test_userprofile_shortname(self):
         self.assertEqual("Superb S.", self.student_profile.shortname)

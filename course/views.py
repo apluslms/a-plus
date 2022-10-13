@@ -101,7 +101,12 @@ class CourseInstancesView(UserProfileView):
         self.instances = []
         self.msg = ""
         if CourseInstance.objects.filter(course=course).exists():
-            self.instances = CourseInstance.objects.get_visible(self.request.user).filter(course=course).order_by('-starting_time')
+            self.instances = (
+                CourseInstance.objects
+                .get_visible(self.request.user)
+                .filter(course=course)
+                .order_by('-starting_time')
+            )
             self.msg = _('COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS')
         else:
             self.msg = _('NO_COURSE_INSTANCES_OF_COURSE')
@@ -186,9 +191,9 @@ class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
             try:
                 later_instance = (
                     CourseInstance.objects
-                        .get_visible(request.user)
-                        .filter(course=self.course, ending_time__gte=timezone.now())
-                        .latest('starting_time')
+                    .get_visible(request.user)
+                    .filter(course=self.course, ending_time__gte=timezone.now())
+                    .latest('starting_time')
                 )
             except CourseInstance.DoesNotExist:
                 pass
@@ -243,9 +248,8 @@ class Unenroll(CourseInstanceMixin, BaseView):
                 ),
             )
             return HttpResponseRedirect(reverse('home'))
-        else:
-            messages.error(self.request, _('UNENROLL_ERROR_ONLY_ENROLLED'))
-            raise PermissionDenied()
+        messages.error(self.request, _('UNENROLL_ERROR_ONLY_ENROLLED'))
+        raise PermissionDenied()
 
 
 class ModuleView(CourseModuleBaseView):
@@ -256,12 +260,12 @@ class ModuleView(CourseModuleBaseView):
         self.now = timezone.now()
         try:
             self.children = self.content.flat_module(self.module)
-            cur, tree, prev, nex = self.content.find(self.module)
+            cur, _tree, prev, nex = self.content.find(self.module)
             self.previous = prev
             self.current = cur
             self.next = nex
-        except NoSuchContent:
-            raise Http404
+        except NoSuchContent as exc:
+            raise Http404 from exc
         self.note('now', 'children', 'previous', 'current', 'next')
 
 
@@ -344,7 +348,7 @@ class LanguageView(CourseInstanceMixin, BaseView):
 
     def post(self, request, *args, **kwargs):
         LANGUAGE_PARAMETER = 'language'
-
+        # pylint: disable-next=redefined-builtin
         next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
         if ((next or not request.is_ajax()) and
                 not is_safe_url(url=next,

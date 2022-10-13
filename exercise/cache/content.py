@@ -1,6 +1,5 @@
 from typing import Any, Dict, List, Optional, Type, Union
 
-from django.db.models import Prefetch
 from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
@@ -18,7 +17,7 @@ class CachedContent(ContentMixin, CachedAbstract):
     def __init__(self, course_instance: CourseInstance) -> None:
         self.instance = course_instance
         super().__init__(course_instance)
-
+    # pylint: disable-next=arguments-differ too-many-locals
     def _generate_data(self, instance: CourseInstance, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """ Returns object that is cached into self.data """
         module_index = {}
@@ -84,7 +83,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                 idx = indexes + [j]
                 exercise_index[o.id] = idx
                 paths[module['id']][o.get_path()] = o.id
-                if not category.id in categories:
+                if category.id not in categories:
                     categories[category.id] = {
                         'type': 'category',
                         'id': category.id,
@@ -195,7 +194,7 @@ class CachedContent(ContentMixin, CachedAbstract):
 
 
 def invalidate_content(
-        sender: Type[Model],
+        sender: Type[Model], # pylint: disable=unused-argument
         instance: Union[CourseInstance, CourseModule, LearningObject, LearningObjectCategory],
         **kwargs: Any,
         ) -> None:

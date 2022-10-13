@@ -13,7 +13,7 @@ from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
 from .course_forms import LearningObjectCategoryForm, CourseModuleForm
 from exercise.exercisecollection_models import ExerciseCollection
 
-class ModelManager(object):
+class ModelManager:
     object_class = None
     instance_field = "course_instance"
     form_class = None
@@ -26,17 +26,17 @@ class ModelManager(object):
         }
         return get_object_or_404(self.object_class, **fields)
 
-    def new_object(self, instance, parent_id, type):
-        return self.object_class(course_instance=instance)
+    def new_object(self, instance, parent_id, type): # pylint: disable=unused-argument redefined-builtin
+        return self.object_class(course_instance=instance) # pylint: disable=not-callable
 
-    def get_form_class(self, obj):
+    def get_form_class(self, _obj):
         return self.form_class
 
-    def can_delete(self, obj):
+    def can_delete(self, _obj):
         return True
 
 
-class ExerciseContainerMixin(object):
+class ExerciseContainerMixin:
 
     def can_delete(self, obj: Any) -> bool:
         return not obj.learning_objects.exists()
@@ -53,7 +53,7 @@ class ModuleManager(ExerciseContainerMixin, ModelManager):
     form_class = CourseModuleForm
     name = _('MODULE')
 
-    def new_object(self, instance, parent_id, type):
+    def new_object(self, instance, parent_id, type): # pylint: disable=redefined-builtin
         return self.object_class(
             course_instance=instance,
             order=(instance.course_modules.count() + 1)
@@ -66,7 +66,7 @@ class ExerciseManager(ModelManager):
     name = _('LEARNING_OBJECT')
 
 
-    def new_object(self, instance, parent_id, type):
+    def new_object(self, instance, parent_id, type): # pylint: disable=redefined-builtin
         CLASSES = {
             None: BaseExercise,
             "lti": LTIExercise,
@@ -74,7 +74,7 @@ class ExerciseManager(ModelManager):
             "static": StaticExercise,
             "attachment": ExerciseWithAttachment,
         }
-        if not type in CLASSES:
+        if type not in CLASSES:
             raise Http404()
         object_class = CLASSES[type]
 
@@ -103,6 +103,6 @@ class ExerciseManager(ModelManager):
 
         }
         if obj.__class__ not in FORMS:
-            raise TypeError("No form known for the object type: %s",
+            raise TypeError("No form known for the object type: %s", # pylint: disable=raising-format-tuple
                 obj.__class__)
         return FORMS[obj.__class__]

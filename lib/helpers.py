@@ -94,7 +94,7 @@ def pairs_to_dict(pairs: Iterable[Iterable[Any]]) -> Dict[Any, List[Any]]:
     return data
 
 
-def url_with_query_in_data(url: str, data: dict = {}):
+def url_with_query_in_data(url: str, data: dict = {}): # pylint: disable=dangerous-default-value
     """
     Take an url with (or without) query parameters and a dictionary of data.
     Return url without query parameters and a dictionary with merged values from the query and the data.
@@ -120,7 +120,7 @@ def remove_query_param_from_url(url, param):
     return urlunsplit(url._replace(query=urlencode(query, True)))
 
 
-def build_aplus_url(url: str, user_url: bool=False) -> str:
+def build_aplus_url(url: str, user_url: bool = False) -> str:
     """
     Enforce that the given URL is a full absolute URL that always uses
     the network location from the configured BASE_URL. In some installations, particularly
@@ -157,7 +157,7 @@ def roman_numeral(number):
     numbers = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
     letters = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"];
     roman = ""
-    for i in range(len(numbers)):
+    for i in range(len(numbers)): # pylint: disable=consider-using-enumerate
         while number >= numbers[i]:
             roman += letters[i]
             number -= numbers[i]
@@ -220,7 +220,7 @@ def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
     return '?'
 
 
-class Enum(object):
+class Enum:
     """
     Represents constant enumeration.
 
@@ -240,7 +240,7 @@ class Enum(object):
             choices = choices[0]
         self._strings = OrderedDict()
         self._keys = []
-        for name, value, string in choices:
+        for name, value, string in choices: # noqa: F402
             assert value not in self._strings, "Multiple choices have same value"
             self._strings[value] = string
             self._keys.append(name)

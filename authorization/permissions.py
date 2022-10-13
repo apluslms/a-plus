@@ -1,3 +1,9 @@
+"""
+Base permission classes.
+
+These classes use same interface than ones in django-rest-framework and
+are usable with APIViews too.
+"""
 import string
 
 from django.utils.text import format_lazy
@@ -6,18 +12,11 @@ from rest_framework.permissions import BasePermission as Permission
 
 from lib.helpers import Enum
 
-"""
-Base permission classes.
-
-These classes use same interface than ones in django-rest-framework and
-are usable with APIViews too.
-"""
-
 
 SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
-class FilterBackend(object):
+class FilterBackend:
     """
     FilterBackend interface
     """
@@ -27,7 +26,7 @@ class FilterBackend(object):
         """
         raise NotImplementedError
 
-    def get_fields(self, view):
+    def get_fields(self, _view):
         return []
 
 
@@ -42,11 +41,11 @@ class NoPermission(Permission):
         return False
 
 
-class MessageMixin(object):
+class MessageMixin:
     """
     Adds easy way to specify what exactly caused the PermissionDenied
     """
-    def error_msg(self, message: str, delim=None, format=None, replace=False):
+    def error_msg(self, message: str, delim=None, format=None, replace=False): #pylint: disable=redefined-builtin
         """
         Add extra text to self.message about the reason why permission
         was denied. Uses lazy object so the message string is evaluated
@@ -156,7 +155,8 @@ class ObjectVisibleBasePermission(MessageMixin, Permission):
     def has_object_permission(self, request, view, obj):
         user = request.user
         return (
-            not isinstance(obj, self.model) or # skip objects that are not model in question
+            not isinstance(obj, self.model) or # pylint: disable=isinstance-second-argument-not-valid-type
+            # skip objects that are not model in question
             user.is_staff or
             user.is_superuser or
             self.is_object_visible(request, view, obj)

@@ -7,8 +7,7 @@ def format_localization(element):
     if isinstance(element, dict):
         strings = ("{}:{}".format(k, v) for k, v in element.items())
         return "|{}|".format("|".join(strings))
-    else:
-        return str(element)
+    return str(element)
 
 
 def pick_localized(entry, lang):

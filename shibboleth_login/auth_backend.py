@@ -1,9 +1,7 @@
 import logging
-import urllib.parse
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from django.shortcuts import redirect
 
 from .apps import app_settings, env_settings
 from .parser import Parser
@@ -18,7 +16,7 @@ class ShibbolethAuthBackend(ModelBackend):
     Creates a new user or updates changed fields on an existing user.
 
     """
-    def authenticate(self, request, shibd_meta=None):
+    def authenticate(self, request, shibd_meta=None): # noqa: MC0001
         if not shibd_meta:
             return None
         user_save_flag = False

@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from rest_framework import status
 from rest_framework import generics
-from django.db.models import Count, QuerySet
+from django.db.models import QuerySet
 from django.utils import timezone
 
 from exercise.submission_models import Submission

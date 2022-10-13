@@ -36,7 +36,7 @@ class ModelWithInheritance(models.Model):
         if not self.content_type:
             self.content_type = ContentType.objects.get_for_model(self.__class__)
 
-        super(ModelWithInheritance, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def as_leaf_class(self):
         """

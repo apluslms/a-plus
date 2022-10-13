@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase, override_settings
@@ -296,7 +296,10 @@ class CourseTest(TestCase):
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened())
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.tomorrow))
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.two_days_from_now))
-        self.assertTrue(self.course_module_with_reading_open.opening_time > self.course_module_with_reading_open.reading_opening_time)
+        self.assertTrue(
+            self.course_module_with_reading_open.opening_time >
+            self.course_module_with_reading_open.reading_opening_time
+        )
 
     def test_course_module_after_open(self):
         self.assertFalse(self.course_module.is_after_open(self.yesterday))
@@ -377,7 +380,7 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_student(self.user1))
         self.assertFalse(self.current_course_instance.is_student(self.user2))
         self.client.login(username="staff", password="staffPassword")
-        response = self.client.post(
+        response = self.client.post( # noqa: F821
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.current_course_instance.url,
@@ -393,7 +396,7 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_student(self.user1))
         self.assertFalse(self.current_course_instance.is_student(self.user2))
         self.client.login(username="staff", password="staffPassword")
-        response = self.client.post(
+        response = self.client.post( # noqa: F821
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.current_course_instance.url,

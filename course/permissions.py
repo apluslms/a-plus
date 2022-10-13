@@ -1,7 +1,6 @@
 from typing import Any, Type
 
 from aplus_auth.payload import Payload, Permission as AccessPermission
-from django.http import Http404
 from django.http.request import HttpRequest
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -35,7 +34,7 @@ class JWTObjectPermission(Permission):
     def get_obj(self, request, view):
         return getattr(view, self.obj_key)
 
-    def has_object_in_permissions(self, request, view, obj):
+    def has_object_in_permissions(self, request, _view, obj):
         return request.auth.permissions.has(self.access_key, self.access_type, **{self.id_key: obj.id})
 
     def has_permission(self, request, view):
@@ -114,7 +113,7 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
     model = CourseInstance
     obj_var = 'instance'
 
-    def is_object_visible(self, request, view, course):
+    def is_object_visible(self, request, view, course): # pylint: disable=arguments-renamed
         """
         Find out if CourseInstance is visible to user
         We expect that AccessModePermission is checked first
@@ -174,7 +173,7 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
                 self.error_msg(_('ACCESS_ERROR_ONLY_ENROLLED_STUDENTS'))
                 return False
 
-            elif show_for == VA.ENROLLMENT_AUDIENCE:
+            if show_for == VA.ENROLLMENT_AUDIENCE:
                 return self.enrollment_audience_check(request, course, user)
 
         return True
@@ -192,7 +191,7 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
                 )
             )
             return False
-        elif audience == EA.EXTERNAL_USERS and not external:
+        if audience == EA.EXTERNAL_USERS and not external:
             self.error_msg(
                 format_lazy(
                     _('COURSE_ENROLLMENT_AUDIENCE_ERROR_ONLY_EXTERNAL -- {institution}'),
@@ -202,6 +201,7 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
             return False
         return True
 
+
 CourseVisiblePermission = CourseVisiblePermissionBase | JWTCourseReadPermission
 
 
@@ -210,7 +210,7 @@ class EnrollInfoVisiblePermission(ObjectVisibleBasePermission):
     model = CourseInstance
     obj_var = 'instance'
 
-    def is_object_visible(self, request, view, course_instance):
+    def is_object_visible(self, request, view, course_instance): # pylint: disable=arguments-renamed
         # Course is always visible to staff members
         if view.is_course_staff:
             return True
@@ -238,6 +238,7 @@ class CourseModulePermissionBase(MessageMixin, Permission):
             return self.has_object_permission(request, view, module)
         return True
 
+    # pylint: disable-next=arguments-renamed
     def has_object_permission(self, request: HttpRequest, view: Any, module: CourseModule) -> bool:
         if isinstance(request.user, GraderUser):
             return False
@@ -268,6 +269,7 @@ class CourseModulePermissionBase(MessageMixin, Permission):
             points = CachedPoints(module.course_instance, request.user, view.content, view.is_course_staff)
             return module.are_requirements_passed(points)
         return True
+
 
 CourseModulePermission = CourseModulePermissionBase | JWTInstanceReadPermission
 
@@ -326,4 +328,3 @@ class OnlyEnrolledStudentOrCourseStaffPermission(Permission):
             return view.is_student or view.is_course_staff or request.user.is_superuser
         except AttributeError:
             return False
-

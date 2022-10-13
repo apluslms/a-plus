@@ -1,4 +1,5 @@
 from datetime import datetime
+from json import dumps
 from django.test import override_settings
 from course.models import CourseInstance
 from exercise.models import BaseExercise
@@ -7,7 +8,7 @@ from lib.testdata import CourseTestCase
 
 class CourseCloneTest(CourseTestCase):
 
-    def test_course_clone(self):
+    def test_course_clone(self): # pylint:disable=too-many-locals
 
         instance = CourseInstance.objects.get(id=1)
         instance.add_assistant(self.user.userprofile)
@@ -128,11 +129,10 @@ class BatchAssessTest(CourseTestCase):
         self.setUpCourse()
 
     def test_batch_assess(self):
-        from json import dumps
 
         instance = CourseInstance.objects.get(id=1)
         exercise = BaseExercise.objects.get(id=1)
-        url = instance.get_url('batch-assess')
+        url = instance.get_url('batch-assess') # noqa: F841
 
         json_to_post = dumps({
           'objects': [

@@ -1,7 +1,7 @@
 import itertools
 from typing import Optional
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 
@@ -10,7 +10,7 @@ from .cache.content import CachedContent
 from .models import BaseExercise, Submission
 
 
-class UserExerciseSummary(object):
+class UserExerciseSummary:
     """
     UserExerciseSummary summarises the submissions of a certain user and
     exercise. It calculates some characterizing figures such as the number of
@@ -41,7 +41,7 @@ class UserExerciseSummary(object):
                 .prefetch_related('exercise__parent', 'exercise__submission_feedback_reveal_rule')
             )
             for s in self.submissions:
-                if not s.status in (
+                if s.status not in (
                     Submission.STATUS.ERROR,
                     Submission.STATUS.REJECTED,
                 ):
@@ -84,14 +84,13 @@ class UserExerciseSummary(object):
         """
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             return submission1.submission_time > submission2.submission_time
-        else: # defaults to GRADING_MODE.BEST handling
-            return (
-                submission1.grade > submission2.grade
-                or (
-                    submission1.grade == submission2.grade
-                    and submission1.submission_time > submission2.submission_time
-                )
+        return (
+            submission1.grade > submission2.grade
+            or (
+                submission1.grade == submission2.grade
+                and submission1.submission_time > submission2.submission_time
             )
+        )
 
     def get_submission_count(self):
         return self.submission_count
@@ -191,7 +190,7 @@ class ResultTable:
             return (node['id'],)
 
         root_node = { 'children': content.modules() }
-        for id in get_descendant_ids(root_node):
+        for id in get_descendant_ids(root_node): # pylint: disable=redefined-builtin
             try:
                 yield BaseExercise.objects.get(learningobject_ptr_id=id)
             except ObjectDoesNotExist:

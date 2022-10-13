@@ -2,7 +2,6 @@ import datetime
 from copy import deepcopy
 from typing import (
     Any,
-    Callable,
     Dict,
     Iterable,
     List,
@@ -12,7 +11,7 @@ from typing import (
     Union,
 )
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
@@ -80,7 +79,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             )
         )
 
-    def _generate_data(
+    def _generate_data( # pylint: disable=arguments-differ
             self,
             instance: CourseInstance,
             user: User,
@@ -130,7 +129,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         staff_data['points_created'] = timezone.now()
         return staff_data
 
-    def _generate_data_internal(
+    def _generate_data_internal( # noqa: MC0001
             self,
             is_staff: bool,
             is_authenticated: bool,
@@ -144,7 +143,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         arguments to this method.
         """
         data = deepcopy(self.content.data)
-        module_index = data['module_index']
+        module_index = data['module_index'] # noqa: F841
         exercise_index = data['exercise_index']
         modules = data['modules']
         categories = data['categories']
@@ -163,7 +162,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'formatted_points': '0',
                         'passed': entry['points_to_pass'] == 0,
                         'graded': False,
-                        'unofficial': False, # TODO: this should be True, but we need to ensure nothing breaks when it's changed
+                        'unofficial': False, # TODO: this should be True,
+                        # but we need to ensure nothing breaks when it's changed
                         'forced_points': False,
                         'personal_deadline': None,
                         'personal_deadline_has_penalty': None,
@@ -342,14 +342,15 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     })
                     final_submission = submission
                 if not entry.get('forced_points', False):
-                    if (
+                    if ( # pylint: disable=too-many-boolean-expressions
                         ready and (
                             entry['unofficial'] or
                             is_better_than(submission, final_submission)
                         )
                     ) or (
                         unofficial and
-                        not entry['graded'] and # NOTE: == entry['unofficial'], but before any submissions entry['unofficial'] is False
+                        not entry['graded'] and # NOTE: == entry['unofficial'],
+                        # but before any submissions entry['unofficial'] is False
                         is_better_than(submission, final_submission)
                     ):
                         entry.update({
@@ -423,6 +424,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     entry['difficulty'],
                     entry['points']
                 )
+
         def r_collect(
                 module: Dict[str, Any],
                 parent: Dict[str, Any],
@@ -475,7 +477,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
         return self.data['points_created'], super().created()
 
-    def submission_ids(
+    def submission_ids( # pylint: disable=too-many-arguments
             self,
             number: Optional[str] = None,
             category_id: Optional[int] = None,
@@ -498,7 +500,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         if best:
             for entry in exercises:
                 sid = entry.get('best_submission', None)
-                if not sid is None:
+                if sid is not None:
                     submissions.append(sid)
                 elif fallback_to_last:
                     entry_submissions = entry.get('submissions', [])
@@ -547,14 +549,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
         elif isinstance(value, tuple):
             parent_container[parent_key] = value[tuple_index]
 
-
+# pylint: disable-next=unused-argument
 def invalidate_content(sender: Type[Model], instance: Submission, **kwargs: Any) -> None:
     course = instance.exercise.course_instance
     for profile in instance.submitters.all():
         CachedPoints.invalidate(course, profile.user)
 
-def invalidate_content_m2m(
-        sender: Type[Model],
+def invalidate_content_m2m( # pylint: disable=too-many-arguments
+        sender: Type[Model], # pylint: disable=unused-argument
         instance: Union[Submission, UserProfile],
         action: str,
         reverse: bool,
@@ -583,13 +585,13 @@ def invalidate_content_m2m(
     else:
         # instance is a Submission
         invalidate_content(Submission, instance)
-
+# pylint: disable-next=unused-argument
 def invalidate_notification(sender: Type[Model], instance: Notification, **kwargs: Any) -> None:
     course = instance.course_instance
     if not course and instance.submission:
         course = instance.submission.exercise.course_instance
     CachedPoints.invalidate(course, instance.recipient.user)
-
+# pylint: disable-next=unused-argument
 def invalidate_deviation(sender: Type[Model], instance: SubmissionRuleDeviation, **kwargs: Any) -> None:
     # Invalidate for the student who received the deviation as well as all
     # students who have submitted this exercise with them.
@@ -602,7 +604,7 @@ def invalidate_deviation(sender: Type[Model], instance: SubmissionRuleDeviation,
     for profile in submitters:
         if profile != instance.submitter:
             CachedPoints.invalidate(course, profile.user)
-
+# pylint: disable-next=unused-argument
 def invalidate_submission_reveal(sender: Type[Model], instance: RevealRule, **kwargs: Any) -> None:
     # Invalidate for all students who have submitted the exercise whose
     # submission feedback reveal rule changed.
@@ -614,6 +616,7 @@ def invalidate_submission_reveal(sender: Type[Model], instance: RevealRule, **kw
     submitters = UserProfile.objects.filter(submissions__exercise=exercise).distinct()
     for profile in submitters:
         CachedPoints.invalidate(course, profile.user)
+
 
 # Automatically invalidate cached points when submissions change.
 post_save.connect(invalidate_content, sender=Submission)

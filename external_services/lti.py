@@ -16,9 +16,21 @@ from lib.helpers import build_aplus_url, update_url_params
 from course.models import Enrollment
 
 
-class LTIRequest(object):
+class LTIRequest:
 
-    def __init__(self, service, user, instance, request, title, context_id=None, link_id=None, add=None, exercise=None):
+    # pylint: disable-next=too-many-arguments too-many-locals
+    def __init__(
+        self,
+        service,
+        user,
+        instance,
+        request,
+        title,
+        context_id=None,
+        link_id=None,
+        add=None,
+        exercise=None
+    ):
         self.service = service
         course = instance.course
         base_url_parts = urlsplit(settings.BASE_URL)
@@ -95,15 +107,15 @@ class LTIRequest(object):
             # Anonymize user information
             try:
                 enrollment = Enrollment.objects.get(course_instance=course_instance, user_profile=user.userprofile)
-            except Enrollment.DoesNotExist:
-                raise Http404(_('LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS'))
+            except Enrollment.DoesNotExist as exc:
+                raise Http404(_('LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS')) from exc
             # Creates anon name and id for pre-pseudonymisation Enrollments
             if not (enrollment.anon_name or enrollment.anon_id):
                 # the model's post_save functions take care of the creation
                 enrollment.save()
             user_id = "a" + enrollment.anon_id # a for anonymous
             full_name = enrollment.anon_name
-            given_name, sep, family_name = full_name.rpartition(" ")
+            given_name, _sep, family_name = full_name.rpartition(" ")
             if not given_name:
                 given_name = "Anonymous"
             email = "anonymous-{}@aplus.invalid".format(enrollment.anon_id)
@@ -131,7 +143,7 @@ class LTIRequest(object):
             params = [(key, value) for key, value in self.parameters.items() if key in included_keys]
         else:
             params = self.parameters.items()
-        sum = md5()
+        sum = md5() # pylint: disable=redefined-builtin
         for key, value in sorted(params):
             sum.update("{}={};".format(key, value).encode('utf-8'))
         return sum.hexdigest()
@@ -141,7 +153,7 @@ class LTIRequest(object):
             client_secret=self.service.consumer_secret,
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_BODY)
-        uri, headers, body = client.sign(self._get_url(url),
+        _uri, _headers, body = client.sign(self._get_url(url),
             http_method="POST",
             body=self.parameters,
             headers={"Content-Type": "application/x-www-form-urlencoded"})
@@ -154,9 +166,9 @@ class LTIRequest(object):
             signature_type=SIGNATURE_TYPE_QUERY)
         uri = update_url_params(self._get_url(url), self.parameters)
         try:
-            query, headers, body = client.sign(uri, http_method="GET")
+            query, _headers, _body = client.sign(uri, http_method="GET")
         except ValueError as e:
-            raise ValueError("Invalid url %r for %r: %s" % (uri, self.service, e))
+            raise ValueError("Invalid url %r for %r: %s" % (uri, self.service, e)) from e
         return query
 
     def _get_url(self, url=None):
@@ -166,8 +178,20 @@ class LTIRequest(object):
 
 
 class CustomStudentInfoLTIRequest(LTIRequest):
-
-    def __init__(self, service, user, profiles, instance, request, title, context_id=None, link_id=None, add=None, exercise=None):
+    # pylint: disable-next=too-many-arguments
+    def __init__(
+        self,
+        service,
+        user,
+        profiles,
+        instance,
+        request,
+        title,
+        context_id=None,
+        link_id=None,
+        add=None,
+        exercise=None
+    ):
         self.service = service
         self.course_instance = instance
         parameters = add or {}

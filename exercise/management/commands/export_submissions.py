@@ -73,7 +73,10 @@ class Command(BaseCommand):
             '-m',
             '--include-max-submission-deviations',
             action='store_true',
-            help="If set, students' personal max submission attempt deviations are included in the submissions CSV file.",
+            help=(
+                "If set, students' personal max submission attempt deviations are "
+                "included in the submissions CSV file."
+            ),
         )
         parser.add_argument(
             '-i',
@@ -102,12 +105,12 @@ class Command(BaseCommand):
 
     def parse_comma_list_file(self, file_path):
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding="utf-8") as f:
                 return [val.strip() for val in f.read().split(',') if val.strip()]
         except OSError as e:
             raise CommandError(f'Error in reading the file "{file_path}".') from e
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options): # noqa: MC0001
         course_instance_ids = options['course_instance_id']
 
         exercise_file_path = options['exercise_output_file']
@@ -142,7 +145,7 @@ class Command(BaseCommand):
                 'Either the "course_instance_id" parameter '
                 'or the "include_exercises_file" option must be specified.',
             )
-        elif len(exercise_filters) > 1:
+        if len(exercise_filters) > 1:
             raise CommandError('Only one of "course_instance_id" or "include_exercises_file" may be specified.')
 
         exercise_q_filters = []
@@ -271,7 +274,9 @@ class Command(BaseCommand):
                 )
 
                 for dl_dev in all_deadline_deviations_queryset:
-                    all_deadline_deviations.setdefault(dl_dev.exercise.id, {})[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
+                    all_deadline_deviations.setdefault(
+                        dl_dev.exercise.id, {}
+                    )[dl_dev.submitter.user.id] = dl_dev.get_new_deadline()
 
             all_max_submissions_deviations = {}
             if options['include_max_submission_deviations']:
@@ -330,7 +335,7 @@ class Command(BaseCommand):
 
     def write_results_csv(self, csv_file_path, submissions, include_student_ids=True, include_user_ids=True):
         # submissions is an iterable of dictionaries, one dict per exercise per submitter.
-        with open(csv_file_path, 'w', newline='') as f:
+        with open(csv_file_path, 'w', newline='', encoding="utf-8") as f:
             fieldnames = [
                 'exercise_id',
                 'num_submissions',
@@ -357,7 +362,7 @@ class Command(BaseCommand):
 
 
     def write_exercise_csv(self, exercise_file_path, exercises):
-        with open(exercise_file_path, 'w', newline='') as f:
+        with open(exercise_file_path, 'w', newline='', encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=(
                 'id',
                 'name',
@@ -392,7 +397,7 @@ class Command(BaseCommand):
                 })
 
 
-    def write_submission_csv(
+    def write_submission_csv( # pylint: disable=too-many-locals too-many-arguments
             self,
             submission_file_path,
             submissions,
@@ -424,7 +429,7 @@ class Command(BaseCommand):
         if include_deadline_deviations:
             fieldnames.append('personal_deadline')
 
-        with open(submission_file_path, 'w', newline='') as f:
+        with open(submission_file_path, 'w', newline='', encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for submission in submissions:
@@ -441,9 +446,13 @@ class Command(BaseCommand):
                     'marked_as_final': submission.force_exercise_points,
                 }
                 if include_user_ids:
-                    d['submitter_user_ids'] = '-'.join([str(profile.user.id) for profile in submission.submitter_userprofiles])
+                    d['submitter_user_ids'] = '-'.join(
+                        [str(profile.user.id) for profile in submission.submitter_userprofiles]
+                    )
                 if include_student_ids:
-                    d['student_ids'] = '-'.join([str(profile.student_id) for profile in submission.submitter_userprofiles])
+                    d['student_ids'] = '-'.join(
+                        [str(profile.student_id) for profile in submission.submitter_userprofiles]
+                    )
 
                 if include_deadline_deviations:
                     dl_deviations = all_deadline_deviations.get(submission.exercise.pk, {})
@@ -472,4 +481,3 @@ class Command(BaseCommand):
                     d['personal_max_submissions'] = personal_max_submissions
 
                 writer.writerow(d)
-

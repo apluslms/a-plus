@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 from course.models import CourseInstance
-from lib.helpers import Enum
 from lib.models import UrlMixin
 
 

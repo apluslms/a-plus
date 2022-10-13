@@ -1,10 +1,8 @@
 from django.test import TestCase
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from course.models import Course, CourseInstance
 from exercise.models import LearningObjectCategory
-from userprofile.models import UserProfile
 from django.utils import timezone
 from datetime import timedelta
 
@@ -57,7 +55,7 @@ class ExerciceSubmissionAPITest(TestCase):
         """
         client = APIClient()
         client.force_authenticate(user=self.student)
-        response = client.post('/api/v2/exercises/1/submissions/', {'code':'12esf43tdfaE3rS'})
+        response = client.post('/api/v2/exercises/1/submissions/', {'code':'12esf43tdfaE3rS'}) # noqa: F841
         # FIXME: test doesn't create submission, thus this resource is 404
         #self.assertEqual(response.data, None)
 
@@ -67,7 +65,7 @@ class ExerciceSubmissionAPITest(TestCase):
         """
         client = APIClient()
         client.force_authenticate(user=self.student)
-        response = client.get('/api/v2/exercises/1/submissions/')
+        response = client.get('/api/v2/exercises/1/submissions/') # noqa: F841
         # FIXME: test doesn't create submission, thus this resource is 404
         #self.assertEqual(response.data, {
         #    'count': 0,

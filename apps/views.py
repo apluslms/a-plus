@@ -32,4 +32,3 @@ class TabView(CourseInstanceBaseView):
            self.container
         )
         return super().get(request, *args, **kwargs, tab=tab_renderer)
-

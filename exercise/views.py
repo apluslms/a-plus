@@ -1,8 +1,6 @@
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404
@@ -12,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.views.static import serve
 from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
@@ -24,7 +21,7 @@ from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
-from .submission_models import SubmittedFile, Submission, SubmissionDraft
+from .submission_models import SubmittedFile, Submission
 from .viewbase import (
     ExerciseBaseView,
     SubmissionBaseView,
@@ -77,7 +74,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             access_mode = ACCESS.ENROLL
 
         return access_mode
-
+    # pylint: disable-next=too-many-locals
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         exercisecollection_data = None
         submission_allowed = False
@@ -152,7 +149,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         new_submission = None
         page = ExercisePage(self.exercise)
-        submission_status, submission_allowed, issues, students = (
+        _submission_status, submission_allowed, _issues, students = (
             self.submission_check(True, request)
         )
         if submission_allowed:
@@ -327,7 +324,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             target_exercises.append(data)
             target_mp += data['max_points']
             user_tp += data['user_points']
-
+        # pylint: disable=undefined-loop-variable
         title = "{}: {} - {}".format(t_exercise.course_module.course_instance.course.name,
                                      t_exercise.course_module.course_instance.instance_name,
                                      t_exercise.category.name)
@@ -373,7 +370,7 @@ class ExerciseModelView(ExerciseModelBaseView):
         super().get_common_objects()
         self.get_summary_submissions()
 
-        id = self.exercise.course_instance.id
+        id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.models = []
         for url,name in self.exercise.get_models():
             try:
@@ -410,13 +407,13 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
         super().get_common_objects()
         self.get_summary_submissions()
 
-        id = self.exercise.course_instance.id
+        id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.templates = []
         for url,name in self.exercise.get_templates():
             try:
                 response = request_for_response(url, instance_id=id)
                 response.encoding = "UTF-8"
-            except RemotePageNotFound as error:
+            except RemotePageNotFound:
                 self.templates.append({'name': name})
             else:
                 self.templates.append({

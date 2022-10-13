@@ -35,8 +35,6 @@ class ExercisePage:
         Checks that the values are sane/acceptable.
         """
         return self.points <= self.max_points
-            # and not (self.exercise.max_points != 0 \
-            #         and self.max_points == 0)
 
     def populate_form(
             self,

@@ -1,7 +1,7 @@
 from typing import Any
 
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -63,7 +63,7 @@ class SubmissionReviewForm(forms.Form):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.exercise = kwargs.pop('exercise')
         help_texts_to_tooltips = kwargs.pop('help_texts_to_tooltips', False)
-        super(SubmissionReviewForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if help_texts_to_tooltips:
             # Turn the help texts into tooltips instead of static text blocks
@@ -82,7 +82,7 @@ class SubmissionReviewForm(forms.Form):
         super().clean()
         points = self.cleaned_data.get("points")
         max_points = self.exercise.max_points
-        if not points is None and points > max_points:
+        if points is not None and points > max_points:
             raise forms.ValidationError(
                 format_lazy(
                     _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}'),
@@ -112,21 +112,21 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
     )
     students_by_student_id = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
-        coerce=lambda student_id: UserProfile.get_by_student_id(student_id),
+        coerce=lambda student_id: UserProfile.get_by_student_id(student_id), # pylint: disable=unnecessary-lambda
         choices=[],
         required=False,
         label=_('LABEL_STUDENTS_BY_STUDENT_ID'),
     )
     students_by_email = forms.TypedMultipleChoiceField(
         empty_value=UserProfile.objects.none(),
-        coerce=lambda email: UserProfile.get_by_email(email),
+        coerce=lambda email: UserProfile.get_by_email(email), # pylint: disable=unnecessary-lambda
         choices=[],
         required=False,
         label=_('LABEL_STUDENTS_BY_EMAIL'),
     )
 
     def __init__(self, *args, **kwargs):
-        super(SubmissionCreateAndReviewForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["students"].queryset = \
             UserProfile.objects.all()
         self.fields["students_by_user_id"].choices = \
@@ -137,7 +137,7 @@ class SubmissionCreateAndReviewForm(SubmissionReviewForm):
             [ (u.email, u.email) for u in User.objects.all() ]
 
     def clean(self):
-        self.cleaned_data = data = super(SubmissionCreateAndReviewForm, self).clean()
+        self.cleaned_data = data = super().clean()
         fields = self.STUDENT_FIELDS
         n = sum((1 if data.get(k) else 0) for k in fields)
         if n == 0:

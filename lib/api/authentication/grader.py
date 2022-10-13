@@ -33,15 +33,14 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
     def authenticate(self, request: Request) -> Optional[Tuple[GraderUser, Payload]]:
         if self.get_token(request):
             return super().authenticate(request)
-        else:
-            token = request.GET.get(GRADER_AUTH_TOKEN, None)
-            if token is None:
-                return None
+        token = request.GET.get(GRADER_AUTH_TOKEN, None)
+        if token is None:
+            return None
 
-            permissions = ObjectPermissions()
-            payload = Payload()
-            self.add_token_permissions(token, permissions, payload)
-            return GraderUser(token, permissions), payload
+        permissions = ObjectPermissions()
+        payload = Payload()
+        self.add_token_permissions(token, permissions, payload)
+        return GraderUser(token, permissions), payload
 
     def add_token_permissions(self, token: str, permissions: ObjectPermissions, payload: Payload):
         if token[0] == "s":
@@ -75,12 +74,12 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         payload.permissions.instances.add(Permission.READ, id=exercise.course_instance.id)
         permissions.courses.add(Permission.READ, exercise.course_instance.course)
         permissions.instances.add(Permission.READ, exercise.course_instance)
-
+    # pylint: disable-next=arguments-renamed redefined-builtin
     def get_user(self, request: Request, id: str, payload: Payload) -> GraderUser:
         # check public key is allowed access
         if auth_settings().DISABLE_LOGIN_CHECKS:
             if not settings.DEBUG:
-                logger.warn("!!! JWT login checks are disabled !!!")
+                logger.warn("!!! JWT login checks are disabled !!!") # pylint: disable=deprecated-method
 
         permissions = ObjectPermissions.from_payload(GraderUser(id, ObjectPermissions()), payload)
 
@@ -111,13 +110,13 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         submission_id, submission_hash = token_parts
         try:
             submission_id = int(submission_id, 16)
-        except ValueError:
-            raise AuthenticationFailed("Submission token isn't in correct format.")
+        except ValueError as exc:
+            raise AuthenticationFailed("Submission token isn't in correct format.") from exc
 
         try:
             submission = Submission.objects.get(id=submission_id, hash=submission_hash)
-        except Submission.DoesNotExist:
-            raise AuthenticationFailed("No valid submission for submission token.")
+        except Submission.DoesNotExist as exc:
+            raise AuthenticationFailed("No valid submission for submission token.") from exc
 
         return submission
 
@@ -134,7 +133,7 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         try:
             identifier = get_valid_message(exercise_token)
         except ValueError as e:
-            raise AuthenticationFailed("Exercise token is corrupted '{error!s}'.".format(error=e))
+            raise AuthenticationFailed("Exercise token is corrupted '{error!s}'.".format(error=e)) from e
 
         identifier_parts = identifier.split('.', 1)
         if len(identifier_parts) != 2:
@@ -144,7 +143,7 @@ class GraderAuthentication(ServiceAuthentication[GraderUser], BaseAuthentication
         user_id, exercise_id = identifier_parts
         try:
             exercise = BaseExercise.objects.get(id=exercise_id)
-        except BaseExercise.DoesNotExist:
-            raise AuthenticationFailed("No valid exercise for exercise token.")
+        except BaseExercise.DoesNotExist as exc:
+            raise AuthenticationFailed("No valid exercise for exercise token.") from exc
 
         return exercise, user_id

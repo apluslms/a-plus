@@ -106,7 +106,7 @@ def remove_newlines(value):
     return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
 
 
-def configure_learning_objects(
+def configure_learning_objects( # noqa: MC0001
         category_map: Dict[str, LearningObjectCategory],
         module: CourseModule,
         config: List[Dict[str, Any]],
@@ -118,10 +118,10 @@ def configure_learning_objects(
     if not isinstance(config, list):
         return n
     for o in config:
-        if not "key" in o:
+        if "key" not in o:
             errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_KEY'))
             continue
-        if not "category" in o:
+        if "category" not in o:
             errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_CATEGORY'))
             continue
         if not o["category"] in category_map:
@@ -147,7 +147,7 @@ def configure_learning_objects(
             else CourseChapter
         )
 
-        if not lobject is None and not isinstance(lobject, lobject_cls):
+        if lobject is not None and not isinstance(lobject, lobject_cls):
             lobject.url = lobject.url + "_old"
             lobject.save()
             lobject = None
@@ -171,8 +171,7 @@ def configure_learning_objects(
                 # The learning object can not be saved without an LTI service
                 # since the foreign key is required.
                 continue
-            else:
-                lobject.lti_service = lti
+            lobject.lti_service = lti
             for key in [
                 "context_id",
                 "resource_link_id",
@@ -204,7 +203,7 @@ def configure_learning_objects(
             ]:
                 if key in o:
                     i = parse_int(o[key], errors)
-                    if not i is None:
+                    if i is not None:
                         setattr(lobject, key, i)
             if "difficulty" in o:
                 lobject.difficulty = o["difficulty"]
@@ -358,7 +357,7 @@ def get_build_log(instance):
     return data
 
 
-def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]:
+def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]: # noqa: MC0001
     """
     Configures course content by trusted remote URL.
     """
@@ -495,7 +494,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 for sid in config["assistants"]:
                     try:
                         profile = UserProfile.get_by_student_id(student_id=sid)
-                    except UserProfile.DoesNotExist as err:
+                    except UserProfile.DoesNotExist as err: # noqa: F841
                         errors.append(
                             format_lazy(
                                 _('COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}'),
@@ -511,11 +510,11 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         instance.full_clean(exclude=['configure_url', 'build_log_url'])
         instance.save()
 
-        if not "categories" in config or not isinstance(config["categories"], dict):
+        if "categories" not in config or not isinstance(config["categories"], dict):
             errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
             transaction.set_rollback(True)
             return False, errors
-        if not "modules" in config or not isinstance(config["modules"], list):
+        if "modules" not in config or not isinstance(config["modules"], list):
             errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
             transaction.set_rollback(True)
             return False, errors
@@ -524,7 +523,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         category_map = {}
         seen = []
         for key, c in config.get("categories", {}).items():
-            if not "name" in c:
+            if "name" not in c:
                 errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
                 continue
             try:
@@ -538,7 +537,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 category.description = str(c["description"])
             if "points_to_pass" in c:
                 i = parse_int(c["points_to_pass"], errors)
-                if not i is None:
+                if i is not None:
                     category.points_to_pass = i
             for field in [
                 "confirm_the_level",
@@ -552,7 +551,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
             seen.append(category.id)
 
         for category in instance.categories.all():
-            if not category.id in seen:
+            if category.id not in seen:
                 category.status = LearningObjectCategory.STATUS.HIDDEN
                 category.save()
 
@@ -562,7 +561,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
         nn = 0
         n = 0
         for m in config.get("modules", []):
-            if not "key" in m:
+            if "key" not in m:
                 errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
                 continue
             try:
@@ -586,7 +585,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 module.status = str(m["status"])
             if "points_to_pass" in m:
                 i = parse_int(m["points_to_pass"], errors)
-                if not i is None:
+                if i is not None:
                     module.points_to_pass = i
             if "introduction" in m:
                 module.introduction = str(m["introduction"])
@@ -624,7 +623,7 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                     module.late_submissions_allowed = True
             if "late_penalty" in m:
                 f = parse_float(m["late_penalty"], errors)
-                if not f is None:
+                if f is not None:
                     module.late_submission_penalty = f
 
             module.full_clean()
@@ -728,12 +727,19 @@ def get_target_category(category, course_url):
     service_hostname = urlparse(settings.BASE_URL).hostname
 
     if parsed_url.hostname != service_hostname:
-        return None, format_lazy(_('COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}'), course_url, service_hostname)
+        return None, format_lazy(
+            _('COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}'),
+            course_url,
+            service_hostname
+        )
 
     try:
         course_slug, instance_slug = parsed_url.path.split('/')[1:3]
     except ValueError:
-        return None, format_lazy(_('COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}'), course_url)
+        return None, format_lazy(
+            _('COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}'),
+            course_url
+        )
 
     try:
         course_instance = CourseInstance.objects.get(url=instance_slug,

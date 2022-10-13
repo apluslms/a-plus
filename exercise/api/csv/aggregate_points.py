@@ -8,7 +8,7 @@ from collections import OrderedDict
 # where xx is the exercise id, yy the submission count and zz the exercise points.
 # For convenience, we also return the total submission count and points for student
 
-def aggregate_points(profiles, taggings, exercises, aggregate):
+def aggregate_points(profiles, taggings, exercises, aggregate): # pylint: disable=too-many-locals
     DEFAULT_FIELDS = [
         'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
     ]
@@ -42,7 +42,9 @@ def aggregate_points(profiles, taggings, exercises, aggregate):
     for profile in profiles:
         uid = profile.user.id
         user_row = agg.get(uid, {})
-        user_tags = [settings.EXTERNAL_USER_LABEL.lower() if profile.is_external else settings.INTERNAL_USER_LABEL.lower()]
+        user_tags = [
+            settings.EXTERNAL_USER_LABEL.lower() if profile.is_external else settings.INTERNAL_USER_LABEL.lower()
+        ]
         # Instead of filtering the Django resultset (which causes a new DB query),
         # we find the users' tags manually from the prefetched array of dicts
         other_tags = list(item for item in all_tags if item["user_id"] == profile.id)

@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger('aplus.cached')
 
 
-class CachedAbstract(object):
+class CachedAbstract:
     KEY_PREFIX = 'abstract'
 
     @classmethod
@@ -18,7 +18,7 @@ class CachedAbstract(object):
         return "%s:%s" % (cls.KEY_PREFIX, ','.join(keys))
 
     @classmethod
-    def invalidate(cls, *models, modifiers=[]):
+    def invalidate(cls, *models, modifiers=[]): # pylint: disable=dangerous-default-value
         cache_key = cls._key(*models, modifiers=modifiers)
         logger.debug("Invalidating cached data for %s", cache_key)
         # The cache is invalid, if the time field is None
@@ -27,7 +27,7 @@ class CachedAbstract(object):
         # the memory at some point, but not before all generations have finished.
         cache.set(cache_key, (None, time()), 60*60)
 
-    def __init__(self, *models, modifiers=[]):
+    def __init__(self, *models, modifiers=[]): # pylint: disable=dangerous-default-value
         self.__models = models
         self.__cache_key = self.__class__._key(*models, modifiers=modifiers)
         self.data = self.__get_data()
@@ -84,24 +84,45 @@ class CachedAbstract(object):
             # New value is not stored in the cache, but returned
             try:
                 curr_dt = datetime.fromtimestamp(curr_data) if curr_data is not None else None
-            except:
+            except: # noqa: E722
                 curr_dt = repr(curr_data)
-            logger.debug("Cache %s was discarded at %s, before generation of a new data with ts %s was completed.", cache_name, curr_dt, gen_start_dt)
+            logger.debug(
+                "Cache %s was discarded at %s, before generation of a new data with ts %s was completed.",
+                cache_name,
+                curr_dt,
+                gen_start_dt
+            )
         elif curr_updated > gen_start:
             # Cache was updated before we were ready, so use the newer value
             try:
                 curr_dt = datetime.fromtimestamp(curr_updated)
-            except:
+            except: # noqa: E722
                 curr_dt = curr_updated
-            logger.debug("Cache %s was updated at %s, before generation of a new data with ts %s was completed. Using newer value from the cache.", cache_name, curr_dt, gen_start_dt)
+            logger.debug(
+                (
+                    "Cache %s was updated at %s, before generation of a new data with ts %s was completed. "
+                    "Using newer value from the cache."
+                ),
+                cache_name,
+                curr_dt,
+                gen_start_dt
+            )
             data = curr_data
         else:
             # We have newer value, so force the cache to this new value
             try:
                 curr_dt = datetime.fromtimestamp(curr_updated)
-            except:
+            except: # noqa: E722
                 curr_dt = curr_updated
-            logger.debug("Cache %s was updated at %s, before generation of a new data with ts %s was completed. Updating the cache with our newer value!", cache_name, curr_dt, gen_start_dt)
+            logger.debug(
+                (
+                    "Cache %s was updated at %s, before generation of a new data with ts %s was completed. "
+                    "Updating the cache with our newer value!"
+                ),
+                cache_name,
+                curr_dt,
+                gen_start_dt
+            )
             cache.set(cache_key, (gen_start, data), None)
             # NOTE: there is a chance that the cache was invalidated between
             # get and this set. To fix that, we would require operation

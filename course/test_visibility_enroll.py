@@ -1,10 +1,9 @@
 from datetime import timedelta
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.urls import reverse
 from django.test import TestCase
-from django.test.client import Client
 from django.utils import timezone
 from django.conf import settings
 
@@ -147,7 +146,7 @@ class CourseVisibilityTest(TestCase):
 
         # submissions
         self.submissions = {}
-        for course_instance_id, exercises in self.learning_objects.items():
+        for _course_instance_id, exercises in self.learning_objects.items():
             for exercise in exercises:
                 if not exercise.is_submittable:
                     continue
@@ -249,7 +248,7 @@ class CourseVisibilityTest(TestCase):
 
         # course content visible to registered users (logged-in users), but user is
         # not in the enrollment audience
-        ext_regist_instance = CourseInstance.objects.create(
+        ext_regist_instance = CourseInstance.objects.create( # noqa: F841
             instance_name="Enrollment audience external - view registered users",
             starting_time=self.yesterday,
             ending_time=self.tomorrow,
@@ -374,7 +373,7 @@ class CourseVisibilityTest(TestCase):
         self.client.logout()
 
         # chapter exercise
-        chapter_exercise = self.learning_objects[self.enrolled_course_instance.id][1]
+        chapter_exercise = self.learning_objects[self.enrolled_course_instance.id][1] # noqa: F841
         url = '/Course-Url/enrolled/test-module/chapter1/embedexercise/plain/'
         # should redirect to A+ login
         response = self.client.get(url)
@@ -430,7 +429,7 @@ class CourseVisibilityTest(TestCase):
         self.client.logout()
 
         # chapter exercise
-        chapter_exercise = self.learning_objects[self.enroll_audience_course_instance.id][1]
+        chapter_exercise = self.learning_objects[self.enroll_audience_course_instance.id][1] # noqa: F841
         url = '/Course-Url/enrollmentaudience/test-module/chapter1/embedexercise/plain/'
         # should redirect to A+ login
         response = self.client.get(url)
@@ -527,7 +526,7 @@ class CourseVisibilityTest(TestCase):
         self.client.logout()
 
         # chapter exercise
-        chapter_exercise = self.learning_objects[self.all_regist_course_instance.id][1]
+        chapter_exercise = self.learning_objects[self.all_regist_course_instance.id][1] # noqa: F841
         url = '/Course-Url/allregistered/test-module/chapter1/embedexercise/plain/'
         # should redirect to A+ login
         response = self.client.get(url)
@@ -583,7 +582,7 @@ class CourseVisibilityTest(TestCase):
         self.client.logout()
 
         # chapter exercise
-        chapter_exercise = self.learning_objects[self.public_course_instance.id][1]
+        chapter_exercise = self.learning_objects[self.public_course_instance.id][1] # noqa: F841
         url = '/Course-Url/public/test-module/chapter1/embedexercise/plain/'
         # anonymous user can open the chapter exercise
         response = self.client.get(url)
@@ -721,7 +720,7 @@ class CourseVisibilityTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # Since there is no exercise service running in the unit test environment,
         # we can not make test submissions to the exercise.
-        success_flag, warnings, students = enroll_exercise.check_submission_allowed(self.user.userprofile)
+        success_flag, warnings, _students = enroll_exercise.check_submission_allowed(self.user.userprofile)
         self.assertEqual(success_flag, BaseExercise.SUBMIT_STATUS.ALLOWED)
         self.assertEqual(len(warnings), 0)
         instance.enroll_student(self.user)

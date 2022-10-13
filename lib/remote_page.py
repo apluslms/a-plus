@@ -42,12 +42,12 @@ def parse_expires(response):
     return parse_http_date_safe(response.headers.get("Expires", "")) or 0
 
 
-def request_for_response(url,
+def request_for_response(url, # pylint: disable=too-many-arguments
         post=False,
         data=None,
         files=None,
         stamp=None,
-        instance_id: Optional[int]=None
+        instance_id: Optional[int] = None
         ) -> Response:
     permissions = Permissions()
     if instance_id is not None:
@@ -87,7 +87,7 @@ def request_for_response(url,
                     response.status_code, request_time, url)
                 if response.status_code == 200:
                     return response
-                elif response.status_code == 304:
+                if response.status_code == 304:
                     raise RemotePageNotModified(parse_expires(response))
                 if response.status_code < 500 or n >= last_retry:
                     response.raise_for_status()
@@ -103,7 +103,7 @@ def request_for_response(url,
         raise RuntimeError("HTTP request loop ended in unexpected state")
     except requests.exceptions.RequestException as e:
         if e.response is not None and e.response.status_code == 404:
-            raise RemotePageNotFound(_('REQUESTED_RESOURCE_NOT_FOUND_FROM_COURSE_SERVICE'))
+            raise RemotePageNotFound(_('REQUESTED_RESOURCE_NOT_FOUND_FROM_COURSE_SERVICE')) from e
         raise RemotePageException(format_lazy(
             _('CONNECTING_TO_COURSE_SERVICE_FAILED -- {code}'),
             code=e.response.status_code if e.response is not None else '-1',
@@ -114,7 +114,7 @@ class RemotePage:
     """
     Represents a page that can be loaded over HTTP for further processing.
     """
-    def __init__(self,
+    def __init__(self, # pylint: disable=too-many-arguments
             url,
             post=False,
             data=None,
@@ -223,11 +223,11 @@ class RemotePage:
         ]:
             self._fix_relative_urls(url, tag, attr)
 
-    def _fix_relative_urls(self, url, tag_name, attr_name):
+    def _fix_relative_urls(self, url, tag_name, attr_name): # pylint: disable=too-many-locals
         # Starts with "#", "//" or "https:".
-        test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE)
+        test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE) # noqa: W605
         # Ends with filename extension ".html" and possibly "#anchor".
-        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE)
+        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE) # noqa: W605
         # Starts with at least one "../".
         start_dotdot_path = re.compile(r"^(../)+")
         # May end with the language suffix _en or _en/#anchor or _en#anchor.
@@ -334,8 +334,8 @@ class RemotePage:
                 element[attr_name] = urljoin(staticurl.geturl(), value)
 
     def find_and_replace(self, attr_name, list_of_attributes):
-        l = len(list_of_attributes)
-        if l == 0:
+        l = len(list_of_attributes) # noqa: E741
+        if l == 0: # noqa: E741
             return
         i = 0
         for element in self.soup.find_all(True, {attr_name:True}):

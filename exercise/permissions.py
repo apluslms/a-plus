@@ -1,11 +1,9 @@
-from django.contrib.auth.models import User
-from django.http import Http404
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import (
     ACCESS,
-    Permission,
     ObjectVisibleBasePermission,
     FilterBackend,
 )
@@ -24,7 +22,7 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
     model = LearningObject
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(self, request, view, exercise): # pylint: disable=arguments-renamed
         """
         Find out if Exercise (LearningObject) is visible to user
         """
@@ -71,6 +69,7 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
 
         return True
 
+
 ExerciseVisiblePermission = ExerciseVisiblePermissionBase | JWTExerciseReadPermission
 
 
@@ -79,7 +78,7 @@ class BaseExerciseAssistantPermission(ObjectVisibleBasePermission):
     model = BaseExercise
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(self, request, view, exercise): # pylint: disable=arguments-renamed
         """
         Make sure views that require assistant are also visible to them.
         Also if view is for grading, make sure assistant is allowed to grade.
@@ -110,7 +109,7 @@ class SubmissionVisiblePermissionBase(ObjectVisibleBasePermission):
     model = Submission
     obj_var = 'submission'
 
-    def is_object_visible(self, request, view, submission):
+    def is_object_visible(self, request, view, submission): # pylint: disable=arguments-renamed
         if isinstance(request.user, GraderUser):
             return False
 
@@ -120,6 +119,7 @@ class SubmissionVisiblePermissionBase(ObjectVisibleBasePermission):
             self.error_msg(_('SUBMISSION_VISIBILITY_ERROR_ONLY_SUBMITTER'))
             return False
         return True
+
 
 SubmissionVisiblePermission = SubmissionVisiblePermissionBase | JWTSubmissionReadPermission
 
@@ -142,7 +142,7 @@ class SubmissionVisibleFilter(FilterBackend):
 class SubmittedFileVisiblePermission(SubmissionVisiblePermissionBase):
     model = SubmittedFile
 
-    def is_object_visible(self, request, view, file):
+    def is_object_visible(self, request, view, file): # pylint: disable=arguments-renamed
         return super().is_object_visible(request, view, file.submission)
 
 
@@ -151,7 +151,7 @@ class ModelVisiblePermission(ObjectVisibleBasePermission):
     model = BaseExercise
     obj_var = 'exercise'
 
-    def is_object_visible(self, request, view, exercise):
+    def is_object_visible(self, request, view, exercise): # pylint: disable=arguments-renamed
         """
         Find out if exercise's model answer is visible to user
         """

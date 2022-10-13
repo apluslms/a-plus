@@ -1,10 +1,7 @@
-from datetime import timedelta
 from typing import Any, Dict, List, Union
 
 from django import template
-from django.conf import settings
 from django.db import models
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
@@ -47,7 +44,7 @@ def group_select(context):
 
 @register.filter
 def escape_slashes(string):
-    return str(string).replace('/', '\/')
+    return str(string).replace('/', '\/') # noqa: W605
 
 @register.filter
 def parse_localization(entry):
@@ -153,4 +150,3 @@ def view_content_to(view_content_to_val):
 @register.filter
 def is_banned_student(profile, course_instance):
     return course_instance.is_banned(profile.user)
-

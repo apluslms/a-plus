@@ -1,13 +1,11 @@
 import json
-import os.path
 import urllib
 from datetime import datetime, timedelta
 from io import BytesIO, StringIO
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.utils import timezone
@@ -17,16 +15,18 @@ from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory
 from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
+from exercise.exercise_models import build_upload_dir
 from exercise.exercise_summary import UserExerciseSummary
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject, \
     RevealRule
 from exercise.protocol.exercise_page import ExercisePage
 from exercise.reveal_states import ExerciseRevealState
+from exercise.submission_models import build_upload_dir as build_upload_dir_for_submission_model
 from lib.helpers import build_aplus_url
 
 class ExerciseTest(TestCase):
-    def setUp(self):
+    def setUp(self): # pylint: disable=too-many-statements
         self.user = User(username="testUser", first_name="First", last_name="Last")
         self.user.set_password("testPassword")
         self.user.save()
@@ -379,7 +379,7 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.exercise_in_reading_time.one_has_access([self.user.userprofile], self.tomorrow)[0])
 
     def test_base_exercise_submission_allowed(self):
-        status, errors, students = (
+        status, errors, _students = (
             self.base_exercise.check_submission_allowed(self.user.userprofile))
         self.assertNotEqual(status, self.base_exercise.SUBMIT_STATUS.ALLOWED)
         self.assertEqual(len(errors), 1)
@@ -414,7 +414,7 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_submission_deviation(self):
         self.assertFalse(self.base_exercise.one_has_submissions([self.user.userprofile])[0])
-        deviation = MaxSubmissionsRuleDeviation.objects.create(
+        deviation = MaxSubmissionsRuleDeviation.objects.create( # noqa: F841
             exercise=self.base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
@@ -424,7 +424,7 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_deadline_deviation(self):
         self.assertFalse(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
-        deviation = DeadlineRuleDeviation.objects.create(
+        deviation = DeadlineRuleDeviation.objects.create( # noqa: F841
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
@@ -449,15 +449,25 @@ class ExerciseTest(TestCase):
 
     def test_base_exercise_async_url(self):
         language = 'en'
-        # the order of the parameters in the returned service url is non-deterministic, so we check the parameters separately
-        split_base_exercise_service_url = self.base_exercise._build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service').split("?")
-        split_static_exercise_service_url = self.static_exercise._build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service').split("?")
+        # the order of the parameters in the returned service url is non-deterministic,
+        # so we check the parameters separately
+        split_base_exercise_service_url = (
+            self.base_exercise.
+            _build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service')
+            .split("?")
+        )
+        split_static_exercise_service_url = (
+            self.static_exercise
+            ._build_service_url(language, [self.user.userprofile], 1, 'exercise', 'service')
+            .split("?")
+        )
         self.assertEqual("", split_base_exercise_service_url[0])
         self.assertEqual("/testServiceURL", split_static_exercise_service_url[0])
         # a quick hack to check whether the parameters are URL encoded
         self.assertFalse("/" in split_base_exercise_service_url[1] or ":" in split_base_exercise_service_url[1])
         self.assertFalse("/" in split_static_exercise_service_url[1] or ":" in split_static_exercise_service_url[1])
-        # create dictionaries from the parameters and check each value. Note: parse_qs changes encoding back to regular utf-8
+        # create dictionaries from the parameters and check each value.
+        # Note: parse_qs changes encoding back to regular utf-8
         base_exercise_url_params = urllib.parse.parse_qs(split_base_exercise_service_url[1])
         static_exercise_url_params = urllib.parse.parse_qs(split_static_exercise_service_url[1])
         self.assertEqual(['100'], base_exercise_url_params['max_points'])
@@ -481,7 +491,6 @@ class ExerciseTest(TestCase):
         self.assertEqual("test_submission_content", static_exercise_page.content)
 
     def test_exercise_upload_dir(self):
-        from exercise.exercise_models import build_upload_dir
         self.assertEqual("course_instance_1/exercise_attachment_5/test_file_name",
                          build_upload_dir(self.exercise_with_attachment, "test_file_name"))
 
@@ -667,11 +676,16 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.submission.is_graded)
 
     def test_submission_absolute_url(self):
-        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/1/", self.submission.get_absolute_url())
-        self.assertEqual("/Course-Url/T-00.1000_d1/test-module/b1/submissions/3/", self.late_submission.get_absolute_url())
+        self.assertEqual(
+            "/Course-Url/T-00.1000_d1/test-module/b1/submissions/1/",
+            self.submission.get_absolute_url()
+        )
+        self.assertEqual(
+            "/Course-Url/T-00.1000_d1/test-module/b1/submissions/3/",
+            self.late_submission.get_absolute_url()
+        )
 
     def test_submission_upload_dir(self):
-        from exercise.submission_models import build_upload_dir
         submitted_file1 = SubmittedFile.objects.create(
             submission=self.submission,
             param_name="testParam"
@@ -681,8 +695,14 @@ class ExerciseTest(TestCase):
             submission=self.submission_with_two_submitters,
             param_name="testParam2"
         )
-        self.assertEqual("course_instance_1/submissions/exercise_3/users_1/submission_1/test_file_name", build_upload_dir(submitted_file1, "test_file_name"))
-        self.assertEqual("course_instance_1/submissions/exercise_3/users_1-4/submission_2/test_file_name", build_upload_dir(submitted_file2, "test_file_name"))
+        self.assertEqual(
+            "course_instance_1/submissions/exercise_3/users_1/submission_1/test_file_name",
+            build_upload_dir_for_submission_model(submitted_file1, "test_file_name")
+        )
+        self.assertEqual(
+            "course_instance_1/submissions/exercise_3/users_1-4/submission_2/test_file_name",
+            build_upload_dir_for_submission_model(submitted_file2, "test_file_name")
+        )
 
     def test_exercise_views(self):
         upcoming_module = CourseModule.objects.create(
@@ -887,7 +907,9 @@ class ExerciseTest(TestCase):
 
         self.assertFalse(self.base_exercise.can_show_model_solutions_to_student(self.user)) # module is open
         self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user)) # module is closed
-        self.assertFalse(self.base_exercise_with_late_submission_allowed.can_show_model_solutions_to_student(self.user)) # module is open
+        self.assertFalse(
+            self.base_exercise_with_late_submission_allowed.can_show_model_solutions_to_student(self.user)
+        ) # module is open
         self.assertFalse(base_exercise_with_late_open.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
 
@@ -997,7 +1019,10 @@ class ExerciseTest(TestCase):
         self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today)
         reveal_rule.trigger = RevealRule.TRIGGER.DEADLINE_ALL
         self.assertFalse(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
-        self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today + timedelta(minutes=30))
+        self.assertEqual(
+            reveal_rule.get_reveal_time(user2_old_reveal_state_deviation),
+            self.today + timedelta(minutes=30)
+        )
 
         deadline_rule_deviation_old_base_exercise.delete()
 
@@ -1070,22 +1095,82 @@ class ExerciseTest(TestCase):
         # - for user 2 exercise 1 should be 0
         # - for user 2 exercise 2 should be 1
         for submission_data in [
-            {'exercise': points_test_base_exercise_1, 'grade': 5, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 10, 'status': Submission.STATUS.REJECTED, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_2, 'grade': 6, 'status': Submission.STATUS.READY, 'force_exercise_points': True},
-            {'exercise': points_test_base_exercise_2, 'grade': 10, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_2, 'grade': 0, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 5,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 10,
+                'status': Submission.STATUS.REJECTED,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 1,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 6,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': True
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 10,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 0,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
         ]:
             submission = Submission.objects.create(**submission_data)
             submission.submitters.add(self.user.userprofile)
         for submission_data in [
-            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_1, 'grade': 1, 'status': Submission.STATUS.INITIALIZED, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_2, 'grade': 2, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_2, 'grade': 1, 'status': Submission.STATUS.READY, 'force_exercise_points': False},
-            {'exercise': points_test_base_exercise_2, 'grade': 0, 'status': Submission.STATUS.UNOFFICIAL, 'force_exercise_points': False},
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 1,
+                'status': Submission.STATUS.INITIALIZED,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 1,
+                'status': Submission.STATUS.INITIALIZED,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_1,
+                'grade': 1,
+                'status': Submission.STATUS.INITIALIZED,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 2,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 1,
+                'status': Submission.STATUS.READY,
+                'force_exercise_points': False
+            },
+            {
+                'exercise': points_test_base_exercise_2,
+                'grade': 0,
+                'status': Submission.STATUS.UNOFFICIAL,
+                'force_exercise_points': False
+            },
         ]:
             submission = Submission.objects.create(**submission_data)
             submission.submitters.add(self.user2.userprofile)

@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
-from course.models import LearningObjectCategory, Course, CourseModule, CourseInstance, UserTag
+from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
@@ -167,7 +167,7 @@ class CourseInstanceForm(forms.ModelForm):
         self.instance.set_assistants(self.cleaned_data['assistants'])
         self.instance.set_teachers(self.cleaned_data['teachers'])
 
-        return super(CourseInstanceForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class CourseIndexForm(forms.ModelForm):
@@ -305,7 +305,7 @@ class CloneInstanceForm(forms.Form):
                     required=False,
                     initial=False,
                 )
-        except Exception as e:
+        except Exception:
             logger.exception("Error getting instances from SIS.")
 
     def set_initial_git_origin(self) -> None:
@@ -366,7 +366,7 @@ class SelectUsersForm(forms.Form):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         course_instance = kwargs.pop('instance')
-        super(SelectUsersForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['user'].widget.search_api_url = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
         self.fields['user'].queryset = course_instance.get_student_profiles()

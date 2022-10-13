@@ -1,5 +1,20 @@
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generator, Generic, Iterable, List, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    overload
+)
 
 from aplus_auth import settings as auth_settings
 from aplus_auth.payload import Payload, Permission, PermissionItem, PermissionItemList, Permissions
@@ -24,9 +39,9 @@ _jwt_accessible_managers: Dict[str, JWTAccessible] = {}
 
 TModel = TypeVar("TModel", bound=models.Model)
 @overload
-def register_jwt_accessible_class(type_id: str) -> Callable[[Type[TModel]], Type[TModel]]: ...
+def register_jwt_accessible_class(type_id: str) -> Callable[[Type[TModel]], Type[TModel]]: ... # noqa: E704
 @overload
-def register_jwt_accessible_class(cls: Type[TModel], type_id: str) -> Type[TModel]: ...
+def register_jwt_accessible_class(cls: Type[TModel], type_id: str) -> Type[TModel]: ... # noqa: E704
 def register_jwt_accessible_class(cls, type_id = None): # type: ignore
     """
     a decorator to register a model to be accessible through JWT
@@ -34,7 +49,7 @@ def register_jwt_accessible_class(cls, type_id = None): # type: ignore
     cls.objects must inherit JWTAccessible
     """
     def wrapper(cls: Type[TModel]) -> Type[TModel]:
-        global _jwt_accessible_managers
+        global _jwt_accessible_managers # pylint: disable=global-variable-not-assigned
         if not isinstance(cls.objects, JWTAccessible):
             raise TypeError(f"{cls} does not have a JWTAccessible manager")
         _jwt_accessible_managers[type_id] = cls.objects
@@ -44,14 +59,13 @@ def register_jwt_accessible_class(cls, type_id = None): # type: ignore
         # cls is actually type_id
         type_id = cls
         return wrapper
-    else:
-        return wrapper(cls)
+    return wrapper(cls)
 
 
 def _get_objects_from_permission(
         user: AnyUser,
         payload: Payload,
-        type: str,
+        type: str, # pylint: disable=redefined-builtin
         permission: Permission,
         kwargs: Dict[str, Any]
         ) -> Iterable[Any]:
@@ -60,11 +74,11 @@ def _get_objects_from_permission(
     Raises AuthenticationFailed if the user doesn't have permission.
     Create permissions do not have objects, so they should return empty lists if kwargs are otherwise ok.
     """
-    global _jwt_accessible_managers
+    global _jwt_accessible_managers # pylint: disable=global-variable-not-assigned
     cls = _jwt_accessible_managers.get(type)
     if cls is None:
         # Fail by default
-        logger.info(f"Missing jwt class for type {type}")
+        logger.info(f"Missing jwt class for type {type}") # pylint: disable=logging-fstring-interpolation
         raise AuthenticationFailed(format_lazy(
             _("NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"),
             permission=permission,
@@ -74,7 +88,9 @@ def _get_objects_from_permission(
 
     items = cls.from_jwt_permission(user, payload, permission, kwargs, auth_settings().DISABLE_LOGIN_CHECKS)
     if items is None:
-        logger.info(f"{payload.sub} (signed by {payload.iss}) tried to get {permission} access to {type} with {kwargs}")
+        logger.info( # pylint: disable=logging-fstring-interpolation
+            f"{payload.sub} (signed by {payload.iss}) tried to get {permission} access to {type} with {kwargs}"
+        )
         raise AuthenticationFailed(format_lazy(
             _("NO_JWT_PERMISSION -- {permission}, {type}, {kwargs}"),
             permission=permission,
@@ -108,7 +124,7 @@ def _get_objects_from_permissions(
     )
 
 
-_objT = TypeVar("_objT")
+_objT = TypeVar("_objT") # noqa: N816
 class ObjectPermissionList(Generic[_objT]):
     def __init__(self):
         self.creates: List[PermissionItem] = []
@@ -121,13 +137,20 @@ class ObjectPermissionList(Generic[_objT]):
         assert permission != Permission.CREATE
         self.instances.append((permission, obj))
 
-    def get_creates(self, **kwargs: Any) -> Generator[Union[Tuple[None, None], Tuple[Permission, Dict[str, Any]]], None, None]:
+    def get_creates(
+        self,
+        **kwargs: Any
+    ) -> Generator[Union[Tuple[None, None], Tuple[Permission, Dict[str, Any]]], None, None]:
         for value in self.creates:
             for k, v in kwargs.items():
                 if k not in value[1] or value[1][k] != v:
                     yield value
 
-    def get_create(self, raise_if_multiple = False, **kwargs: Any) -> Tuple[Optional[Permission], Optional[Dict[str, Any]]]:
+    def get_create(
+        self,
+        raise_if_multiple = False,
+        **kwargs: Any
+    ) -> Tuple[Optional[Permission], Optional[Dict[str, Any]]]:
         g = self.get_creates(**kwargs)
         v = next(g, (None, None))
         if raise_if_multiple:
@@ -135,21 +158,18 @@ class ObjectPermissionList(Generic[_objT]):
             if v2 is not None:
                 raise KeyError("Multiple permissions match given conditions")
             return v
-        else:
-            return v
+        return v
 
     def has(self, obj: _objT, permission: Permission = None):
         assert permission != Permission.CREATE
         if permission is None:
             return any((obj == o for _,o in self.instances))
-        else:
-            return (permission, obj) in self.instances
+        return (permission, obj) in self.instances
 
     def __contains__(self, item: Union[_objT, Tuple[Permission, _objT]]):
         if isinstance(item, tuple):
             return self.has(item[1], item[0])
-        else:
-            return self.has(item)
+        return self.has(item)
 
     @staticmethod
     def from_payload(user: AnyUser, payload: Payload, permission_items: PermissionItemList):

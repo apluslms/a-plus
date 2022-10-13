@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance
@@ -30,13 +30,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             course_instance = CourseInstance.objects.get(id=options['course_instance_id'])
-        except CourseInstance.DoesNotExist:
-            raise CommandError(f"CourseInstance id={options['course_instance_id']} does not exist!")
+        except CourseInstance.DoesNotExist as exc:
+            raise CommandError(f"CourseInstance id={options['course_instance_id']} does not exist!") from exc
 
         nonexistent_ids = []
         counter = 0
         try:
-            with open(options['student_list_file'], 'r') as f:
+            with open(options['student_list_file'], 'r', encoding="utf-8") as f:
                 for row in f:
                     identifier = row.strip()
                     if identifier:
@@ -59,11 +59,11 @@ class Command(BaseCommand):
                                     counter += 1
                             except UserProfile.DoesNotExist:
                                 nonexistent_ids.append(identifier)
-        except FileNotFoundError:
-            raise CommandError(f"The student list file {options['student_list_file']} was not found!")
+        except FileNotFoundError as exc:
+            raise CommandError(f"The student list file {options['student_list_file']} was not found!") from exc
         except OSError as e:
             self.print_results(course_instance, counter, nonexistent_ids)
-            raise CommandError("Error in reading the student list file: " + str(e))
+            raise CommandError("Error in reading the student list file: " + str(e)) from e
 
         self.print_results(course_instance, counter, nonexistent_ids)
 
@@ -78,4 +78,3 @@ class Command(BaseCommand):
             f"Enrolled {counter} students in the course "
             f"{course_instance.course.url}/{course_instance.url} {str(course_instance)}.",
         )
-

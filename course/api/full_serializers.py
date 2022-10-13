@@ -10,7 +10,7 @@ from lib.api.serializers import (
 from exercise.api.full_serializers import TreeExerciseSerializer
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from ..models import (
     CourseInstance,
     Course,
@@ -20,7 +20,12 @@ from ..models import (
 )
 from exercise.models import BaseExercise
 from userprofile.models import UserProfile
-from .serializers import *
+from .serializers import (
+    CourseBriefSerializer,
+    CourseNewsBriefSerializer,
+    CourseStudentGroupBriefSerializer,
+    CourseUsertagBriefSerializer
+)
 
 
 __all__ = [
@@ -163,7 +168,7 @@ class CourseWriteSerializer(AplusModelSerializer):
 
         course.set_teachers(users)
 
-    def validate(self, data: OrderedDict) -> OrderedDict:
+    def validate(self, data: OrderedDict) -> OrderedDict: # pylint: disable=arguments-renamed
         # Take out fields that cannot be handled by standard serializer logic
         self.code = data.pop('code')
         self.name = data.pop('name')
@@ -210,7 +215,7 @@ class CourseWriteSerializer(AplusModelSerializer):
         # otherwise the superclass to_representation call starts nagging
         for i in ['code', 'name', 'course_url']:
             self.fields.pop(i)
-        resp = super(CourseWriteSerializer, self).to_representation(instance)
+        resp = super().to_representation(instance)
         resp['code'] = instance.course.code
         resp['name'] = instance.course.name
         resp['course_url'] = instance.course.url
@@ -239,7 +244,7 @@ class CourseUsertagSerializer(CourseUsertagBriefSerializer):
             'taggings',
         )
 
-    def validate(self, data):
+    def validate(self, data): # pylint: disable=arguments-renamed
         # Name is enough, slug will be automatically generated
         data = super().validate(data)
         if not data['name']:
@@ -268,7 +273,7 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
             }
         }
 
-    def validate(self, data):
+    def validate(self, data): # pylint: disable=arguments-renamed
         """
         Check that data.user has at least one of the fields in required.
         """
@@ -304,20 +309,20 @@ class CourseUsertaggingsSerializer(AplusModelSerializer):
                slug=tag_dict['slug'],
                course_instance=self.context['course_id']
             )
-        except UserTag.DoesNotExist:
+        except UserTag.DoesNotExist as exc:
             # 404 with description
             raise exceptions.NotFound(
                  "Tag with slug {slug} was not found".format(
                      slug=tag_dict['slug']
                  )
-            )
-        except UserProfile.DoesNotExist:
+            ) from exc
+        except UserProfile.DoesNotExist as exc:
             raise exceptions.NotFound(
                  "User identified with {key}:{value} was not found".format(
                      key=first_in_required,
                      value=user_dict[first_in_required]
                  )
-            )
+            ) from exc
         obj, created = UserTagging.objects.set(user, tag)
         if not created:
             raise serializers.ValidationError(

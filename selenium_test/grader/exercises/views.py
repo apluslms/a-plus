@@ -1,3 +1,4 @@
+import requests
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -56,7 +57,6 @@ def ajax(request):
         if not url:
             return respond_text('{ "errors": ["Missing submission_url"] }')
 
-        import requests
         response = requests.post(url, timeout=3, data={
             "points": points,
             "max_points": max_points,

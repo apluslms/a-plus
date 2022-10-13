@@ -25,7 +25,7 @@ class _MediaType(mediatypes._MediaType):
 
     @full_type.setter
     def full_type(self, value):
-        self.main_type, sep, self.sub_type = value.partition('/')
+        self.main_type, _sep, self.sub_type = value.partition('/')
 
     @full_type.deleter
     def full_type(self):
@@ -57,7 +57,7 @@ class APlusVersioning(URLPathVersioning):
     invalid_accept_version_message = AcceptHeaderVersioning.invalid_version_message
 
     def determine_version(self, request, *args, **kwargs):
-        major_version = super(APlusVersioning, self).determine_version(request, *args, **kwargs)
+        major_version = super().determine_version(request, *args, **kwargs)
         api_version = self.allowed_versions[major_version]
 
         ## get and update version in request media type
@@ -85,7 +85,7 @@ class APlusContentNegotiation(DefaultContentNegotiation):
     Real solution would do it in media_type_matches function in django rest framework
     """
     def get_accept_list(self, request):
-        accept_list = super(APlusContentNegotiation, self).get_accept_list(request)
+        accept_list = super().get_accept_list(request)
         accepts = []
         for accept in accept_list:
             if accept.startswith('application/json'):

@@ -2,13 +2,12 @@ from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
 
 from .exceptions import ValidationFailed
 from .permissions import NoPermission
 
 
-class AuthDispatchBase(object):
+class AuthDispatchBase:
 
     def initialize_request(self, request, *args, **kwargs):
         return request
@@ -49,7 +48,7 @@ class AuthenticationMixin(AccessMixin):
         will instead be performed lazily, the first time either
         `request.user` or `request.auth` is accessed.
         """
-        request.user
+        request.user # pylint: disable=pointless-statement
 
     def handle_no_permission(self):
         """
@@ -80,7 +79,7 @@ class AuthenticationMixin(AccessMixin):
         super().validate_request(request, *args, **kwargs)
 
 
-class AuthorizationMixin(object):
+class AuthorizationMixin:
     """
     Authorization mixin adds components to handle access control restrictions
     to different views.
@@ -129,7 +128,7 @@ class AuthorizationMixin(object):
         super().validate_request(request, *args, **kwargs)
 
 
-class ResourceMixin(object):
+class ResourceMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__attr = []
@@ -140,7 +139,6 @@ class ResourceMixin(object):
         Should raise Http404 if the request does not reach a resource.
         Use self.note to announce attributes of further interest.
         """
-        pass
 
     def get_common_objects(self):
         """
@@ -148,7 +146,6 @@ class ResourceMixin(object):
         are common for different HTTP methods, e.g. get and post.
         Use self.note to announce attributes of further interest.
         """
-        pass
 
     def note(self, *args):
         """
@@ -192,7 +189,6 @@ class AuthorizedResourceMixin(AuthenticationMixin,
      - AuthorizationMixin.check_permissions()        Check authorization using permissions
      - ResourceMixin.get_common_objects()            Load common resources after accepted control
     """
-    pass
 
     # Used to debug call order and to make sure it is correct
     #_ident = 0

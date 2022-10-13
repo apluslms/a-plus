@@ -10,12 +10,12 @@ register = template.Library()
 
 
 @register.inclusion_tag("news/user_news.html", takes_context=True)
-def user_news(context, num, more=0):
-    if not 'instance' in context:
+def user_news(context, num, more=0): # pylint: disable=unused-argument
+    if 'instance' not in context:
         raise TagUsageError()
-    if not 'now' in context:
+    if 'now' not in context:
         context['now'] = timezone.now()
-    if not 'course_news' in context:
+    if 'course_news' not in context:
         context['course_news'] = CachedNews(context['instance'])
     news = context['course_news']
 

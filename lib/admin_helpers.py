@@ -33,7 +33,7 @@ class RecentCourseInstanceListFilter(admin.SimpleListFilter):
         ).order_by('-starting_time')[:15]
         for course_instance in course_instances:
             yield (str(course_instance.pk), str(course_instance))
-
+    # pylint: disable=inconsistent-return-statements
     def queryset(self, request: HttpRequest, queryset: QuerySet) -> Optional[QuerySet]:
         course_instance_id = self.value()
         if course_instance_id is not None:

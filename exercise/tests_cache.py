@@ -113,7 +113,7 @@ class CachedContentTest(CourseTestCase):
             order=1,
         )
         c = CachedContent(self.instance)
-        exercise,tree,prev,nex = c.find(self.subexercise)
+        _exercise,_tree,_prev,nex = c.find(self.subexercise)
         self.assertEqual(nex['type'], 'module')
         self.assertEqual(nex['id'], self.module2.id)
 
@@ -144,7 +144,7 @@ class CachedPointsTest(CourseTestCase):
         self.submission2.save()
         c = CachedContent(self.instance)
         p = CachedPoints(self.instance, self.student, c)
-        entry,tree,_,_ = p.find(self.exercise)
+        entry,_tree,_,_ = p.find(self.exercise)
         self.assertTrue(entry['graded'])
         self.assertTrue(entry['passed'])
         self.assertEqual(entry['points'], 50)

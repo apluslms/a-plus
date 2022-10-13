@@ -25,12 +25,12 @@ class AppsTest(TestCase):
                                                      title="HTML Plugin",
                                                      views="exercise,course_instance",
                                                      content=HTML_PLUGIN_CONTENT)
-        
+
         self.rss_plugin = RSSPlugin.objects.create(container=self.instance,
                                                    title="RSS Plugin",
                                                    views="course_instance",
                                                    feed_url=RSS_PLUGIN_ADDRESS)
-        
+
         self.iframe_plugin = ExternalIFramePlugin.objects.create(container=self.instance,
                                                                  title="Iframe Plugin",
                                                                  views="exercise",
@@ -59,9 +59,9 @@ class AppsTest(TestCase):
                                            course_instance=self.instance, course=self.course)
         html = renderers[0].render()
         self.assertTrue(HTML_PLUGIN_CONTENT in html)
-        
+
     def test_rss_plugin(self):
         renderers = build_plugin_renderers(RSSPlugin.objects, 'course_instance',
                                            course_instance=self.instance, course=self.course)
-        html = renderers[0].render()
+        html = renderers[0].render() # noqa: unused-variable
         # No real content expected but should not raise errors.

@@ -47,10 +47,16 @@ from .mixins import (
 from ..forms import (
     SubmissionCreateAndReviewForm,
 )
-
-from .serializers import *
-from .full_serializers import *
-from .custom_serializers import *
+#ExerciseSerializer
+from .serializers import SubmissionBriefSerializer, SubmitterStatsBriefSerializer
+from .full_serializers import (
+    ExerciseSerializer,
+    ExerciseGraderSerializer,
+    ExerciseStatisticsSerializer,
+    SubmissionSerializer,
+    SubmissionGraderSerializer
+)
+from .custom_serializers import SubmitterStatsSerializer, UserPointsSerializer
 
 
 class ExerciseViewSet(mixins.RetrieveModelMixin,
@@ -116,7 +122,7 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
         try:
             student = UserProfile.objects.get(user_id=user_id)
         except UserProfile.DoesNotExist:
-            raise PermissionDenied(
+            raise PermissionDenied( # pylint: disable=raise-missing-from
                 "User_id in your grader authentication token doesn't really exist, "
                 "so you can't create new submission with your grader token."
             )
@@ -196,12 +202,12 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         if lookup_url_kwarg in self.kwargs:
             filter_kwargs = {lookup_field.replace('.', '__'): self.kwargs[lookup_url_kwarg]}
             queryset = queryset.filter(**filter_kwargs)
-        return super(ExerciseSubmissionsViewSet, self).filter_queryset(queryset)
+        return super().filter_queryset(queryset)
 
     def retrieve(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
-    def create(self, request, exercise_id, version):
+    def create(self, request, exercise_id, version): # pylint: disable=unused-argument
 
         # TODO:
         # this currently works *ONLY* using a teacher API key
@@ -214,7 +220,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         except BaseExercise.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        allowed_to_submit_status, msg1, msg2 = exercise.check_submission_allowed(submitter)
+        allowed_to_submit_status, _msg1, _msg2 = exercise.check_submission_allowed(submitter)
         if allowed_to_submit_status != exercise.SUBMIT_STATUS.ALLOWED:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -232,29 +238,27 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         if not form.is_valid():
             return Response({'status': 'error', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        else:
+        # check that submitters in whose name the submission is made are enrolled
+        if not exercise.course_module.course_instance.get_student_profiles() \
+                        .filter(pk__in=[s.pk for s in form.cleaned_students]) \
+                        .count() == len(form.cleaned_students):
+            return HttpResponse('Submitters must be enrolled to the course.',
+                                status=status.HTTP_400_BAD_REQUEST)
 
-            # check that submitters in whose name the submission is made are enrolled
-            if not exercise.course_module.course_instance.get_student_profiles() \
-                           .filter(pk__in=[s.pk for s in form.cleaned_students]) \
-                           .count() == len(form.cleaned_students):
-               return HttpResponse('Submitters must be enrolled to the course.',
-                                   status=status.HTTP_400_BAD_REQUEST)
+        sub = Submission.objects.create(exercise=self.exercise)
+        sub.submitters.set(form.cleaned_students)
+        sub.feedback = form.cleaned_data.get("feedback")
+        sub.assistant_feedback = form.cleaned_data.get("assistant_feedback")
+        sub.grading_data = form.cleaned_data.get("grading_data")
+        sub.set_points(form.cleaned_data.get("points"),
+                        self.exercise.max_points, no_penalties=True)
+        sub.submission_time = form.cleaned_data.get("submission_time")
+        sub.grader = submitter
+        sub.grading_time = timezone.now()
+        sub.set_ready()
+        sub.save()
 
-            sub = Submission.objects.create(exercise=self.exercise)
-            sub.submitters.set(form.cleaned_students)
-            sub.feedback = form.cleaned_data.get("feedback")
-            sub.assistant_feedback = form.cleaned_data.get("assistant_feedback")
-            sub.grading_data = form.cleaned_data.get("grading_data")
-            sub.set_points(form.cleaned_data.get("points"),
-                           self.exercise.max_points, no_penalties=True)
-            sub.submission_time = form.cleaned_data.get("submission_time")
-            sub.grader = submitter
-            sub.grading_time = timezone.now()
-            sub.set_ready()
-            sub.save()
-
-            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
     @action(
         detail=False,
@@ -494,9 +498,9 @@ class SubmissionFileViewSet(NestedViewSetMixin,
     }
     queryset = SubmittedFile.objects.all()
 
-    def list(self, request, version=None, submission_id=None):
+    def list(self, request, version=None, submission_id=None): # pylint: disable=arguments-differ unused-argument
         return Response([])
-
+    # pylint: disable-next=arguments-differ unused-argument
     def retrieve(self, request, version=None, submission_id=None, submittedfile_id=None):
         sfile = self.get_object()
         try:

@@ -232,8 +232,8 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
         ]
         try:
             meta_data_dict = json.loads(request.POST.get('__aplus__', '{}'))
-        except json.JSONDecodeError:
-            raise ValueError("The content of the field __aplus__ is not valid json")
+        except json.JSONDecodeError as exc:
+            raise ValueError("The content of the field __aplus__ is not valid json") from exc
         if 'lang' not in meta_data_dict:
             meta_data_dict['lang'] = get_language()
 
@@ -284,6 +284,7 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
         # Retrieve the ten latest submissions since older submissions likely
         # do not have any useful data.
         enrollment_data = {}
+        # pylint: disable-next=unnecessary-lambda-assignment
         keyfunc = lambda t: t[0] # the key in a key-value pair
         for sbms in submissions:
             # submission_data should be a list of key-value pairs, but
@@ -489,7 +490,7 @@ class Submission(UrlMixin, models.Model):
             # Requests supports only one file per name in a multipart post.
             self._files[file.param_name] = (
                 file.filename,
-                open(file.file_object.path, "rb")
+                open(file.file_object.path, "rb") # pylint: disable=consider-using-with
             )
 
         students = list(self.submitters.all())
@@ -502,7 +503,7 @@ class Submission(UrlMixin, models.Model):
         return (self._data, self._files)
 
     def clean_post_parameters(self):
-        for key in self._files.keys():
+        for key in self._files.keys(): # pylint: disable=consider-iterating-dictionary consider-using-dict-items
             self._files[key][1].close()
         del self._files
         del self._data
@@ -797,12 +798,14 @@ class SubmittedFile(UrlMixin, models.Model):
             **self.submission.get_url_kwargs())
 
 
-def _delete_file(sender, instance, **kwargs):
+def _delete_file(sender, instance, **kwargs): # pylint: disable=unused-argument
     """
     Deletes the actual submission files after the submission in database is
     removed.
     """
     instance.file_object.delete(save=False)
+
+
 post_delete.connect(_delete_file, SubmittedFile)
 
 

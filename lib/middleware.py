@@ -12,7 +12,7 @@ class LocaleMiddleware(MiddlewareMixin):
 
     response_redirect_class = HttpResponseRedirect
 
-    def process_request(self, request):
+    def process_request(self, request): # pylint: disable=inconsistent-return-statements
         query_language = request.GET.get('hl')
         if query_language:
             language = query_language

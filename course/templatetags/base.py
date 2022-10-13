@@ -52,7 +52,7 @@ def site_alert():
 
 
 @register.simple_tag
-def site_advert():
+def site_advert(): # pylint: disable=inconsistent-return-statements
     advert = settings.SITEWIDE_ADVERT
     if not advert or not isinstance(advert, dict):
         return

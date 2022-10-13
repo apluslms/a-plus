@@ -37,12 +37,12 @@ def filter_best_submissions(
 
     filtered = []
     for ebest in best.values():
-        for i,g in ebest.values():
+        for i,_g in ebest.values():
             filtered.append(submissions[i])
     return filtered
 
 
-def submissions_sheet(
+def submissions_sheet( # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
         revealed_ids: Set[int],
@@ -67,7 +67,7 @@ def submissions_sheet(
         )
 
     exercise = None
-    for s in submissions:
+    for s in submissions: # pylint: disable=too-many-nested-blocks
         if s.exercise != exercise:
             exercise = s.exercise
             if exercise.exercise_info:
@@ -75,10 +75,10 @@ def submissions_sheet(
                     t = e['type']
                     k = e['key']
                     if t == 'file':
-                        if not k in files:
+                        if k not in files:
                             files.append(k)
                     elif t != 'static':
-                        if not k in fields:
+                        if k not in fields:
                             fields.append(k)
 
         grader = s.grader.user.email if s.grader else None
@@ -103,14 +103,14 @@ def submissions_sheet(
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
             ('GraderEmail', grader),
-            ('Notified', not n is None),
+            ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
         ])
 
         if s.submission_data:
             for k,v in s.submission_data:
-                if v or not k in files:
-                    if not k in fields:
+                if v or k not in files:
+                    if k not in fields:
                         fields.append(k)
                     if k in row:
                         row[k] += "|" + str(v)
@@ -118,7 +118,7 @@ def submissions_sheet(
                         row[k] = str(v)
 
         for f in s.files.all():
-            if not f.param_name in files:
+            if f.param_name not in files:
                 files.append(f.param_name)
             row[f.param_name] = url(s,f)
 

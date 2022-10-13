@@ -7,7 +7,7 @@ from rest_framework.relations import (
     HyperlinkedRelatedField,
     HyperlinkedIdentityField,
 )
-
+# pylint: disable-next=pointless-string-statement
 """
 When nested routes are used in DRF extensions, you could use `NestedHyperlinkedIdentityField`.
 
@@ -73,7 +73,7 @@ class NestedHyperlinkedRelatedField(HyperlinkedRelatedField):
         # FIXME: implement update operations with related fields
         kwargs['read_only'] = True
         kwargs['queryset'] = None
-        super(NestedHyperlinkedRelatedField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @cached_property
     def _lookup_map(self):
@@ -105,13 +105,14 @@ class NestedHyperlinkedRelatedField(HyperlinkedRelatedField):
         map_.update(parent_lookup_map)
         return map_
 
-    def get_url(self, obj, view_name, request, format):
+    def get_url(self, obj, view_name, request, format): # pylint: disable=redefined-builtin
         # Unsaved objects will not have a valid URL.
         if hasattr(obj, 'pk') and obj.pk in (None, ''):
             return None
 
         # get lookup map (will use properties lookup_map and view)
         lookup_map = self._lookup_map
+        # pylint: disable-next=unnecessary-lambda-assignment
         get = lambda x: x(obj) if callable(x) else get_attribute(obj, x.split('.'))
 
         # build kwargs for reverse
@@ -133,13 +134,13 @@ class NestedHyperlinkedRelatedField(HyperlinkedRelatedField):
                     lookup_map=lookup_map,
                     exc=exc,
                 )
-            )
+            ) from exc
 
         try:
             return self.reverse(self.view_name, kwargs=kwargs, request=request, format=format)
         except NoReverseMatch as exc:
             raise ImproperlyConfigured(
-                "Could not resolve URL for hyperlinked relationship in field "
+                "Could not resolve URL for hyperlinked relationship in field " # noqa: F522
                 "`{field}` on serializer `{serializer}`. "
                 "You may have failed to include the related model in your API, "
                 "or incorrectly configured `view_name` or `lookup_map` "
@@ -150,7 +151,7 @@ class NestedHyperlinkedRelatedField(HyperlinkedRelatedField):
                     kwargs=kwargs,
                     exc=exc,
                 )
-            )
+            ) from exc
 
 
 class NestedHyperlinkedIdentityField(NestedHyperlinkedRelatedField, HyperlinkedIdentityField):
@@ -158,4 +159,3 @@ class NestedHyperlinkedIdentityField(NestedHyperlinkedRelatedField, HyperlinkedI
     Represents a nested hyperlinked resource itself.
     Will get lookup_map from view class in serializer context
     """
-    pass

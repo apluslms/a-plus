@@ -47,9 +47,9 @@ class RevealRule(models.Model):
 
         if self.trigger == RevealRule.TRIGGER.MANUAL:
             return self.currently_revealed
-        elif self.trigger == RevealRule.TRIGGER.IMMEDIATE:
+        if self.trigger == RevealRule.TRIGGER.IMMEDIATE:
             return True
-        elif self.trigger in [
+        if self.trigger in [
             RevealRule.TRIGGER.TIME,
             RevealRule.TRIGGER.DEADLINE,
             RevealRule.TRIGGER.DEADLINE_ALL
@@ -84,7 +84,7 @@ class RevealRule(models.Model):
 
         if self.trigger == RevealRule.TRIGGER.TIME:
             return self.time
-        elif self.trigger == RevealRule.TRIGGER.DEADLINE:
+        if self.trigger == RevealRule.TRIGGER.DEADLINE:
             deadline = state.get_deadline()
             if deadline is not None:
                 return deadline + datetime.timedelta(minutes=self.delay_minutes or 0)

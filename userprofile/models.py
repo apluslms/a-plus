@@ -1,8 +1,9 @@
+import hashlib
 from typing import Any, Optional, TYPE_CHECKING
 
-from aplus_auth.payload import Permission, Permissions
+from aplus_auth.payload import Permission
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User, AnonymousUser # pylint: disable=imported-auth-user
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save
@@ -87,7 +88,7 @@ class UserProfile(models.Model):
 
     if TYPE_CHECKING:
         id: models.AutoField
-        submissions: RelatedManager['Submission']
+        submissions: RelatedManager['Submission'] # pylint: disable=used-before-assignment
         graded_submissions: RelatedManager['Submission']
         submission_drafts: RelatedManager['SubmissionDraft']
 
@@ -97,15 +98,18 @@ class UserProfile(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        if self.student_id == None:
+        if self.student_id == None: # noqa: E711
             return f"{self.user.username} ({self.user.first_name} {self.user.last_name}, {self.user.email})"
-        else:
-            return f"{self.user.username} ({self.user.first_name} {self.user.last_name}, {self.user.email}, {self.student_id})"
+        return (
+            f"{self.user.username} ({self.user.first_name} {self.user.last_name}, "
+            f"{self.user.email}, "
+            f"{self.student_id})"
+        )
 
     @cached_property
     def api_token(self):
         # FIXME: implement support for more than 1 token
-        token, created = Token.objects.get_or_create(user=self.user)
+        token, _created = Token.objects.get_or_create(user=self.user)
         return token.key
 
     @cached_property
@@ -113,7 +117,6 @@ class UserProfile(models.Model):
         """
         URL address for gravatar image based on the user email.
         """
-        import hashlib
         hash_key = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
         return "http://www.gravatar.com/avatar/" + hash_key + "?d=identicon"
 
@@ -124,7 +127,7 @@ class UserProfile(models.Model):
         """
         try:
             return self.user.first_name + " " + self.user.last_name[0] + "."
-        except:
+        except: # noqa: E722
             return self.user.username
 
     @cached_property
@@ -153,7 +156,7 @@ class UserProfile(models.Model):
             Token.objects.create(user=self.user)
 
 
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance, created, **kwargs): # pylint: disable=unused-argument
     """
     This function automatically creates an user profile for all new User models. The profiles
     are used for extending the User models with domain specific attributes and behavior.
@@ -164,6 +167,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     """
     if created:
         UserProfile.objects.get_or_create(user=instance)
+
 
 # Attach to the post_save signal.
 post_save.connect(create_user_profile, sender=User)

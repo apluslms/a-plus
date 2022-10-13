@@ -1,7 +1,10 @@
+import logging
+import traceback
+from django.db.models.query_utils import DeferredAttribute
 from django.urls import reverse
 
 
-class UrlMixin(object):
+class UrlMixin:
     def get_url(self, name, **add_kwargs):
         kwargs = self.get_url_kwargs()
         kwargs.update(add_kwargs)
@@ -22,10 +25,6 @@ class UrlMixin(object):
 
 
 def install_defer_logger():
-    import logging
-    import traceback
-    from django.db.models.query_utils import DeferredAttribute
-
     logger = logging.getLogger('django.db.deferred')
     orig_get = DeferredAttribute.__get__
 
@@ -36,6 +35,14 @@ def install_defer_logger():
             return self
         if self.field.attname not in instance.__dict__:
             filename, linenum, funcname, command = tuple(traceback.extract_stack()[-2])
-            logger.warning("Resolving deferred: %s.%s in %s, line %s, func %s: %s", instance.__class__.__name__, self.field.attname, filename, linenum, funcname, command)
+            logger.warning(
+                "Resolving deferred: %s.%s in %s, line %s, func %s: %s",
+                instance.__class__.__name__,
+                self.field.attname,
+                filename,
+                linenum,
+                funcname,
+                command
+            )
         return orig_get(self, instance, cls=cls)
     DeferredAttribute.__get__ = get

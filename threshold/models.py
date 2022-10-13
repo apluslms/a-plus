@@ -86,12 +86,12 @@ class Threshold(models.Model):
             return True
         d_points = points_by_difficulty.copy()
         ds,ls = zip(*list((p.difficulty,p.limit) for p in self.points.all()))
-        for i,d in enumerate(ds):
+        for i,d in enumerate(ds): # pylint: disable=too-many-nested-blocks
             if d:
 
                 if self.consume_harder_points:
                     p = d_points.get(d, 0)
-                    l = ls[i]
+                    l = ls[i] # noqa: E741
                     if p < l:
                         for j in range(i + 1, len(ds)):
                             jd = ds[j]
@@ -100,10 +100,9 @@ class Threshold(models.Model):
                                 d_points[jd] -= l - p
                                 d_points[d] = l
                                 break
-                            else:
-                                p += jp
-                                d_points[d] = p
-                                d_points[jd] = 0
+                            p += jp
+                            d_points[d] = p
+                            d_points[jd] = 0
                     else:
                         continue
 

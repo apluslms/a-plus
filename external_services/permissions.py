@@ -9,7 +9,7 @@ class MenuVisiblePermission(ObjectVisibleBasePermission):
     model = MenuItem
     obj_var = 'menu_item'
 
-    def is_object_visible(self, request, view, menu_item):
+    def is_object_visible(self, request, view, menu_item): # pylint: disable=arguments-renamed
         if (not menu_item.enabled
                 or (menu_item.service and not menu_item.service.enabled)):
             return False

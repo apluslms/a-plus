@@ -1,9 +1,8 @@
-from rest_framework import filters, generics, permissions, viewsets, status, mixins
+from rest_framework import filters, viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rest_framework.reverse import reverse
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
 from django.db.models import Prefetch, Q, QuerySet
@@ -12,12 +11,10 @@ from django.utils.translation import gettext_lazy as _
 from exercise.exercise_models import BaseExercise
 from lib.email_messages import email_course_instance
 
-from lib.viewbase import BaseMixin
 from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.statistics import BaseStatisticsView
-from userprofile.permissions import IsAdminOrUserObjIsSelf
 from news.models import News
 
 from edit_course.operations.configure import configure_content
@@ -41,8 +38,18 @@ from ..permissions import (
     IsCourseAdminOrUserObjIsSelf,
     OnlyEnrolledStudentOrCourseStaffPermission,
 )
-from .serializers import *
-from .full_serializers import *
+from .serializers import CourseBriefSerializer, CourseStudentGroupBriefSerializer, StudentBriefSerializer
+from .full_serializers import (
+    CourseModuleSerializer,
+    CourseNewsSerializer,
+    CourseSerializer,
+    CourseStatisticsSerializer,
+    CourseStudentGroupSerializer,
+    CourseUsertagSerializer,
+    CourseUsertaggingsSerializer,
+    CourseWriteSerializer,
+    TreeCourseModuleSerializer
+)
 
 
 class CourseViewSet(ListSerializerMixin,
@@ -121,10 +128,9 @@ class CourseViewSet(ListSerializerMixin,
         return super().get_permissions()
 
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method =='PUT':
+        if self.request.method == 'POST' or self.request.method =='PUT': # pylint: disable=consider-using-in
             return CourseWriteSerializer
-        else:
-            return super().get_serializer_class()
+        return super().get_serializer_class()
 
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
@@ -171,8 +177,7 @@ class CourseViewSet(ListSerializerMixin,
         else:
             if success:
                 return Response()
-            else:
-                return Response(_("SEND_EMAIL_FAILED"))
+            return Response(_("SEND_EMAIL_FAILED"))
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,
@@ -572,11 +577,10 @@ class CourseNewsViewSet(NestedViewSetMixin,
                     Q(audience=AUDIENCE.ALL_USERS) |
                     Q(audience=AUDIENCE.EXTERNAL_USERS)
                 )
-            else:
-                return queryset.filter(
-                    Q(audience=AUDIENCE.ALL_USERS) |
-                    Q(audience=AUDIENCE.INTERNAL_USERS)
-                )
+            return queryset.filter(
+                Q(audience=AUDIENCE.ALL_USERS) |
+                Q(audience=AUDIENCE.INTERNAL_USERS)
+            )
         return queryset
 
 

@@ -91,7 +91,7 @@ class LinkService(ModelWithInheritance):
     def sends_user_info(self):
         return False
 
-    def get_url(self, replace=None, kwargs={}):
+    def get_url(self, replace=None, kwargs={}): # pylint: disable=dangerous-default-value
         '''Return the URL to the launch page of this service.'''
         if self.destination_region > self.DESTINATION_REGION.INTERNAL:
             return reverse('external-service-link', kwargs=kwargs)
@@ -162,7 +162,7 @@ class LTIService(LinkService):
     def api_access(self):
         return self.access_settings == self.LTI_ACCESS.PUBLIC_API_YES
 
-    def get_url(self, replace=None, kwargs={}):
+    def get_url(self, replace=None, kwargs={}): # pylint: disable=dangerous-default-value
         return reverse('lti-login', kwargs=kwargs)
 
 
@@ -256,9 +256,13 @@ class MenuItem(UrlMixin, models.Model):
         errors = {}
         if not self.service:
             if not self.menu_url:
-                errors['menu_url'] = ValidationError(_('MENU_ITEM_ERROR_MENU_URL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'))
+                errors['menu_url'] = ValidationError(_(
+                    'MENU_ITEM_ERROR_MENU_URL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'
+                ))
             if not self.menu_label:
-                errors['menu_label'] = ValidationError(_('MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'))
+                errors['menu_label'] = ValidationError(_(
+                    'MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'
+                ))
         if errors:
             raise ValidationError(errors)
 
@@ -302,8 +306,7 @@ class MenuItem(UrlMixin, models.Model):
     def final_url(self):
         if self.service:
             return self.service.as_leaf_class().get_final_url(self.menu_url)
-        else:
-            return urljoin(self.course_instance.get_absolute_url(), self.menu_url)
+        return urljoin(self.course_instance.get_absolute_url(), self.menu_url)
 
     def get_url_kwargs(self):
         return dict(menu_id=self.id, **self.course_instance.get_url_kwargs())

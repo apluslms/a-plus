@@ -32,7 +32,7 @@ def enroll():
     """
     Traverse the currently open courses that are linked to SIS and update enrollments.
     """
-    from course.models import CourseInstance
+    from course.models import CourseInstance # pylint: disable=import-outside-toplevel
     now = datetime.datetime.now(datetime.timezone.utc)
     # Enroll students for active courses, or those that will start in 14 days
     courses = CourseInstance.objects.filter(

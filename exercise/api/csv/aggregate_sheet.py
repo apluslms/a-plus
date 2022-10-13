@@ -1,14 +1,16 @@
 from collections import OrderedDict
 
 
-def aggregate_sheet(profiles, taggings, exercises, aggregate, number):
+def aggregate_sheet(profiles, taggings, exercises, aggregate, number): # pylint: disable=too-many-locals
     DEFAULT_FIELDS = [
       'UserID', 'StudentID', 'Email', 'Tags',
     ]
     OBJECT_FIELDS = [
       '{} Count', '{} Total', '{} Ratio',
     ]
-    # Count: number of submissions. Total: (best) points. Ratio: float between 0-1, the percentage of points / max_points.
+    # Count: number of submissions.
+    # Total: (best) points.
+    # Ratio: float between 0-1, the percentage of points / max_points.
 
     d = 1 + (len(number.split('.')) if number else 0)
     # If the number parameter is not given, all modules in the course are included.

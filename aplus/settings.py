@@ -4,7 +4,14 @@
 # You can copy local_settings.example.py and start from there.
 ##
 from os.path import abspath, dirname, join
-from django.utils.translation import gettext_lazy as _
+from lib.logging import skip_unreadable_post
+from os import environ
+from r_django_essentials.conf import (
+    update_settings_from_environment,
+    update_settings_with_file,
+    update_secret_from_file,
+    use_cache_template_loader_in_production
+)
 BASE_DIR = dirname(dirname(abspath(__file__)))
 
 
@@ -70,27 +77,45 @@ BRAND_INSTITUTION_NAME_FI = 'Aalto-yliopisto'
 
 WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'
 SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
-SHIBBOLETH_BODY_TEXT = 'Log in with your Aalto University user account by clicking on the button below. FiTech, Open University and programme students as well as staff members must log in here.'
+SHIBBOLETH_BODY_TEXT = (
+    'Log in with your Aalto University user account by clicking on the button below.'
+    'FiTech, Open University and programme students as well as staff members must log in here.'
+)
 SHIBBOLETH_BUTTON_TEXT = 'Log in with Aalto account'
 HAKA_TITLE_TEXT = 'Haka Federation users'
 HAKA_BODY_TEXT = 'If your organization is a member of Haka federation, log in by clicking the button below.'
 HAKA_BUTTON_TEXT = 'Log in with Haka'
 MOOC_TITLE_TEXT = 'Users external to Aalto'
-MOOC_BODY_TEXT = 'Some of our courses are open for everyone. Log in with your user account from one of the following services.'
+MOOC_BODY_TEXT = (
+    'Some of our courses are open for everyone.'
+    'Log in with your user account from one of the following services.'
+)
 INTERNAL_USER_LABEL = 'Aalto'
 EXTERNAL_USER_LABEL = 'MOOC'
-LOGIN_USER_DATA_INFO = 'Your personal data are stored in {brand_name}. For additional information, please see <a href="{privacy_url}">the privacy notice</a>.'
+LOGIN_USER_DATA_INFO = (
+    'Your personal data are stored in {brand_name}.'
+    'For additional information, please see <a href="{privacy_url}">the privacy notice</a>.'
+)
 
 WELCOME_TEXT_FI = 'A+ <small>verkkopohjainen oppimisympäristö</small>'
 SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
-SHIBBOLETH_BODY_TEXT_FI = 'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
+SHIBBOLETH_BODY_TEXT_FI = (
+    'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta.'
+    'FiTechin, avoimen yliopiston ja koulutusohjelmien opiskelijoiden sekä henkilökunnan täytyy kirjautua tästä.'
+)
 SHIBBOLETH_BUTTON_TEXT_FI = 'Kirjaudu Aalto-tunnuksella'
 HAKA_TITLE_TEXT_FI = 'Haka-käyttäjät'
 HAKA_BODY_TEXT_FI = 'Jos organisaatiosi on Haka-federaation jäsen, kirjaudu palveluun alla olevasta painikkeesta.'
 HAKA_BUTTON_TEXT_FI = 'Kirjaudu Haka-tunnuksella'
 MOOC_TITLE_TEXT_FI = 'Käyttäjät Aallon ulkopuolelta'
-MOOC_BODY_TEXT_FI = 'Osa kursseistamme on avoinna kaikille. Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
-LOGIN_USER_DATA_INFO_FI = 'Henkilötietosi säilytetään {brand_name}-järjestelmässä. Katso lisätietoja <a href="{privacy_url}">tietosuojailmoituksesta</a>.'
+MOOC_BODY_TEXT_FI = (
+    'Osa kursseistamme on avoinna kaikille.'
+    'Kirjaudu sisään jonkin seuraavan palvelun käyttäjätunnuksellasi.'
+)
+LOGIN_USER_DATA_INFO_FI = (
+    'Henkilötietosi säilytetään {brand_name}-järjestelmässä.'
+    'Katso lisätietoja <a href="{privacy_url}">tietosuojailmoituksesta</a>.'
+)
 
 TRACKING_HTML = ''
 
@@ -102,7 +127,9 @@ EXERCISE_HTTP_TIMEOUT = 15
 EXERCISE_HTTP_RETRIES = (5,5,5)
 EXERCISE_ERROR_SUBJECT = """A+ exercise error in {course}: {exercise}"""
 EXERCISE_ERROR_DESCRIPTION = """
-As a course teacher or technical contact you were automatically emailed by A+ about the error incident. A student could not access or submit an exercise because the grading service used is offline or unable to produce valid response.
+As a course teacher or technical contact you were automatically emailed by A+ about the error incident.
+A student could not access or submit an exercise
+because the grading service used is offline or unable to produce valid response.
 
 {message}
 
@@ -424,7 +451,6 @@ TEST_OUTPUT_DIR = "test_results"
 
 # Logging
 # https://docs.djangoproject.com/en/1.7/topics/logging/
-from lib.logging import skip_unreadable_post
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': False,
@@ -511,15 +537,14 @@ ENABLE_DJANGO_DEBUG_TOOLBAR = False
 #
 # Logic to load settings from other files and tune them based on DEBUG
 #
-from os import environ
-from r_django_essentials.conf import *
 
 # Load settings from: local_settings, secret_key and environment
 update_settings_with_file(__name__,
                           environ.get('APLUS_LOCAL_SETTINGS', 'local_settings'),
                           quiet='APLUS_LOCAL_SETTINGS' in environ)
 
-update_settings_from_environment(__name__, 'DJANGO_') # FIXME: deprecated. was used with containers before, so keep it here for now.
+update_settings_from_environment(__name__, 'DJANGO_') # FIXME: deprecated. was used with containers before,
+#so keep it here for now.
 # Load settings from environment variables starting with ENV_SETTINGS_PREFIX (default APLUS_)
 ENV_SETTINGS_PREFIX = environ.get('ENV_SETTINGS_PREFIX', 'APLUS_')
 update_settings_from_environment(__name__, ENV_SETTINGS_PREFIX)
@@ -534,7 +559,7 @@ except NameError as e:
 
 # update INSTALLED_APPS
 if 'INSTALLED_LOGIN_APPS' in globals():
-    INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS
+    INSTALLED_APPS = INSTALLED_LOGIN_APPS + INSTALLED_APPS # pylint: disable=undefined-variable
 
 # update template loaders for production
 use_cache_template_loader_in_production(__name__)
@@ -569,11 +594,12 @@ if ENABLE_DJANGO_DEBUG_TOOLBAR:
     )
     # The following variables may have been defined in local_settings.py or environment variables.
     try:
-        if '127.0.0.1' not in INTERNAL_IPS:
+        if '127.0.0.1' not in INTERNAL_IPS: # pylint: disable=used-before-assignment
             INTERNAL_IPS.append('127.0.0.1')
     except NameError:
         INTERNAL_IPS = ['127.0.0.1']
     try:
+        # pylint: disable-next=used-before-assignment
         DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CONFIG', 'lib.helpers.show_debug_toolbar')
     except NameError:
         DEBUG_TOOLBAR_CONFIG = {

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import AnonymousUser, User # pylint: disable=imported-auth-user
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -9,7 +9,6 @@ from django.utils.formats import date_format
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from authorization.permissions import ACCESS
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
@@ -34,7 +33,7 @@ from .reveal_states import ExerciseRevealState
 from .tasks import regrade_exercises
 
 
-class ExerciseBaseMixin(object):
+class ExerciseBaseMixin:
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
@@ -108,8 +107,8 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
                 self.kwargs[self.exercise_kw]
             )
             return LearningObject.objects.get(id=exercise_id)
-        except (NoSuchContent, LearningObject.DoesNotExist):
-            raise Http404("Learning object not found")
+        except (NoSuchContent, LearningObject.DoesNotExist) as exc:
+            raise Http404("Learning object not found") from exc
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
@@ -164,7 +163,7 @@ class ExerciseModelBaseView(ExerciseModelMixin, BaseTemplateView):
     pass
 
 
-class SubmissionBaseMixin(object):
+class SubmissionBaseMixin:
     submission_kw = "submission_id"
     submission_permission_classes = (
         SubmissionVisiblePermission,
