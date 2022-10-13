@@ -98,4 +98,3 @@ class Command(BaseCommand):
             self.stdout.write(fmt.format(i=instance, c=instance.course, e=num_enrolled, s=num_submissions))
         if i < 0:
             raise CommandError("No course instances in db")
-

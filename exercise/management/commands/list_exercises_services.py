@@ -25,7 +25,7 @@ class Command(BaseCommand):
             help="Limit results to courses, which are currently visible "
                  "to students")
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options): # noqa: MC0001
         services = {}
         content_types = {}
 
@@ -43,11 +43,12 @@ class Command(BaseCommand):
                 try:
                     num = float(num)
                 except ValueError:
-                    raise CommandError("Invalid value '%s' for --max-age" %
+                    raise CommandError("Invalid value '%s' for --max-age" % # pylint: disable=raise-missing-from
                         (after,))
                 if suffix not in suffixes:
+                    # pylint: disable-next=raise-missing-from
                     raise CommandError("Unknown suffix in --max-age=%s; valid: %s" %
-                        (after, ', '.join(k for k in suffixes.keys())))
+                        (after, ', '.join(k for k in suffixes.keys()))) # pylint: disable=consider-iterating-dictionary
                 num = num * suffixes[suffix]
             after = timezone.now() - timedelta(days=num)
             qs = qs.filter(course_module__course_instance__starting_time__gt=after)

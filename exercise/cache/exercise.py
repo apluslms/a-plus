@@ -3,12 +3,10 @@ import time
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from django.conf import settings
-from django.db.models.signals import post_save, post_delete
 from django.http.request import HttpRequest
 
 from lib.cache import CachedAbstract
 from lib.remote_page import RemotePageNotModified
-from ..protocol.aplus import load_exercise_page
 
 if TYPE_CHECKING:
     from course.models import CourseInstance
@@ -32,7 +30,7 @@ class ExerciseCache(CachedAbstract):
     """ Exercise HTML content """
     KEY_PREFIX = "exercise"
 
-    def __init__(
+    def __init__( # pylint: disable=too-many-arguments
             self,
             exercise: 'BaseExercise',
             language: str,
@@ -48,7 +46,7 @@ class ExerciseCache(CachedAbstract):
     def _needs_generation(self, data: Dict[str, Any]) -> bool:
         expires = data['expires'] if data else None
         return not expires or time.time() > expires
-
+    # pylint: disable-next=arguments-differ
     def _generate_data(self, exercise: 'BaseExercise', data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         try:
             page = exercise.load_page(

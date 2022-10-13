@@ -2,7 +2,7 @@ from django.test import TestCase
 from course.models import Course, CourseInstance, CourseModule,\
     LearningObjectCategory
 from exercise.exercise_models import StaticExercise
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta

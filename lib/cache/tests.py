@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from threading import Thread, Event, Barrier
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
 from lib.cache.cached import CachedAbstract
 
@@ -19,13 +19,13 @@ mock_cache = {}
 def mock_delete(key):
     mock_cache.pop(key, None)
 
-def mock_set(key, value, timeout=None):
+def mock_set(key, value, timeout=None): # pylint: disable=unused-argument
     mock_cache[key] = value
 
 def mock_get(key, default=None):
     return mock_cache.get(key, default)
 
-def mock_add(key, value, timeout=None):
+def mock_add(key, value, timeout=None): # pylint: disable=unused-argument
     if key not in mock_cache:
         mock_cache[key] = value
         return True
@@ -82,11 +82,13 @@ class CachedTest(SimpleTestCase):
         If cache is invalidated during a data generation, then the data should not be cached.
         """
         data1 = "Wrong data"
-        def create(data):
+
+        def create(data): # pylint: disable=unused-argument
             TestCached.invalidate()
             return data1
+
         # thread 1 starts to create some data
-        cached1 = TestCached(create)
+        cached1 = TestCached(create) # pylint: disable=unused-variable
         # thread 2 invalidates the cache (in create)
         # thread 1 completes data generation
         # thread 3 retrieves empty cache, thus generates new data
@@ -104,10 +106,12 @@ class CachedTest(SimpleTestCase):
         # thread 3 reads data from thread 2
         data1 = "Wrong data"
         data2 = "Correct Data"
-        def create(data):
-            cached2 = TestCached(lambda x: data2)
+
+        def create(data): # pylint: disable=unused-argument
+            cached2 = TestCached(lambda x: data2) # pylint: disable=unused-variable
             return data1
-        cached1 = TestCached(create)
+
+        cached1 = TestCached(create) # pylint: disable=unused-variable
         cached3 = TestCached(lambda x: "Ignored")
         self.assertEqual(cached3.data, data2)
 
@@ -121,10 +125,11 @@ class CachedTest(SimpleTestCase):
                 event.wait()
                 return data
             return generator
+
         def create_thread(func):
             def run():
-                with cache_patcher() as cache:
-                    cached = TestCached(func)
+                with cache_patcher() as cache: # pylint: disable=unused-variable
+                    cached = TestCached(func) # pylint: disable=unused-variable
             th = Thread(target=run)
             th.start()
             return th

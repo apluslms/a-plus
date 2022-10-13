@@ -50,7 +50,7 @@ class DurationInput(forms.MultiWidget):
             return [None] * len(self.units)
         remainder = value
         unit_values = []
-        for name, factor in self.units:
+        for _name, factor in self.units:
             unit_values.append(remainder // factor)
             remainder = remainder % factor
         return unit_values
@@ -99,7 +99,7 @@ class SearchSelect(forms.SelectMultiple):
     class Media:
         js = ('js/ajax_search_select.js',)
 
-    def __init__(
+    def __init__( # pylint: disable=too-many-arguments keyword-arg-before-vararg
             self,
             ajax: bool = False,
             display_fields: Optional[List[str]] = None,

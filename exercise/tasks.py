@@ -31,7 +31,9 @@ def regrade_exercises(self, exerciseid: int, regrade_type: str) -> None:
     for submission in qs:
         page = exercise.grade(submission)
         for error in page.errors:
-            logger.error(f"regrade_exercises task error (Exercise: {exercise.id}, Submission: {submission.id}): {error}")
+            logger.error( # pylint: disable=logging-fstring-interpolation
+                f"regrade_exercises task error (Exercise: {exercise.id}, Submission: {submission.id}): {error}"
+            )
 
         count += 1
         self.update_state(

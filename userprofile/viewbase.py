@@ -1,9 +1,5 @@
-from django.core.exceptions import PermissionDenied
-from django.template.response import SimpleTemplateResponse
-
 from lib.viewbase import BaseMixin, BaseTemplateView
 from authorization.permissions import ACCESS
-from .models import UserProfile
 
 
 class UserProfileMixin(BaseMixin):

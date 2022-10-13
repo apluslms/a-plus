@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.management.base import BaseCommand
 from django.db.models.query import QuerySet
 from course.models import CourseInstance

@@ -88,4 +88,5 @@ class Notification(UrlMixin, models.Model):
     ABSOLUTE_URL_NAME = "notify"
 
     def get_url_kwargs(self):
+        # pylint: disable-next=use-dict-literal
         return dict(notification_id=self.id, **self.course_instance.get_url_kwargs())

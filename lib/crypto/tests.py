@@ -20,7 +20,7 @@ class SignedMessagesTest(SimpleTestCase):
 
     @patch('time.time', return_value=0)
     @patch('random.getrandbits', return_value=0)
-    def test_encrypting_known_messages(self, mock_random, mock_time):
+    def test_encrypting_known_messages(self, mock_random, mock_time): # pylint: disable=unused-argument
         with self.settings(SECRET_KEY=self.secret):
             encoded1 = get_signed_message(self.message1)
             encoded2 = get_signed_message(self.message2)
@@ -29,7 +29,7 @@ class SignedMessagesTest(SimpleTestCase):
 
     @patch('time.time', return_value=0)
     @patch('random.getrandbits', return_value=0)
-    def test_decrypting_known_messages(self, mock_random, mock_time):
+    def test_decrypting_known_messages(self, mock_random, mock_time): # pylint: disable=unused-argument
         with self.settings(SECRET_KEY=self.secret):
             message1 = get_valid_message(self.encoded1)
             message2 = get_valid_message(self.encoded2)
@@ -38,7 +38,7 @@ class SignedMessagesTest(SimpleTestCase):
 
     @patch('time.time', return_value=1000000000)
     @patch('random.getrandbits', return_value=0)
-    def test_broken_messages(self, mock_random, mock_time):
+    def test_broken_messages(self, mock_random, mock_time): # pylint: disable=unused-argument too-many-locals
         with self.settings(SECRET_KEY=self.secret):
             time = mock_time()
             time_size = 4

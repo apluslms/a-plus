@@ -10,7 +10,7 @@ class CachedNotifications(CachedAbstract):
     def __init__(self, user):
         super().__init__(user)
 
-    def _generate_data(self, user, data=None):
+    def _generate_data(self, user, data=None): # pylint: disable=arguments-differ
         if not user or not user.is_authenticated:
             return {
                 'count': 0,
@@ -56,7 +56,7 @@ class CachedNotifications(CachedAbstract):
         return self.data['notifications']
 
 
-def invalidate_notifications(sender, instance, **kwargs):
+def invalidate_notifications(sender, instance, **kwargs): # pylint: disable=unused-argument
     CachedNotifications.invalidate(instance.recipient.user)
 
 

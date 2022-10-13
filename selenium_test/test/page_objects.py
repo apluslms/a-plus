@@ -1,34 +1,35 @@
 from enum import Enum
-from typing import Any
+import json
 
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from locators import FirstPageLocators, \
-    LoginPageLocators, \
-    BasePageLocators, \
-    EditModulePageLocators, \
-    EditExercisePageLocators, \
-    CourseArchiveLocators, \
-    HomePageLocators, \
-    StaffPageLocators, \
-    TeachersPageLocators, \
-    SubmissionPageLocators, \
-    StudentFeedbackPageLocators, \
-    ExercisePageLocators, \
-    InspectionPageLocators, \
-    MyFirstExerciseLocators, \
-    FileUploadGraderLocators, \
-    MyAjaxExerciseGraderLocators
+from locators import (
+    FirstPageLocators,
+    LoginPageLocators,
+    BasePageLocators,
+    EditModulePageLocators,
+    EditExercisePageLocators,
+    HomePageLocators,
+    StaffPageLocators,
+    TeachersPageLocators,
+    SubmissionPageLocators,
+    StudentFeedbackPageLocators,
+    ExercisePageLocators,
+    InspectionPageLocators,
+    MyFirstExerciseLocators,
+    FileUploadGraderLocators,
+    MyAjaxExerciseGraderLocators,
+)
 
 
 class CourseName(Enum):
     APLUS = 1
     HOOK = 2
 
-class AbstractPage(object):
+class AbstractPage:
     base_url = "http://localhost:8001"
 
     def __init__(self, driver, base_url=base_url):
@@ -45,46 +46,48 @@ class AbstractPage(object):
         # The log command is not supported.
         #self.checkBrowserErrors()
 
-    def openDropdown(self, link, dest, timeout=None):
+    def openDropdown(self, link, dest, timeout=None): # pylint: disable=unused-argument
         self.getElement(link).click()
         self.waitForVisibleElement(dest)
 
     def clickThrough(self, element, timeout=None):
         try:
             self.clickThroughElement(self.getElement(element), timeout)
-        except TimeoutException:
-            raise TimeoutException("Link staleness failed after click: {0}".format(element))
+        except TimeoutException as exc:
+            raise TimeoutException("Link staleness failed after click: {0}".format(element)) from exc
 
     def clickThroughElement(self, link, timeout=None):
         link.click()
         try:
             WebDriverWait(self.driver, timeout or self.wait_timeout).until(EC.staleness_of(link))
-        except TimeoutException:
-            raise TimeoutException("Link staleness failed after click")
+        except TimeoutException as exc:
+            raise TimeoutException("Link staleness failed after click") from exc
 
     def waitForElement(self, element, timeout=None):
         try:
             WebDriverWait(self.driver, timeout or self.wait_timeout).until(EC.presence_of_element_located(element))
-        except TimeoutException:
-            raise TimeoutException("Wait for element failed: {0}".format(element))
+        except TimeoutException as exc:
+            raise TimeoutException("Wait for element failed: {0}".format(element)) from exc
 
     def waitForVisibleElement(self, element):
         try:
             WebDriverWait(self.driver, self.wait_timeout).until(EC.visibility_of_element_located(element))
-        except TimeoutException:
-            raise TimeoutException("Wait for element visibility failed: {0}".format(element))
+        except TimeoutException as exc:
+            raise TimeoutException("Wait for element visibility failed: {0}".format(element)) from exc
 
     def waitForCondition(self, condition):
         try:
             WebDriverWait(self.driver, self.condition_wait_timeout).until(condition)
-        except TimeoutException:
-            raise TimeoutException("Wait for condition failed: {0}".format(condition))
+        except TimeoutException as exc:
+            raise TimeoutException("Wait for condition failed: {0}".format(condition)) from exc
 
     def waitForAjax(self):
         try:
-            WebDriverWait(self.driver, self.wait_timeout).until(lambda driver: driver.execute_script("return jQuery.active") == 0)
-        except TimeoutException:
-            raise TimeoutException("Wait for Ajax timed out.")
+            WebDriverWait(self.driver, self.wait_timeout).until(
+                lambda driver: driver.execute_script("return jQuery.active") == 0
+            )
+        except TimeoutException as exc:
+            raise TimeoutException("Wait for Ajax timed out.") from exc
 
     def checkBrowserErrors(self):
         errors = []
@@ -95,7 +98,7 @@ class AbstractPage(object):
         if (len(errors) > 0):
             for error in errors:
                 print(error)
-            raise Exception("Browser errors found")
+            raise Exception("Browser errors found") # pylint: disable=broad-exception-raised
 
     def getElement(self, locator):
         return self.driver.find_element(*locator)
@@ -127,18 +130,17 @@ class AbstractPage(object):
         element.send_keys(text)
 
     def getJSON(self):
-        import json
         return json.loads(self.driver.find_element_by_tag_name("body").text)
 
 
 class LoginPage(AbstractPage):
-    defaultFullname = "Default User"
-    defaultUsername = "user"
-    defaultPassword = "admin"
-    studentUsername = "student_user"
-    assistantUsername = "assistant_user"
-    teacherUsername = "teacher_user"
-    superuserUsername = "user"
+    defaultFullname = "Default User" # noqa: N815
+    defaultUsername = "user" # noqa: N815
+    defaultPassword = "admin" # noqa: N815
+    studentUsername = "student_user" # noqa: N815
+    assistantUsername = "assistant_user" # noqa: N815
+    teacherUsername = "teacher_user" # noqa: N815
+    superuserUsername = "user" # noqa: N815
 
     def __init__(self, driver):
         AbstractPage.__init__(self, driver)
@@ -281,11 +283,17 @@ class StaffPage(BasePage):
 
     def clickSubmissionLink(self, number):
         submissionLinks = self.getSubmissionLinks()
-        if(number <= len(submissionLinks)):
+        if (number <= len(submissionLinks)):
             self.clickThroughElement(submissionLinks[number])
             self.waitForPage()
         else:
-            raise Exception("Tried to click submission link number " + number + " but there are only " + len(submissionLinks) + " elements.")
+            raise Exception( # pylint: disable=broad-exception-raised
+                "Tried to click submission link number "
+                + number
+                + " but there are only "
+                + len(submissionLinks)
+                + " elements."
+            )
 
 class TeachersPage(BasePage):
     def __init__(self, driver):
@@ -296,7 +304,14 @@ class EditModulePage(BasePage):
     def __init__(self, driver, moduleNumber):
         BasePage.__init__(self, driver)
         if (moduleNumber):
-            self.load("/aplus1/basic_instance/teachers/module/" + str(moduleNumber) + "/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
+            self.load(
+                (
+                    "/aplus1/basic_instance/teachers/module/"
+                    + str(moduleNumber)
+                    + "/"
+                ),
+                EditModulePageLocators.EDIT_MODULE_PAGE_BANNER
+            )
         else:
             # Create new module
             self.load("/aplus1/basic_instance/teachers/module/add/", EditModulePageLocators.EDIT_MODULE_PAGE_BANNER)
@@ -336,7 +351,14 @@ class EditModulePage(BasePage):
 class EditExercisePage(BasePage):
     def __init__(self, driver, exerciseNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/teachers/exercise/" + str(exerciseNumber) + "/", EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER)
+        self.load(
+            (
+                "/aplus1/basic_instance/teachers/exercise/"
+                + str(exerciseNumber)
+                + "/"
+            ),
+            EditExercisePageLocators.EDIT_EXERCISE_PAGE_BANNER
+        )
 
     def getExerciseName(self):
         return str(self.getElement(EditExercisePageLocators.EXERCISE_NAME_INPUT).get_attribute('value'))
@@ -373,7 +395,15 @@ class EditExercisePage(BasePage):
 class SubmissionPage(BasePage):
     def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1"):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) + "/submissions/", SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
+        self.load(
+            (
+                "/aplus1/basic_instance/"
+                + str(moduleId)
+                + "/"
+                + str(exerciseId)
+                + "/submissions/"
+            ),
+            SubmissionPageLocators.SUBMISSIONS_PAGE_BANNER)
 
     def getInspectionLinks(self):
         return self.getElements(SubmissionPageLocators.INSPECTION_LINKS)
@@ -383,16 +413,33 @@ class SubmissionPage(BasePage):
 
     def clickInspectionLink(self, number):
         inspectionLinks = self.getInspectionLinks()
-        if(len(inspectionLinks) >= number):
+        if (len(inspectionLinks) >= number):
             self.clickThroughElement(inspectionLinks.get(number))
             self.waitForPage()
         else:
-            raise Exception("Tried to click inspection link number " + number + " but there are only " + len(inspectionLinks) + " elements.")
+            raise Exception( # pylint: disable=broad-exception-raised
+                "Tried to click inspection link number "
+                + number
+                + " but there are only "
+                + len(inspectionLinks)
+                + " elements."
+            )
 
 class StudentFeedbackPage(BasePage):
     def __init__(self, driver, moduleId="first-exercise-round", exerciseId="1", submissionNumber=1):
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/", StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL)
+        self.load(
+            (
+                "/aplus1/basic_instance/"
+                + str(moduleId)
+                + "/"
+                + str(exerciseId)
+                + "/submissions/"
+                + str(submissionNumber)
+                + "/"
+            ),
+            StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_LABEL
+        )
 
     def getAssistantFeedbackText(self):
         return str(self.getElement(StudentFeedbackPageLocators.ASSISTANT_FEEDBACK_TEXT).text).strip()
@@ -409,7 +456,18 @@ class InspectionPage(BasePage):
             submissionNumber: int = 1,
             ) -> None:
         BasePage.__init__(self, driver)
-        self.load("/aplus1/basic_instance/" + str(moduleId) + "/" + str(exerciseId) +"/submissions/" + str(submissionNumber) + "/inspect/", InspectionPageLocators.ASSESSMENT_BUTTON)
+        self.load(
+            (
+                "/aplus1/basic_instance/"
+                + str(moduleId)
+                + "/"
+                + str(exerciseId)
+                + "/submissions/"
+                + str(submissionNumber)
+                + "/inspect/"
+            ),
+            InspectionPageLocators.ASSESSMENT_BUTTON
+        )
 
     def clickAssessmentButton(self) -> None:
         self.getElement(InspectionPageLocators.ASSESSMENT_BUTTON).click()

@@ -1,7 +1,6 @@
 from urllib.parse import quote
 
-from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.urls import reverse
 from django.test import TestCase, modify_settings, override_settings
 
@@ -105,7 +104,7 @@ class ShibbolethTest(TestCase):
         for domain, studentid in tests:
             with self.subTest(domain=domain, studentid=studentid):
                 env_vars['STUDENT_DOMAIN'] = domain
-                meta['TESTSHIB_schacHomeOrganization'] = domain 
+                meta['TESTSHIB_schacHomeOrganization'] = domain
                 with override_settings(SHIBBOLETH_ENVIRONMENT_VARS=env_vars):
                     response = self._get(meta)
                 self.assertEqual(response.status_code, 302)
@@ -270,7 +269,7 @@ class ShibbolethTest(TestCase):
 class ShibbolethSettingsTest(TestCase):
 
     def test_SHIBBOLETH_VARIABLES_URL_ENCODED_is_migrated(self):
-        settings = dict(
+        settings = dict( # pylint: disable=use-dict-literal
             SHIBBOLETH_VARIABLES_URL_ENCODED = 'test-value',
             SHIBBOLETH_ENVIRONMENT_VARS = {
                 'STUDENT_DOMAIN': ENV_VARS['STUDENT_DOMAIN'],
@@ -278,11 +277,11 @@ class ShibbolethSettingsTest(TestCase):
             },
         )
         with override_settings(**settings):
-            from shibboleth_login.apps import env_settings
+            from shibboleth_login.apps import env_settings # pylint: disable=import-outside-toplevel
             self.assertEqual(env_settings.URL_DECODE, 'test-value')
 
     def test_old_settings_are_parsed_correctly(self):
-        settings = dict(
+        settings = dict( # pylint: disable=use-dict-literal
             SHIB_USER_ID_KEY = 'RANDOM_EPPN',
             SHIB_FIRST_NAME_KEY = 'RANDOM_GIVENNAME',
             SHIB_LAST_NAME_KEY = 'RANDOM_SN',
@@ -291,7 +290,7 @@ class ShibbolethSettingsTest(TestCase):
             SHIBBOLETH_ENVIRONMENT_VARS = {'STUDENT_DOMAIN': ENV_VARS['STUDENT_DOMAIN']},
         )
         with override_settings(**settings):
-            from shibboleth_login.apps import env_settings
+            from shibboleth_login.apps import env_settings # pylint: disable=import-outside-toplevel
             self.assertEqual(env_settings.PREFIX, 'RANDOM_')
             self.assertEqual(env_settings.USER_ID, 'EPPN')
             self.assertEqual(env_settings.FIRST_NAME, 'GIVENNAME')
@@ -300,7 +299,7 @@ class ShibbolethSettingsTest(TestCase):
             self.assertEqual(env_settings.STUDENT_IDS, 'SCHACPERSONALUNIQUECODE')
 
     def test_old_settings_with_http_prefix_are_parsed_correctly(self):
-        settings = dict(
+        settings = dict( # pylint: disable=use-dict-literal
             SHIB_USER_ID_KEY = 'HTTP_SHIB_EPPN',
             SHIB_FIRST_NAME_KEY = 'HTTP_SHIB_GIVENNAME',
             SHIB_LAST_NAME_KEY = 'HTTP_SHIB_SN',
@@ -309,7 +308,7 @@ class ShibbolethSettingsTest(TestCase):
             SHIBBOLETH_ENVIRONMENT_VARS = {'STUDENT_DOMAIN': ENV_VARS['STUDENT_DOMAIN']},
         )
         with override_settings(**settings):
-            from shibboleth_login.apps import env_settings
+            from shibboleth_login.apps import env_settings # pylint: disable=import-outside-toplevel
             self.assertEqual(env_settings.PREFIX, 'HTTP_SHIB_')
             self.assertEqual(env_settings.USER_ID, 'EPPN')
             self.assertEqual(env_settings.FIRST_NAME, 'GIVENNAME')

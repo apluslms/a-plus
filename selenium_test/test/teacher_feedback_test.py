@@ -42,13 +42,18 @@ class TeacherFeedbackTest(unittest.TestCase):
         homePage = HomePage(self.driver)
         self.assertTrue(homePage.hasNewNotifications())
 
-        studentFeedbackPage = StudentFeedbackPage(self.driver, exerciseId=EXERCISE_NUMBER, submissionNumber=SUBMISSION_NUMBER)
+        studentFeedbackPage = StudentFeedbackPage(
+            self.driver,
+            exerciseId=EXERCISE_NUMBER,
+            submissionNumber=SUBMISSION_NUMBER
+        )
         self.assertEqual(studentFeedbackPage.getAssistantFeedbackText(), ASSISTANT_FEEDBACK_TEXT)
         self.assertEqual(studentFeedbackPage.getFeedbackText(), FEEDBACK_TEXT)
         self.assertEqual(FileUploadGrader(self.driver).getPoints(), POINTS)
 
     def tearDown(self):
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -3,8 +3,9 @@ import os
 import sys
 import signal
 
-def sighandler(signum, frame):
+def sighandler(signum, frame): # pylint: disable=unused-argument
     sys.exit(0)
+
 
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sighandler)

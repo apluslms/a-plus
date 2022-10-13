@@ -75,8 +75,7 @@ class BaseTab(AbstractApp):
     def get_container(self):
         if isinstance(self.container, ModelWithInheritance):
             return self.container.as_leaf_class()
-        else:
-            return self.container
+        return self.container
 
     def get_renderer_class(self):
         raise NotImplementedError('Missing method implementation!')
@@ -172,8 +171,7 @@ class BasePlugin(AbstractApp):
         leaf = self.as_leaf_class()
         if leaf != self:
             return leaf.render()
-        else:
-            return _('BASE_PLUGIN_MISSING_RENDER-METHOD')
+        return _('BASE_PLUGIN_MISSING_RENDER-METHOD')
 
     class Meta:
         verbose_name = _('MODEL_NAME_BASE_PLUGIN')
@@ -220,7 +218,7 @@ class HTMLPlugin(BasePlugin):
 
     def render(self):
         return mark_safe(self.content)
-    
+
     class Meta:
         verbose_name = _('MODEL_NAME_HTML_PLUGIN')
         verbose_name_plural = _('MODEL_NAME_HTML_PLUGIN_PLURAL')

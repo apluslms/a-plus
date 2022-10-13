@@ -1,12 +1,12 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import BasePage, LoginPage, CourseName
+from page_objects import BasePage, LoginPage
 from locators import BasePageLocators, StaffPageLocators
 
 
 class UserPermissionsTest(unittest.TestCase):
-    baseUrl = BasePage.base_url + "/aplus1/basic_instance/"
+    baseUrl = BasePage.base_url + "/aplus1/basic_instance/" # noqa: N815
 
     def setUp(self):
         self.driver = TestInitializer().getDefaultDriver(headless=True)
@@ -36,6 +36,7 @@ class UserPermissionsTest(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

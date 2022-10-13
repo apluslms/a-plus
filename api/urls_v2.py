@@ -77,7 +77,7 @@ with api.register(r'exercises',
                   basename='exercise') as exercises:
     exercises.register(r'submissions',
                        exercise.api.views.ExerciseSubmissionsViewSet,
-                       basename='exercise-submissions'),
+                       basename='exercise-submissions')
     exercises.register(r'submitter_stats',
                        exercise.api.views.ExerciseSubmitterStatsViewSet,
                        basename='exercise-submitter_stats')
@@ -87,7 +87,7 @@ with api.register(r'submissions',
                   basename='submission') as submissions:
     submissions.register(r'files',
                          exercise.api.views.SubmissionFileViewSet,
-                         basename='submission-files'),
+                         basename='submission-files')
 
 urlpatterns = [
     url(r'^', include((api.urls, 'api'), namespace='api')),
@@ -96,8 +96,16 @@ urlpatterns = [
     url(r'^me', userprofile.api.views.MeDetail.as_view()),
     url(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),
     path('statistics/', lib.api.statistics.BaseStatisticsView.as_view(), name='statistics'),
-    path('courses/<int:course_id>/statistics/', course.api.views.CourseStatisticsView.as_view(), name='course-statistics'),
-    path('exercises/<int:exercise_id>/statistics/', exercise.api.views.ExerciseStatisticsView.as_view(), name='exercise-statistics'),
+    path(
+        'courses/<int:course_id>/statistics/',
+        course.api.views.CourseStatisticsView.as_view(),
+        name='course-statistics'
+    ),
+    path(
+        'exercises/<int:exercise_id>/statistics/',
+        exercise.api.views.ExerciseStatisticsView.as_view(),
+        name='exercise-statistics'
+    ),
 ]
 
 
@@ -114,6 +122,7 @@ if getattr(settings, 'API_DEBUG', False):
     _views = [url.callback.cls for url in api.urls if url.callback]
     _views += [url.callback.cls for url in urlpatterns if url.callback]
     _methods = ('list', 'create', 'retrieve', 'update', 'partial_update', 'destroy')
+    # pylint: disable=unnecessary-lambda-assignment
     _get_methods = lambda v: ' '.join(((m[0].upper() if hasattr(v, m) else ' ') for m in _methods))
     _get_perms = lambda v: ', '.join(p.__class__.__name__ for p in v().get_permissions())
     _views = [(v.__name__, _get_methods(v), _get_perms(v)) for v in _views if not (v in _vseen or _vseen.add(v))]

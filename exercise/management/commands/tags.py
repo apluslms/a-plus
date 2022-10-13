@@ -64,12 +64,12 @@ class Command(BaseCommand):
 
     def read_user_tag(self, filename):
         tag_map = {}
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             for line in f:
                 words = line.split()
                 if len(words) == 2:
                     user,tag = words
-                    if not tag in tag_map:
+                    if tag not in tag_map:
                         tag_map[tag] = []
                     tag_map[tag].append(user)
                 elif len(words) != 0:
@@ -78,7 +78,7 @@ class Command(BaseCommand):
 
     def read_user(self, filename):
         users = []
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             for line in f:
                 words = line.split()
                 if len(words) == 1:

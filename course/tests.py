@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase, override_settings
@@ -296,7 +296,10 @@ class CourseTest(TestCase):
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened())
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.tomorrow))
         self.assertTrue(self.course_module_with_reading_open.have_exercises_been_opened(self.two_days_from_now))
-        self.assertTrue(self.course_module_with_reading_open.opening_time > self.course_module_with_reading_open.reading_opening_time)
+        self.assertTrue(
+            self.course_module_with_reading_open.opening_time
+            > self.course_module_with_reading_open.reading_opening_time
+        )
 
     def test_course_module_after_open(self):
         self.assertFalse(self.course_module.is_after_open(self.yesterday))
@@ -377,7 +380,7 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_student(self.user1))
         self.assertFalse(self.current_course_instance.is_student(self.user2))
         self.client.login(username="staff", password="staffPassword")
-        response = self.client.post(
+        response = self.client.post( # pylint: disable=unused-variable
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.current_course_instance.url,
@@ -393,7 +396,7 @@ class CourseTest(TestCase):
         self.assertFalse(self.current_course_instance.is_student(self.user1))
         self.assertFalse(self.current_course_instance.is_student(self.user2))
         self.client.login(username="staff", password="staffPassword")
-        response = self.client.post(
+        response = self.client.post( # pylint: disable=unused-variable
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.current_course_instance.url,
@@ -418,7 +421,7 @@ class CourseTest(TestCase):
             url="expected",
         )
         # Add a ready module to the older course instance.
-        older_module = CourseModule.objects.create(
+        older_module = CourseModule.objects.create( # pylint: disable=unused-variable
             name="older module",
             url="older-module",
             points_to_pass=10,
@@ -436,7 +439,7 @@ class CourseTest(TestCase):
             url="invalid",
         )
         # Add a hidden module to the newer course instance.
-        newer_module = CourseModule.objects.create(
+        newer_module = CourseModule.objects.create( # pylint: disable=unused-variable
             name="newer module",
             url="newer-module",
             points_to_pass=10,
@@ -477,7 +480,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -495,7 +498,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance2",
         )
-        module2 = CourseModule.objects.create(
+        module2 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2",
             url="module2",
             points_to_pass=10,
@@ -513,7 +516,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,
@@ -548,7 +551,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -566,7 +569,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance2",
         )
-        module2 = CourseModule.objects.create(
+        module2 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2",
             url="module2",
             points_to_pass=10,
@@ -575,7 +578,7 @@ class CourseTest(TestCase):
             closing_time=self.today - timedelta(days=1),
             status=CourseModule.STATUS.READY,
         )
-        module2b = CourseModule.objects.create(
+        module2b = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2b",
             url="module2b",
             points_to_pass=20,
@@ -592,7 +595,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,
@@ -627,7 +630,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -645,7 +648,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance2",
         )
-        module2 = CourseModule.objects.create(
+        module2 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2",
             url="module2",
             points_to_pass=10,
@@ -654,7 +657,7 @@ class CourseTest(TestCase):
             closing_time=self.today + timedelta(weeks=56),
             status=CourseModule.STATUS.UNLISTED,
         )
-        module2b = CourseModule.objects.create(
+        module2b = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2b",
             url="module2b",
             points_to_pass=20,
@@ -672,7 +675,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,
@@ -725,7 +728,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -743,7 +746,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance2",
         )
-        module2 = CourseModule.objects.create(
+        module2 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2",
             url="module2",
             points_to_pass=10,
@@ -752,7 +755,7 @@ class CourseTest(TestCase):
             closing_time=self.today - timedelta(weeks=12),
             status=CourseModule.STATUS.READY,
         )
-        module2b = CourseModule.objects.create(
+        module2b = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2b",
             url="module2b",
             points_to_pass=20,
@@ -770,7 +773,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,
@@ -814,7 +817,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -833,7 +836,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance2",
         )
-        module2 = CourseModule.objects.create(
+        module2 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2",
             url="module2",
             points_to_pass=10,
@@ -842,7 +845,7 @@ class CourseTest(TestCase):
             closing_time=self.today - timedelta(weeks=12),
             status=CourseModule.STATUS.READY,
         )
-        module2b = CourseModule.objects.create(
+        module2b = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2b",
             url="module2b",
             points_to_pass=20,
@@ -861,7 +864,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,
@@ -977,7 +980,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance1",
         )
-        module1 = CourseModule.objects.create(
+        module1 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 1",
             url="module1",
             points_to_pass=10,
@@ -1004,7 +1007,7 @@ class CourseTest(TestCase):
             closing_time=self.today + timedelta(weeks=3),
             status=CourseModule.STATUS.READY,
         )
-        module2b = CourseModule.objects.create(
+        module2b = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 2b",
             url="module2b",
             points_to_pass=20,
@@ -1022,7 +1025,7 @@ class CourseTest(TestCase):
             course=course,
             url="instance3",
         )
-        module3 = CourseModule.objects.create(
+        module3 = CourseModule.objects.create( # pylint: disable=unused-variable
             name="Module 3",
             url="module3",
             points_to_pass=10,

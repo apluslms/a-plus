@@ -9,7 +9,7 @@ class AplusShibbolethLoginConfig(AppConfig):
     verbose_name = 'A+ Shibboleth Login'
 
 
-def _only_prefix(value, env):
+def _only_prefix(value, env): # pylint: disable=unused-argument
     return re.sub(r'^((?:HTTP_)?[^_-]+[_-]).*$', r'\1', value)
 
 

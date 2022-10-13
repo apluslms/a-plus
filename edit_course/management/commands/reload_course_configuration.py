@@ -7,9 +7,13 @@ class Command(BaseCommand):
     help = "Reload course configuration from configuration url"
 
     def add_arguments(self, parser):
-        parser.add_argument('path', metavar="PATH", nargs='?',
-                            default="def/current",
-                            help="Path component of the course to be reconfigured from it's configuration url (default: 'def/current')")
+        parser.add_argument(
+            'path',
+            metavar="PATH",
+            nargs='?',
+            default="def/current",
+            help="Path component of the course to be reconfigured from it's configuration url (default: 'def/current')"
+        )
         parser.add_argument('-u', '--url',
                             help="Replace current configuration url with this one")
         parser.add_argument('--no-reload',
@@ -24,13 +28,13 @@ class Command(BaseCommand):
 
         try:
             instance = CourseInstance.objects.get(course__url=parts[0], url=parts[1])
-        except CourseInstance.DoesNotExist:
-            raise CommandError("Could not find course instance with path '{}'.".format(path))
+        except CourseInstance.DoesNotExist as exc:
+            raise CommandError("Could not find course instance with path '{}'.".format(path)) from exc
 
         conf_url = options['url'] or instance.configure_url
         if not conf_url:
             raise CommandError("There is no configuration url for {}. Use --url=<url> to set one.".format(instance))
-        elif options['no_reload']:
+        if options['no_reload']:
             instance.configure_url = conf_url
             instance.save()
             self.stdout.write(self.style.SUCCESS(f"Set new configure url for {instance}: {conf_url}"))

@@ -1,8 +1,7 @@
 from django.db.models.signals import post_save, post_delete, m2m_changed
-from django.utils import timezone
 
 from lib.cache import CachedAbstract
-from ..models import StudentGroup, Enrollment, CourseInstance, Course
+from ..models import StudentGroup, Enrollment, CourseInstance
 from ..renders import render_group_info
 
 
@@ -13,7 +12,7 @@ class CachedTopMenu(CachedAbstract):
         self.user = user
         super().__init__(user)
 
-    def _generate_data(self, user, data=None):
+    def _generate_data(self, user, data=None): # pylint: disable=arguments-differ
         profile = user.userprofile if user and user.is_authenticated else None
         return {
             'courses': self._generate_courses(profile),
@@ -29,6 +28,7 @@ class CachedTopMenu(CachedAbstract):
                 'name': str(instance),
                 'link': instance.get_absolute_url(),
             }
+
         def divider_entry():
             return {
                 'divider': True,
@@ -37,7 +37,7 @@ class CachedTopMenu(CachedAbstract):
         enrolled = []
         for instance in CourseInstance.objects.get_enrolled(profile).all():
             if instance.visible_to_students:
-               enrolled.append(course_entry(instance))
+                enrolled.append(course_entry(instance))
 
         teaching = []
         for instance in CourseInstance.objects.get_teaching(profile).all():
@@ -77,9 +77,11 @@ class CachedTopMenu(CachedAbstract):
             instance_id = enrollment.course_instance_id
             group_map[instance_id] = (
                 [
-                    group_entry(g) for g in profile.groups\
-                        .filter(course_instance_id=instance_id)\
+                    group_entry(g) for g in (
+                        profile.groups
+                        .filter(course_instance_id=instance_id)
                         .prefetch_related('members')
+                    )
                 ],
                 render_group_info(enrollment.selected_group, profile)
             )
@@ -92,24 +94,24 @@ class CachedTopMenu(CachedAbstract):
         return self.data['groups'].get(instance.id, ([],None))
 
 
-def invalidate_content(sender, instance, **kwargs):
+def invalidate_content(sender, instance, **kwargs): # pylint: disable=unused-argument
     CachedTopMenu.invalidate(instance.user_profile.user)
 
-def invalidate_assistants(sender, instance, reverse=False, **kwargs):
+def invalidate_assistants(sender, instance, reverse=False, **kwargs): # pylint: disable=unused-argument
     if reverse:
         CachedTopMenu.invalidate(instance.user)
     else:
         for profile in instance.assistants.all():
             CachedTopMenu.invalidate(profile.user)
 
-def invalidate_teachers(sender, instance, reverse=False, **kwargs):
+def invalidate_teachers(sender, instance, reverse=False, **kwargs): # pylint: disable=unused-argument
     if reverse:
         CachedTopMenu.invalidate(instance.user)
     else:
         for profile in instance.teachers.all():
             CachedTopMenu.invalidate(profile.user)
 
-def invalidate_members(sender, instance, reverse=False, **kwargs):
+def invalidate_members(sender, instance, reverse=False, **kwargs): # pylint: disable=unused-argument
     if reverse:
         CachedTopMenu.invalidate(instance.user)
     else:

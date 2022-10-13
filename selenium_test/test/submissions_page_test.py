@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import LoginPage, MyFirstExerciseGrader, MyAjaxExerciseGrader, SubmissionPage, CourseName
+from page_objects import LoginPage, MyFirstExerciseGrader, MyAjaxExerciseGrader, SubmissionPage
 
 
 class SubmissionsPageTest(unittest.TestCase):
@@ -44,6 +44,7 @@ class SubmissionsPageTest(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

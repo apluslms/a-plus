@@ -3,13 +3,12 @@ from rest_framework import serializers
 from lib.api.fields import NestedHyperlinkedIdentityField
 from lib.api.serializers import (
     AlwaysListSerializer,
-    CompositeListSerializer,
     AplusSerializerMeta,
     AplusModelSerializerBase,
     StatisticsSerializer,
 )
 from course.api.serializers import CourseBriefSerializer
-from userprofile.api.serializers import UserBriefSerializer, UserListField
+from userprofile.api.serializers import UserBriefSerializer
 
 from ..models import Submission
 from .serializers import (

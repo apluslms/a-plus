@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.test import TestCase
 from django.utils import timezone
 from django.conf import settings
@@ -13,7 +13,13 @@ from userprofile.models import UserProfile
 class UserProfileTest(TestCase):
     def setUp(self):
         # Set the user's id manually so that user.id is different than userprofile.id.
-        self.student = User(id=101, username="testUser", first_name="Superb", last_name="Student", email="test@aplus.com")
+        self.student = User(
+            id=101,
+            username="testUser",
+            first_name="Superb",
+            last_name="Student",
+            email="test@aplus.com"
+        )
         self.student.set_password("testPassword")
         self.student.save()
         self.student_profile = self.student.userprofile
@@ -21,7 +27,13 @@ class UserProfileTest(TestCase):
         self.student_profile.organization = settings.LOCAL_ORGANIZATION
         self.student_profile.save()
 
-        self.grader = User(id=102, username="grader", first_name="Grumpy", last_name="Grader", email="grader@aplus.com")
+        self.grader = User(
+            id=102,
+            username="grader",
+            first_name="Grumpy",
+            last_name="Grader",
+            email="grader@aplus.com"
+        )
         self.grader.set_password("graderPassword")
         self.grader.save()
         self.grader_profile = self.grader.userprofile
@@ -29,12 +41,25 @@ class UserProfileTest(TestCase):
         self.grader_profile.organization = settings.LOCAL_ORGANIZATION
         self.grader_profile.save()
 
-        self.teacher = User(id=103, username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com")
+        self.teacher = User(
+            id=103,
+            username="teacher",
+            first_name="Tedious",
+            last_name="Teacher",
+            email="teacher@aplus.com"
+        )
         self.teacher.set_password("teacherPassword")
         self.teacher.save()
         self.teacher_profile = self.teacher.userprofile
 
-        self.superuser = User(id=104, username="superuser", first_name="Super", last_name="User", email="superuser@aplus.com", is_superuser=True)
+        self.superuser = User(
+            id=104,
+            username="superuser",
+            first_name="Super",
+            last_name="User",
+            email="superuser@aplus.com",
+            is_superuser=True
+        )
         self.superuser.set_password("superuserPassword")
         self.superuser.save()
         self.superuser_profile = self.superuser.userprofile
@@ -113,10 +138,22 @@ class UserProfileTest(TestCase):
         self.assertEqual("superuser (Super User, superuser@aplus.com)", str(self.superuser_profile))
 
     def test_userprofile_gravatar_url(self):
-        self.assertEqual("http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon", self.student_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/e2321e37326539393fbae72b7558df8e?d=identicon", self.grader_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/1bfe4ecc42454c9c1dc02bf93073a414?d=identicon", self.teacher_profile.avatar_url)
-        self.assertEqual("http://www.gravatar.com/avatar/f35e575136edbfb920643d10560e8814?d=identicon", self.superuser_profile.avatar_url)
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/36eb57f675f34b81bd859c525cb2b676?d=identicon",
+            self.student_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/e2321e37326539393fbae72b7558df8e?d=identicon",
+            self.grader_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/1bfe4ecc42454c9c1dc02bf93073a414?d=identicon",
+            self.teacher_profile.avatar_url
+        )
+        self.assertEqual(
+            "http://www.gravatar.com/avatar/f35e575136edbfb920643d10560e8814?d=identicon",
+            self.superuser_profile.avatar_url
+        )
 
     def test_userprofile_shortname(self):
         self.assertEqual("Superb S.", self.student_profile.shortname)

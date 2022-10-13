@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -20,4 +20,3 @@ class Command(BaseCommand):
         since = timezone.now() - since_delta
         num_users = User.objects.filter(last_login__gte=since).count()
         self.stdout.write("{0} users have logged in since {1}".format(num_users, since))
-

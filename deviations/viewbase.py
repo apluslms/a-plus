@@ -5,7 +5,6 @@ from django.db import models
 from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django import forms
-from django.shortcuts import get_object_or_404
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _, ngettext
 
@@ -254,7 +253,7 @@ def get_deviation_groups(
         ordered_deviations,
         lambda obj: (obj.submitter, obj.exercise.course_module),
     )
-    for (submitter, module), deviations_iter in deviation_groups:
+    for (_submitter, module), deviations_iter in deviation_groups:
         deviations = list(deviations_iter)
         can_group = True
         if len(deviations) < 2:

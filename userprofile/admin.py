@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from rest_framework.authtoken.admin import TokenAdmin
 
 from .models import UserProfile
 
@@ -34,7 +35,6 @@ class UserProfileAdmin(admin.ModelAdmin):
 admin.site.register(UserProfile, UserProfileAdmin)
 
 # Don't display a dropdown for selecting a user on the Token admin page.
-from rest_framework.authtoken.admin import TokenAdmin
 TokenAdmin.raw_id_fields = ('user',)
 TokenAdmin.search_fields = (
     'user__first_name',

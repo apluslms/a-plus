@@ -1,12 +1,12 @@
-class ListSerializerMixin(object):
+class ListSerializerMixin:
     # FIXME: use rest_framework_extensions.mixins.DetailSerializerMixin
     def get_serializer_class(self):
         if self.action == 'list':
             return getattr(self, 'listserializer_class', self.serializer_class)
-        return super(ListSerializerMixin, self).get_serializer_class()
+        return super().get_serializer_class()
 
 
-class MeUserMixin(object):
+class MeUserMixin:
     me_user_url_kw = 'user_id'
     me_user_value = 'me'
 
@@ -17,7 +17,7 @@ class MeUserMixin(object):
     # and kwargs given to the initial is a copy of that dictionary.
 
     def initial(self, request, *args, **kwargs):
-        super(MeUserMixin, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
 
         kw = self.me_user_url_kw
         value = self.kwargs.get(kw, None)

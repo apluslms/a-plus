@@ -1,11 +1,12 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
+
 from course.models import CourseInstance
+
 
 class CourseInstanceAPITest(TestCase):
     # use same setUp as for normal tests
-    from ..tests import CourseTest
+    from ..tests import CourseTest # pylint: disable=import-outside-toplevel
     setUp = CourseTest.setUp
 
     def test_get_courselist(self):
@@ -23,7 +24,7 @@ class CourseInstanceAPITest(TestCase):
             'previous': None,
         }
 
-        for key in model:
+        for key in model: # pylint: disable=consider-using-dict-items
             with self.subTest(key=key):
                 self.assertIn(key, response.data)
                 self.assertEqual(response.data[key], model[key])

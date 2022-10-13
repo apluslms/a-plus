@@ -3,7 +3,8 @@ import json
 import logging
 import string
 from typing import Any, Dict, List, Tuple
-import urllib.request, urllib.parse
+import urllib.request
+import urllib.parse
 from random import choice
 
 from aplus_auth.payload import Payload, Permission
@@ -14,6 +15,7 @@ from django.contrib.staticfiles import finders
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q
+from django.db.models.base import DEFERRED
 from django.db.models.signals import post_save
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -37,11 +39,13 @@ from lib.models import UrlMixin
 from lib.typing import AnyUser
 from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
+from .sis import get_sis_configuration, StudentInfoSystem
+
 
 logger = logging.getLogger('aplus.course')
 
 # Read pseudonymization data from file
-with open(finders.find('pseudonym.json')) as json_file:
+with open(finders.find('pseudonym.json'), encoding='utf-8') as json_file:
     DATA = json.load(json_file)
 
 
@@ -96,7 +100,7 @@ class Course(UrlMixin, models.Model):
     ABSOLUTE_URL_NAME = "course-instances"
 
     def get_url_kwargs(self):
-        return dict(course_slug=self.url)
+        return dict(course_slug=self.url) # pylint: disable=use-dict-literal
 
 
 class StudentGroupManager(models.Manager):
@@ -236,7 +240,7 @@ class Enrollment(models.Model):
         verbose_name_plural = _('MODEL_NAME_ENROLLMENT_PLURAL')
         unique_together = ("course_instance", "user_profile")
 
-def create_enrollment_code(sender, instance, created, **kwargs):
+def create_enrollment_code(sender, instance, created, **kwargs): # pylint: disable=unused-argument
     if created:
         easychars = '0123456789ABCDEFGHJKLMNPQRSTUVXYZ'
         code = get_random_string(6, easychars)
@@ -245,7 +249,7 @@ def create_enrollment_code(sender, instance, created, **kwargs):
         instance.personal_code = code
         instance.save()
 
-def create_anon_id(sender, instance, created, **kwargs):
+def create_anon_id(sender, instance, created, **kwargs): # pylint: disable=unused-argument
     if created or not instance.anon_id:
         nums = string.digits + string.ascii_lowercase
         code = get_random_string(16, nums)
@@ -258,7 +262,7 @@ def create_anon_id(sender, instance, created, **kwargs):
         instance.anon_id = code
         instance.save(update_fields=['anon_id'])
 
-def pseudonymize(sender, instance, created, **kwargs):
+def pseudonymize(sender, instance, created, **kwargs): # pylint: disable=unused-argument
     if created or not instance.anon_name:
         def namegen():
             '''
@@ -266,7 +270,9 @@ def pseudonymize(sender, instance, created, **kwargs):
              This is highly unlikely, as there are roughly 140*68=9520 possible combinations
             '''
             second_name = ""
-            if Enrollment.objects.filter(course_instance=instance.course_instance).count() > len(DATA["colors"]) * len(DATA["animals"]) * 0.75:
+            if Enrollment.objects.filter(
+                course_instance=instance.course_instance
+            ).count() > len(DATA["colors"]) * len(DATA["animals"]) * 0.75:
                 second_name = choice(DATA["colors"])["name"]
             return choice(DATA["colors"])["name"] + second_name + " " + choice(DATA["animals"])
 
@@ -279,6 +285,7 @@ def pseudonymize(sender, instance, created, **kwargs):
                 raise RuntimeError("No anonymous usernames available")
         instance.anon_name = codename
         instance.save(update_fields=['anon_name'])
+
 
 post_save.connect(create_enrollment_code, sender=Enrollment)
 post_save.connect(create_anon_id, sender=Enrollment)
@@ -302,9 +309,9 @@ class UserTag(UrlMixin, ColorTag):
         ordering = ['course_instance', 'name']
 
     def get_url_kwargs(self):
-        return dict(tag_id=self.id, **self.course_instance.get_url_kwargs())
+        return dict(tag_id=self.id, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal
 
-    def is_valid_slug(self, slug_candidate):
+    def is_valid_slug(self, slug_candidate): # pylint: disable=arguments-renamed
         assert self.course_instance
         if not slug_candidate:
             return False
@@ -326,7 +333,6 @@ class HardcodedUserTag(UserTag):
     }
 
     def __init__(self, **kwargs):
-        from django.db.models.base import DEFERRED
         kwargs.setdefault('course_instance', DEFERRED)
         kwargs.setdefault('visible_to_students', True)
         super().__init__(**kwargs)
@@ -425,9 +431,9 @@ class UserTagging(models.Model):
 
 
 def get_course_staff_visibility_filter(user, prefix=None):
-    if prefix == None:
+    if prefix is None:
         prefix = ''
-    filter = Q()
+    filter = Q() # pylint: disable=redefined-builtin
     if isinstance(user, User):
         user = user.userprofile
         filter = (
@@ -492,17 +498,19 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
         if user.is_authenticated and not user.is_anonymous:
             return instance.is_teacher(user)
         # a grader user
-        elif user.is_authenticated and user.is_anonymous:
+        if user.is_authenticated and user.is_anonymous:
             config_uid = auth_settings().get_uid_for_url(instance.configure_url)
             if config_uid is None:
-                logger.warning(f"Could not find public key for configure_url {instance.configure_url}. Cannot authorize JWT instance access")
+                logger.warning( # pylint: disable=logging-fstring-interpolation
+                    f"Could not find public key for configure_url {instance.configure_url}. "
+                    f"Cannot authorize JWT instance access"
+                )
                 return False
-            else:
-                return config_uid == user.username
+            return config_uid == user.username
 
         return False
 
-    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool:
+    def has_create_access(self, payload: Payload, kwargs: Dict[str, Any]) -> bool: # pylint: disable=arguments-differ
         return False
 
 
@@ -780,12 +788,13 @@ class CourseInstance(UrlMixin, models.Model):
     @cached_property
     def later_instance(self):
         later_instance = None
-        if self.is_past:
+        if self.is_past: # pylint: disable=using-constant-test
             try:
                 later_instance = (
-                    CourseInstance.objects
-                        .filter(course=self.course, ending_time__gte=timezone.now())
-                        .latest('starting_time')
+                    CourseInstance.objects.filter(
+                        course=self.course,
+                        ending_time__gte=timezone.now()
+                    ).latest('starting_time')
                 )
             except CourseInstance.DoesNotExist:
                 pass
@@ -914,8 +923,7 @@ class CourseInstance(UrlMixin, models.Model):
         Number of enrolled and removed students based on this call.
         -1 if there was problem accessing SIS.
         """
-        from .sis import get_sis_configuration, StudentInfoSystem
-        from .cache.menu import invalidate_content
+        from .cache.menu import invalidate_content # pylint: disable=import-outside-toplevel
 
         sis: StudentInfoSystem = get_sis_configuration()
         if not sis:
@@ -925,11 +933,12 @@ class CourseInstance(UrlMixin, models.Model):
         delcount = 0
         try:
             participants = sis.get_participants(self.sis_id)
-        except Exception as e:
+        except Exception:
+            # pylint: disable-next=logging-fstring-interpolation
             logger.exception(f"{self}: Error in getting participants from SIS.")
             return -1, -1
 
-        from exercise.models import LearningObject
+        from exercise.models import LearningObject # pylint: disable=import-outside-toplevel
         use_pending = bool(LearningObject.objects.find_enrollment_exercise(self, False))
 
         for i in participants:
@@ -954,6 +963,7 @@ class CourseInstance(UrlMixin, models.Model):
             invalidate_content(Enrollment, e)
             delcount += 1
 
+        # pylint: disable-next=logging-fstring-interpolation
         logger.info(f"{self}: enrolled {addcount}, removed {delcount} students based on SIS")
         return addcount, delcount
 
@@ -1090,7 +1100,7 @@ class CourseInstance(UrlMixin, models.Model):
         # dict(foo=bar, **baz()) is not nice, but it's cleanest solution for this
         # specific problem. For more read out stackoverflow answer about merging
         # python dicts in single line: http://stackoverflow.com/a/26853961
-        return dict(instance_slug=self.url, **self.course.get_url_kwargs())
+        return dict(instance_slug=self.url, **self.course.get_url_kwargs()) # pylint: disable=use-dict-literal
 
 
 class CourseHook(models.Model):
@@ -1132,7 +1142,7 @@ class CourseHook(models.Model):
         logger = logging.getLogger('aplus.hooks')
         url, data = url_with_query_in_data(self.hook_url, data)
         try:
-            urllib.request.urlopen(
+            urllib.request.urlopen( # pylint: disable=consider-using-with
                 url,
                 urllib.parse.urlencode(data).encode('ascii'),
                 timeout=10,
@@ -1252,7 +1262,7 @@ class CourseModule(UrlMixin, models.Model):
         if self.order > 0:
             if self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ARABIC:
                 return "{:d}. {}".format(self.order, self.name)
-            elif self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
+            if self.course_instance.module_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
@@ -1330,7 +1340,7 @@ class CourseModule(UrlMixin, models.Model):
     ABSOLUTE_URL_NAME = "module"
 
     def get_url_kwargs(self):
-        return dict(module_slug=self.url, **self.course_instance.get_url_kwargs())
+        return dict(module_slug=self.url, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal
 
 
 class LearningObjectCategory(models.Model):

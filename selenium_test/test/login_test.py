@@ -5,7 +5,7 @@ from page_objects import CourseName, LoginPage, HomePage
 
 
 class LoginTest(unittest.TestCase):
-    logoutPageURI = '/accounts/logout'
+    logoutPageURI = '/accounts/logout' # noqa: N815
 
     def setUp(self):
         self.driver = TestInitializer().getDefaultDriver(headless=True)
@@ -32,6 +32,7 @@ class LoginTest(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

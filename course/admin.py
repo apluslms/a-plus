@@ -21,6 +21,7 @@ def instance_url(instance):
     """
     return instance.get_absolute_url()
 
+
 instance_url.short_description = _('URL')
 
 

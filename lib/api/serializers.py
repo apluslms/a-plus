@@ -45,22 +45,22 @@ class NestedHyperlinkedModelSerializer(HyperlinkedModelSerializer):
         return field_class, field_kwargs
 
 
-class AlwaysListSerializer(object):
+class AlwaysListSerializer:
     def __new__(cls, *args, **kwargs):
         if kwargs.pop('_many', True):
             kwargs['many'] = True
         return super(AlwaysListSerializer, cls).__new__(cls, *args, _many=False, **kwargs)
 
     def __init__(self, *args, _many=False, **kwargs):
-        super(AlwaysListSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class HtmlViewField(serializers.ReadOnlyField):
     def __init__(self, *args, **kwargs):
         kwargs['source'] = '*'
-        super(HtmlViewField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    def to_representation(self, obj):
+    def to_representation(self, obj): # pylint: disable=arguments-renamed
         request = self.context['request']
         url = obj.get_absolute_url()
         return request.build_absolute_uri(url)
@@ -71,10 +71,11 @@ class NestedHyperlinkedIdentityFieldWithQuery(NestedHyperlinkedIdentityField):
         self.__query_params = query_params
         super().__init__(*args, **kwargs)
 
-    def get_url(self, obj, view_name, request, format):
+    def get_url(self, obj, view_name, request, format): # pylint: disable=redefined-builtin
         url = super().get_url(obj, view_name, request, format)
 
         if url and self.__query_params:
+            # pylint: disable-next=unnecessary-lambda-assignment
             get = lambda x: x(obj) if callable(x) else get_attribute(obj, x.split('.'))
             params = [(key, get(value)) for key, value in self.__query_params.items()]
             url = url + '?' + urlencode(params)
@@ -82,7 +83,7 @@ class NestedHyperlinkedIdentityFieldWithQuery(NestedHyperlinkedIdentityField):
         return url
 
 
-class AttributeProxy(object):
+class AttributeProxy:
     def __init__(self, obj, **kwargs):
         self._obj = obj
         self._kwargs = kwargs
@@ -113,10 +114,10 @@ class CompositeListSerializer(serializers.ListSerializer):
         if instance and source:
             iterable = instance[source]
             instance = zip_instance_extra_with_iterable(instance, iterable, extra)
-        super(CompositeListSerializer, self).__init__(instance=instance, data=data, **kwargs)
+        super().__init__(instance=instance, data=data, **kwargs)
 
     def get_attribute(self, instance):
-        data = super(CompositeListSerializer, self).get_attribute(instance)
+        data = super().get_attribute(instance)
         iterable = data.all() if isinstance(data, Manager) else data
         return zip_instance_extra_with_iterable(instance, iterable, self.__extra)
 

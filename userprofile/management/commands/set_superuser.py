@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from userprofile.models import User
 
@@ -20,7 +20,10 @@ class Command(BaseCommand):
         count = query.count()
         user = None
         if count > 20:
-            self.stdout.write(self.style.ERROR("Found {} users, so not printing them here. Use arguments to filter.".format(count)))
+            self.stdout.write(self.style
+                .ERROR("Found {} users, so not printing them here. Use arguments to filter."
+                .format(count))
+            )
         elif count > 1:
             users = list(query)
             for i, user in enumerate(users):

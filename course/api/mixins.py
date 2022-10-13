@@ -22,8 +22,8 @@ class CourseResourceMixin(CourseInstanceBaseMixin, ApiResourceMixin):
             return None
         try:
             return CourseInstance.objects.get(id=course_id)
-        except CourseInstance.DoesNotExist:
-            raise Http404("Course not found")
+        except CourseInstance.DoesNotExist as exc:
+            raise Http404("Course not found") from exc
 
     def get_access_mode(self):
         # This method is defined here because some permissions expect view classes

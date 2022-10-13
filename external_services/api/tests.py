@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.utils.formats import date_format
 from django.utils import timezone
 import lxml
@@ -71,10 +71,11 @@ class LTIOutcomesBaseTest(APITestCase):
 </imsx_POXEnvelopeResponse>'''
 
     # assert method for comparing Outcomes response XML messages
+    # pylint: disable-next=too-many-locals
     def assertLTIOutcomesResponseXMLEqual(self, got_xml, expected_xml, ignore_elems=None):
         try:
-            got_root = lxml.etree.fromstring(got_xml.encode('utf-8'))
-            expected_root = lxml.etree.fromstring(expected_xml.encode('utf-8'))
+            got_root = lxml.etree.fromstring(got_xml.encode('utf-8')) # pylint: disable=c-extension-no-member
+            expected_root = lxml.etree.fromstring(expected_xml.encode('utf-8')) # pylint: disable=c-extension-no-member
         except Exception as e:
             self.fail('XML parsing failed: ' + str(e))
 
@@ -96,7 +97,9 @@ class LTIOutcomesBaseTest(APITestCase):
         self.assertEqual(got_version, exp_version)
 
         # random, can not know beforehand
-        got_msg_id = got_root.findtext('{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(ns=ns))
+        got_msg_id = got_root.findtext(
+            '{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(ns=ns)
+        )
         self.assertNotEqual(got_msg_id, None)
         self.assertTrue(len(got_msg_id) > 0)
 
@@ -192,8 +195,16 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             max_submissions=5,
             lti_service=cls.lti_service,
         )
-        cls.lti_user1 = LTIServiceUser(exercise=cls.lti_exercise, lti_service=cls.lti_service, user_id=cls.student1.id)
-        cls.lti_user2 = LTIServiceUser(exercise=cls.lti_exercise2, lti_service=cls.lti_service, user_id=cls.student1.id)
+        cls.lti_user1 = LTIServiceUser(
+            exercise=cls.lti_exercise,
+            lti_service=cls.lti_service,
+            user_id=cls.student1.id
+        )
+        cls.lti_user2 = LTIServiceUser(
+            exercise=cls.lti_exercise2,
+            lti_service=cls.lti_service,
+            user_id=cls.student1.id
+        )
 
     def test_replaceResult(self):
         sourced_id = self.mk_sourced_id(self.lti_exercise, enrollment=self.student1_enrollment)
@@ -211,6 +222,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             signature_method=oauthlib.oauth1.SIGNATURE_HMAC,
             signature_type=oauthlib.oauth1.SIGNATURE_TYPE_AUTH_HEADER,
         )
+        # pylint: disable-next=unused-variable
         oa_uri, oa_headers, oa_body = oauth_client.sign('http://aplus.local/api/v2/lti-outcomes',
             http_method='POST',
             body=req_xml,
@@ -224,9 +236,12 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
                          HTTP_AUTHORIZATION=oa_headers['Authorization'],
                          SERVER_NAME='aplus.local')
         response_xml = response.content.decode('utf-8')
-        root = lxml.etree.fromstring(response_xml.encode('utf-8'))
-        response_msg_id = root.findtext('{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(
-            ns='{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}'))
+        root = lxml.etree.fromstring(response_xml.encode('utf-8')) # pylint: disable=c-extension-no-member
+        response_msg_id = root.findtext(
+            '{ns}imsx_POXHeader/{ns}imsx_POXResponseHeaderInfo/{ns}imsx_messageIdentifier'.format(
+                ns='{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}'
+            )
+        )
 
         expected_response_xml = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id=response_msg_id, # random, can not know beforehand
@@ -639,7 +654,11 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         )
 
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
-        response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_unknown_operation, content_type='application/xml')
+        response1 = self.client.post(
+            self.OUTCOMES_API_URL,
+            data=req_xml_unknown_operation,
+            content_type='application/xml'
+        )
         response_xml1 = response1.content.decode('utf-8')
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxx', # random, can not know beforehand
@@ -681,7 +700,11 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         )
 
         self.client.force_authenticate(user=self.lti_user1) # skip OAuth credentials
-        response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml_unknown_operation, content_type='application/xml')
+        response1 = self.client.post(
+            self.OUTCOMES_API_URL,
+            data=req_xml_unknown_operation,
+            content_type='application/xml'
+        )
         response_xml1 = response1.content.decode('utf-8')
         expected_response_xml1 = self.BASE_OUTCOMES_RESPONSE_XML.format(
             msg_id='xxxx', # random, can not know beforehand
@@ -868,6 +891,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             signature_method=oauthlib.oauth1.SIGNATURE_HMAC,
             signature_type=oauthlib.oauth1.SIGNATURE_TYPE_AUTH_HEADER,
         )
+        # pylint: disable-next=unused-variable
         oa_uri, oa_headers, oa_body = oauth_client.sign('http://aplus.local/api/v2/lti-outcomes',
             http_method='POST',
             body=req_xml,
@@ -911,6 +935,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             signature_method=oauthlib.oauth1.SIGNATURE_HMAC,
             signature_type=oauthlib.oauth1.SIGNATURE_TYPE_AUTH_HEADER,
         )
+        # pylint: disable-next=unused-variable
         oa_uri, oa_headers, oa_body = oauth_client.sign('http://aplus.local/api/v2/lti-outcomes',
             http_method='POST',
             body=req_xml,
@@ -993,6 +1018,7 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             signature_method=oauthlib.oauth1.SIGNATURE_HMAC,
             signature_type=oauthlib.oauth1.SIGNATURE_TYPE_AUTH_HEADER,
         )
+        # pylint: disable-next=unused-variable
         oa_uri, oa_headers, oa_body = oauth_client.sign('http://aplus.local' + self.OUTCOMES_API_URL,
             http_method='POST',
             body=req_xml,
@@ -1065,7 +1091,10 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
             msg_id='xxxxx', # random, can not know beforehand
             code_major='failure',
             severity='status',
-            description='The XML root element is not "{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}imsx_POXEnvelopeRequest"',
+            description=(
+                'The XML root element is not '
+                '"{http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0}imsx_POXEnvelopeRequest"'
+            ),
             msg_ref_id='',
             operation_ref='',
             extra_status='<imsx_codeMinor>invalidsourcedata</imsx_codeMinor>',
@@ -1172,15 +1201,16 @@ class LTIOutcomesNoEnrollmentTests(LTIOutcomesBaseTest):
         )
 
         # try to make a new submission
-        sourced_id1 = '{}-{}'.format(lti_exercise.pk, 'ahdjdue73yrhdhsdy6we6') # fake sourced id since there is no enrollment
+        # fake sourced id since there is no enrollment
+        sourced_id1 = '{}-{}'.format(lti_exercise.pk, 'ahdjdue73yrhdhsdy6we6')
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
             msg_id='zjdudu7w6784hthr',
             operation='replaceResult',
             sourced_id=sourced_id1,
             result=self.BASE_RESULT_XML.format(score='0.76'),
         )
-
-        self.client.force_authenticate(user=LTIServiceUser(exercise=lti_exercise, lti_service=self.lti_service)) # skip OAuth credentials
+        # skip OAuth credentials
+        self.client.force_authenticate(user=LTIServiceUser(exercise=lti_exercise, lti_service=self.lti_service))
         # authentication would also require a valid sourced id value, but authentication is skipped now
         response1 = self.client.post(self.OUTCOMES_API_URL, data=req_xml1, content_type='application/xml')
         response_xml1 = response1.content.decode('utf-8')

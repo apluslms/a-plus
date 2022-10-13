@@ -8,7 +8,7 @@ register = template.Library()
 
 
 def _context_unread(context):
-    if not 'notifications' in context:
+    if 'notifications' not in context:
         context['notifications'] = CachedNotifications(
             context['request'].user if 'request' in context else None
         )

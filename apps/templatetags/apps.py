@@ -44,6 +44,7 @@ def plugin_renderers(user, some_model, view_name=None):
             exercise=some_model.exercise,
             course_instance=course_instance,
         )
+    # pylint: disable-next=logging-format-interpolation
     logger.warning("Unrecognized model type received for plugin_renderers tag: {}" \
                 .format(str(type(some_model))))
     return []

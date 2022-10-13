@@ -83,11 +83,11 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             'best': request.GET.get('best') != 'no',
         }
 
-    def list(
+    def list( # pylint: disable=arguments-differ
             self,
             request: Request,
-            version: Optional[Union[int, str]] = None,
-            course_id: Optional[Union[int, str]] = None,
+            version: Optional[Union[int, str]] = None, # pylint: disable=unused-argument
+            course_id: Optional[Union[int, str]] = None, # pylint: disable=unused-argument
             ) -> Response:
         profiles = self.filter_queryset(self.get_queryset())
         search_args = self.get_search_args(request)
@@ -104,12 +104,12 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         ).prefetch_related('exercise', 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids, best=search_args['best'])
 
-    def retrieve(
+    def retrieve( # pylint: disable=arguments-differ
             self,
             request: Request,
-            version: Optional[Union[int, str]] = None,
-            course_id: Optional[Union[int, str]] = None,
-            user_id: Optional[Union[int, str]] = None,
+            version: Optional[Union[int, str]] = None, # pylint: disable=unused-argument
+            course_id: Optional[Union[int, str]] = None, # pylint: disable=unused-argument
+            user_id: Optional[Union[int, str]] = None, # pylint: disable=unused-argument
             ) -> Response:
         profile = self.get_object()
         search_args = self.get_search_args(request)
@@ -212,11 +212,11 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             'exercise_id': int_or_none(request.GET.get('exercise_id')),
             'filter_for_assistant': not self.is_teacher,
         }
-
+    # pylint: disable-next=arguments-differ unused-argument
     def list(self, request, version=None, course_id=None):
         profiles = self.filter_queryset(self.get_queryset())
         return self.serialize_profiles(request, profiles)
-
+    # pylint: disable-next=arguments-differ unused-argument
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
@@ -309,14 +309,15 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             'exercise_id': int_or_none(request.GET.get('exercise_id')),
             'filter_for_assistant': not self.is_teacher,
        }
-
+    # pylint: disable-next=arguments-differ unused-argument
     def list(self, request, version=None, course_id=None):
         profiles = self.filter_queryset(self.get_queryset())
         return self.serialize_profiles(request, profiles)
-
+    # pylint: disable-next=arguments-differ unused-argument
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
+    # pylint: disable-next=too-many-arguments
     def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
         return (
             Submission.objects
@@ -368,6 +369,7 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
+    # pylint: disable-next=too-many-arguments
     def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
         return (
             Submission.objects
@@ -381,7 +383,7 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
 
 
 def int_or_none(value):
-    if not value is None:
+    if value is not None:
         try:
             return int(value)
         except ValueError:

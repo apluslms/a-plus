@@ -13,6 +13,7 @@ class CSVExcelRenderer(CSVRenderer):
         flat_item = super().flatten_item(item)
         return {k: remove_newlines(v) for k, v in flat_item.items()}
 
+    # pylint: disable-next=dangerous-default-value
     def render(self, data, media_type=None, renderer_context={}, writer_opts=None):
         "Extract sep from GET parameters if specified"
         if 'request' in renderer_context and 'writer_opts' not in renderer_context:

@@ -1,6 +1,5 @@
 from rest_framework.fields import SerializerMethodField
 from rest_framework import serializers
-from lib.api.serializers import AplusModelSerializer
 
 from course.api.serializers import CourseBriefSerializer
 from course.models import CourseInstance

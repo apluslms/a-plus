@@ -14,7 +14,7 @@ from userprofile.models import LTIServiceUser
 logger = logging.getLogger('aplus.external_services.api')
 
 
-def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=None):
+def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=None): # pylint: disable=too-many-locals
     '''
     Verify that the request has valid OAuth 1.0 signature and body hash.
     @param request Django HttpRequest
@@ -61,7 +61,7 @@ def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=No
 
     now = datetime.datetime.utcnow()
     delta = datetime.timedelta(seconds=OAuthNonceCache.CACHE_TIMEOUT_SECONDS)
-    if not (now - delta < timestamp and timestamp < now + delta):
+    if not (now - delta < timestamp and timestamp < now + delta): # pylint: disable=chained-comparison
         return False, 'oauth_timestamp has expired'
 
     # check OAuth nonce: The nonce value MUST be unique across all requests with
@@ -82,7 +82,8 @@ def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=No
     oauth_request = oauthlib.common.Request(request.build_absolute_uri(), http_method=request.method, headers=headers)
     # unfortunately, the request class is simple and we have to set the OAuth parameters manually like this
     oauth_signature = req_oauth_params_dict.pop('oauth_signature')
-    oauth_request.params = list(req_oauth_params_dict.items()) # list of key-value pairs; must not include oauth_signature
+    # list of key-value pairs; must not include oauth_signature
+    oauth_request.params = list(req_oauth_params_dict.items())
     oauth_request.signature = oauth_signature
 
     if not oauthlib.oauth1.rfc5849.signature.verify_hmac_sha1(oauth_request, client_secret=client_secret):

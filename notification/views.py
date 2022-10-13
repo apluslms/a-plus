@@ -1,7 +1,6 @@
 from django.http import Http404, HttpResponse
 
-from authorization.permissions import ACCESS
-from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from course.viewbase import CourseInstanceMixin
 from lib.viewbase import BaseRedirectView
 from .models import Notification
 

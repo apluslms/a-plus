@@ -1,5 +1,4 @@
 import logging
-from urllib.parse import unquote
 
 from django.conf import settings
 from django.contrib.auth import (
@@ -23,11 +22,11 @@ logger = logging.getLogger('aplus.shibboleth')
 class ShibbolethException(Exception):
     """
     Signals problems processing Shibboleth request.
-    
+
     """
     def __init__(self, message):
         self.message = message
-        super(ShibbolethException, self).__init__()
+        super().__init__()
 
 
 def _filter_environment(env, prefix):
@@ -50,30 +49,31 @@ def login(request):
                 _('SHIBBOLETH_ERROR_LOGIN_FAILED_META_HEADERS_MISSING')
             )
         if not user.is_active:
+            # pylint: disable-next=logging-format-interpolation
             logger.warning("Shibboleth login attempt for inactive user: {}".format(user.username))
             raise ShibbolethException(
                 _('SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED')
             )
 
         django_login(request, user)
-        logger.debug("Shibboleth login: {}".format(user.username))
-        
+        logger.debug("Shibboleth login: {}".format(user.username)) # pylint: disable=logging-format-interpolation
+
         redirect_to = request.GET.get(REDIRECT_FIELD_NAME, '')
         if not is_safe_url(url=redirect_to,
                            allowed_hosts={request.get_host()},
                            require_https=request.is_secure(),
                            ):
             redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
-        
+
         return HttpResponseRedirect(redirect_to)
-    
+
     except ShibbolethException as e:
         return HttpResponse(e.message, content_type='text/plain', status=403)
 
 
 def _safe_hyphens(s):
-    from django.utils.safestring import mark_safe
-    from django.utils.html import escape
+    from django.utils.safestring import mark_safe # pylint: disable=import-outside-toplevel
+    from django.utils.html import escape # pylint: disable=import-outside-toplevel
     s = '&#8209;'.join(escape(x) for x in s.split('-'))
     return mark_safe(s)
 
@@ -89,7 +89,7 @@ def debug(request):
     for k, v in request.META.items():
         if '.' in k:
             continue
-        elif k.startswith(shib_prefix):
+        if k.startswith(shib_prefix):
             shib_meta.append((k, parser.get_values(k)))
         elif k.startswith('HTTP_'):
             headers.append((_safe_hyphens(k[5:].lower().replace('_', '-')), v))

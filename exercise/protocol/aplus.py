@@ -85,7 +85,10 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                     submission.set_error()
                     page.errors.append(
                         format_lazy(
-                            _('ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- {points:d}, {max:d}, {exercise_max:d}'),
+                            _(
+                                'ASSESSMENT_SERVICE_ERROR_RESPONDED_INVALID_POINTS -- '
+                                '{points:d}, {max:d}, {exercise_max:d}'
+                            ),
                             points=page.points,
                             max=page.max_points,
                             exercise_max=exercise.max_points
@@ -130,10 +133,10 @@ def parse_page_content(
     page.is_loaded = True
 
     max_points = remote_page.meta("max-points")
-    if max_points != None:
+    if max_points is not None:
         page.max_points = int(max_points)
     max_points = remote_page.meta("max_points")
-    if max_points != None:
+    if max_points is not None:
         page.max_points = int(max_points)
 
     s = remote_page.meta("status")
@@ -155,7 +158,7 @@ def parse_page_content(
         page.meta["description"] = description
 
     points = remote_page.meta("points")
-    if points != None:
+    if points is not None:
         page.points = int(points)
         page.is_graded = True
         page.is_accepted = True

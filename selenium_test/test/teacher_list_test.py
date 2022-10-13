@@ -61,14 +61,44 @@ class TeacherListTest(unittest.TestCase):
         LoginPage(self.driver).loginAsSuperuser()
 
         list_data = [
-                ['Teacher User', '', 'aplus-001 My test course: A+ Test Course Instance', '2020-09-27 09:00:00+00:00', '2023-09-27 09:00:00+00:00'],
-                ['Teacher User', '', 'aplus-001 My test course: Hook Example', '2020-09-27 09:00:00+00:00', '2023-09-27 09:00:00+00:00'],
-            ]
+            [
+                'Teacher User',
+                '',
+                'aplus-001 My test course: A+ Test Course Instance',
+                '2020-09-27 09:00:00+00:00',
+                '2023-09-27 09:00:00+00:00'
+            ],
+            [
+                'Teacher User',
+                '',
+                'aplus-001 My test course: Hook Example',
+                '2020-09-27 09:00:00+00:00',
+                '2023-09-27 09:00:00+00:00'
+            ],
+        ]
         list_data_with_assistants = [
-                ['Teacher User', '', 'aplus-001 My test course: A+ Test Course Instance', '2020-09-27 09:00:00+00:00', '2023-09-27 09:00:00+00:00'],
-                ['Assistant User', '', 'aplus-001 My test course: A+ Test Course Instance', '2020-09-27 09:00:00+00:00', '2023-09-27 09:00:00+00:00'],
-                ['Teacher User', '', 'aplus-001 My test course: Hook Example', '2020-09-27 09:00:00+00:00', '2023-09-27 09:00:00+00:00'],
-            ]
+            [
+                'Teacher User',
+                '',
+                'aplus-001 My test course: A+ Test Course Instance',
+                '2020-09-27 09:00:00+00:00',
+                '2023-09-27 09:00:00+00:00'
+            ],
+            [
+                'Assistant User',
+                '',
+                'aplus-001 My test course: A+ Test Course Instance',
+                '2020-09-27 09:00:00+00:00',
+                '2023-09-27 09:00:00+00:00'
+            ],
+            [
+                'Teacher User',
+                '',
+                'aplus-001 My test course: Hook Example',
+                '2020-09-27 09:00:00+00:00',
+                '2023-09-27 09:00:00+00:00'
+            ],
+        ]
 
         ending_time = date.fromisoformat("2023-09-27")
         starting_time = date.fromisoformat("2020-09-27")
@@ -101,6 +131,7 @@ class TeacherListTest(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

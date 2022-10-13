@@ -60,7 +60,7 @@ def email_course_error(request, exercise, message, exception=True):
 
     try:
         email_course_instance(instance, subject, body)
-    except:
+    except: # pylint: disable=bare-except
         pass
 
 
@@ -86,6 +86,6 @@ def email_course_students(
 
     try:
         return send_mass_mail(emails)
-    except:
+    except: # pylint: disable=bare-except
         logger.exception('Failed to send course instance emails.')
         return -1

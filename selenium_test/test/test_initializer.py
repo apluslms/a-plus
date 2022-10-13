@@ -8,8 +8,8 @@ TEST_DB = os.path.join(TEST_PATH, 'aplus.db')
 TEST_COPY = os.path.join(TEST_PATH, 'aplus.db_copy')
 
 class Browser(enum.Enum):
-   firefox = "Firefox"
-   chrome = "Chrome"
+    firefox = "Firefox"
+    chrome = "Chrome"
 
 class TestInitializer:
 
@@ -20,7 +20,7 @@ class TestInitializer:
 
     def setupDisplay(self):
         # Headless with xvfb. Alternatively may just xvfb-run python.
-        from pyvirtualdisplay import Display
+        from pyvirtualdisplay import Display # pylint: disable=import-outside-toplevel
         display = Display(visible = False, size = (1024,768))
         display.start()
 
@@ -44,7 +44,9 @@ class TestInitializer:
     # TODO Should use Django unit tests that run selenium.
     def recreateDatabase(self) -> None:
         if not os.path.exists(TEST_DB):
-            raise Exception('The A+ Django needs to be run with environment variable APLUS_DB_FILE=selenium_test/aplus.db')
+            raise Exception( # pylint: disable=broad-exception-raised
+                'The A+ Django needs to be run with environment variable APLUS_DB_FILE=selenium_test/aplus.db'
+            )
         if not os.path.exists(TEST_COPY):
             os.system("cp " + TEST_DB + " " + TEST_COPY)
         os.system("cp " + TEST_COPY + " " + TEST_DB)
