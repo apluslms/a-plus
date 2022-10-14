@@ -6,9 +6,10 @@ function openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback) {
     // Unbind previous event handlers and bind a new one
     $("#duplicate-submission-modal-button").off('click');
     $("#duplicate-submission-modal-button").click(function() {
+      $("#duplicate-submission-modal").modal('hide');
       submitCallback(exercise, hash);
     });
-    $("#duplicate-submission-modal").modal()
+    $("#duplicate-submission-modal").modal('show');
   } else {
     submitCallback(exercise, hash);
   }
