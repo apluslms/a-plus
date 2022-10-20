@@ -49,7 +49,9 @@ class ExercisePage:
         Populates the provided values into the exercise form by manipulating
         its HTML. `field_values` are inserted into the form input fields.
         `data_values` are inserted into `data` attributes in the form element.
-        If `allow_submit` is `False`, the submit button is hidden.
+        If `allow_submit` is `False`, the submit button is removed.
+        If `feedback_revealed` is False, file input fields in the form
+        are marked as disabled and the submit button is removed.
         """
         soup = BeautifulSoup(self.content, 'html5lib')
 

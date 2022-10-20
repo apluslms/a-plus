@@ -439,7 +439,12 @@ class Submission(UrlMixin, models.Model):
                     param_name=key,
                 )
 
-    def load(self, request: HttpRequest, allow_submit: bool = True) -> ExercisePage:
+    def load(
+            self,
+            request: HttpRequest,
+            allow_submit: bool = True,
+            feedback_revealed: bool = True,
+        ) -> ExercisePage:
         """
         Loads the submission page, i.e. the exercise form with the submitted
         answers filled in. Not the same as the graded form, which is stored in
@@ -447,8 +452,9 @@ class Submission(UrlMixin, models.Model):
 
         The `allow_submit` argument determines if the submit button will be
         shown on the page.
+        The `feedback_revealed` argument controls whether file inputs
+        in the exercise form are disabled.
         """
-        from .reveal_states import ExerciseRevealState
         # Load the exercise page and parse its contents
         submitters = list(self.submitters.all())
         page = self.exercise.as_leaf_class().load(
@@ -457,9 +463,6 @@ class Submission(UrlMixin, models.Model):
             url_name='exercise',
             ordinal=self.ordinal_number(),
         )
-        rule = self.exercise.active_submission_feedback_reveal_rule
-        state = ExerciseRevealState(self.exercise, request.user)
-        feedback_revealed = rule.is_revealed(state)
         data = pairs_to_dict(self.submission_data) if self.submission_data else None
         page.populate_form(
             field_values=data,

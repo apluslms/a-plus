@@ -209,7 +209,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                         request,
                         f"{base_message} {self.feedback_hidden_description}",
                     )
-                    page = new_submission.load(request)
+                    page = new_submission.load(request, feedback_revealed=False)
 
             # Redirect non AJAX content page request back.
             if not request.is_ajax() and "__r" in request.GET:
@@ -281,7 +281,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                         return page
                     else:
                         # If feedback is not revealed, return the submission page without feedback
-                        return submission.load(request)
+                        return submission.load(request, feedback_revealed=False)
 
         # In every other case, load a blank exercise page
         return self.exercise.load(
@@ -455,7 +455,11 @@ class SubmissionView(SubmissionBaseView):
             # When feedback is delayed, show a filled but ungraded form.
             # False is passed in the allow_submit parameter to hide the submit
             # button on the submission page.
-            submission_page = self.submission.load(request, False)
+            submission_page = self.submission.load(
+                request,
+                allow_submit=False,
+                feedback_revealed=False,
+            )
             kwargs.update({'submission_page': submission_page})
         return super().get(request, *args, **kwargs)
 
