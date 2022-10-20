@@ -43,7 +43,13 @@ function duplicateCheck(exercise, form_element, submitCallback) {
 
     let index = 0;
     function readNextFile() {
-      const file = inputFileElements[index++].files[0];
+      let file;
+      const fileList = inputFileElements[index++].files;
+      if (fileList.length > 0) {
+        file = fileList[0];
+      } else {
+        file = new File([""], "filename");
+      }
       reader.readAsText(file);
     };
     reader.onload = function() {
