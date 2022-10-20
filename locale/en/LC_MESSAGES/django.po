@@ -4128,7 +4128,7 @@ msgstr "Show exercise template"
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "SUBMISSION_ACCEPTED_FOR_GRADING"
-msgstr "Your submission has been accepted for grading."
+msgstr "Your submission has been received."
 
 #: exercise/templates/exercise/results.html
 msgid "RESULTS"
