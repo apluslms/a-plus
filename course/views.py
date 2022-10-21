@@ -133,7 +133,7 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
             raise Http404(_('NO_COURSE_INSTANCES_OF_COURSE'))
 
     def get(self, request, *args, **kwargs):
-        return self.redirect(self.course_instance.url)
+        return self.redirect(self.course_instance.get_display_url())
 
 class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     access_mode = ACCESS.STUDENT
