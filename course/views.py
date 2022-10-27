@@ -113,20 +113,36 @@ class LastInstanceView(CourseMixin, BaseRedirectView):
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        course = get_object_or_404(Course, url=self._get_kwarg(self.course_kw))
-        course_instances = CourseInstance.objects.filter(course=course).order_by('-starting_time')
+        now = timezone.now()
+        course_instances = CourseInstance.objects.filter(course=self.course).order_by('-starting_time')
+        instance_ids_with_open_course_modules = set(
+            CourseModule.objects.filter(
+                course_instance__course=self.course,
+                status__in=(CourseModule.STATUS.READY, CourseModule.STATUS.UNLISTED),
+                opening_time__lte=now,
+            )
+            .values_list('course_instance_id', flat=True)
+            .order_by()
+            .distinct()
+        )
 
+        latest_open = None
         latest_visible = None
         latest_hidden = None
         for instance in course_instances:
-            any_modules_ready = CourseModule.objects.filter(course_instance=instance).filter(status=CourseModule.STATUS.READY).exists()
-            if instance.visible_to_students and any_modules_ready:
-                latest_visible = instance
-                break
+            if instance.visible_to_students:
+                if (instance.id in instance_ids_with_open_course_modules
+                        and instance.starting_time <= now
+                        ):
+                    latest_open = instance
+                    break
+                latest_visible = latest_visible or instance
             else:
                 latest_hidden = latest_hidden or instance
 
-        if latest_visible:
+        if latest_open:
+            self.course_instance = latest_open
+        elif latest_visible:
             self.course_instance = latest_visible
         elif latest_hidden and latest_hidden.is_course_staff(self.request.user):
             self.course_instance = latest_hidden

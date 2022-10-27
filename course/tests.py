@@ -461,3 +461,591 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.redirect_chain[0][0], '/Course-Url/T-00.1000_d1/')
+
+    def test_last_instance_view_open_modules(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # Two years ago.
+        instance1 = CourseInstance.objects.create(
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=105),
+            ending_time=self.today - timedelta(weeks=91),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today - timedelta(weeks=104),
+            closing_time=self.today - timedelta(weeks=102),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # One year ago.
+        instance2 = CourseInstance.objects.create(
+            instance_name="Instance 2",
+            starting_time=self.today - timedelta(weeks=53),
+            ending_time=self.today - timedelta(weeks=39),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=52),
+            closing_time=self.today - timedelta(weeks=50),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # This course instance has just recently started.
+        instance3 = CourseInstance.objects.create(
+            instance_name="Instance 3",
+            starting_time=self.today - timedelta(weeks=1),
+            ending_time=self.today + timedelta(weeks=14),
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today - timedelta(days=6),
+            closing_time=self.today + timedelta(weeks=1),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        instance3.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance3/')
+
+    def test_last_instance_view_almost_concurrent_instances(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # One year ago.
+        instance1 = CourseInstance.objects.create(
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=54),
+            ending_time=self.today - timedelta(weeks=47),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today - timedelta(weeks=54),
+            closing_time=self.today - timedelta(weeks=51),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Two course instances this year.
+        instance2 = CourseInstance.objects.create(
+            instance_name="Instance 2",
+            starting_time=self.today - timedelta(weeks=3),
+            ending_time=self.today + timedelta(weeks=4),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=2),
+            closing_time=self.today - timedelta(days=1),
+            status=CourseModule.STATUS.READY,
+        )
+        module2b = CourseModule.objects.create(
+            name="Module 2b",
+            url="module2b",
+            points_to_pass=20,
+            course_instance=instance2,
+            opening_time=self.today + timedelta(days=1),
+            closing_time=self.today + timedelta(weeks=1),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance3 = CourseInstance.objects.create(
+            instance_name="Instance 3",
+            starting_time=self.today - timedelta(weeks=10),
+            ending_time=self.today,
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today - timedelta(weeks=10),
+            closing_time=self.today - timedelta(weeks=1),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        instance3.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
+
+    def test_last_instance_view_only_future_instances(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # Starting in a month.
+        instance1 = CourseInstance.objects.create(
+            instance_name="Instance 1",
+            starting_time=self.today + timedelta(weeks=4),
+            ending_time=self.today + timedelta(weeks=19),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today + timedelta(weeks=4),
+            closing_time=self.today + timedelta(weeks=18),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Starts in a year.
+        instance2 = CourseInstance.objects.create(
+            instance_name="Instance 2",
+            starting_time=self.today + timedelta(weeks=53),
+            ending_time=self.today + timedelta(weeks=60),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today + timedelta(weeks=53),
+            closing_time=self.today + timedelta(weeks=56),
+            status=CourseModule.STATUS.UNLISTED,
+        )
+        module2b = CourseModule.objects.create(
+            name="Module 2b",
+            url="module2b",
+            points_to_pass=20,
+            course_instance=instance2,
+            opening_time=self.today + timedelta(weeks=56),
+            closing_time=self.today + timedelta(weeks=59),
+            status=CourseModule.STATUS.HIDDEN,
+        )
+
+        # Starts after instance2.
+        instance3 = CourseInstance.objects.create(
+            instance_name="Instance 3",
+            starting_time=self.today + timedelta(weeks=61),
+            ending_time=self.today + timedelta(weeks=70),
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today + timedelta(weeks=61),
+            closing_time=self.today + timedelta(weeks=70),
+            status=CourseModule.STATUS.HIDDEN,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        instance3.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        # This is not ideal, but this is how it currently works.
+        # All instances start in the future, thus the latest instance is
+        # the one that has the very latest starting time even though
+        # there are earlier course instances that would start sooner.
+        # It could make sense if the redirect targeted the next course instance
+        # that is about to start soon.
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance3/')
+
+        # Make the future course instances hidden from students except
+        # the one that starts soon.
+        instance2.visible_to_students = False
+        instance2.save()
+        instance3.visible_to_students = False
+        instance3.save()
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance1/')
+
+    def test_last_instance_view_after_instance_ending(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # One year ago.
+        instance1 = CourseInstance.objects.create(
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=52),
+            ending_time=self.today - timedelta(weeks=40),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today - timedelta(weeks=51),
+            closing_time=self.today - timedelta(weeks=41),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Ended recently.
+        instance2 = CourseInstance.objects.create(
+            instance_name="Instance 2",
+            starting_time=self.today - timedelta(weeks=15),
+            ending_time=self.today - timedelta(weeks=1),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=15),
+            closing_time=self.today - timedelta(weeks=12),
+            status=CourseModule.STATUS.READY,
+        )
+        module2b = CourseModule.objects.create(
+            name="Module 2b",
+            url="module2b",
+            points_to_pass=20,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=12),
+            closing_time=self.today - timedelta(weeks=1),
+            status=CourseModule.STATUS.UNLISTED,
+        )
+
+        # Starts in 6 months.
+        instance3 = CourseInstance.objects.create(
+            instance_name="Instance 3",
+            starting_time=self.today + timedelta(weeks=25),
+            ending_time=self.today + timedelta(weeks=40),
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today + timedelta(weeks=25),
+            closing_time=self.today + timedelta(weeks=30),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
+
+        # Hide instance2 from students.
+        instance2.visible_to_students = False
+        instance2.save()
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance1/')
+
+    def test_last_instance_view_all_instances_hidden(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # One year ago.
+        instance1 = CourseInstance.objects.create(
+            visible_to_students=False,
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=52),
+            ending_time=self.today - timedelta(weeks=40),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today - timedelta(weeks=51),
+            closing_time=self.today - timedelta(weeks=41),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Ended recently.
+        instance2 = CourseInstance.objects.create(
+            visible_to_students=False,
+            instance_name="Instance 2",
+            starting_time=self.today - timedelta(weeks=15),
+            ending_time=self.today - timedelta(weeks=1),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=15),
+            closing_time=self.today - timedelta(weeks=12),
+            status=CourseModule.STATUS.READY,
+        )
+        module2b = CourseModule.objects.create(
+            name="Module 2b",
+            url="module2b",
+            points_to_pass=20,
+            course_instance=instance2,
+            opening_time=self.today - timedelta(weeks=12),
+            closing_time=self.today - timedelta(weeks=1),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Starts in 6 months.
+        instance3 = CourseInstance.objects.create(
+            visible_to_students=False,
+            instance_name="Instance 3",
+            starting_time=self.today + timedelta(weeks=25),
+            ending_time=self.today + timedelta(weeks=40),
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today + timedelta(weeks=25),
+            closing_time=self.today + timedelta(weeks=30),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(response.redirect_chain), 0)
+
+        # Show all course instances from students.
+        instance1.visible_to_students = True
+        instance1.save()
+        instance2.visible_to_students = True
+        instance2.save()
+        instance3.visible_to_students = True
+        instance3.save()
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
+
+        instance1.visible_to_students = False
+        instance1.save()
+        instance2.visible_to_students = False
+        instance2.save()
+        instance3.visible_to_students = False
+        instance3.save()
+
+        # Log in as a teacher.
+        self.client.logout()
+        instance1.add_teacher(self.user.userprofile)
+        instance2.add_teacher(self.user.userprofile)
+        instance3.add_teacher(self.user.userprofile)
+        self.client.login(username='testUser', password='testPassword')
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance3/')
+
+        instance1.visible_to_students = True
+        instance1.save()
+        instance2.visible_to_students = True
+        instance2.save()
+        instance3.visible_to_students = True
+        instance3.save()
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
+
+    def test_last_instance_view_no_instances(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(response.redirect_chain), 0)
+
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(response.redirect_chain), 0)
+
+        instance1 = CourseInstance.objects.create(
+            visible_to_students=False,
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=15),
+            ending_time=self.today + timedelta(weeks=1),
+            course=course,
+            url="instance1",
+        )
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(len(response.redirect_chain), 0)
+
+        # Show the course instance to students and the user should be redirected there.
+        instance1.visible_to_students = True
+        instance1.save()
+        instance1.enroll_student(self.user1)
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance1/')
+
+    def test_last_instance_view_new_instance_has_closed_module(self):
+        course = Course.objects.create(
+            name="Last instance view course",
+            code="CS-111111",
+            url="cs-111111",
+        )
+
+        # One year ago.
+        instance1 = CourseInstance.objects.create(
+            instance_name="Instance 1",
+            starting_time=self.today - timedelta(weeks=52),
+            ending_time=self.today - timedelta(weeks=40),
+            course=course,
+            url="instance1",
+        )
+        module1 = CourseModule.objects.create(
+            name="Module 1",
+            url="module1",
+            points_to_pass=10,
+            course_instance=instance1,
+            opening_time=self.today - timedelta(weeks=51),
+            closing_time=self.today - timedelta(weeks=41),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Course instance has opened, but the modules have not yet opened.
+        instance2 = CourseInstance.objects.create(
+            instance_name="Instance 2",
+            starting_time=self.today - timedelta(days=3),
+            ending_time=self.today + timedelta(weeks=7),
+            course=course,
+            url="instance2",
+        )
+        module2 = CourseModule.objects.create(
+            name="Module 2",
+            url="module2",
+            points_to_pass=10,
+            course_instance=instance2,
+            opening_time=self.today + timedelta(days=2),
+            closing_time=self.today + timedelta(weeks=3),
+            status=CourseModule.STATUS.READY,
+        )
+        module2b = CourseModule.objects.create(
+            name="Module 2b",
+            url="module2b",
+            points_to_pass=20,
+            course_instance=instance2,
+            opening_time=self.today + timedelta(weeks=2),
+            closing_time=self.today + timedelta(weeks=6),
+            status=CourseModule.STATUS.READY,
+        )
+
+        # Starts in 6 months.
+        instance3 = CourseInstance.objects.create(
+            instance_name="Instance 3",
+            starting_time=self.today + timedelta(weeks=25),
+            ending_time=self.today + timedelta(weeks=40),
+            course=course,
+            url="instance3",
+        )
+        module3 = CourseModule.objects.create(
+            name="Module 3",
+            url="module3",
+            points_to_pass=10,
+            course_instance=instance3,
+            opening_time=self.today + timedelta(weeks=25),
+            closing_time=self.today + timedelta(weeks=30),
+            status=CourseModule.STATUS.READY,
+        )
+
+        instance1.enroll_student(self.user1)
+        instance2.enroll_student(self.user1)
+        self.client.login(username='testUser1', password='testPassword')
+        response = self.client.get('/cs-111111/', follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance1/')
+
+        # Move the module opening time in instance2 so that it has already opened.
+        module2.opening_time = self.today - timedelta(days=1)
+        module2.save()
+
+        response = self.client.get('/cs-111111/', follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
