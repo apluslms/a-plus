@@ -159,6 +159,11 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
 
     initial_queryset = property(_get_initial_queryset, _set_initial_queryset)
 
+    def clean(self, value):
+        qs = super().clean(value)
+        self.initial_queryset = qs
+        return qs
+
 
 class UsersSearchSelectField(SearchSelectField):
     """
