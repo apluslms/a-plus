@@ -3688,7 +3688,7 @@ msgstr "grading data"
 
 #: exercise/submission_models.py
 msgid "LABEL_META_DATA"
-msgstr "meta data"
+msgstr "metadata"
 
 #: exercise/submission_models.py
 msgid "MODEL_NAME_SUBMISSION"
