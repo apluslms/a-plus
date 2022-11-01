@@ -13,6 +13,15 @@
 			</div>
 
 			<div class="modal-body">
+				<dl>
+					<dt>{% translate "LABEL_SUBMISSION_TIME" %}</dt>
+					<dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
+					<dt>{% translate "LABEL_GRADING_TIME"|capfirst %}</dt>
+					<dd>{{ submission.grading_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>
+					<dt>{% translate "LABEL_SERVICE_POINTS"|capfirst %}</dt>
+					<dd>{{ submission.service_points }} / {{ submission.service_max_points }}</dd>
+				</dl>
+
 				<h4>{% translate "SUBMITTED_VALUES" %}</h4>
 				<dl>
 					{% for item in submission.submission_data %}
