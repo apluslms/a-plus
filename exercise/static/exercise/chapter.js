@@ -66,6 +66,27 @@
         this.dom_element.dispatchEvent(
           new CustomEvent("aplus:exercise-ready", {bubbles: true, detail: {type: type}}));
       }
+
+      this.consecutiveScrollEvents = 0;
+
+      // Only register the events related to anchor links when there's a hash
+      // (e.g., #chapter-exercise-3)
+      const hash = window.location.hash;
+      if (hash) {
+        const hashScrollListener = () => {
+          this.consecutiveScrollEvents++;
+          // If there are 3 consecutive scroll events, then the user tried to manually scroll
+          // and we should stop focusing on the exercise which was referred to by the hash.
+          if (3 < this.consecutiveScrollEvents) {
+            window.removeEventListener("scroll", hashScrollListener);
+          } else {
+            // Otherwise, keep focusing on the referenced exercise.
+            location.hash = hash;
+          }
+        };
+
+        window.addEventListener("scroll", hashScrollListener);
+      }
     },
 
     nextExercise: function() {
@@ -75,6 +96,10 @@
       }
       this.dom_element.dispatchEvent(
         new CustomEvent("aplus:chapter-ready", {bubbles: true}));
+
+      // Loading an exercise triggers a scroll event, but it isn't manual so
+      // consecutiveScrollEvents is reset.
+      this.consecutiveScrollEvents = 0;
     },
 
     readMessages: function() {
