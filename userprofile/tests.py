@@ -12,7 +12,8 @@ from userprofile.models import UserProfile
 
 class UserProfileTest(TestCase):
     def setUp(self):
-        self.student = User(username="testUser", first_name="Superb", last_name="Student", email="test@aplus.com")
+        # Set the user's id manually so that user.id is different than userprofile.id.
+        self.student = User(id=101, username="testUser", first_name="Superb", last_name="Student", email="test@aplus.com")
         self.student.set_password("testPassword")
         self.student.save()
         self.student_profile = self.student.userprofile
@@ -20,7 +21,7 @@ class UserProfileTest(TestCase):
         self.student_profile.organization = settings.LOCAL_ORGANIZATION
         self.student_profile.save()
 
-        self.grader = User(username="grader", first_name="Grumpy", last_name="Grader", email="grader@aplus.com")
+        self.grader = User(id=102, username="grader", first_name="Grumpy", last_name="Grader", email="grader@aplus.com")
         self.grader.set_password("graderPassword")
         self.grader.save()
         self.grader_profile = self.grader.userprofile
@@ -28,12 +29,12 @@ class UserProfileTest(TestCase):
         self.grader_profile.organization = settings.LOCAL_ORGANIZATION
         self.grader_profile.save()
 
-        self.teacher = User(username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com", is_staff=True)
+        self.teacher = User(id=103, username="teacher", first_name="Tedious", last_name="Teacher", email="teacher@aplus.com")
         self.teacher.set_password("teacherPassword")
         self.teacher.save()
         self.teacher_profile = self.teacher.userprofile
 
-        self.superuser = User(username="superuser", first_name="Super", last_name="User", email="superuser@aplus.com", is_superuser=True)
+        self.superuser = User(id=104, username="superuser", first_name="Super", last_name="User", email="superuser@aplus.com", is_superuser=True)
         self.superuser.set_password("superuserPassword")
         self.superuser.save()
         self.superuser_profile = self.superuser.userprofile
@@ -84,6 +85,21 @@ class UserProfileTest(TestCase):
             name="test category 3",
             course_instance=self.course_instance2
         )
+
+    def test_user_id_not_equal_profile_id(self):
+        self.assertEqual(self.student.id, 101)
+        self.assertEqual(self.grader.id, 102)
+        self.assertEqual(self.teacher.id, 103)
+        self.assertEqual(self.superuser.id, 104)
+        self.assertEqual(self.student_profile.id, 1)
+        self.assertEqual(self.grader_profile.id, 2)
+        self.assertEqual(self.teacher_profile.id, 3)
+        self.assertEqual(self.superuser_profile.id, 4)
+
+        self.assertNotEqual(self.student.id, self.student_profile.id)
+        self.assertNotEqual(self.grader.id, self.grader_profile.id)
+        self.assertNotEqual(self.teacher.id, self.teacher_profile.id)
+        self.assertNotEqual(self.superuser.id, self.superuser_profile.id)
 
     def test_userprofile_get_by_student_id(self):
         self.assertEqual(self.student_profile, UserProfile.get_by_student_id("12345X"))
