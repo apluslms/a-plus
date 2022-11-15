@@ -40,7 +40,7 @@ class UserViewSet(ListSerializerMixin,
         FieldValuesFilter,
     )
     search_fields = ['user__first_name', 'user__last_name', 'student_id', 'user__email']
-    field_values_map = {'id': 'id', 'student_id': 'student_id', 'email': 'user__email'}
+    field_values_map = {'id': 'user_id', 'student_id': 'student_id', 'email': 'user__email'}
     lookup_field = 'user_id' # UserProfile.user.id
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
