@@ -29,29 +29,29 @@ class UserProfileAPITest(TestCase):
                 self.assertEqual(response.data[key], model[key])
 
         results = [
-            {'id': 1,
-             'url': 'http://testserver/api/v2/users/1/',
+            {'id': 101,
+             'url': 'http://testserver/api/v2/users/101/',
              'username': 'testUser',
              'student_id': '12345X',
              'email': 'test@aplus.com',
              'full_name': 'Superb Student',
              'is_external': False},
-            {'id': 2,
-             'url': 'http://testserver/api/v2/users/2/',
+            {'id': 102,
+             'url': 'http://testserver/api/v2/users/102/',
              'username': 'grader',
              'student_id': '67890Y',
              'email': 'grader@aplus.com',
              'full_name': 'Grumpy Grader',
              'is_external': False},
-            {'id': 3,
-             'url': 'http://testserver/api/v2/users/3/',
+            {'id': 103,
+             'url': 'http://testserver/api/v2/users/103/',
              'username': 'teacher',
              'student_id': None,
              'email': 'teacher@aplus.com',
              'full_name': 'Tedious Teacher',
              'is_external': True},
-            {'id': 4,
-             'url': 'http://testserver/api/v2/users/4/',
+            {'id': 104,
+             'url': 'http://testserver/api/v2/users/104/',
              'username': 'superuser',
              'student_id': None,
              'email': 'superuser@aplus.com',
@@ -76,10 +76,10 @@ class UserProfileAPITest(TestCase):
     def test_get_userdetail(self):
         client = APIClient()
         client.force_authenticate(user=self.superuser)
-        response = client.get('/api/v2/users/1/')
+        response = client.get('/api/v2/users/101/')
         self.assertEqual(response.data, {
-            'id': 1,
-            'url': 'http://testserver/api/v2/users/1/',
+            'id': 101,
+            'url': 'http://testserver/api/v2/users/101/',
             'username':'testUser',
             'student_id':'12345X',
             'is_external': False,
@@ -100,15 +100,26 @@ class UserProfileAPITest(TestCase):
             self.assertSetEqual(ids, expected_ids)
 
         # Check that all individual field filters work (id, student_id, email)
-        check_response('/api/v2/users/?field=id&values=1,2,3,4', {1, 2, 3, 4})
-        check_response('/api/v2/users/?field=student_id&values=12345X,67890Y', {1, 2})
-        check_response('/api/v2/users/?field=email&values=teacher@aplus.com,superuser@aplus.com', {3, 4})
+        # The API uses User.id values, not UserProfile.id, to identify users.
+        check_response('/api/v2/users/?field=id&values=1,2,3,4', set())
+        check_response('/api/v2/users/?field=id&values=101,102,103,104', {101, 102, 103, 104})
+        check_response('/api/v2/users/?field=student_id&values=12345X,67890Y', {101, 102})
+        check_response('/api/v2/users/?field=email&values=teacher@aplus.com,superuser@aplus.com', {103, 104})
 
         # Check that partial matches are not returned
-        check_response('/api/v2/users/?field=student_id&values=123,67890Y', {2})
+        check_response('/api/v2/users/?field=student_id&values=123,67890Y', {102})
 
         # Check that unmatched values don't cause errors
-        check_response('/api/v2/users/?field=id&values=1,999', {1})
+        check_response('/api/v2/users/?field=id&values=1,101,999', {101})
 
         # Check that an empty or missing values list returns an empty result
         check_response('/api/v2/users/?field=email', set())
+
+        # Check the 404 not found response when the given field does not exist.
+        # emails is the wrong name for the field, email is correct.
+        response = client.get('/api/v2/users/?field=emails&values=teacher@aplus.com')
+        self.assertEqual(response.status_code, 404)
+
+        # Invalid values: int expected for id, but str given.
+        response = client.get('/api/v2/users/?field=id&values=hundred')
+        self.assertEqual(response.status_code, 404)
