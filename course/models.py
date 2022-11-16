@@ -462,7 +462,7 @@ class CourseInstanceManager(JWTAccessible["CourseInstance"], models.Manager):
             return self.filter(visible_to_students=True)
         if not user.is_superuser:
             return self.filter(
-                get_course_staff_visibility_filter(user) # pylint: disable=unsupported-binary-operation
+                get_course_staff_visibility_filter(user) # noqa: unsupported-binary-operation
                 | Q(visible_to_students=True),
             ).distinct()
         return self.all()
@@ -1147,8 +1147,7 @@ class CourseModuleManager(models.Manager):
             )
         if not user.is_superuser:
             return self.filter(
-                # pylint:disable-next=unsupported-binary-operation
-                get_course_staff_visibility_filter(user, 'course_instance__')
+                get_course_staff_visibility_filter(user, 'course_instance__') # noqa: unsupported-binary-operation
                 | Q(course_instance__visible_to_students=True, opening_time__lte=timezone.now()),
             ).distinct()
         return self.all()

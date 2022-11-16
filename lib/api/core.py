@@ -1,4 +1,4 @@
-from distutils.version import LooseVersion as _version
+from distutils.version import LooseVersion as _version # noqa: deprecated-module
 
 from rest_framework import exceptions
 from rest_framework.renderers import JSONRenderer
