@@ -8,21 +8,21 @@ jobs:
       - uses: actions/cache@v3
         id: imgcache
         with:
-          path: .docker-img.tar
+          path: .docker-lint-img.tar
           key: v3-${{ hashFiles('.github/workflows/lint.Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
       # we stop here if the docker image was found in a cache
       - uses: actions/cache@v3
         with:
-          path: .docker-cache
+          path: .docker-lint-cache
           key: v3-${{ hashFiles('.github/workflows/lint.Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
         if: steps.imgcache.outputs.cache-hit != 'true'
       - uses: docker/setup-buildx-action@v2
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - run: docker buildx build -t lintimg --output type=docker,dest=.docker-img.tar --cache-to type=local,dest=.docker-cache3,mode=max --cache-from type=local,src=.docker-cache -f .github/workflows/lint.Dockerfile .
+      - run: docker buildx build -t lintimg --output type=docker,dest=.docker-lint-img.tar --cache-to type=local,dest=.docker-lint-cache3,mode=max --cache-from type=local,src=.docker-lint-cache -f .github/workflows/lint.Dockerfile .
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - run: rm -rf .docker-cache | true
+      - run: rm -rf .docker-lint-cache | true
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - run: mv .docker-cache3 .docker-cache
+      - run: mv .docker-lint-cache3 .docker-lint-cache
         if: steps.imgcache.outputs.cache-hit != 'true'
 
   lint:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
-          path: .docker-img.tar
+          path: .docker-lint-img.tar
           key: v3-${{ hashFiles('.github/workflows/lint.Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
-      - run: docker load -i .docker-img.tar
+      - run: docker load -i .docker-lint-img.tar
       - run: docker run -v ${{ github.workspace }}:/app -w /app lintimg sh -c 'prospector'
