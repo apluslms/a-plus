@@ -811,7 +811,7 @@ post_delete.connect(_delete_file, SubmittedFile)
 
 class PendingSubmissionManager(models.Manager):
 
-    def is_grader_stable():
+    def is_grader_stable(): # pylint: disable=no-method-argument
         total_retries = PendingSubmission.objects.aggregate(sum=models.Sum('num_retries'))['sum']
         return not (total_retries and total_retries > settings.GRADER_STABLE_THRESHOLD)
 

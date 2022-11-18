@@ -223,7 +223,7 @@ class RemotePage:
         ]:
             self._fix_relative_urls(url, tag, attr)
 
-    def _fix_relative_urls(self, url, tag_name, attr_name): # pylint: disable=too-many-locals
+    def _fix_relative_urls(self, url, tag_name, attr_name): # pylint: disable=too-many-locals too-many-branches
         # Starts with "#", "//" or "https:".
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE) # noqa: W605
         # Ends with filename extension ".html" and possibly "#anchor".

@@ -40,7 +40,7 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
         if (
             exercise.is_submittable
             and not exercise.course_module.have_exercises_been_opened()
-            and not exercise.status in (
+            and exercise.status not in (
                 LearningObject.STATUS.ENROLLMENT,
                 LearningObject.STATUS.ENROLLMENT_EXTERNAL,
                 )):

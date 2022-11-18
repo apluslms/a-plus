@@ -1,4 +1,3 @@
-import html
 import urllib.parse
 
 from aplus_auth.payload import Permission, Permissions
@@ -34,7 +33,6 @@ from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from .operations.batch import create_submissions
-from .operations.clone import clone
 from .operations.configure import configure_content, get_build_log
 from lib.logging import SecurityLog
 from userprofile.models import UserProfile
@@ -335,7 +333,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def form_valid(self, form):
-        from .operations.clone import clone
+        from .operations.clone import clone # pylint: disable=import-outside-toplevel
         new_instance = clone(
             cloner=UserProfile.get_by_request(self.request),
             instance=self.instance,
@@ -349,7 +347,9 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             sisenroll=form.cleaned_data.get('sis_enroll'),
         )
 
-        if not all([settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]):
+        if not all(
+            [settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]
+        ):
             # Do not create a new entry in Git manager
             messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
             return self.redirect(new_instance.get_url('course-details'))

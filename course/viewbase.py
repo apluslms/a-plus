@@ -14,7 +14,7 @@ from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
 )
-from .models import Course, CourseInstance, CourseModule, UserTagging, Enrollment
+from .models import Course, CourseInstance, CourseModule, Enrollment
 
 
 class CourseMixin(UserProfileMixin):

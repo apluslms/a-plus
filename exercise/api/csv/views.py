@@ -317,6 +317,7 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
+    # pylint: disable-next=too-many-arguments
     def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
         return (
             Submission.objects
@@ -368,6 +369,7 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
+    # pylint: disable-next=too-many-arguments
     def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
         return (
             Submission.objects

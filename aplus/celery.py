@@ -18,11 +18,6 @@ app.autodiscover_tasks()
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    if hasattr(settings, 'SIS_ENROLL_SCHEDULE'):
-        sender.add_periodic_task(settings.SIS_ENROLL_SCHEDULE, enroll.s(), name='enroll')
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
     if settings.SUBMISSION_EXPIRY_TIMEOUT:
         # Run timed check twice in timeout period, for more timely retries
         sender.add_periodic_task(settings.SUBMISSION_EXPIRY_TIMEOUT/2, retry_submissions.s(), name='retry_submissions')
@@ -47,6 +42,7 @@ def enroll():
 
 @app.task
 def retry_submissions():
+    # pylint: disable-next=import-outside-toplevel
     from exercise.submission_models import PendingSubmission, PendingSubmissionManager
 
     # Recovery state: only send one grading request to probe the state of grader
@@ -54,16 +50,20 @@ def retry_submissions():
     # when things are back to normal, and we can return to normal state
     if not PendingSubmissionManager.is_grader_stable:
         pending = PendingSubmission.objects.order_by('-num_retries').first()
+        # pylint: disable-next=logging-fstring-interpolation
         logging.info(f"Recovery state: retrying expired submission {pending.submission}")
         pending.submission.exercise.grade(pending.submission)
         return
 
     # Stable state: retry all expired submissions
-    expiry_time = datetime.datetime.now(datetime.timezone.utc) - relativedelta(seconds=settings.SUBMISSION_EXPIRY_TIMEOUT)
+    expiry_time = datetime.datetime.now(datetime.timezone.utc) - relativedelta(
+        seconds=settings.SUBMISSION_EXPIRY_TIMEOUT
+    )
     expired = PendingSubmission.objects.filter(submission_time__lt=expiry_time)
 
     for pending in expired:
         if pending.submission.exercise.can_regrade:
+            # pylint: disable-next=logging-fstring-interpolation
             logger.info(f"Retrying expired submission {pending.submission}")
             pending.submission.exercise.grade(pending.submission)
             sleep(0.5)  # Delay 500 ms to avoid choking grader

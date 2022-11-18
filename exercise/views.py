@@ -276,9 +276,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                         page.content = submission.feedback
                         page.is_loaded = True
                         return page
-                    else:
-                        # If feedback is not revealed, return the submission page without feedback
-                        return submission.load(request, feedback_revealed=False)
+                    # If feedback is not revealed, return the submission page without feedback
+                    return submission.load(request, feedback_revealed=False)
 
         # In every other case, load a blank exercise page
         return self.exercise.load(

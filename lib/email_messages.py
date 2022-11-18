@@ -86,6 +86,6 @@ def email_course_students(
 
     try:
         return send_mass_mail(emails)
-    except:
+    except: # noqa: E722
         logger.exception('Failed to send course instance emails.')
         return -1

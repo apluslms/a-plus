@@ -8,7 +8,7 @@ from lib.testdata import CourseTestCase
 
 class CourseCloneTest(CourseTestCase):
 
-    def test_course_clone(self): # pylint:disable=too-many-locals
+    def test_course_clone(self):
 
         instance = CourseInstance.objects.get(id=1)
         instance.add_assistant(self.user.userprofile)

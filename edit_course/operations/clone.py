@@ -1,6 +1,5 @@
 import logging
 
-from exercise.exercise_models import BaseExercise, CourseChapter
 from django.db import transaction
 from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from course.models import CourseInstance
@@ -8,7 +7,7 @@ from course.sis import get_sis_configuration, StudentInfoSystem
 
 logger = logging.getLogger("aplus.course")
 
-def set_sis(instance: CourseInstance, id: str, enroll: bool) -> None:
+def set_sis(instance: CourseInstance, id: str, enroll: bool) -> None: # pylint: disable=redefined-builtin
     """
     Set teachers, starting time and ending based on Student Information System.
 
@@ -55,7 +54,7 @@ def set_sis(instance: CourseInstance, id: str, enroll: bool) -> None:
             instance.add_teacher(user.userprofile)
 
 @transaction.atomic
-def clone(
+def clone( # pylint: disable=too-many-locals too-many-arguments
         cloner,
         instance,
         url,
