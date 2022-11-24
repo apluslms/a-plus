@@ -4122,7 +4122,7 @@ msgstr "Show model answer"
 
 #: exercise/templates/exercise/exercise_plain.html
 msgid "SHOW_EXERCISE_TEMPLATE"
-msgstr "Show exercise template"
+msgstr "Show assignment template"
 
 #: exercise/templates/exercise/exercise_plain.html
 #: exercise/templates/exercise/submission.html
