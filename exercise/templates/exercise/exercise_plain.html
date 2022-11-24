@@ -55,7 +55,10 @@
 					<nav class="exercise-summary navbar navbar-default" aria-label="{{ exercise|parse_localization }}">
 						<ul class="nav navbar-nav exercise-nav">
 							<li>
-								<a href="{% if feedback_revealed and summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}">
+								<a href="{% if feedback_revealed and summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
+									class="exercise-nav-points"
+									role="button"
+								>
 									<span>
 										{% if not exercise.category.confirm_the_level %}
 											{% translate "POINTS" %}
@@ -65,7 +68,7 @@
 								</a>
 							</li>
 							<li class="dropdown">
-								<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+								<a class="dropdown-toggle exercise-nav-submissions" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
 										<span class="badge">
@@ -94,7 +97,7 @@
 								</ul>
 							</li>
 							{% if not exercise.category.confirm_the_level %}
-								<li class="navbar-text">
+								<li class="navbar-text exercise-nav-info">
 									<small>
 										<ul>
 											{% if exercise.points_to_pass > 0 %}
@@ -151,7 +154,7 @@
 							open it due to personal extensions. However, this saves some database queries.
 							{% endcomment %}
 							{% if exercise.model_answers %}
-								<a class="aplus-button--secondary aplus-button--md page-modal" role="button" href="{{ exercise|url:'exercise-model' }}">
+								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
 									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
 									{% translate "SHOW_MODEL_ANSWER" %}
 								</a>
@@ -159,14 +162,14 @@
 						{% endif %}
 						{% if is_course_staff or is_student %}
 							{% if exercise.templates %}
-								<a class="aplus-button--secondary aplus-button--md page-modal" role="button" href="{{ exercise|url:'exercise-template' }}">
+								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
 									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
 									{% translate "SHOW_EXERCISE_TEMPLATE" %}
 								</a>
 							{% endif %}
 						{% endif %}
 						{% if is_course_staff %}
-							<a class="aplus-button--secondary aplus-button--md page-modal" role="button" href="{{ exercise|url:'submission-list' }}">
+							<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
 								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
 								{% translate "VIEW_ALL_SUBMISSIONS" %}
 							</a>
