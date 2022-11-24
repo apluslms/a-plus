@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-14 21:50+0300\n"
+"POT-Creation-Date: 2022-11-24 18:19+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -3410,6 +3410,7 @@ msgstr ""
 "more than that."
 
 #: exercise/forms.py exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SUBMISSION_TIME"
 msgstr "Submission time"
 
@@ -3659,6 +3660,7 @@ msgid "LABEL_FEEDBACK"
 msgstr "Feedback"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_GRADING_TIME"
 msgstr "grading time"
 
@@ -3671,6 +3673,7 @@ msgid "LABEL_FORCE_EXERCISE_POINTS"
 msgstr "Force exercise points"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SERVICE_POINTS"
 msgstr "service points"
 
@@ -3687,6 +3690,7 @@ msgid "LABEL_GRADING_DATA"
 msgstr "grading data"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_META_DATA"
 msgstr "metadata"
 
