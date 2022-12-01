@@ -596,7 +596,7 @@ class Submission(UrlMixin, models.Model):
                 "site": settings.BASE_URL,
             })
 
-        if not PendingSubmissionManager.is_grader_stable:
+        if not PendingSubmission.objects.is_grader_stable():
             # We have a successful grading task in the recovery state. It may be a sign that problems
             # have been resolved, so immediately retry the next pending submission, to speed up recovery
             retry_submissions()
@@ -808,8 +808,8 @@ post_delete.connect(_delete_file, SubmittedFile)
 
 class PendingSubmissionManager(models.Manager):
 
-    def is_grader_stable():
-        total_retries = PendingSubmission.objects.aggregate(sum=models.Sum('num_retries'))['sum']
+    def is_grader_stable(self):
+        total_retries = self.aggregate(sum=models.Sum('num_retries'))['sum']
         return not (total_retries and total_retries > settings.GRADER_STABLE_THRESHOLD)
 
 

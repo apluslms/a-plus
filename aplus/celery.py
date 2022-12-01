@@ -52,7 +52,7 @@ def retry_submissions():
     # Recovery state: only send one grading request to probe the state of grader
     # We pick the one with most attempts, so that total_retries comes down more quickly
     # when things are back to normal, and we can return to normal state
-    if not PendingSubmissionManager.is_grader_stable:
+    if not PendingSubmission.objects.is_grader_stable():
         pending = PendingSubmission.objects.order_by('-num_retries').first()
         logging.info(f"Recovery state: retrying expired submission {pending.submission}")
         pending.submission.exercise.grade(pending.submission)
