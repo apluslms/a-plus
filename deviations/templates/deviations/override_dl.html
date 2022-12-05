@@ -45,7 +45,7 @@
 				</thead>
 				<tbody>
 				{% translate "UNKNOWN" as unknown %}
-				{% for deviations, can_group, group_id in deviation_groups %}
+				{% for deviations, can_group, group_id, _ in deviation_groups %}
 				{% new_deviation_minutes deviations.0 session_data.minutes session_data.new_date as new_deviation_minutes %}
 				{% new_deviation_date deviations.0 session_data.minutes session_data.new_date as new_deviation_date %}
 				{% if can_group %}

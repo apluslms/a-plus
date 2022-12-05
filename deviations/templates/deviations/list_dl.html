@@ -54,7 +54,7 @@
 				</thead>
 				<tbody>
 					{% translate "UNKNOWN" as unknown %}
-					{% for deviations, can_group, group_id in deviation_groups %}
+					{% for deviations, can_group, group_id, show_granter in deviation_groups %}
 					{% if can_group %}
 					<tr data-group-parent="{{ group_id }}">
 						<td>
@@ -83,8 +83,24 @@
 								{% translate "NO" %}
 							{% endif %}
 						</td>
-						<td></td>
-						<td></td>
+						<td>
+							{% if show_granter %}
+								{% if deviations.0.granter %}
+								{{ deviations.0.granter.name_with_student_id }}
+								{% else %}
+								{{ unknown }}
+								{% endif %}
+							{% endif %}
+						</td>
+						<td data-datetime="{{ deviations.0.grant_time|date:'Y-m-d H:i:s' }}">
+							{% if show_granter %}
+								{% if deviations.0.grant_time %}
+								{{ deviations.0.grant_time|date:'SHORT_DATETIME_FORMAT' }}
+								{% else %}
+								{{ unknown }}
+								{% endif %}
+							{% endif %}
+						</td>
 						<td>
 							<input type="checkbox">
 						</td>

@@ -218,6 +218,7 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
         return super().form_valid(form)
 
 
+# pylint: disable-next=too-many-locals
 def get_deviation_groups(
         all_deviations: models.QuerySet[SubmissionRuleDeviation],
         ) -> Iterable[Tuple[List[SubmissionRuleDeviation], bool, Optional[str]]]:
@@ -270,16 +271,23 @@ def get_deviation_groups(
     for (_submitter, module), deviations_iter in deviation_groups:
         deviations = list(deviations_iter)
         can_group = True
+        show_granter = True
         if len(deviations) < 2:
             # Group must have at least 2 deviations.
             can_group = False
         else:
             group_exercises = set()
             # Check that the same deviation has been granted for all exercises.
+            first_granter = deviations[0].granter.id
             for deviation in deviations:
                 if not deviation.is_groupable(deviations[0]):
                     can_group = False
-                    break
+                    if not show_granter:
+                        break
+                if deviation.granter.id != first_granter:
+                    show_granter = False
+                    if not can_group:
+                        break
                 group_exercises.add(deviation.exercise.id)
             else:
                 if len(group_exercises) != exercise_count_by_module[module.id]:
@@ -288,7 +296,7 @@ def get_deviation_groups(
                     # are some exercises that don't have a deviation.
                     can_group = False
         group_id = f"{deviations[0].submitter.id}.{module.id}" if can_group else None
-        yield (deviations, can_group, group_id)
+        yield (deviations, can_group, group_id, show_granter)
 
 
 def get_exercises(form_data: Dict[str, Any]) -> models.QuerySet[BaseExercise]:
