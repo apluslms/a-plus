@@ -319,11 +319,11 @@ class DeviationsTest(TestCase):
         # The deviations of user 1 can't be grouped because of different extra minutes
         # The deviations of user 2 can't be grouped because there is only one deviation
         groups = list(get_deviation_groups(DeadlineRuleDeviation.objects.all()))
-        deviations, can_group, group_id = groups[0]
+        deviations, can_group, group_id, _ = groups[0]
         self.assertEqual(len(deviations), 2)
         self.assertFalse(can_group)
         self.assertIsNone(group_id)
-        deviations, can_group, group_id = groups[1]
+        deviations, can_group, group_id, _ = groups[1]
         self.assertEqual(len(deviations), 1)
         self.assertFalse(can_group)
         self.assertIsNone(group_id)
@@ -337,7 +337,7 @@ class DeviationsTest(TestCase):
 
         # The deviations of user 1 can now be grouped
         groups = list(get_deviation_groups(DeadlineRuleDeviation.objects.all()))
-        deviations, can_group, group_id = groups[0]
+        deviations, can_group, group_id, _ = groups[0]
         self.assertEqual(len(deviations), 2)
         self.assertTrue(can_group)
         self.assertEqual(group_id, f'{self.user.id}.{self.course_module.id}')
@@ -353,7 +353,7 @@ class DeviationsTest(TestCase):
 
         # The deviations of user 1 can no longer be grouped because there is an exercise without a deviation
         groups = list(get_deviation_groups(DeadlineRuleDeviation.objects.all()))
-        deviations, can_group, group_id = groups[0]
+        deviations, can_group, group_id, _ = groups[0]
         self.assertEqual(len(deviations), 2)
         self.assertFalse(can_group)
         self.assertIsNone(group_id)

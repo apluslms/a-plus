@@ -46,7 +46,7 @@
 				</thead>
 				<tbody>
 					{% translate "UNKNOWN" as unknown %}
-					{% for deviations, can_group, group_id in deviation_groups %}
+					{% for deviations, can_group, group_id, _ in deviation_groups %}
 					{% if can_group %}
 					<tr data-group-parent="{{ group_id }}">
 						<td>
