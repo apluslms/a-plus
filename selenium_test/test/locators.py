@@ -1,7 +1,11 @@
 from selenium.webdriver.common.by import By
 
 class CommonLocators:
-    FORBIDDEN_PAGE = (By.XPATH, "//div[@class='page-header']/h1[contains(text(), '403 Forbidden')]")
+    FORBIDDEN_PAGE = (
+        By.XPATH,
+        "//div[@class='message'][contains(text(), "
+        "'Unfortunately you are not permitted to see this content')]"
+    )
     PERMISSION_DENIED_ACCESS_MODE = (
         By.XPATH,
         "//main[@id='content']//div[@class='message'][contains(text(), "

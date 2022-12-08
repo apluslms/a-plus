@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 16:41+0200\n"
+"POT-Creation-Date: 2023-05-10 14:22+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -201,6 +201,10 @@ msgid "ACCESS_PERMISSION_DENIED_MSG"
 msgstr "Unfortunately you are not permitted to see this content."
 
 #: authorization/permissions.py
+msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
+msgstr "Please login."
+
+#: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
 msgstr "Only course teachers shall pass."
 
@@ -372,7 +376,8 @@ msgstr "anonymized ID"
 msgid "LABEL_ROLE"
 msgstr "role"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: course/models.py exercise/admin.py exercise/exercise_models.py
+#: exercise/submission_models.py
 msgid "LABEL_STATUS"
 msgstr "status"
 
@@ -2922,6 +2927,10 @@ msgstr "Submitters"
 msgid "LABEL_SUBMITTERS"
 msgstr "Submitters"
 
+#: exercise/admin.py exercise/submission_models.py notification/models.py
+msgid "LABEL_SUBMISSION"
+msgstr "submission"
+
 #: exercise/api/views.py exercise/views.py
 msgid "ERROR_SUBMISSION_SAVING_FAILED"
 msgstr ""
@@ -3717,10 +3726,6 @@ msgstr "submission draft"
 #: exercise/submission_models.py
 msgid "MODEL_NAME_SUBMISSION_DRAFT_PLURAL"
 msgstr "submission drafts"
-
-#: exercise/submission_models.py notification/models.py
-msgid "LABEL_SUBMISSION"
-msgstr "submission"
 
 #: exercise/submission_models.py
 msgid "LABEL_PARAM_NAME"
@@ -5037,8 +5042,8 @@ msgstr ""
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_COURSE_STAFF -- %(brand)s"
 msgstr ""
 "Moreover, we send this service a so-called <a href=\"https://en.wikipedia."
-"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class="
-"\"alert-link\">access token</a>, which gives the service access to the "
+"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" "
+"class=\"alert-link\">access token</a>, which gives the service access to the "
 "%(brand)s API at your privilege level. If you don't want that to happen, "
 "please contact %(brand)s administration."
 
@@ -5047,8 +5052,8 @@ msgstr ""
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_STUDENT -- %(brand)s"
 msgstr ""
 "Moreover, we send this service a so-called <a href=\"https://en.wikipedia."
-"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class="
-"\"alert-link\">access token</a>, which gives the service access to the "
+"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" "
+"class=\"alert-link\">access token</a>, which gives the service access to the "
 "%(brand)s API at your privilege level. This means that the service can, for "
 "example, access your student ID number and your progress in the course, and "
 "submit solutions to assignments. The course staff has enabled this feature "
@@ -5058,8 +5063,8 @@ msgstr ""
 #, python-format
 msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_INTERNALLY -- %(brand)s, %(url)s"
 msgstr ""
-"This service is hosted by us (%(brand)s administrators) and thus our <a href="
-"\"%(url)s\" target=\"_blank\">privacy notice</a> covers it too."
+"This service is hosted by us (%(brand)s administrators) and thus our <a "
+"href=\"%(url)s\" target=\"_blank\">privacy notice</a> covers it too."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
@@ -5073,21 +5078,22 @@ msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_EEA"
 msgstr ""
 "This service is hosted within the European Economics Area and is thus "
 "subject to <a href=\"https://ec.europa.eu/info/law/law-topic/data-protection/"
-"reform_en\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
-"\">the European Union's General Data Protection Regulation</a>."
+"reform_en\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-"
+"link\">the European Union's General Data Protection Regulation</a>."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_PRIVACYSHIELD"
 msgstr ""
 "This service is hosted outside of the European Economics Area and is thus "
 "not covered by <a href=\"https://ec.europa.eu/info/law/law-topic/data-"
-"protection/reform_en\" rel=\"noopener nofollow\" target=\"_blank\" class="
-"\"alert-link\">the European Union's General Data Protection Regulation</a> "
-"(GDPR). The service used to be certified under <a href=\"https://www."
-"privacyshield.gov/Individuals-in-Europe\" rel=\"noopener nofollow\" target="
-"\"_blank\" class=\"alert-link\">the EU-U.S. Privacy Shield</a>, but the "
-"European Court of Justice has declared the EU-U.S. Privacy Shield invalid. "
-"We are investigating how this affects the use of the service."
+"protection/reform_en\" rel=\"noopener nofollow\" target=\"_blank\" "
+"class=\"alert-link\">the European Union's General Data Protection "
+"Regulation</a> (GDPR). The service used to be certified under <a "
+"href=\"https://www.privacyshield.gov/Individuals-in-Europe\" rel=\"noopener "
+"nofollow\" target=\"_blank\" class=\"alert-link\">the EU-U.S. Privacy "
+"Shield</a>, but the European Court of Justice has declared the EU-U.S. "
+"Privacy Shield invalid. We are investigating how this affects the use of the "
+"service."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"

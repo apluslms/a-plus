@@ -26,7 +26,7 @@ class TeacherListPage(BasePage):
             query.append("end_date=" + end_date.isoformat())
         query.append("with_assistants=" + ("true" if with_assistants else "false"))
 
-        self.load("/accounts/teachers/?" + "&".join(query), (By.CSS_SELECTOR, '.page-header'))
+        self.load("/accounts/teachers/?" + "&".join(query), (By.CSS_SELECTOR, '.container-fluid'))
 
     def get_table_data(self) -> List[List[str]]:
         rows = self.getElements((By.CSS_SELECTOR, "table tbody tr"))
