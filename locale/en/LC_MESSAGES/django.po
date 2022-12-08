@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-14 21:50+0300\n"
+"POT-Creation-Date: 2022-12-07 05:30+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -199,6 +199,10 @@ msgstr "A superuser of the service"
 #: authorization/permissions.py
 msgid "ACCESS_PERMISSION_DENIED_MSG"
 msgstr "Unfortunately you are not permitted to see this content."
+
+#: authorization/permissions.py
+msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
+msgstr "Please login."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
@@ -3410,6 +3414,7 @@ msgstr ""
 "more than that."
 
 #: exercise/forms.py exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SUBMISSION_TIME"
 msgstr "Submission time"
 
@@ -3659,6 +3664,7 @@ msgid "LABEL_FEEDBACK"
 msgstr "Feedback"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_GRADING_TIME"
 msgstr "grading time"
 
@@ -3671,6 +3677,7 @@ msgid "LABEL_FORCE_EXERCISE_POINTS"
 msgstr "Force exercise points"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SERVICE_POINTS"
 msgstr "service points"
 
@@ -3687,6 +3694,7 @@ msgid "LABEL_GRADING_DATA"
 msgstr "grading data"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_META_DATA"
 msgstr "metadata"
 
@@ -5286,6 +5294,11 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "The user account has been disabled."
+
+#: src/drf-extensions/rest_framework_extensions/exceptions.py
+#, python-brace-format
+msgid "This \"{method}\" request is required to be conditional."
+msgstr ""
 
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"

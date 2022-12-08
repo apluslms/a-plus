@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-14 21:50+0300\n"
+"POT-Creation-Date: 2022-12-07 05:30+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -200,6 +200,10 @@ msgstr "Palvelun hallintokäyttäjä"
 #: authorization/permissions.py
 msgid "ACCESS_PERMISSION_DENIED_MSG"
 msgstr "Valitettavasti sinulla ei ole oikeutta nähdä tätä sisältöä."
+
+#: authorization/permissions.py
+msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
+msgstr "Kirjaudu sisään."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
@@ -3422,6 +3426,7 @@ msgid "SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}"
 msgstr "Annetut pisteet ylittävät tehtävän enimmäispisteet, {max:d}."
 
 #: exercise/forms.py exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SUBMISSION_TIME"
 msgstr "Palautusaika"
 
@@ -3668,6 +3673,7 @@ msgid "LABEL_FEEDBACK"
 msgstr "Palaute"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_GRADING_TIME"
 msgstr "arvosteluaika"
 
@@ -3680,6 +3686,7 @@ msgid "LABEL_FORCE_EXERCISE_POINTS"
 msgstr "Pakota tehtävän pisteet"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_SERVICE_POINTS"
 msgstr "palvelimen antamat pisteet"
 
@@ -3696,6 +3703,7 @@ msgid "LABEL_GRADING_DATA"
 msgstr "arvostelun tiedot"
 
 #: exercise/submission_models.py
+#: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "LABEL_META_DATA"
 msgstr "metatiedot"
 
@@ -5309,6 +5317,11 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "Käyttäjätili on poistettu käytöstä."
+
+#: src/drf-extensions/rest_framework_extensions/exceptions.py
+#, python-brace-format
+msgid "This \"{method}\" request is required to be conditional."
+msgstr ""
 
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"
