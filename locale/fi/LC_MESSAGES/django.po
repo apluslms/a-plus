@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 16:41+0200\n"
+"POT-Creation-Date: 2023-05-10 14:22+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -202,6 +202,10 @@ msgid "ACCESS_PERMISSION_DENIED_MSG"
 msgstr "Valitettavasti sinulla ei ole oikeutta nähdä tätä sisältöä."
 
 #: authorization/permissions.py
+msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
+msgstr "Kirjaudu sisään."
+
+#: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
 msgstr "Vain opettajille."
 
@@ -373,7 +377,8 @@ msgstr "anonymisoitu ID"
 msgid "LABEL_ROLE"
 msgstr "rooli"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: course/models.py exercise/admin.py exercise/exercise_models.py
+#: exercise/submission_models.py
 msgid "LABEL_STATUS"
 msgstr "tila"
 
@@ -1174,8 +1179,8 @@ msgstr "[henkilökunnalla ei ole]"
 #, python-format
 msgid "GROUP_PERSONAL_JOIN_CODE -- %(code)s"
 msgstr ""
-"Henkilökohtainen ryhmään <strong>liittymiskoodisi</strong> on <strong>"
-"%(code)s</strong>. "
+"Henkilökohtainen ryhmään <strong>liittymiskoodisi</strong> on "
+"<strong>%(code)s</strong>. "
 
 #: course/templates/course/groups.html
 msgid "GROUP_CREATION_INSTRUCTIONS"
@@ -2532,7 +2537,8 @@ msgstr "Tuo sisältöasetukset URL-osoitteesta"
 #: edit_course/templates/edit_course/edit_content.html
 msgid "APPLY_CHANGES_TOOLTIP"
 msgstr ""
-"Vertaa uusia sisältöasetuksia aikaisempiin, ja päivittää vain muuttuneet osat."
+"Vertaa uusia sisältöasetuksia aikaisempiin, ja päivittää vain muuttuneet "
+"osat."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "APPLY_CHANGES"
@@ -2934,6 +2940,10 @@ msgstr "Opiskelijat"
 #: exercise/admin.py exercise/forms.py exercise/submission_models.py
 msgid "LABEL_SUBMITTERS"
 msgstr "Palauttajat"
+
+#: exercise/admin.py exercise/submission_models.py notification/models.py
+msgid "LABEL_SUBMISSION"
+msgstr "palautus"
 
 #: exercise/api/views.py exercise/views.py
 msgid "ERROR_SUBMISSION_SAVING_FAILED"
@@ -3725,10 +3735,6 @@ msgstr "palautusluonnos"
 msgid "MODEL_NAME_SUBMISSION_DRAFT_PLURAL"
 msgstr "palautusluonnokset"
 
-#: exercise/submission_models.py notification/models.py
-msgid "LABEL_SUBMISSION"
-msgstr "palautus"
-
 #: exercise/submission_models.py
 msgid "LABEL_PARAM_NAME"
 msgstr "parametrin nimi"
@@ -3985,8 +3991,8 @@ msgstr "Palauttajia: %(number)s <small>%(percentage)s%%</small>"
 #, python-format
 msgid "USER_LAST_VISITED -- %(name)s, %(link)s"
 msgstr ""
-"Olet ollut oppimateriaalissa viimeksi kohdassa <a href=\"%(link)s\">"
-"%(name)s</a>"
+"Olet ollut oppimateriaalissa viimeksi kohdassa <a "
+"href=\"%(link)s\">%(name)s</a>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -5056,29 +5062,30 @@ msgstr ""
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_COURSE_STAFF -- %(brand)s"
 msgstr ""
 "Lisäksi palvelulle lähetetään <a href=\"https://en.wikipedia.org/wiki/"
-"Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
-"\">käyttöoikeustietue</a>, joka mahdollistaa palvelun pääsyn %(brand)s:n API:"
-"in sinun oikeuksillasi. Mikäli näin ei pitäisi tapahtua, niin ota yhteyttä "
-"%(brand)s:n ylläpitoon."
+"Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-"
+"link\">käyttöoikeustietue</a>, joka mahdollistaa palvelun pääsyn %(brand)s:n "
+"API:in sinun oikeuksillasi. Mikäli näin ei pitäisi tapahtua, niin ota "
+"yhteyttä %(brand)s:n ylläpitoon."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_STUDENT -- %(brand)s"
 msgstr ""
 "Lisäksi palvelulle lähetetään <a href=\"https://en.wikipedia.org/wiki/"
-"Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
-"\">käyttöoikeustietue</a>, joka mahdollistaa palvelun pääsyn %(brand)s:n API:"
-"in sinun oikeuksillasi. Tämä tarkoittaa sitä, että palvelu voi mm. selvittää "
-"opiskelijanumerosi, nähdä kurssisuorituksiasi ja palauttaa tehtäviä "
-"puolestasi. Kurssin henkilökunta on mahdollistanut tämän ja luottaa palvelun "
-"toimivan etujesi mukaisesti."
+"Access_token\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-"
+"link\">käyttöoikeustietue</a>, joka mahdollistaa palvelun pääsyn %(brand)s:n "
+"API:in sinun oikeuksillasi. Tämä tarkoittaa sitä, että palvelu voi mm. "
+"selvittää opiskelijanumerosi, nähdä kurssisuorituksiasi ja palauttaa "
+"tehtäviä puolestasi. Kurssin henkilökunta on mahdollistanut tämän ja luottaa "
+"palvelun toimivan etujesi mukaisesti."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
 msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_INTERNALLY -- %(brand)s, %(url)s"
 msgstr ""
-"Tämä palvelu on meidän ylläpitämämme (%(brand)s), joten meidän <a href="
-"\"%(url)s\" target=\"_blank\">tietosuojailmoituksemme</a> kattaa myös sen. "
+"Tämä palvelu on meidän ylläpitämämme (%(brand)s), joten meidän <a "
+"href=\"%(url)s\" target=\"_blank\">tietosuojailmoituksemme</a> kattaa myös "
+"sen. "
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
@@ -5090,9 +5097,9 @@ msgstr ""
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_HOSTED_IN_EEA"
 msgstr ""
-"Tämä palvelu sijaitsee Euroopan talousalueella, joten sitä koskee <a href="
-"\"https://ec.europa.eu/info/law/law-topic/data-protection/reform_fi\" rel="
-"\"noopener nofollow\" target=\"_blank\" class=\"alert-link\">Euroopan "
+"Tämä palvelu sijaitsee Euroopan talousalueella, joten sitä koskee <a "
+"href=\"https://ec.europa.eu/info/law/law-topic/data-protection/reform_fi\" "
+"rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link\">Euroopan "
 "unionin yleinen tietosuoja-asetus</a>."
 
 #: external_services/templates/external_services/_privacy.html
@@ -5100,12 +5107,12 @@ msgid "EXTERNAL_SERVICE_PRIVACY_PRIVACYSHIELD"
 msgstr ""
 "Tämä palvelu sijaitsee Euroopan talousalueen ulkopuolella, joten sitä ei "
 "koske <a href=\"https://ec.europa.eu/info/law/law-topic/data-protection/"
-"reform_fi\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link"
-"\">Euroopan unionin yleinen tietosuoja-asetus</a> (GDPR). Palvelu oli "
-"aiemmin <a href=\"https://www.privacyshield.gov/Individuals-in-Europe\" rel="
-"\"noopener nofollow\" target=\"_blank\" class=\"alert-link\">EU-U.S. Privacy "
-"Shield</a> -sertifioitu, mutta Euroopan unionin tuomioistuin on kumonnut "
-"päätöksen EU-U.S. Privacy Shield -järjestelyn tietosuojan tason "
+"reform_fi\" rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-"
+"link\">Euroopan unionin yleinen tietosuoja-asetus</a> (GDPR). Palvelu oli "
+"aiemmin <a href=\"https://www.privacyshield.gov/Individuals-in-Europe\" "
+"rel=\"noopener nofollow\" target=\"_blank\" class=\"alert-link\">EU-U.S. "
+"Privacy Shield</a> -sertifioitu, mutta Euroopan unionin tuomioistuin on "
+"kumonnut päätöksen EU-U.S. Privacy Shield -järjestelyn tietosuojan tason "
 "riittävyydestä. Selvitämme edelleen, kuinka uusi päätös vaikuttaa palvelun "
 "käyttöön. "
 
@@ -5127,8 +5134,8 @@ msgstr ""
 #, python-format
 msgid "EXTERNAL_SERVICE_LOOK_WITHOUT_SENDING_DATA -- %(url)s"
 msgstr ""
-"Voit vierailla palvelussa lähettämättä tietoja: <a href=\"%(url)s\" rel="
-"\"noopener nofollow\" target=\"_blank\">palvelun etusivu</a>."
+"Voit vierailla palvelussa lähettämättä tietoja: <a href=\"%(url)s\" "
+"rel=\"noopener nofollow\" target=\"_blank\">palvelun etusivu</a>."
 
 #: external_services/templates/external_services/edit_menu.html
 msgid "ADD_MENU_ITEM"
