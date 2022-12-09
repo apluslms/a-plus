@@ -298,7 +298,7 @@ $(function() {
                   text: _('Copy to clipboard')
                 });
 
-                const clipboard = new Clipboard('#copy-button-' + copyTargetCounter);
+                const clipboard = new ClipboardJS('#copy-button-' + copyTargetCounter);
                 clipboard.on("error", function(e) {
                     hiddenTextarea.hide();
                 });
@@ -309,7 +309,7 @@ $(function() {
                 copyTargetCounter += 1;
             }
 
-            hljs.highlightBlock(codeBlock[0]);
+            hljs.highlightElement(codeBlock[0])
 
             // Add line numbers.
             const pre = $(codeBlock);

@@ -134,7 +134,7 @@ $(function() {
         event.preventDefault();
         self.copy($(this).data("field"));
       });
-      new Clipboard(this.settings.copy_options_selector);
+      new ClipboardJS(this.settings.copy_options_selector);
       this.element.find(this.settings.paste_options_selector).click(function(event) {
         event.preventDefault();
         self.paste($(this).data("field"));

@@ -19,7 +19,7 @@
  * >
  */
 const copyToClipboard = (btnClassSelector, targetIdSelector) => {
-  const clipboard = new Clipboard(btnClassSelector, {
+  const clipboard = new ClipboardJS(btnClassSelector, {
     target: function () {
       return $(targetIdSelector)[0];
     },
