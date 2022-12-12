@@ -46,36 +46,52 @@ class UserExerciseSummary(object):
                     Submission.STATUS.REJECTED,
                 ):
                     self.submission_count += 1
-
-                    if s.force_exercise_points:
-                        # This submission is chosen as the best submission and
-                        # no further submissions are considered.
+                    #print(f"--PS: summary, sub: {s}, points: {s.grade}, defines: {s.defines_grade}")
+                    if s.defines_grade:
                         self.best_submission = s
-                        self.unofficial = False
-                        self.graded = True
-                        self.forced_points = True
-                    if not self.forced_points:
-                        if (
-                            s.status == Submission.STATUS.READY and (
-                                self.best_submission is None
-                                or self.unofficial
-                                or self._is_better(s, self.best_submission)
-                            )
-                        ):
-                            self.best_submission = s
-                            self.unofficial = False
-                            self.graded = True
-                        elif (
-                            s.status == Submission.STATUS.UNOFFICIAL and (
-                                not self.graded
-                                or (
-                                    self.unofficial
-                                    and self._is_better(s, self.best_submission)
-                                )
-                            )
-                        ):
-                            self.best_submission = s
-                            self.unofficial = True
+
+            if self.best_submission:
+                if self.best_submission.status == Submission.STATUS.UNOFFICIAL:
+                    self.unofficial = True
+                else:
+                    self.graded = True
+
+                if self.best_submission.force_exercise_points:
+                    self.forced_points = True
+                    self.graded = True
+                    self.unofficial = False
+
+                #print(f"--PS: summary best: {self.best_submission}, unofficial: {self.unofficial}")
+
+                    # if s.force_exercise_points:
+                    #     # This submission is chosen as the best submission and
+                    #     # no further submissions are considered.
+                    #     self.best_submission = s
+                    #     self.unofficial = False
+                    #     self.graded = True
+                    #     self.forced_points = True
+                    # if not self.forced_points:
+                    #     if (
+                    #         s.status == Submission.STATUS.READY and (
+                    #             self.best_submission is None
+                    #             or self.unofficial
+                    #             or self._is_better(s, self.best_submission)
+                    #         )
+                    #     ):
+                    #         self.best_submission = s
+                    #         self.unofficial = False
+                    #         self.graded = True
+                    #     elif (
+                    #         s.status == Submission.STATUS.UNOFFICIAL and (
+                    #             not self.graded
+                    #             or (
+                    #                 self.unofficial
+                    #                 and self._is_better(s, self.best_submission)
+                    #             )
+                    #         )
+                    #     ):
+                    #         self.best_submission = s
+                    #         self.unofficial = True
 
     def _is_better(self, submission1: Submission, submission2: Submission) -> bool:
         """

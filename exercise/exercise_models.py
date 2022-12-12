@@ -1,4 +1,5 @@
 import json
+from operator import ne
 from typing import Any, TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urlsplit
 
@@ -1056,6 +1057,85 @@ class BaseExercise(LearningObject):
             exercise=self,
             active=True,
         ).update(active=False)
+
+    # True if first better than second. Assumes that the submissions are of same exercise
+    def is_better_submission(self, submission1, submission2) -> bool:
+        from .submission_models import Submission
+        assert self == submission1.exercise == submission2.exercise
+
+        if submission1.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+            return False
+        if submission2.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+            return True
+
+        if submission1.force_exercise_points:
+            return True
+        if submission2.force_exercise_points:
+            return False
+
+        if (
+                submission1.status == Submission.STATUS.UNOFFICIAL and
+                submission2.status == Submission.STATUS.READY
+        ):
+            return False
+        elif (
+                submission2.status == Submission.STATUS.UNOFFICIAL and
+                submission1.status == Submission.STATUS.READY
+        ):
+            return True
+
+        if self.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            return submission1.submission_time > submission2.submission_time
+        else: # GRADING_MODE.BEST
+            return (
+                submission1.grade > submission2.grade
+                or (
+                    submission1.grade == submission2.grade
+                    and submission1.submission_time > submission2.submission_time
+                )
+            )
+
+    # May be called without new_submission, if we want to revalidate all submissions by student
+    # for some reason
+    def validate_best_by_student(self, student: UserProfile, new_submission = None) -> None:
+        from .submission_models import Submission
+
+        submissions = self.get_submissions_for_student(student)
+        try:
+            earlier_best = submissions.get(defines_grade=True)
+        except Submission.DoesNotExist:
+            earlier_best = None
+
+        #print(f"--PS: earlier_best: {earlier_best}  new_submission: {new_submission}")
+        if new_submission:
+            if (not earlier_best or
+                (self.is_better_submission(new_submission, earlier_best) and
+                new_submission != earlier_best)
+            ):
+                new_submission.defines_grade = True
+                #print(f"--PS: new best: {new_submission}")
+                if earlier_best:
+                    earlier_best.defines_grade = False
+                    earlier_best.save()
+                return
+#        elif not earlier_best:
+#            return  # There are no submissions
+
+        # Need to recheck all submissions by student, because "new submission" may have reduced points
+        # due to regrading event, and some other submission may have become the current best
+        #print(f"--PS: we are here, earlier_best: {earlier_best}")
+        current_best = None
+        for s in submissions:
+            if not current_best or self.is_better_submission(s, current_best):
+                current_best = s
+                #print(f"--PS: setting current: {current_best}, points: {current_best.grade}")
+        if current_best != earlier_best:
+            #print(f"--PS: new best: {current_best}")
+            current_best.defines_grade = True
+            current_best.save()
+            if earlier_best:
+                earlier_best.defines_grade = False
+                earlier_best.save()
 
 
 class LTIExercise(BaseExercise):

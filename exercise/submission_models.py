@@ -5,6 +5,7 @@ from mimetypes import guess_type
 import os
 from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
 from urllib.parse import urlparse
+#from xmlrpc.client import Boolean
 
 from binaryornot.check import is_binary
 from django.conf import settings
@@ -575,31 +576,31 @@ class Submission(UrlMixin, models.Model):
         # Finally check that the grade is in bounds after all the math.
         assert 0 <= self.grade <= self.exercise.max_points
 
-        self.check_defining_submission()
+        self.exercise.validate_best_by_student(self.submitters.first(), self)
 
 
-    def check_defining_submission(self) -> bool:
-        from .exercise_summary import UserExerciseSummary
+    # def NOTcheck_defining_submission(self) -> bool:
+    #     from .exercise_summary import UserExerciseSummary
 
-        if self.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
-            return
+    #     if self.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+    #         return
 
-        for student in self.submitters.all():
-            try:
-                earlier_best = self.exercise.get_submissions_for_student(student).get(defines_grade=True)
-            except (Submission.DoesNotExist):
-                # first valid submission for this exercise
-                print("--PS: no earlier best")
-                self.defines_grade = True
-                continue
+    #     for student in self.submitters.all():
+    #         try:
+    #             earlier_best = self.exercise.get_submissions_for_student(student).get(defines_grade=True)
+    #         except (Submission.DoesNotExist):
+    #             # first valid submission for this exercise
+    #             print("--PS: no earlier best")
+    #             self.defines_grade = True
+    #             continue
 
-            best = UserExerciseSummary(self.exercise, student.user).best_submission
-            print(f"--PS: earlier_best: {earlier_best}   best: {best}")
-            if best != earlier_best:
-                earlier_best.defines_grade = False
-                best.defines_grade = True
-                earlier_best.save()
-                best.save()
+    #         best = UserExerciseSummary(self.exercise, student.user).best_submission
+    #         print(f"--PS: earlier_best: {earlier_best}   best: {best}")
+    #         if best != earlier_best:
+    #             earlier_best.defines_grade = False
+    #             best.defines_grade = True
+    #             earlier_best.save()
+    #             best.save()
 
 
     def scale_grade_to(self, percentage):

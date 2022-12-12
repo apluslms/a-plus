@@ -535,9 +535,11 @@ class ExerciseTest(TestCase):
         self.assertEqual(summary.get_points(), 50)
         forced_points_submission.force_exercise_points = True
         forced_points_submission.save()
+        self.base_exercise.validate_best_by_student(self.user.userprofile)
         summary = UserExerciseSummary(self.base_exercise, self.user)
         self.assertEqual(summary.get_points(), 10)
         forced_points_submission.delete()
+        self.base_exercise.validate_best_by_student(self.user.userprofile)
         summary = UserExerciseSummary(self.base_exercise, self.user)
         self.assertEqual(summary.get_points(), 50)
 
@@ -609,6 +611,7 @@ class ExerciseTest(TestCase):
         self.submission_when_late_allowed.set_points(5, 10)
         self.submission_when_late_allowed.set_ready()
         self.submission_when_late_allowed.save()
+        self.base_exercise_with_late_submission_allowed.validate_best_by_student(self.user.userprofile)
         self.assertEqual(self.submission_when_late_allowed.grade, 50)
         self.assertEqual(self.submission_when_late_allowed.status, Submission.STATUS.READY)
         summary = UserExerciseSummary(self.base_exercise_with_late_submission_allowed, self.user)
