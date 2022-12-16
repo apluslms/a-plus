@@ -79,9 +79,8 @@ def create_submissions(instance, admin_profile, json_text):
             sub.grading_time = timezone.now()
             sub.grader = form.cleaned_data.get("grader") or admin_profile
             sub.set_ready()
-
-            form.exercise.validate_best_by_student(form.cleaned_students[0], sub)
             sub.save()
 
+            form.exercise.validate_best_by_student(form.cleaned_students[0])
 
     return errors

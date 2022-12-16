@@ -244,7 +244,6 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.submission.feedback = feedback
         self.submission.set_ready()
 
-        self.exercise.validate_best_by_student(self.submission.submitters.first(), self.submission)
         self.submission.save()
 
         # Set other submissions as not final if this one is final.
@@ -257,6 +256,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                 submission.force_exercise_points = False
                 submission.save()
 
+        self.exercise.validate_best_by_student(self.submission.submitters.first())
         Notification.send(self.profile, self.submission)
 
         messages.success(self.request, _('ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS'))

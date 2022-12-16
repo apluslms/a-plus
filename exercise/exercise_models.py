@@ -1,5 +1,4 @@
 import json
-from operator import ne
 from typing import Any, TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urlsplit
 
@@ -1058,8 +1057,14 @@ class BaseExercise(LearningObject):
             active=True,
         ).update(active=False)
 
-    # True if first better than second. Assumes that the submissions are of same exercise
-    def is_better_submission(self, submission1, submission2) -> bool:
+    def _is_better_submission(self, submission1, submission2) -> bool:
+        """
+        Is 'submission1' more favorable than 'submission2' to be considered in grading?
+        Commonly the submission with higher grade is chosen, but for some exercises the
+        latest submission should be chosen. There are also other criterias based on submission
+        status, and teacher may manually choose the graded submission.
+        Used by 'validate_best_by_student'.
+        """
         from .submission_models import Submission
         assert self == submission1.exercise == submission2.exercise
 
@@ -1095,9 +1100,16 @@ class BaseExercise(LearningObject):
                 )
             )
 
-    # May be called without new_submission, if we want to revalidate all submissions by student
-    # for some reason
-    def validate_best_by_student(self, student: UserProfile, new_submission = None) -> None:
+    def validate_best_by_student(self, student: UserProfile, new_submission: 'Submission' = None) -> None:
+        """
+        Finds the correct submission to be graded by given student for this exercise,
+        and sets 'defines_grade' flag for that submission. Commonly this is the submission
+        with best grade, but sometimes teacher can override grading, or the latest submission
+        is evaluated. For any exercise, only (at most) one submission for particular user should
+        have this flag set. 'defines_grade' makes it faster to query course results on large courses.
+        Sometimes this method is called before a newly created submission is yet saved to
+        database (included as "new_submission"), and this case needs to be handled separately.
+        """
         from .submission_models import Submission
 
         submissions = self.get_submissions_for_student(student)
@@ -1106,31 +1118,25 @@ class BaseExercise(LearningObject):
         except Submission.DoesNotExist:
             earlier_best = None
 
-        #print(f"--PS: earlier_best: {earlier_best}  new_submission: {new_submission}")
         if new_submission:
             if (not earlier_best or
-                (self.is_better_submission(new_submission, earlier_best) and
+                (self._is_better_submission(new_submission, earlier_best) and
                 new_submission != earlier_best)
             ):
                 new_submission.defines_grade = True
-                #print(f"--PS: new best: {new_submission}")
                 if earlier_best:
                     earlier_best.defines_grade = False
                     earlier_best.save()
                 return
-#        elif not earlier_best:
-#            return  # There are no submissions
 
-        # Need to recheck all submissions by student, because "new submission" may have reduced points
-        # due to regrading event, and some other submission may have become the current best
-        #print(f"--PS: we are here, earlier_best: {earlier_best}")
+        # Sometimes, with "new_submission" we need to recheck also other submissions by student,
+        # because "new_submission" may actually be an earlier submission that has been resubmitted or
+        # manually regraded, and the grade might have been reduced to become non-defining.
         current_best = None
         for s in submissions:
-            if not current_best or self.is_better_submission(s, current_best):
+            if not current_best or self._is_better_submission(s, current_best):
                 current_best = s
-                #print(f"--PS: setting current: {current_best}, points: {current_best.grade}")
         if current_best != earlier_best:
-            #print(f"--PS: new best: {current_best}")
             current_best.defines_grade = True
             current_best.save()
             if earlier_best:
