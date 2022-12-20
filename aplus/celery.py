@@ -21,8 +21,6 @@ def setup_periodic_tasks(sender, **kwargs):
     if hasattr(settings, 'SIS_ENROLL_SCHEDULE'):
         sender.add_periodic_task(settings.SIS_ENROLL_SCHEDULE, enroll.s(), name='enroll')
 
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
     if settings.SUBMISSION_EXPIRY_TIMEOUT:
         # Run timed check twice in timeout period, for more timely retries
         sender.add_periodic_task(settings.SUBMISSION_EXPIRY_TIMEOUT/2, retry_submissions.s(), name='retry_submissions')
