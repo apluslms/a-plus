@@ -381,7 +381,7 @@ class Submission(UrlMixin, models.Model):
         default=False,
     )
     defines_grade = models.BooleanField(
-        verbose_name="Defines grade for this exercise",
+        verbose_name=_('LABEL_DEFINES_GRADE'),
         default=False,
     )
 
@@ -416,6 +416,11 @@ class Submission(UrlMixin, models.Model):
         verbose_name_plural = _('MODEL_NAME_SUBMISSION_PLURAL')
         app_label = 'exercise'
         ordering = ['-id']
+        
+        # Create index for faster queries for course results
+        indexes = [
+            models.Index(fields=['exercise', 'defines_grade']),
+        ]
 
     def __str__(self):
         return str(self.id)
