@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-24 18:19+0200\n"
+"POT-Creation-Date: 2022-12-19 10:22+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -3671,6 +3671,10 @@ msgstr "late penalty applied"
 #: exercise/submission_models.py
 msgid "LABEL_FORCE_EXERCISE_POINTS"
 msgstr "Force exercise points"
+
+#: exercise/submission_models.py
+msgid "LABEL_DEFINES_GRADE"
+msgstr "Defines grade for this exercise"
 
 #: exercise/submission_models.py
 #: exercise/templates/exercise/staff/_submission_data_modal.html

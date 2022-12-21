@@ -1057,6 +1057,92 @@ class BaseExercise(LearningObject):
             active=True,
         ).update(active=False)
 
+    def _is_better_submission(self, submission1, submission2) -> bool:
+        """
+        Is 'submission1' more favorable than 'submission2' to be considered in grading?
+        Commonly the submission with higher grade is chosen, but for some exercises the
+        latest submission should be chosen. There are also other criterias based on submission
+        status, and teacher may manually choose the graded submission.
+        Used by 'validate_best_by_student'.
+        """
+        from .submission_models import Submission
+        assert self == submission1.exercise == submission2.exercise
+
+        if submission1.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+            return False
+        if submission2.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+            return True
+
+        if submission1.force_exercise_points:
+            return True
+        if submission2.force_exercise_points:
+            return False
+
+        if (
+                submission1.status == Submission.STATUS.UNOFFICIAL and
+                submission2.status == Submission.STATUS.READY
+        ):
+            return False
+        elif (
+                submission2.status == Submission.STATUS.UNOFFICIAL and
+                submission1.status == Submission.STATUS.READY
+        ):
+            return True
+
+        if self.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            return submission1.submission_time > submission2.submission_time
+        else: # GRADING_MODE.BEST
+            return (
+                submission1.grade > submission2.grade
+                or (
+                    submission1.grade == submission2.grade
+                    and submission1.submission_time > submission2.submission_time
+                )
+            )
+
+    def validate_best_by_student(self, student: UserProfile, new_submission: 'Submission' = None) -> None:
+        """
+        Finds the correct submission to be graded by given student for this exercise,
+        and sets 'defines_grade' flag for that submission. Commonly this is the submission
+        with best grade, but sometimes teacher can override grading, or the latest submission
+        is evaluated. For any exercise, only (at most) one submission for particular user should
+        have this flag set. 'defines_grade' makes it faster to query course results on large courses.
+        Sometimes this method is called before a newly created submission is yet saved to
+        database (included as "new_submission"), and this case needs to be handled separately.
+        """
+        from .submission_models import Submission
+
+        submissions = self.get_submissions_for_student(student)
+        try:
+            earlier_best = submissions.get(defines_grade=True)
+        except Submission.DoesNotExist:
+            earlier_best = None
+
+        if new_submission:
+            if (not earlier_best or
+                (self._is_better_submission(new_submission, earlier_best) and
+                new_submission != earlier_best)
+            ):
+                new_submission.defines_grade = True
+                if earlier_best:
+                    earlier_best.defines_grade = False
+                    earlier_best.save()
+                return
+
+        # Sometimes, with "new_submission" we need to recheck also other submissions by student,
+        # because "new_submission" may actually be an earlier submission that has been resubmitted or
+        # manually regraded, and the grade might have been reduced to become non-defining.
+        current_best = None
+        for s in submissions:
+            if not current_best or self._is_better_submission(s, current_best):
+                current_best = s
+        if current_best != earlier_best:
+            current_best.defines_grade = True
+            current_best.save()
+            if earlier_best:
+                earlier_best.defines_grade = False
+                earlier_best.save()
+
 
 class LTIExercise(BaseExercise):
     """

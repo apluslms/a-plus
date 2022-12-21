@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-24 18:19+0200\n"
+"POT-Creation-Date: 2022-12-19 10:22+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3680,6 +3680,10 @@ msgstr "käytetty myöhästymissakko"
 #: exercise/submission_models.py
 msgid "LABEL_FORCE_EXERCISE_POINTS"
 msgstr "Pakota tehtävän pisteet"
+
+#: exercise/submission_models.py
+msgid "LABEL_DEFINES_GRADE"
+msgstr "Määrittää arvosanan tälle tehtävälle"
 
 #: exercise/submission_models.py
 #: exercise/templates/exercise/staff/_submission_data_modal.html

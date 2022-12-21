@@ -81,4 +81,6 @@ def create_submissions(instance, admin_profile, json_text):
             sub.set_ready()
             sub.save()
 
+            form.exercise.validate_best_by_student(form.cleaned_students[0])
+
     return errors

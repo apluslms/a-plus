@@ -307,6 +307,9 @@ class LTIOutcomesTests(LTIOutcomesBaseTest):
         )
         submission3.submitters.set([self.student1_profile])
 
+        self.lti_exercise.validate_best_by_student(self.student1_profile)
+        self.lti_exercise2.validate_best_by_student(self.student1_profile)
+
         # make the test request
         req_xml1 = self.BASE_OUTCOMES_REQUEST_XML.format(
             msg_id='84yfhdbwbnwuwe254',

@@ -380,6 +380,10 @@ class Submission(UrlMixin, models.Model):
         verbose_name=_('LABEL_FORCE_EXERCISE_POINTS'),
         default=False,
     )
+    defines_grade = models.BooleanField(
+        verbose_name=_('LABEL_DEFINES_GRADE'),
+        default=False,
+    )
 
     # Points received from assessment, before scaled to grade
     service_points = models.IntegerField(
@@ -412,6 +416,11 @@ class Submission(UrlMixin, models.Model):
         verbose_name_plural = _('MODEL_NAME_SUBMISSION_PLURAL')
         app_label = 'exercise'
         ordering = ['-id']
+
+        # Create index for faster queries for course results
+        indexes = [
+            models.Index(fields=['exercise', 'defines_grade']),
+        ]
 
     def __str__(self):
         return str(self.id)
@@ -570,6 +579,8 @@ class Submission(UrlMixin, models.Model):
 
         # Finally check that the grade is in bounds after all the math.
         assert 0 <= self.grade <= self.exercise.max_points
+
+        self.exercise.validate_best_by_student(self.submitters.first(), self)
 
     def scale_grade_to(self, percentage):
         percentage = float(percentage)/100

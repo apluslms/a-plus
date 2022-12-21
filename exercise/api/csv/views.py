@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, Set, Union
 
+from django.db import models
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from rest_framework import viewsets
@@ -280,6 +281,9 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     - `module_id`: id of the course module
     - `exercise_id`: id of the exercise
     - `show_unofficial`: if "true", unofficial submissions are included in the results
+    - `slow_query`: if "true", apply old way of querying the resultsdata. Much slower, but
+        retained for backwards compatibility, because the new query is not fully backwards
+        compatible: it always has '1' for submission counts in the table.
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -317,16 +321,35 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
-        )
+    def get_submissions_query(
+        self,
+        ids,
+        profiles,
+        exclude_list,
+        revealed_ids,
+        show_unofficial,
+        slow_query,
+    ):
+        if (slow_query):
+            return (
+                Submission.objects
+                .filter(exercise__in=ids, submitters__in=profiles)
+                .exclude(status__in=(exclude_list))
+                .values('submitters__user_id', 'exercise_id')
+                .annotate(count=Count('id'))
+                .annotate_submitter_points('total', revealed_ids, show_unofficial)
+                .order_by()
+            )
+        else:
+            return (
+                Submission.objects
+                .filter(exercise__in=ids, submitters__in=profiles, defines_grade=True)
+                .exclude(status__in=(exclude_list))
+                .values('submitters__user_id', 'exercise_id')
+                .annotate(count=Count('id'))
+                .annotate(total=models.Max('grade'))
+                .order_by()
+            )
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
@@ -336,9 +359,17 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
         show_unofficial = request.GET.get('show_unofficial') == 'true'
+        slow_query = request.GET.get('slow_query') == 'true'
         if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = self.get_submissions_query(ids, profiles, exclude_list, revealed_ids, show_unofficial)
+        aggr = self.get_submissions_query(
+            ids,
+            profiles,
+            exclude_list,
+            revealed_ids,
+            show_unofficial,
+            slow_query,
+        )
         data,fields = aggregate_points(
             profiles,
             self.instance.taggings.all(),
@@ -368,7 +399,15 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
+    def get_submissions_query(
+        self,
+        ids,
+        profiles,
+        exclude_list,
+        revealed_ids,
+        show_unofficial,
+        _slow_query,
+    ):
         return (
             Submission.objects
             .filter(exercise__in=ids, submitters__in=profiles)
@@ -378,7 +417,6 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
             .annotate_best_submitter_points('total', revealed_ids, show_unofficial)
             .order_by()
         )
-
 
 def int_or_none(value):
     if not value is None:
