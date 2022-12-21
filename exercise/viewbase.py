@@ -100,6 +100,8 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     exercise_permission_classes = ExerciseBaseMixin.exercise_permission_classes + (
         BaseExerciseAssistantPermission,
     )
+    submission_url_name = 'submission'
+    exercise_url_name = 'exercise'
 
     def get_exercise_object(self):
         try:
@@ -120,7 +122,7 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         self.current = cur
         self.next = nex
         self.breadcrumb = tree[1:-1]
-        self.note("now", "previous", "current", "next", "breadcrumb")
+        self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name")
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
         self.summary = UserExerciseSummary(

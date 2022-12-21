@@ -18,6 +18,7 @@ import diploma.urls
 import apps.urls
 import api.urls_v2
 import redirect_old_urls.urls
+import lti_tool.urls
 
 
 admin.autodiscover()
@@ -44,6 +45,7 @@ urlpatterns = [
     url(r'^', include(deviations.urls)),
     url(r'^', include(edit_course.urls)),
     url(r'^', include(notification.urls)),
+    url(r'^', include(lti_tool.urls)),
     url(r'^', include(exercise.urls)),
     url(r'^', include(course.urls)),
     path('sitemap.xml', sitemap, { 'sitemaps': all_sitemaps },

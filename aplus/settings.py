@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     'bootstrapform',
     'rest_framework',
     'rest_framework.authtoken',
+    'pylti1p3.contrib.django.lti1p3_tool_config',
 
     # First party applications
     'inheritance',
@@ -155,6 +156,7 @@ INSTALLED_APPS = (
     'diploma',
     'apps',
     'redirect_old_urls',
+    'lti_tool',
 
     'js_jquery_toggle',
     'django_colortag',

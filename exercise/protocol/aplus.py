@@ -9,6 +9,8 @@ from lib.email_messages import email_course_error
 from lib.remote_page import RemotePage, RemotePageException
 from .exercise_page import ExercisePage
 
+from lti_tool.utils import send_lti_points
+
 
 if TYPE_CHECKING:
     from exercise.models import LearningObject
@@ -111,6 +113,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 exercise.service_url)
             page.errors.append(_('ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR'))
         submission.save()
+        if page.is_graded and page.is_sane() and submission.lti_launch_id:
+            send_lti_points(request, submission)
 
     return page
 

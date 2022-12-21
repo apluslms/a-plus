@@ -94,6 +94,7 @@
 	data-view-tag="{% block view_tag %}{% endblock %}">
 	<a href="#content" class="skip-link">{% translate "SKIP_MAIN_NAVIGATION" %}</a>
 	<div class="page-wrap">
+		{% block header %}
 		<header>
 			<nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% translate 'MAIN' %}">
 				<div class="container-fluid">
@@ -211,6 +212,7 @@
 				</div>
 			</nav>
 		</header>
+		{% endblock header %}
 
 		{% block container_opening_tag %}
 		<main class="site-content container-fluid" id="content">

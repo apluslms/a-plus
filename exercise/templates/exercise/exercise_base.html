@@ -42,7 +42,7 @@
 	{% if exercise.is_submittable %}
 	<ul class="nav nav-tabs">
 			<li class="menu-exercise">
-					<a href="{{ current.link }}">
+					<a href="{{ exercise|url:exercise_url_name }}">
 							{% translate "EXERCISE_DESCRIPTION" %}
 					</a>
 			</li>
@@ -56,7 +56,7 @@
 					<ul class="dropdown-menu">
 							{% for submission in submissions %}
 							<li>
-									<a href="{{ submission|url }}" data-hash="{{ submission.meta_data.hash }}">
+									<a href="{{ submission|url:submission_url_name }}" data-hash="{{ submission.meta_data.hash }}">
 											{{ forloop.revcounter }}.
 											{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 											{% points_badge submission is_revealed=feedback_revealed %}

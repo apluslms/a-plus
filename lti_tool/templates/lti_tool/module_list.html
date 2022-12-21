@@ -1,0 +1,38 @@
+{% extends "lti_tool/lti_base.html" %}
+
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+{% block content %}
+
+<a class="aplus-button--secondary aplus-button--xs" href="../..">{% translate "LTI_GO_BACK" %}</a>
+<h2 id="heading">{% translate "LTI_SELECT_MODULE" %}</h2>
+<section aria-labelledby="heading">
+	<h3>{{ instance|parse_localization }}</h3>
+	<ul class="toc">
+		{% for module in modules %}
+		{% with module_url=module|url:"lti-select-module" %}
+		<li>
+			<h4>{{ module|parse_localization }}</h4>
+			<form style="display: inline-block" method="POST" action="{{ module_url }}">
+				{% csrf_token %}
+				<button
+					class="aplus-button--secondary aplus-button--xs"
+					type="submit"
+				>
+					{% translate "LTI_USE_WHOLE_MODULE" %}
+				</button>
+			</form>
+			<a
+				class="aplus-button--secondary aplus-button--xs"
+				href="{{ module_url }}"
+			>
+				{% translate "LTI_SELECT_SPECIFIC_CONTENT" %}
+			</a>
+		</li>
+		{% endwith %}
+		{% endfor %}
+	</ul>
+</section>
+{% endblock %}
