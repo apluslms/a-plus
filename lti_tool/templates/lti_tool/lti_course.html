@@ -1,0 +1,73 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+{% load news %}
+{% load apps %}
+
+{% block view_tag %}home{% endblock %}
+{% block siblings %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block course_sidebar %}{% endblock %}
+{% block sidecontent %}{% endblock %}
+
+{% block coursecontent %}
+
+<div class="index">
+	{{ instance.description|safe }}
+	{% if instance.index_mode == instance.INDEX_TYPE.LAST %}
+	{% user_last %}
+	{% endif %}
+</div>
+
+<ul class="toc">
+	{% for module in content.data.modules %}
+	{% if module|is_listed %}
+	{% module_accessible module as accessible %}
+	{% exercise_accessible module as exercise_accessible %}
+	<li>
+		{% if accessible %}
+		<h3>
+			<a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
+		</h3>
+		<h4>
+			{% if module.requirements|length > 0 %}
+			<span class="label label-info">
+				{% translate "REQUIRES" %}:
+				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+			</span>
+			{% endif %}
+			<small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
+		</h4>
+		{% else %}
+		<h3>
+			{{ module.name|parse_localization }}
+			{% if is_course_staff %}
+			<a href="{{ module.link }}">
+				<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+				{% translate "EARLY_ACCESS" %}
+			</a>
+			{% endif %}
+		</h3>
+		<h4>
+			{% if module.requirements|length > 0 %}
+			<span class="label label-info">
+				{% translate "REQUIRES" %}:
+				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+			</span>
+			{% endif %}
+			<span class="label label-info">{% translate "OPENS" %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
+		</h4>
+		{% endif %}
+		{% include "exercise/_children.html" with children=module.children accessible=accessible exercise_accessible=exercise_accessible %}
+	</li>
+	{% endif %}
+	{% endfor %}
+</ul>
+
+<div class="index">
+	{{ instance.footer|safe }}
+</div>
+{% endblock %}

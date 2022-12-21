@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-24 18:19+0200\n"
+"POT-Creation-Date: 2022-12-13 12:10+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1071,6 +1071,7 @@ msgstr "Pagination"
 #: exercise/templates/exercise/_children.html
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "EARLY_ACCESS"
 msgstr "Early access"
 
@@ -1202,12 +1203,14 @@ msgstr "There are currently no ongoing courses."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
+#: lti_tool/templates/lti_tool/lti_module.html
 #, python-format
 msgid "LATE_SUBMISSIONS_ALLOWED_UNTIL -- %(deadline)s"
 msgstr "Late submissions are allowed until %(deadline)s. "
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
+#: lti_tool/templates/lti_tool/lti_module.html
 #, python-format
 msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "However, points are only worth %(percent)s%%. "
@@ -3817,6 +3820,7 @@ msgstr "Total number of submitters"
 
 #: exercise/templates/exercise/_exercise_wait.html
 #: exercise/templates/exercise/exercise.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "There was a problem loading the assignment. Try loading the page again "
@@ -3825,12 +3829,14 @@ msgstr ""
 "staff."
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
 msgstr ""
 "Unfortunately grading takes longer than expected. Return later to see the "
 "result."
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "GRADING_SUBMISSION"
 msgstr "Grading submission..."
 
@@ -4001,6 +4007,7 @@ msgstr "Open for reading"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "REQUIRES"
 msgstr "Requires"
 
@@ -4038,6 +4045,7 @@ msgid "INSPECT"
 msgstr "Inspect"
 
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "OPENS"
 msgstr "Opens"
 
@@ -5182,6 +5190,36 @@ msgstr "Connecting to the course service failed with {code}!"
 #: lib/validators.py
 msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr "URL keys may consist of alphanumeric characters, hyphen and period."
+
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_SELECT_COURSE"
+msgstr "Select course"
+
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_USE_WHOLE_COURSE"
+msgstr "Use the whole course"
+
+#: lti_tool/templates/lti_tool/course_list.html
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_SELECT_SPECIFIC_CONTENT"
+msgstr "Select specific content"
+
+#: lti_tool/templates/lti_tool/exercise_list.html
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_GO_BACK"
+msgstr "Go back"
+
+#: lti_tool/templates/lti_tool/exercise_list.html
+msgid "LTI_SELECT_CHAPTER_OR_EXERCISE"
+msgstr "Select chapter or exercise"
+
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_SELECT_MODULE"
+msgstr "Select module"
+
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_USE_WHOLE_MODULE"
+msgstr "Use the whole module"
 
 #: news/forms.py
 msgid "SEND_EMAIL_TO_STUDENTS"

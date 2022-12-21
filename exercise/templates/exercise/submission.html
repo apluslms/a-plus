@@ -48,8 +48,10 @@
 		{% translate "NO_GRADER_FEEDBACK_FOR_SUBMISSION" %}
 	</div>
 	{% endif %}
-	{% include "exercise/_exercise_wait.html" %}
+{% endblock %}
 
+{% block exercise_wait %}
+	{% include "exercise/_exercise_wait.html" %}
 {% endblock %}
 
 {% block scripts %}

@@ -5,7 +5,7 @@ from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
 from notification.models import Notification
 from .forms import SubmissionCallbackForm
-
+from lti_tool.utils import send_lti_points
 
 logger = logging.getLogger('aplus.exercise')
 
@@ -62,6 +62,15 @@ def _post_async_submission(request, exercise, submission, errors=None):
             Notification.send(None, submission)
         else:
             Notification.remove(submission)
+
+        # If the submission was made through LTI, send results back to the platform.
+        # In some cases meta_data is a string (Acos?)
+        try:
+            if submission.lti_launch_id:
+                send_lti_points(request, submission)
+        except AttributeError:
+            # No meta_data nor lti launch id available.
+            pass
 
         return {
             "success": True,

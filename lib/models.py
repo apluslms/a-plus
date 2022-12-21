@@ -10,7 +10,9 @@ class UrlMixin(object):
     def get_display_url(self):
         return self.get_absolute_url()
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, view_override=None):
+        if view_override:
+            return self.get_url(view_override)
         if not hasattr(self, 'ABSOLUTE_URL_NAME'):
             raise NotImplementedError("Model %r doesn't have absolute url" % self)
         return self.get_url(self.ABSOLUTE_URL_NAME)

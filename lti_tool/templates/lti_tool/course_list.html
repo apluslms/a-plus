@@ -1,0 +1,55 @@
+{% extends "lti_tool/lti_base.html" %}
+
+{% load i18n %}
+{% load base %}
+{% load course %}
+{% load static %}
+
+{% block content %}
+<h2 id="heading">{% translate "LTI_SELECT_COURSE" %}</h2>
+<section aria-labelledby="heading" class="frontpage frontpage-section">
+	<div class="cards">
+		{% for instance in instances %}
+		{% with instance_url=instance|url:"lti-select-course" %}
+			<div class="frontpage card">
+				<div>
+					<div class="card-body">
+						<h3 lang="{{ instance.language }}">
+							{{ instance.course.name|parse_localization }}<br />
+						</h3>
+						<p class="card-subtitle" lang="{{ instance.language }}">
+							{{ instance.instance_name|parse_localization }}
+						</p>
+						<p class="card-text">
+							{{ instance.course.code }}
+							<br />
+							{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
+							{{ instance.ending_time|date:"SHORT_DATE_FORMAT" }}
+							<br />
+						</p>
+						<p class="card-text">
+							<form style="display: inline-block" method="POST" action="{{ instance_url }}">
+								{% csrf_token %}
+								<button
+									class="aplus-button--secondary aplus-button--xs"
+									type="submit"
+								>
+									{% translate "LTI_USE_WHOLE_COURSE" %}
+								</button>
+							</form>
+							<a
+								style="display: inline-block"
+								class="aplus-button--secondary aplus-button--xs"
+								href="{{ instance_url }}"
+							>
+								{% translate "LTI_SELECT_SPECIFIC_CONTENT" %}
+							</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endwith %}
+		{% endfor %}
+	</div>
+</section>
+{% endblock %}

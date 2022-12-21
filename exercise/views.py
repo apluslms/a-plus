@@ -198,7 +198,9 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
                 # Redirect non AJAX normally to submission page.
                 if not request.is_ajax() and "__r" not in request.GET:
-                    return self.redirect(new_submission.get_absolute_url() +
+                    # LTI based views require redirection to LTI specific views
+                    redirect_view = kwargs.get('redirect_view')
+                    return self.redirect(new_submission.get_absolute_url(view_override=redirect_view) +
                         ("?wait=1" if page.is_wait else ""))
 
                 # "grade" returns the submission feedback page. If feedback is

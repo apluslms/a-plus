@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-24 18:19+0200\n"
+"POT-Creation-Date: 2022-12-13 12:10+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1078,6 +1078,7 @@ msgstr "Sivuilla siirtyminen"
 #: exercise/templates/exercise/_children.html
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "EARLY_ACCESS"
 msgstr "Aikainen pääsy"
 
@@ -1210,12 +1211,14 @@ msgstr "Tällä hetkellä ei ole meneillään olevia kursseja."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
+#: lti_tool/templates/lti_tool/lti_module.html
 #, python-format
 msgid "LATE_SUBMISSIONS_ALLOWED_UNTIL -- %(deadline)s"
 msgstr "Myöhästyneitä palautuksia vastaanotetaan %(deadline)s asti."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
+#: lti_tool/templates/lti_tool/lti_module.html
 #, python-format
 msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
@@ -3826,6 +3829,7 @@ msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_wait.html
 #: exercise/templates/exercise/exercise.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "Tehtävän lataaminen epäonnistui. Yritä uudelleen myöhemmin. "
@@ -3834,12 +3838,14 @@ msgstr ""
 "kurssihenkilökuntaan."
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
 msgstr ""
 "Valitettavasti arvostelu kestää odotettua kauemmin. Palaa myöhemmin "
 "katsomaan palautetta."
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "GRADING_SUBMISSION"
 msgstr "Palautusta arvostellaan..."
 
@@ -4013,6 +4019,7 @@ msgstr "Lukumateriaali avoinna"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "REQUIRES"
 msgstr "Vaaditaan"
 
@@ -4050,6 +4057,7 @@ msgid "INSPECT"
 msgstr "Tutki"
 
 #: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
 msgid "OPENS"
 msgstr "Avautuu"
 
@@ -5205,6 +5213,36 @@ msgstr "Yhteys kurssipalveluun epäonnistui virheellä {code}!"
 msgid "URL_KEY_MAY_CONSIST_OF"
 msgstr ""
 "URL-avaimet voivat sisältää kirjaimia, numeroita, yhdysmerkin ja pisteen."
+
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_SELECT_COURSE"
+msgstr "Valitse kurssi"
+
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_USE_WHOLE_COURSE"
+msgstr "Valitse koko kurssi"
+
+#: lti_tool/templates/lti_tool/course_list.html
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_SELECT_SPECIFIC_CONTENT"
+msgstr "Valitse tarkempaa sisältöä"
+
+#: lti_tool/templates/lti_tool/exercise_list.html
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_GO_BACK"
+msgstr "Takaisin"
+
+#: lti_tool/templates/lti_tool/exercise_list.html
+msgid "LTI_SELECT_CHAPTER_OR_EXERCISE"
+msgstr "Valitse luku tai tehtävä"
+
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_SELECT_MODULE"
+msgstr "Valitse moduuli"
+
+#: lti_tool/templates/lti_tool/module_list.html
+msgid "LTI_USE_WHOLE_MODULE"
+msgstr "Valitse koko moduuli"
 
 #: news/forms.py
 msgid "SEND_EMAIL_TO_STUDENTS"

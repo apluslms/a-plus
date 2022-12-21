@@ -238,6 +238,9 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             meta_data_dict['lang'] = get_language()
 
         try:
+            meta_data_dict['lti-launch-id'] = request.session.get("lti-launch-id")
+            meta_data_dict['lti-session-id'] = request.COOKIES.get('lti1p3-session-id')
+
             new_submission = Submission.objects.create(
                 exercise=exercise,
                 submission_data=submission_data_list,
@@ -626,6 +629,13 @@ class Submission(UrlMixin, models.Model):
         """Is this submission late or unofficial so that it could be approved?"""
         return (self.late_penalty_applied is not None
             or self.status == self.STATUS.UNOFFICIAL)
+
+    @property
+    def lti_launch_id(self):
+        try:
+            return self.meta_data.get('lti-launch-id')
+        except AttributeError:
+            return None
 
     ABSOLUTE_URL_NAME = "submission"
 

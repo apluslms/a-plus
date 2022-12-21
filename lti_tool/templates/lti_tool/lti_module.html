@@ -1,0 +1,45 @@
+{% extends "course/course_base.html" %}
+{% load i18n %}
+{% load course %}
+{% load apps %}
+
+{% block title %}{{ current.name|parse_localization }} | {{ block.super }}{% endblock %}
+
+{% block siblings %}{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block course_sidebar %}{% endblock %}
+{% block sidecontent %}{% endblock %}
+
+{% block coursecontent %}
+	<p>
+		<span class="small">
+			{{ current.opening_time }}
+			&ndash; {{ current.closing_time }}
+		</span>
+		{% if current.late_allowed %}
+		<br />
+		<span class="dates">
+			<em>
+				{% blocktranslate trimmed with deadline=current.late_time|date:"DATETIME_FORMAT" %}
+					LATE_SUBMISSIONS_ALLOWED_UNTIL -- {{ deadline }}
+				{% endblocktranslate %}
+				{% if current.late_percent != 100 %}
+				{% blocktranslate trimmed with percent=current.late_percent %}
+					LATE_SUBMISSION_POINTS_WORTH -- {{ percent }}
+				{% endblocktranslate %}
+				{% endif %}
+			</em>
+		</span>
+		{% endif %}
+	</p>
+
+	{% if module.introduction %}
+	<p>
+		{{ module.introduction|safe }}
+	</p>
+	{% endif %}
+
+	{% include "exercise/_children.html" with children=children accessible=True exercise_accessible=current|exercises_submittable:now %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "lti_tool/lti_base.html" %}
+
+{% load i18n %}
+{% load course %}
+{% load exercise %}
+
+{% block content %}
+<a class="aplus-button--secondary aplus-button--xs" href="..">{% translate "LTI_GO_BACK" %}</a>
+<h2 id="heading">{% translate "LTI_SELECT_CHAPTER_OR_EXERCISE" %}</h2>
+<section aria-labelledby="heading">
+	<h3>{{ instance|parse_localization }}</h3>
+	<h4>{{ module|parse_localization }}</h4>
+
+	{% for entry in flat_module %}
+
+	{% if entry.type == 'level' %}
+		{% if entry.down %}
+		<ul class="toc">
+		{% elif entry.up %}
+		</ul>
+		{% endif %}
+	{% else %}
+	<li>
+		<form style="display: inline-block" method="POST" action="{{ entry.link }}">
+			{% csrf_token %}
+			<button
+				class="aplus-button--secondary aplus-button--xs"
+				type="submit"
+			>
+				{{ entry.name|parse_localization }}
+			</button>
+		</form>
+	</li>
+	{% endif %}
+	{% endfor %}
+</section>
+
+
+{% endblock %}
