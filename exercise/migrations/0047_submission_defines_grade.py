@@ -5,8 +5,8 @@ from django.db import migrations, models
 from exercise.exercise_models import BaseExercise
 
 # Copied and slightly modified from exercise_models.py, because the class member
-# function cannot be called from migration script.
-# Somewhat nasty, but thought this is ok for this one-timer migration script
+# function could not be called from migration script.
+# Copying is somewhat nasty, but thought this is ok for this one-timer migration script
 def _is_better_submission(submission1, submission2, exercise) -> bool:
     from exercise.submission_models import Submission
     assert submission1.exercise == submission2.exercise

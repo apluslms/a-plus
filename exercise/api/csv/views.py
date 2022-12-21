@@ -281,6 +281,9 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     - `module_id`: id of the course module
     - `exercise_id`: id of the exercise
     - `show_unofficial`: if "true", unofficial submissions are included in the results
+    - `slow_query`: if "true", apply old way of querying the resultsdata. Much slower, but
+        retained for backwards compatibility, because the new query is not fully backwards
+        compatible: it always has '1' for submission counts in the table.
     """
     # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
     permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
@@ -318,16 +321,35 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     def retrieve(self, request, version=None, course_id=None, user_id=None):
         return self.serialize_profiles(request, [self.get_object()])
 
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
-        )
+    def get_submissions_query(
+        self,
+        ids,
+        profiles,
+        exclude_list,
+        revealed_ids,
+        show_unofficial,
+        slow_query,
+    ):
+        if (slow_query):
+            return (
+                Submission.objects
+                .filter(exercise__in=ids, submitters__in=profiles)
+                .exclude(status__in=(exclude_list))
+                .values('submitters__user_id', 'exercise_id')
+                .annotate(count=Count('id'))
+                .annotate_submitter_points('total', revealed_ids, show_unofficial)
+                .order_by()
+            )
+        else:
+            return (
+                Submission.objects
+                .filter(exercise__in=ids, submitters__in=profiles, defines_grade=True)
+                .exclude(status__in=(exclude_list))
+                .values('submitters__user_id', 'exercise_id')
+                .annotate(count=Count('id'))
+                .annotate(total=models.Max('grade'))
+                .order_by()
+            )
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
@@ -337,9 +359,17 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
         show_unofficial = request.GET.get('show_unofficial') == 'true'
+        slow_query = request.GET.get('slow_query') == 'true'
         if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = self.get_submissions_query(ids, profiles, exclude_list, revealed_ids, show_unofficial)
+        aggr = self.get_submissions_query(
+            ids,
+            profiles,
+            exclude_list,
+            revealed_ids,
+            show_unofficial,
+            slow_query,
+        )
         data,fields = aggregate_points(
             profiles,
             self.instance.taggings.all(),
@@ -369,7 +399,15 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
+    def get_submissions_query(
+        self,
+        ids,
+        profiles,
+        exclude_list,
+        revealed_ids,
+        show_unofficial,
+        _slow_query,
+    ):
         return (
             Submission.objects
             .filter(exercise__in=ids, submitters__in=profiles)
@@ -379,110 +417,6 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
             .annotate_best_submitter_points('total', revealed_ids, show_unofficial)
             .order_by()
         )
-
-
-class CourseQuickResultsViewSet(NestedViewSetMixin,
-                               CourseResourceMixin,
-                               viewsets.ReadOnlyModelViewSet):
-    """
-    The `quickresults` endpoint returns the students' points in the course
-    in CSV format.
-
-    Operations
-    ----------
-
-    `GET /courses/<course_id>/resultsdata/`:
-        returns the points of all users as CSV.
-
-    `GET /courses/<course_id>/resultsdata/<user_id>`:
-        returns the points of a specific user as CSV.
-
-    All operations support the following URL parameters for filtering:
-
-    - `filter`: the exercise number as a string, including module and chapter numbers
-        (format N.N.N)
-    - `category_id`: id of the exercise category
-    - `module_id`: id of the course module
-    - `exercise_id`: id of the exercise
-    - `show_unofficial`: if "true", unofficial submissions are included in the results
-    """
-    # submission_count, total_points, max_points, (time_usage) / exercise / chapter / module
-    permission_classes = api_settings.DEFAULT_PERMISSION_CLASSES + [
-        IsCourseAdminOrUserObjIsSelf,
-    ]
-    filter_backends = (
-        IsCourseAdminOrUserObjIsSelf,
-    )
-    renderer_classes = [
-        CSVRenderer,
-    ] + api_settings.DEFAULT_RENDERER_CLASSES
-    lookup_field = 'user_id'
-    lookup_url_kwarg = 'user_id'
-    lookup_value_regex = REGEX_INT_ME
-    parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
-
-    def get_queryset(self):
-        if self.action == 'list':
-            return self.instance.students
-        return self.instance.course_staff_and_students
-
-    def get_search_args(self, request):
-        return {
-            'number': request.GET.get('filter'),
-            'category_id': int_or_none(request.GET.get('category_id')),
-            'module_id': int_or_none(request.GET.get('module_id')),
-            'exercise_id': int_or_none(request.GET.get('exercise_id')),
-            'filter_for_assistant': not self.is_teacher,
-       }
-
-    def list(self, request, version=None, course_id=None):
-        profiles = self.filter_queryset(self.get_queryset())
-        return self.serialize_profiles(request, profiles)
-
-    def retrieve(self, request, version=None, course_id=None, user_id=None):
-        return self.serialize_profiles(request, [self.get_object()])
-
-    def get_submissions_query(self, profiles, exclude_list):
-        return (
-            Submission.objects
-            .filter(exercise__course_module__course_instance=self.instance,
-                submitters__in=profiles,
-                defines_grade=True)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate(total=models.Max('grade'))
-            .order_by()
-        )
-
-    def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
-        search_args = self.get_search_args(request)
-        _, exercises = self.content.search_entries(**search_args)
-        # ids = [e['id'] for e in exercises if e['type'] == 'exercise']
-        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
-        # revealed_ids = get_revealed_exercise_ids(search_args, points)
-        exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
-        # show_unofficial = request.GET.get('show_unofficial') == 'true'
-        # if not show_unofficial:
-        #     exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = self.get_submissions_query(profiles, exclude_list)
-        data,fields = aggregate_points(
-            profiles,
-            self.instance.taggings.all(),
-            exercises,
-            aggr,
-        )
-        self.renderer_fields = fields
-        response = Response(data)
-        if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
-            response['Content-Disposition'] = 'attachment; filename="aggregate.csv"'
-        return response
-
-    def get_renderer_context(self):
-        context = super().get_renderer_context()
-        context['header'] = getattr(self, 'renderer_fields', None)
-        return context
-
 
 def int_or_none(value):
     if not value is None:

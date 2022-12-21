@@ -416,7 +416,7 @@ class Submission(UrlMixin, models.Model):
         verbose_name_plural = _('MODEL_NAME_SUBMISSION_PLURAL')
         app_label = 'exercise'
         ordering = ['-id']
-        
+
         # Create index for faster queries for course results
         indexes = [
             models.Index(fields=['exercise', 'defines_grade']),
