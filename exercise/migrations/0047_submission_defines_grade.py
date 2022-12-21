@@ -2,6 +2,67 @@
 
 from django.db import migrations, models
 
+from exercise.exercise_models import BaseExercise
+
+# Copied and slightly modified from exercise_models.py, because the class member
+# function cannot be called from migration script.
+# Somewhat nasty, but thought this is ok for this one-timer migration script
+def _is_better_submission(submission1, submission2, exercise) -> bool:
+    from exercise.submission_models import Submission
+    assert submission1.exercise == submission2.exercise
+
+    if submission1.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+        return False
+    if submission2.status in (Submission.STATUS.ERROR, Submission.STATUS.REJECTED):
+        return True
+
+    if submission1.force_exercise_points:
+        return True
+    if submission2.force_exercise_points:
+        return False
+
+    if (
+            submission1.status == Submission.STATUS.UNOFFICIAL and
+            submission2.status == Submission.STATUS.READY
+    ):
+        return False
+    elif (
+            submission2.status == Submission.STATUS.UNOFFICIAL and
+            submission1.status == Submission.STATUS.READY
+    ):
+        return True
+
+    if exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+        return submission1.submission_time > submission2.submission_time
+    else: # GRADING_MODE.BEST
+        return (
+            submission1.grade > submission2.grade
+            or (
+                submission1.grade == submission2.grade
+                and submission1.submission_time > submission2.submission_time
+            )
+        )
+
+def validate_best(exercise, user):
+    current_best = None
+    submissions = user.submissions.filter(exercise=exercise)
+    for s in submissions:
+        if not current_best or _is_better_submission(s, current_best, exercise):
+            current_best = s
+    return current_best
+
+def initialize_defines_grade(apps, schema_editor):
+    Submission = apps.get_model('exercise', 'Submission')
+    for row in Submission.objects.order_by('exercise__id').distinct('exercise__id', 'submitters'):
+        exercise = row.exercise
+        user = row.submitters.first()
+        print(f"--PS: migrate exercise: {exercise}, user: {user}")
+        s = validate_best(exercise, user)
+        s.defines_grade = True
+        s.save()
+
+def noop(apps, schema_editor):
+    pass
 
 class Migration(migrations.Migration):
 
@@ -13,6 +74,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='submission',
             name='defines_grade',
-            field=models.BooleanField(default=False, verbose_name='Defines grade for this exercise'),
+            field=models.BooleanField(default=False, verbose_name='LABEL_DEFINES_GRADE'),
         ),
+        migrations.AddIndex(
+            model_name='submission',
+            index=models.Index(fields=['exercise', 'defines_grade'], name='exercise_su_exercis_a5fcd3_idx'),
+        ),
+        migrations.RunPython(initialize_defines_grade, reverse_code=noop),
     ]
