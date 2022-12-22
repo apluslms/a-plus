@@ -69,7 +69,7 @@ class LtiLaunchView(BaseRedirectView):
             profile.save()
 
             self.profile = profile
-        login(self.request, self.user)
+        login(self.request, self.user, backend='django.contrib.auth.backends.ModelBackend')
         self.request.session["lti-launch-id"] = message_launch.get_launch_id()
 
         if message_launch.is_resource_launch():
