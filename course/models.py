@@ -16,6 +16,7 @@ from django.db import models
 from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
@@ -775,6 +776,20 @@ class CourseInstance(UrlMixin, models.Model):
             enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
             enrollment__course_instance=self
         )
+
+    @cached_property
+    def later_instance(self):
+        later_instance = None
+        if self.is_past:
+            try:
+                later_instance = (
+                    CourseInstance.objects
+                        .filter(course=self.course, ending_time__gte=timezone.now())
+                        .latest('starting_time')
+                )
+            except CourseInstance.DoesNotExist:
+                pass
+        return later_instance
 
     def save(self, *args, **kwargs):
         """

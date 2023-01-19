@@ -169,8 +169,6 @@ class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
         elif lti_msg:
             messages.info(request, html.escape(lti_msg))
 
-        later_instance = None
-
         # PENDING student has enrolled, but not yet responded to the enrollment questionnaire.
         if request.user.is_authenticated:
             enrollment = self.user_course_data
@@ -181,19 +179,6 @@ class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
                 # but better be careful. In that case, proceeding to the course seems OK.
                 if exercise:
                     return self.redirect(exercise.get_absolute_url())
-
-        if self.instance.is_past:
-            try:
-                later_instance = (
-                    CourseInstance.objects
-                        .get_visible(request.user)
-                        .filter(course=self.course, ending_time__gte=timezone.now())
-                        .latest('starting_time')
-                )
-            except CourseInstance.DoesNotExist:
-                pass
-
-        kwargs['later_instance'] = later_instance
 
         return super().get(request, *args, **kwargs)
 

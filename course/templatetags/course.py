@@ -66,6 +66,11 @@ def is_visible(entry):
 
 
 @register.filter
+def is_visible_to(entry, user):
+    return entry.is_visible_to(user)
+
+
+@register.filter
 def is_listed(entry):
     return CachedContent.is_listed(entry)
 

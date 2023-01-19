@@ -78,12 +78,12 @@
 		{% if instance.is_past and instance.has_enrollment_closed %}
 			<div class="alert sticky-alert alert-default">
 				{% translate "COURSE_HAS_ALREADY_ENDED" %}
-				{% if later_instance %}
+				{% if instance.later_instance and instance.later_instance|is_visible_to:user %}
 					<p>
 						{% translate "LATEST_COURSE_INSTANCE_CAN_BE_FOUND" %}
-						<a class="alert-link" href="{{ later_instance|url }}">
-							<span lang="{{ later_instance.language }}">
-								{{ later_instance.course.name|parse_localization }}: {{ later_instance.instance_name|parse_localization }}
+						<a class="alert-link" href="{{ instance.later_instance|url }}">
+							<span lang="{{ instance.later_instance.language }}">
+								{{ instance.later_instance.course.name|parse_localization }}: {{ instance.later_instance.instance_name|parse_localization }}
 							</span>
 						</a>
 					</p>
