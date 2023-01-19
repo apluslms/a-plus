@@ -39,6 +39,7 @@ class LtiLaunchView(BaseRedirectView):
 
     access_mode = ACCESS.ANONYMOUS
 
+    # this has been CSRF exempted in the urls file
     @xframe_options_exempt
     def post(self, request, *args, **kwargs):
         tool_conf = get_tool_conf()
