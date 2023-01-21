@@ -12,8 +12,15 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
-from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
-from external_services.models import LTIService
+from exercise.models import (
+    LearningObject,
+    CourseChapter,
+    BaseExercise,
+    LTIExercise,
+    LTI1p3Exercise,
+    RevealRule,
+)
+from external_services.models import LTIService, LTI1p3Service
 from lib.localization_syntax import format_localization
 from userprofile.models import UserProfile
 
@@ -166,6 +173,8 @@ def get_config_changes(
 
 
 def lobject_class(config: dict) -> Type[LearningObject]:
+    if "lti1p3" in config:
+        return LTI1p3Exercise
     if "lti" in config:
         return LTIExercise
 
@@ -213,7 +222,14 @@ def update_learning_objects( # noqa: MC0001
                 if obj_key in o:
                     setattr(lobject, key, parse_bool(o[obj_key]))
 
-        if lobject_cls in (LTIExercise, BaseExercise):
+        if lobject_cls == LTI1p3Exercise:
+            lobject.lti_service = LTI1p3Service.objects.filter(menu_label=str(o["lti1p3"])).first()
+            if "lti_custom" in o:
+                lobject.custom = o['lti_custom']
+            if "lti_open_in_iframe" in o:
+                lobject.open_in_iframe = o['lti_open_in_iframe']
+
+        if lobject_cls in (LTIExercise, LTI1p3Exercise, BaseExercise):
             for key in [
                 "allow_assistant_viewing",
                 "allow_assistant_grading",
@@ -380,13 +396,18 @@ def validate_lobject(
 
     lobject_cls = lobject_class(config)
 
-    if lobject_cls == LTIExercise:
-        lti = LTIService.objects.filter(menu_label=str(config["lti"])).first()
+    if lobject_cls in (LTIExercise, LTI1p3Exercise):
+        if lobject_cls == LTIExercise:
+            conf = config["lti"]
+            lti = LTIService.objects.filter(menu_label=str(conf)).first()
+        else:
+            conf = config["lti1p3"]
+            lti = LTI1p3Service.objects.filter(menu_label=str(conf)).first()
         if not lti:
             errors.append(
                 format_lazy(
                     _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}'),
-                    lti_label=str(config["lti"]),
+                    lti_label=str(conf),
                     exercise_key=config["key"],
                 )
             )

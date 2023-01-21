@@ -11,6 +11,7 @@ from exercise.models import (
     StaticExercise,
     ExerciseWithAttachment,
     LTIExercise,
+    LTI1p3Exercise,
     Submission,
     SubmissionDraft,
     SubmittedFile,
@@ -356,6 +357,35 @@ class LTIExerciseAdmin(admin.ModelAdmin):
     )
 
 
+class LTI1p3ExerciseAdmin(admin.ModelAdmin):
+    search_fields = (
+        'name',
+        'category__name',
+        'course_module__name',
+        'course_module__course_instance__instance_name',
+        'course_module__course_instance__course__code',
+        'course_module__course_instance__course__name',
+    )
+    list_display_links = ('__str__',)
+    list_display = (
+        'course_instance',
+        'course_module',
+        '__str__',
+        'max_points',
+    )
+    list_filter = (
+        LearningObjectRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'category',
+        'course_module',
+        'lti_service',
+        'parent',
+        'submission_feedback_reveal_rule',
+        'model_solutions_reveal_rule',
+    )
+
+
 class ExerciseCollectionAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -501,6 +531,7 @@ admin.site.register(BaseExercise, BaseExerciseAdmin)
 admin.site.register(StaticExercise, StaticExerciseAdmin)
 admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
 admin.site.register(LTIExercise, LTIExerciseAdmin)
+admin.site.register(LTI1p3Exercise, LTI1p3ExerciseAdmin)
 admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)

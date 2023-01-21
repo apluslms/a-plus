@@ -24,7 +24,7 @@ from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
 from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
 from external_services.lti import CustomStudentInfoLTIRequest
-from external_services.models import LTIService
+from external_services.models import LTIService, LTI1p3Service
 from inheritance.models import ModelWithInheritance, ModelWithInheritanceManager
 from lib.api.authentication import (
     get_graderauth_submission_params,
@@ -1203,6 +1203,76 @@ class LTIExercise(BaseExercise):
     def can_regrade(self):
         # the LTI protocol does not support regrading in the A+ way
         # (A+ would upload a submission to the service and expect it to be graded)
+        return False
+
+
+# Note: One option would have been to create a common LTIExerciseBase class between
+# legacy LTI and LTI 1.3, but the two protocols are fairly different, and the migrations
+# from existing DB would have become somewhat complicated, so decided to go with
+# separate classes, despite the price of having a bit of redundant code.
+class LTI1p3Exercise(BaseExercise):
+    """
+    Exercise hosted by external LTI 1.3 Tool.
+    """
+    lti_service = DefaultForeignKey(LTI1p3Service,
+        verbose_name=_('LABEL_LTI_SERVICE'),
+        on_delete=models.CASCADE,
+    )
+    custom = models.TextField(
+        verbose_name=_('LABEL_LTI_CUSTOM_PARAMETERS'),
+        blank=True,
+        help_text=_('LTI_CUSTOM_PARAMETERS_HELPTEXT'),
+    )
+    open_in_iframe = models.BooleanField(
+        verbose_name=_('LABEL_OPEN_IN_IFRAME'),
+        default=False,
+        help_text=_('LTI_EXERCISE_OPEN_IN_IFRAME_HELPTEXT'),
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_LTI1P3_EXERCISE')
+        verbose_name_plural = _('MODEL_NAME_LTI1P3_EXERCISE_PLURAL')
+
+    def load(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            url_name: str = "exercise",
+            ordinal: Optional[int] = None,
+            ) -> ExercisePage:
+        from external_services.lti1p3 import prepare_lti1p3_initiate_login # pylint: disable=import-outside-toplevel
+
+        if not self.lti_service.enabled:
+            messages.error(request, _('LTI_EXERCISE_ERROR_EXTERNAL_LTI_SERVICE_DISABLED'))
+            raise PermissionDenied("The LTI service is disabled.")
+
+        if not students:
+            return ExercisePage(self)
+
+        language = get_language()
+        url = self.get_service_url(language)
+        parameters = prepare_lti1p3_initiate_login(self.lti_service, students[0].user, self.course_instance, self)
+
+        # Render launch button.
+        page = ExercisePage(self)
+        page.content = self.content
+        template = loader.get_template('external_services/_launch.html')
+        page.content += template.render({
+            'service': self.lti_service,
+            'service_label': self.lti_service.menu_label,
+            'url': self.lti_service.login_url,
+            'parameters': parameters,
+            'exercise': self,
+            'is_course_staff': self.course_instance.is_course_staff(request.user),
+            'site': '/'.join(url.split('/')[:3]),
+        })
+        return page
+
+    def get_resource_link_id(self) -> str:
+        return str(self.course_module.course_instance.pk) + ':' + str(self.pk)
+
+    @property
+    def can_regrade(self):
         return False
 
 
