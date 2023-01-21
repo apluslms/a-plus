@@ -3301,6 +3301,23 @@ msgstr ""
 "disabled."
 
 #: exercise/exercise_models.py
+msgid "LABEL_LTI_CUSTOM_PARAMETERS"
+msgstr "Custom parameters"
+
+#: exercise/exercise_models.py
+msgid "LTI_CUSTOM_PARAMETERS_HELPTEXT"
+msgstr ""
+"Tool implementation specific additional options related to this exercise."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI1P3_EXERCISE"
+msgstr "LTI v1.3 assignment"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI1P3_EXERCISE_PLURAL"
+msgstr "LTI v1.3 assignments"
+
+#: exercise/exercise_models.py
 msgid "LABEL_EXERCISE_PAGE_CONTENT"
 msgstr "assignment page content"
 
@@ -4858,6 +4875,14 @@ msgstr "LTI service"
 #: external_services/models.py
 msgid "MODEL_NAME_LTI_SERVICE_PLURAL"
 msgstr "LTI services"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI1P3_SERVICE"
+msgstr "LTI v1.3 service"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI1P3_SERVICE_PLURAL"
+msgstr "LTI v1.3 services"
 
 #: external_services/models.py
 msgid "MENU_ITEM_ACCESS_ALL"

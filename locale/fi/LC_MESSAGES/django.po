@@ -3312,6 +3312,22 @@ msgstr ""
 "Tehtävää ei voi ladata, koska ulkoinen LTI-palvelu on poistettu käytöstä."
 
 #: exercise/exercise_models.py
+msgid "LABEL_LTI_CUSTOM_PARAMETERS"
+msgstr "Mukautetut parametrit"
+
+#: exercise/exercise_models.py
+msgid "LTI_CUSTOM_PARAMETERS_HELPTEXT"
+msgstr "Työkalun toteutuskohtaiset lisäoptiot tähän tehtävään liittyen."
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI1P3_EXERCISE"
+msgstr "LTI v1.3 - tehtävä"
+
+#: exercise/exercise_models.py
+msgid "MODEL_NAME_LTI1P3_EXERCISE_PLURAL"
+msgstr "LTI v1.3 - tehtävät"
+
+#: exercise/exercise_models.py
 msgid "LABEL_EXERCISE_PAGE_CONTENT"
 msgstr "tehtäväsivun sisältö"
 
@@ -4876,6 +4892,14 @@ msgstr "LTI-palvelu"
 #: external_services/models.py
 msgid "MODEL_NAME_LTI_SERVICE_PLURAL"
 msgstr "LTI-palvelut"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI1P3_SERVICE"
+msgstr "LTI v1.3 - palvelu"
+
+#: external_services/models.py
+msgid "MODEL_NAME_LTI1P3_SERVICE_PLURAL"
+msgstr "LTI v1.3 - palvelut"
 
 #: external_services/models.py
 msgid "MENU_ITEM_ACCESS_ALL"

@@ -166,6 +166,49 @@ class LTIService(LinkService):
         return reverse('lti-login', kwargs=kwargs)
 
 
+class LTI1p3Service(LinkService):
+    '''
+    Settings for a remote LTI v1.3 Tool.
+    '''
+    # Verbose names are intentionally non-translated, because they would not make sense in Finnish.
+    login_url = models.CharField(
+        verbose_name="Login initiation URL",
+        max_length=256,
+    )
+    client_id = models.CharField(
+        verbose_name="Client ID",
+        unique=True,
+        max_length=128,
+    )
+    deployment_id = models.CharField(
+        verbose_name="Deployment ID",
+        max_length=128,
+    )
+    jwks_url = models.CharField(
+        verbose_name="JWKS URL for tool's public key",
+        max_length=256,
+    )
+
+    # Note that setting share_name to False is not the same as LTI's "anonymous mode",
+    # because the A+ user ID will still be provided to the tool.
+    # Otherwise we would not be able to connect incoming scores with the correct user.
+    share_name = models.BooleanField(
+        verbose_name="Share launcher's name, email and student ID with the tool",
+        default=False,
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_LTI1P3_SERVICE')
+        verbose_name_plural = _('MODEL_NAME_LTI1P3_SERVICE_PLURAL')
+
+    def get_url(self, replace=None, kwargs=None) -> str:
+        return reverse('lti-login', kwargs=kwargs)
+
+    @property
+    def method(self) -> str:
+        return 'POST'
+
+
 class MenuItemManager(models.Manager):
 
     def get_queryset(self):

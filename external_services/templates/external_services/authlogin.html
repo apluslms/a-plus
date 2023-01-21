@@ -1,0 +1,9 @@
+<form action="{{ action }}" name="ltiAuthForm" id="ltiAuthForm"
+		method="post" enctype="application/x-www-form-urlencoded">
+	{% for key, value in params.items %}
+		<input type="hidden" name="{{ key }}" value="{{ value.0 }}"/>
+	{% endfor %}
+</form>
+<script type="text/javascript">
+		document.ltiAuthForm.submit();
+</script>

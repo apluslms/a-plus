@@ -7,6 +7,7 @@ from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 import userprofile.api.views
 import course.api.views
+import course.api.lti_views
 import exercise.api.views
 import exercise.api.csv.views
 import external_services.api.views
@@ -21,6 +22,19 @@ class AplusRouter(ExtendedDefaultRouter):
     # We have to assume that the first route in routes is the list route.
     # The framework does not map the DELETE method for it at all, so we do it here.
     routes[0].mapping['delete'] = 'destroy_many'
+
+    def __init__(self):
+        # The following causes URLs to be routed either with or without the trailing slash.
+        # It is needed, because LTI 1.3 specifies some URLs that do not have trailing slash,
+        # but Django (and A+) default behavior automatically assumes the trailing slash,
+        # and some of the existing links to A+ material might assume this as well.
+        # The side effect of this change is, that the reverse URLs for APIs now appear
+        # without trailing slash, while before it was included in URL. Therefore the
+        # comparisons in some of the API unit tests needed to be fixed, but calling the
+        # API URLs in existing implementations should work without modifications, because
+        # both URL variants are routed.
+        super().__init__()
+        self.trailing_slash = '/?'
 
 
 api = AplusRouter()
@@ -71,6 +85,9 @@ with api.register(r'courses',
     courses.register(r'news',
                      course.api.views.CourseNewsViewSet,
                      basename='course-news')
+    courses.register(r'lineitems',
+                    course.api.lti_views.CourseLineItemsViewSet,
+                    basename='course-lineitems')
 
 with api.register(r'exercises',
                   exercise.api.views.ExerciseViewSet,

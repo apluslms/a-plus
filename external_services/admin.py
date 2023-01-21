@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from external_services.models import LTIService, LinkService, MenuItem
+from external_services.models import LTIService, LTI1p3Service, LinkService, MenuItem
 from lib.admin_helpers import RecentCourseInstanceListFilter
 
 
@@ -31,6 +31,11 @@ class LinkServiceAdmin(admin.ModelAdmin):
 class LTIServiceAdmin(LinkServiceAdmin):
     search_fields = LinkServiceAdmin.search_fields + ('consumer_key',)
     list_display = LinkServiceAdmin.list_display + ('access_settings',)
+
+
+class LTI1p3ServiceAdmin(LinkServiceAdmin):
+    search_fields = LinkServiceAdmin.search_fields + ('login_url',)
+    list_display = LinkServiceAdmin.list_display + ('client_id',)
 
 
 class MenuItemAdmin(admin.ModelAdmin):
@@ -68,5 +73,6 @@ class MenuItemAdmin(admin.ModelAdmin):
 
 
 admin.site.register(LTIService, LTIServiceAdmin)
+admin.site.register(LTI1p3Service, LTI1p3ServiceAdmin)
 admin.site.register(LinkService, LinkServiceAdmin)
 admin.site.register(MenuItem, MenuItemAdmin)

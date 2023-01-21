@@ -5,15 +5,23 @@ These classes use same interface than ones in django-rest-framework and
 are usable with APIViews too.
 """
 import string
+import logging
+from typing import List
+from abc import ABC, abstractmethod
 
+from django.conf import settings
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.http import HttpRequest
 from rest_framework.permissions import BasePermission as Permission
+
+import jwt
 
 from lib.helpers import Enum
 
 
 SAFE_METHODS = ('GET', 'HEAD', 'OPTIONS')
+logger = logging.getLogger('aplus.authorization')
 
 
 class FilterBackend:
@@ -165,3 +173,51 @@ class ObjectVisibleBasePermission(MessageMixin, Permission):
 
     def is_object_visible(self, request, view, obj):
         raise NotImplementedError
+
+
+class OAuth2ScopeChecker(ABC):
+    '''
+    To be inherited by View classes that wish to use OAuth2.
+    Defines check_token_scope to verify if provided bearer token has
+    sufficient privileges to access the view.
+    '''
+    @abstractmethod
+    def check_token_scope(self, scopes: List[str]) -> bool:
+        '''
+        Returns true if the scope(s) required by the current view is included in the
+        given scopes list.
+        '''
+
+
+class OAuth2TokenPermission(Permission):
+    '''
+    Permission controlled by OAuth2 Bearer tokens.
+    '''
+    def has_permission(self, request: HttpRequest, view: OAuth2ScopeChecker) -> bool:
+        token = request.headers.get('Authorization')
+        if not token:
+            logger.warning("Missing authorization token")
+            return False
+        token = token.split(' ')
+        if len(token) < 2:
+            logger.warning("Invalid authorization token")
+            return False
+        token = token[1]
+
+        # Check if token is known and is valid for the purpose
+        pemkey = settings.APLUS_AUTH_LOCAL['PUBLIC_KEY']
+        try:
+            data = jwt.decode(
+                token,
+                pemkey,
+                algorithms=["RS256"],
+            )
+        except (jwt.exceptions.InvalidSignatureError, jwt.ExpiredSignatureError, jwt.InvalidAudienceError) as e:
+            logger.error("LTI 1.3: Bearer token decoding failed: %s", str(e))
+            return False
+
+        if not view.check_token_scope(data.get('scope', '').split()):
+            logger.warning("Insufficient bearer token scope: %s", token)
+            return False
+
+        return True

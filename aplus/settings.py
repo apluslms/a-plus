@@ -62,6 +62,9 @@ APLUS_AUTH = {
     "DEFAULT_AUD_UID": "unknown",
 }
 
+# Expiry time for LTI 1.3 JWT tokens, in seconds
+LTI_TOKEN_LIFETIME = 3600
+
 # Content (may override in local_settings.py)
 #
 # Any templates can be overridden by copying into

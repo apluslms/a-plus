@@ -4,12 +4,25 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from exercise.models import LearningObject, CourseChapter, \
-    BaseExercise, LTIExercise, StaticExercise, ExerciseWithAttachment
+from exercise.models import (
+    LearningObject,
+    CourseChapter,
+    BaseExercise,
+    LTIExercise,
+    StaticExercise,
+    ExerciseWithAttachment,
+    LTI1p3Exercise,
+)
 from course.models import LearningObjectCategory, CourseModule
-from .exercise_forms import CourseChapterForm, BaseExerciseForm, \
-    LTIExerciseForm, ExerciseWithAttachmentForm, StaticExerciseForm, \
-    ExerciseCollectionExerciseForm
+from .exercise_forms import (
+    CourseChapterForm,
+    BaseExerciseForm,
+    LTIExerciseForm,
+    ExerciseWithAttachmentForm,
+    StaticExerciseForm,
+    ExerciseCollectionExerciseForm,
+    LTI1p3ExerciseForm,
+)
 from .course_forms import LearningObjectCategoryForm, CourseModuleForm
 from exercise.exercisecollection_models import ExerciseCollection
 
@@ -97,6 +110,7 @@ class ExerciseManager(ModelManager):
             CourseChapter: CourseChapterForm,
             BaseExercise: BaseExerciseForm,
             LTIExercise: LTIExerciseForm,
+            LTI1p3Exercise: LTI1p3ExerciseForm,
             StaticExercise: StaticExerciseForm,
             ExerciseWithAttachment: ExerciseWithAttachmentForm,
             ExerciseCollection: ExerciseCollectionExerciseForm,

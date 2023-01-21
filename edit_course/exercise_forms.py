@@ -6,7 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, \
-    LTIExercise, StaticExercise, ExerciseWithAttachment, RevealRule
+    LTIExercise, StaticExercise, ExerciseWithAttachment, RevealRule, \
+    LTI1p3Exercise
 from lib.widgets import DateTimeLocalInput
 from .course_forms import FieldsetModelForm
 
@@ -207,6 +208,24 @@ class LTIExerciseForm(BaseExerciseForm):
         return super().get_content_fieldset('lti_service','context_id',
             'resource_link_id','resource_link_title',
             'aplus_get_and_post','open_in_iframe','service_url')
+
+
+class LTI1p3ExerciseForm(BaseExerciseForm):
+
+    class Meta:
+        model = LTI1p3Exercise
+        fields = COMMON_FIELDS + SERVICE_FIELDS + EXERCISE_FIELDS + [
+            'lti_service',
+            'custom',
+            'open_in_iframe',
+        ]
+
+    @property
+    def remote_service_head(self) -> bool:
+        return False
+
+    def get_content_fieldset(self, *add) -> Dict[str, Any]:
+        return super().get_content_fieldset('lti_service', 'custom', 'open_in_iframe')
 
 
 class ExerciseWithAttachmentForm(BaseExerciseForm):

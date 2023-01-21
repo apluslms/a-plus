@@ -32,7 +32,7 @@ class CourseInstanceAPITest(TestCase):
         results = [
             {
                 'id': 1,
-                'url': 'http://testserver/api/v2/courses/1/',
+                'url': 'http://testserver/api/v2/courses/1',
                 'html_url': 'http://testserver/Course-Url/T-00.1000_d0/',
                 'code': '123456',
                 'name': 'test course',
@@ -40,7 +40,7 @@ class CourseInstanceAPITest(TestCase):
             },
             {
                 'id': 2,
-                'url': 'http://testserver/api/v2/courses/2/',
+                'url': 'http://testserver/api/v2/courses/2',
                 'html_url': 'http://testserver/Course-Url/T-00.1000_d1/',
                 'code': '123456',
                 'name': 'test course',
@@ -48,7 +48,7 @@ class CourseInstanceAPITest(TestCase):
             },
             {
                 'id': 3,
-                'url': 'http://testserver/api/v2/courses/3/',
+                'url': 'http://testserver/api/v2/courses/3',
                 'html_url': 'http://testserver/Course-Url/T-00.1000_d2/',
                 'code': '123456',
                 'name': 'test course',
@@ -56,7 +56,7 @@ class CourseInstanceAPITest(TestCase):
             },
             {
                 'id': 4,
-                'url': 'http://testserver/api/v2/courses/4/',
+                'url': 'http://testserver/api/v2/courses/4',
                 'html_url': 'http://testserver/Course-Url/T-00.1000_hidden/',
                 'code': '123456',
                 'name': 'test course',

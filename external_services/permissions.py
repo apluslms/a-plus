@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import Permission, ObjectVisibleBasePermission
-from .models import MenuItem, LTIService
+from .models import MenuItem, LTIService, LTI1p3Service
 
 
 class MenuVisiblePermission(ObjectVisibleBasePermission):
@@ -34,5 +34,4 @@ class LTIServicePermission(Permission):
         return self.has_object_permission(request, view, view.menu_item)
 
     def has_object_permission(self, request, view, obj):
-        return (obj.service
-            and isinstance(obj.service, LTIService))
+        return obj.service and isinstance(obj.service, (LTIService, LTI1p3Service))
