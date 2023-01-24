@@ -101,71 +101,40 @@ def remove_newlines(value):
     return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
 
 
-def configure_learning_objects( # noqa: MC0001
-        category_map: Dict[str, LearningObjectCategory],
-        module: CourseModule,
-        config: List[Dict[str, Any]],
-        parent: Optional[LearningObject],
-        seen: List[int],
-        errors: List[str],
-        n: int = 0,
-        ) -> int:
-    if not isinstance(config, list):
-        return n
-    for o in config:
-        if "key" not in o:
-            errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_KEY'))
-            continue
-        if "category" not in o:
-            errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_CATEGORY'))
-            continue
-        if not o["category"] in category_map:
-            errors.append(
-                format_lazy(
-                    _('LEARNING_OBJECT_ERROR_UNKNOWN_CATEGORY -- {category}'),
-                    category=o["category"],
-                )
-            )
-            continue
+def lobject_class(config: dict) -> Type[LearningObject]:
+    if "lti" in config:
+        return LTIExercise
 
-        lobject = LearningObject.objects.filter(
-            #course_module__course_instance=module.course_instance,
-            course_module=module,
-            url=str(o["key"])
-        ).defer(None).first()
+    if "max_submissions" in config:
+        return BaseExercise
+
+    return CourseChapter
+
+
+def update_learning_objects( # noqa: MC0001
+        category_map: Dict[str, LearningObjectCategory],
+        configs: List[Dict[str, Any]],
+        learning_objects: Dict[str, LearningObject],
+        errors: List[str],
+        ) -> None:
+    """Configures learning objects.
+
+    :param category_map: maps category keys to LearningObjectCategory objects
+    :param configs: maps lobject keys to their configs
+    :param learning_objects: maps lobject keys to LearningObject objects
+    :param errors: list to append errors to
+    """
+    for o in configs:
+        key = o["key"]
+        lobject = learning_objects[key]
 
         # Select exercise class.
-        lobject_cls = (
-            LTIExercise if "lti" in o
-            else BaseExercise if "max_submissions" in o
-            else CourseChapter
-        )
-
-        if lobject is not None and not isinstance(lobject, lobject_cls):
-            lobject.url = lobject.url + "_old"
-            lobject.save()
-            lobject = None
-        if lobject is None:
-            lobject = lobject_cls(course_module=module, url=str(o["key"]))
+        lobject_cls = lobject_class(o)
 
         if lobject_cls == LTIExercise:
-            lti = LTIService.objects.filter(menu_label=str(o["lti"])).first()
-            if lti is None:
-                errors.append(
-                    format_lazy(
-                        _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}'),
-                        lti_label=str(o["lti"]),
-                        exercise_key=str(o["key"]),
-                    )
-                )
-                if hasattr(lobject, 'id'):
-                    # Avoid deleting LTI exercises from A+ since the LTI parameters
-                    # may have been used with an external tool.
-                    seen.append(lobject.id)
-                # The learning object can not be saved without an LTI service
-                # since the foreign key is required.
-                continue
-            lobject.lti_service = lti
+            # validate_lobjects checks that this exists
+            lobject.lti_service = LTIService.objects.filter(menu_label=str(o["lti"])).first()
+
             for key in [
                 "context_id",
                 "resource_link_id",
@@ -250,13 +219,9 @@ def configure_learning_objects( # noqa: MC0001
                     o["generate_table_of_contents"])
 
         lobject.category = category_map[o["category"]]
-        lobject.parent = parent
 
-        if "order" in o:
-            lobject.order = parse_int(o["order"], errors)
-        else:
-            n += 1
-            lobject.order = n
+        lobject.order = parse_int(o["order"], errors)
+
         if "url" in o:
             lobject.service_url = format_localization(o["url"])
         if "status" in o:
@@ -280,13 +245,9 @@ def configure_learning_objects( # noqa: MC0001
             lobject.model_answers = format_localization(o["model_answer"])
         if "exercise_template" in o:
             lobject.templates = format_localization(o["exercise_template"])
+
         lobject.full_clean()
         lobject.save()
-        seen.append(lobject.id)
-        if "children" in o:
-            configure_learning_objects(category_map, module, o["children"],
-                lobject, seen, errors)
-    return n
 
 
 def get_build_log(instance):
@@ -320,8 +281,67 @@ def get_build_log(instance):
     return data
 
 
+def set_order_information(items: List[dict], n = 0) -> int:
+    for o in items:
+        if "order" not in o:
+            n += 1
+            o["order"] = n
+    return n
+
+
+def validate_lobject(
+        config: dict,
+        category_key_to_name: Dict[str,str],
+        errors: List[str],
+        ):
+    """Check that config is valid.
+
+    Only checks attributes that prevent saving.
+    """
+    if "key" not in config:
+        errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_KEY'))
+        return False
+    if "category" not in config:
+        errors.append(_('LEARNING_OBJECT_ERROR_REQUIRES_CATEGORY'))
+        return False
+
+    if config["category"] not in category_key_to_name:
+        errors.append(
+            format_lazy(
+                _('LEARNING_OBJECT_ERROR_UNKNOWN_CATEGORY -- {category}'),
+                category=config["category"],
+            )
+        )
+        return False
+
+    lobject_cls = lobject_class(config)
+
+    if lobject_cls == LTIExercise:
+        lti = LTIService.objects.filter(menu_label=str(config["lti"])).first()
+        if not lti:
+            errors.append(
+                format_lazy(
+                    _('LTI_ERROR_NO_CONFIGURATION_TO_SERVICE_USED_BY_EXERCISE -- {lti_label}, {exercise_key}'),
+                    lti_label=str(config["lti"]),
+                    exercise_key=config["key"],
+                )
+            )
+            # The learning object can not be saved without an LTI service
+            # since the foreign key is required.
+            return False
+
+    return True
+
+
 def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]: # noqa: MC0001
     errors = []
+
+    if not "categories" in config or not isinstance(config["categories"], dict):
+        errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
+        return False, errors
+    if not "modules" in config or not isinstance(config["modules"], list):
+        errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
+        return False, errors
 
     # wrap everything in a transaction to make sure invalid configuration isn't saved
     with transaction.atomic():
@@ -429,27 +449,26 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
         instance.full_clean(exclude=['configure_url', 'build_log_url'])
         instance.save()
 
-        if "categories" not in config or not isinstance(config["categories"], dict):
-            errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
-            transaction.set_rollback(True)
-            return False, errors
-        if "modules" not in config or not isinstance(config["modules"], list):
-            errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
-            transaction.set_rollback(True)
-            return False, errors
+        old_categories = instance.categories.defer(None).all()
+        categories_c = {format_localization(c["name"]): (key,c) for key, c in config.get("categories", {}).items() if "name" in c}
+        # Add errors for categories without a name
+        for i in range(len(config.get("categories", {})) - len(categories_c)):
+            errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
+
+        # Create new categories
+        new_category_names = categories_c.keys() - (c.name for c in old_categories)
+        new_categories = [LearningObjectCategory(course_instance=instance, name=name) for name in new_category_names]
 
         # Configure learning object categories.
         category_map = {}
-        seen = []
-        for key, c in config.get("categories", {}).items():
-            if "name" not in c:
-                errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
+        for category in list(old_categories) + new_categories:
+            if category.name not in categories_c:
+                category.status = LearningObjectCategory.STATUS.HIDDEN
+                category.save()
                 continue
-            try:
-                category = instance.categories.get(name=format_localization(c["name"]))
-            except LearningObjectCategory.DoesNotExist:
-                category = LearningObjectCategory(course_instance=instance,
-                    name=format_localization(c["name"]))
+
+            key, c = categories_c[category.name]
+
             if "status" in c:
                 category.status = str(c["status"])
             if "description" in c:
@@ -467,32 +486,124 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
             category.full_clean()
             category.save()
             category_map[key] = category
-            seen.append(category.id)
 
-        for category in instance.categories.all():
-            if category.id not in seen:
-                category.status = LearningObjectCategory.STATUS.HIDDEN
-                category.save()
+        set_order_information(config["modules"])
 
-        # Configure course modules.
-        seen_modules = []
-        seen_objects = []
+        old_modules = instance.course_modules.defer(None).all()
+        modules_c = {str(c["key"]): c for c in config.get("modules", []) if "key" in c}
+        # Add errors for modules without a key
+        for i in range(len(config.get("modules", [])) - len(modules_c)):
+            errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
+
+        # Create new modules
+        new_module_keys = modules_c.keys() - (c.url for c in old_modules)
+        new_modules = [CourseModule(course_instance=instance, url=key) for key in new_module_keys]
+        # bulk_create doesn't get generated primary keys, so we need to save them individually
+        for module in new_modules:
+            module.save()
+
         nn = 0
-        n = 0
+        module_lobjects = {}
         for m in config.get("modules", []):
+            def get_children(config, n = 0):
+                # We need to remove any invalid configs because invalid configs aren't saved
+                children = [
+                    c for c in config.get("children", [])
+                    if validate_lobject(
+                        c,
+                        {key: category.name for key, category in category_map.items()},
+                        errors
+                    )
+                ]
+                n = set_order_information(children, n)
+                config["children"] = [str(child["key"]) for child in children]
+                return children + [c2 for c in children for c2 in get_children(c)[0]], n
+
             if "key" not in m:
                 errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
                 continue
-            try:
-                module = instance.course_modules.get(url=str(m["key"]))
-            except CourseModule.DoesNotExist:
-                module = CourseModule(course_instance=instance, url=str(m["key"]))
 
-            if "order" in m:
-                module.order = parse_int(m["order"], errors)
-            else:
-                n += 1
-                module.order = n
+            if not ("numerate_ignoring_modules" in config \
+                    and parse_bool(config["numerate_ignoring_modules"])):
+                nn = 0
+
+            module_lobjects[str(m["key"])], nn = get_children(m, nn)
+
+        # Update the learning objects within each of the new and old modules
+        for module in list(old_modules) + new_modules:
+            # TODO: test if doing defer(None) only on the lobjects that
+            # will be modified is a significant improvement
+            old_lobjects = module.learning_objects.defer(None).all()
+            old_lobject_keys = {c.url for c in old_lobjects}
+            lobject_map = {obj.url: obj for obj in old_lobjects}
+
+            # Keys of lobjects to be deleted/hidden (i.e. lobjects not present in new version)
+            outdated_lobjects = [
+                lobject_map[key]
+                for key in old_lobject_keys - set(modules_c.get(module.url, {}).get("children", []))
+            ]
+            if module.url in modules_c:
+                lobjects_config = module_lobjects[module.url]
+
+                # Check and update exercise object types if they have changed
+                for lobject_config in lobjects_config:
+                    key = lobject_config["key"]
+                    lobject_cls = lobject_class(lobject_config)
+
+                    if key in old_lobject_keys:
+                        lobject = lobject_map[key]
+
+                        # We cannot use isinstance as LTIExercise inherits BaseExercise
+                        if not type(lobject) is lobject_cls: # pylint: disable=unidiomatic-typecheck
+                            outdated_lobjects.append(lobject)
+
+                            lobject.url = lobject.url + "_old"
+                            lobject.save()
+                            lobject_map[key] = lobject_cls(course_module=module, url=key)
+                    else:
+                        lobject_map[key] = lobject_cls(course_module=module, url=key)
+
+                update_learning_objects(
+                    category_map,
+                    lobjects_config,
+                    lobject_map,
+                    errors,
+                )
+
+                # We can't set the children until they have been saved by update_learning_objects
+                for config in lobjects_config:
+                    lobject_map[config["key"]].children.set(
+                        lobject_map[child_key]
+                        for child_key in config["children"]
+                    )
+
+            for lobject in outdated_lobjects:
+                if (
+                    not isinstance(lobject, BaseExercise)
+                    or not lobject.submissions.exists()
+                ):
+                    lobject.delete()
+                else:
+                    lobject.status = LearningObject.STATUS.HIDDEN
+                    lobject.order = 9999
+                    # .parent may have been deleted: only save status and order
+                    lobject.save(update_fields=["status", "order"])
+
+        # Update the modules
+        for module in list(old_modules) + new_modules:
+            #  Delete/hide any old modules not present in new version
+            if module.url not in modules_c:
+                if not module.learning_objects.exists():
+                    module.delete()
+                else:
+                    module.status = CourseModule.STATUS.HIDDEN
+                    module.save()
+
+                continue
+
+            m = modules_c[module.url]
+
+            module.order = parse_int(m["order"], errors)
 
             if "title" in m:
                 module.name = format_localization(m["title"])
@@ -547,36 +658,6 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
 
             module.full_clean()
             module.save()
-            seen_modules.append(module.id)
-
-            if not ("numerate_ignoring_modules" in config \
-                    and parse_bool(config["numerate_ignoring_modules"])):
-                nn = 0
-            if "children" in m:
-                nn = configure_learning_objects(category_map, module, m["children"],
-                    None, seen_objects, errors, nn)
-
-        for module in instance.course_modules.all():
-            # cache invalidation uses the parent when learning object is saved:
-            # prefetch parent so that it wont be fetched after the it was deleted
-            for lobject in module.learning_objects.all():
-                if lobject.id not in seen_objects:
-                    if (
-                        not isinstance(lobject, BaseExercise)
-                        or not lobject.submissions.exists()
-                    ):
-                        lobject.delete()
-                    else:
-                        lobject.status = LearningObject.STATUS.HIDDEN
-                        lobject.order = 9999
-                        # .parent may have been deleted: only save status and order
-                        lobject.save(update_fields=["status", "order"])
-            if module.id not in seen_modules:
-                if not module.learning_objects.exists():
-                    module.delete()
-                else:
-                    module.status = CourseModule.STATUS.HIDDEN
-                    module.save()
 
         # Clean up obsolete categories.
         for category in instance.categories.filter(status=LearningObjectCategory.STATUS.HIDDEN):
@@ -673,14 +754,14 @@ def configure_from_url(instance: CourseInstance, url: str) -> Tuple[bool, List[s
     if not isinstance(config, dict):
         return False, [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
 
-    errors = config.get('errors', [])
+    errors = config.pop('errors', [])
     if not isinstance(errors, list):
         errors = [str(errors)]
 
-    if not config.get('success', True):
+    if not config.pop('success', True):
         errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
         return False, errors
 
-    result, new_errors = configure(instance, config)
+    status, configure_errors = configure(instance, config)
 
-    return result, errors + new_errors
+    return status, errors + configure_errors

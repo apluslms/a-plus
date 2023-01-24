@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 16:28+0200\n"
+"POT-Creation-Date: 2023-02-07 16:29+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -2338,6 +2338,29 @@ msgid "ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}"
 msgstr "Kentällä '{field}' on tuntematon arvo '{value}'."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
+msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgstr ""
+"Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
+"jolla on 'trigger'-kenttä."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_URL_BLANK"
+msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
+msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
+msgstr "Käännöslokin jäsentäminen palautti virheen '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_EMPTY_LOG"
+msgstr "Etäpalvelin palautti tyhjän käännöslokin."
+
+#: edit_course/operations/configure.py
 msgid "LEARNING_OBJECT_ERROR_REQUIRES_KEY"
 msgstr "Oppimissisältö vaatii avaimen."
 
@@ -2362,27 +2385,12 @@ msgstr ""
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
 #: edit_course/operations/configure.py
-#, python-brace-format
-msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
-msgstr ""
-"Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
-"jolla on 'trigger'-kenttä."
+msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
+msgstr "Kategoriat vaaditaan oliona."
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_URL_BLANK"
-msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
-
-#: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
-msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
-
-#: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
-msgstr "Käännöslokin jäsentäminen palautti virheen '{error!s}'."
-
-#: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_EMPTY_LOG"
-msgstr "Etäpalvelin palautti tyhjän käännöslokin."
+msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
+msgstr "Moduulit vaaditaan taulukkona."
 
 #: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
@@ -2394,14 +2402,6 @@ msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
 msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
-msgstr "Kategoriat vaaditaan oliona."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
-msgstr "Moduulit vaaditaan taulukkona."
 
 #: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
