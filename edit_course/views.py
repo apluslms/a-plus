@@ -33,7 +33,7 @@ from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from .operations.batch import create_submissions
-from .operations.configure import configure_content, get_build_log
+from .operations.configure import configure_from_url, get_build_log
 from lib.logging import SecurityLog
 from userprofile.models import UserProfile
 
@@ -445,7 +445,7 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
 
     def configure(self, request):
         try:
-            success, errors = configure_content(self.instance, request.POST.get('url'))
+            success, errors = configure_from_url(self.instance, request.POST.get('url'))
             if success:
                 if errors:
                     messages.warning(request, _("CONFIGURED_WITH_WARNINGS"))

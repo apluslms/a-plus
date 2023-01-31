@@ -357,52 +357,8 @@ def get_build_log(instance):
     return data
 
 
-def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]: # noqa: MC0001
-    """
-    Configures course content by trusted remote URL.
-    """
-    if not url:
-        return False, [_('COURSE_CONFIG_URL_REQUIRED')]
-
-    # save the url before fetching config. The JWT system requires this to be
-    # set, so that A+ knows which service to trust to have access to the course
-    # instance. The aplus config url might need access to the course instance.
-    # The other service might also need to have access to the course instance
-    # before it can be configured from the url.
-    instance.configure_url = url
-    instance.save()
-
-    try:
-        url = url.strip()
-        permissions = Permissions()
-        permissions.instances.add(Permission.READ, id=instance.id)
-        permissions.instances.add(Permission.WRITE, id=instance.id)
-        response = aplus_get(url, permissions=permissions)
-        response.raise_for_status()
-    except Exception as e:
-        return False, [format_lazy(
-            _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
-            error=e,
-        )]
-
-    try:
-        config = json.loads(response.text)
-    except Exception as e:
-        return False, [format_lazy(
-            _('COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}'),
-            error=e,
-        )]
-
-    if not isinstance(config, dict):
-        return False, [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
-
-    errors = config.get('errors', [])
-    if not isinstance(errors, list):
-        errors = [str(errors)]
-
-    if not config.get('success', True):
-        errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
-        return False, errors
+def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]: # noqa: MC0001
+    errors = []
 
     # wrap everything in a transaction to make sure invalid configuration isn't saved
     with transaction.atomic():
@@ -713,6 +669,58 @@ def configure_content(instance: CourseInstance, url: str) -> Tuple[bool, List[st
                 return False, errors
 
     return True, errors
+
+
+def configure_from_url(instance: CourseInstance, url: str) -> Tuple[bool, List[str]]:
+    """
+    Configures course content by trusted remote URL.
+    """
+    if not url:
+        return False, [_('COURSE_CONFIG_URL_REQUIRED')]
+
+    # save the url before fetching config. The JWT system requires this to be
+    # set, so that A+ knows which service to trust to have access to the course
+    # instance. The aplus config url might need access to the course instance.
+    # The other service might also need to have access to the course instance
+    # before it can be configured from the url.
+    instance.configure_url = url
+    instance.save()
+
+    try:
+        url = url.strip()
+        permissions = Permissions()
+        permissions.instances.add(Permission.READ, id=instance.id)
+        permissions.instances.add(Permission.WRITE, id=instance.id)
+        response = aplus_get(url, permissions=permissions)
+        response.raise_for_status()
+    except Exception as e:
+        return False, [format_lazy(
+            _('COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}'),
+            error=e,
+        )]
+
+    try:
+        config = json.loads(response.text)
+    except Exception as e:
+        return False, [format_lazy(
+            _('COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}'),
+            error=e,
+        )]
+
+    if not isinstance(config, dict):
+        return False, [_("COURSE_CONFIG_ERROR_INVALID_JSON")]
+
+    errors = config.get('errors', [])
+    if not isinstance(errors, list):
+        errors = [str(errors)]
+
+    if not config.get('success', True):
+        errors.insert(0, _("COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"))
+        return False, errors
+
+    result, new_errors = configure(instance, config)
+
+    return result, errors + new_errors
 
 
 def get_target_category(category, course_url):

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance
-from edit_course.operations.configure import configure_content
+from edit_course.operations.configure import configure_from_url
 
 class Command(BaseCommand):
     help = "Reload course configuration from configuration url"
@@ -40,7 +40,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"Set new configure url for {instance}: {conf_url}"))
             return
 
-        success, errors = configure_content(instance, conf_url)
+        success, errors = configure_from_url(instance, conf_url)
         if success:
             if errors:
                 self.stdout.write(self.style.WARNING("\n".join((str(e) for e in errors))))
