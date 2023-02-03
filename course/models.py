@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import string
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 import urllib.request, urllib.parse
 from random import choice
 
@@ -904,28 +904,30 @@ class CourseInstance(UrlMixin, models.Model):
                 return True
         return False
 
-    def enroll_from_sis(self) -> int:
+    def enroll_from_sis(self) -> Tuple[int, int]:
         """
         Enroll students based on the participants information in Student Info System.
         If student has removed herself in SIS, she will also be marked as removed in A+.
 
         Returns
         -------
-        Number of students enrolled based on this call. -1 if there was problem accessing SIS.
+        Number of enrolled and removed students based on this call.
+        -1 if there was problem accessing SIS.
         """
         from .sis import get_sis_configuration, StudentInfoSystem
         from .cache.menu import invalidate_content
 
         sis: StudentInfoSystem = get_sis_configuration()
         if not sis:
-            return -1
+            return -1, -1
 
-        count = 0
+        addcount = 0
+        delcount = 0
         try:
             participants = sis.get_participants(self.sis_id)
         except Exception as e:
-            logger.exception(f"Error in getting participants from SIS.")
-            return -1
+            logger.exception(f"{self}: Error in getting participants from SIS.")
+            return -1, -1
 
         from exercise.models import LearningObject
         use_pending = bool(LearningObject.objects.find_enrollment_exercise(self, False))
@@ -934,7 +936,7 @@ class CourseInstance(UrlMixin, models.Model):
             try:
                 profile = UserProfile.get_by_student_id(i)
                 if self.enroll_student(profile.user, from_sis=True, use_pending=use_pending):
-                    count = count + 1
+                    addcount += 1
 
             except UserProfile.DoesNotExist:
                 # This is a common scenario, if the user has enrolled in SIS, but not
@@ -950,9 +952,10 @@ class CourseInstance(UrlMixin, models.Model):
         qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
         for e in qs:
             invalidate_content(Enrollment, e)
+            delcount += 1
 
-        logger.info(f"{self}: enrolled {count} students from SIS")
-        return count
+        logger.info(f"{self}: enrolled {addcount}, removed {delcount} students based on SIS")
+        return addcount, delcount
 
     def set_users_with_role(self, users, role, remove_others_with_role=False):
         # This method is used for adding or replacing (depending on the last

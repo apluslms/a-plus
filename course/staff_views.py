@@ -164,17 +164,25 @@ class EnrollStudentsView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         if (self.instance.sis_id and form.cleaned_data["sis"]):
-            count = self.instance.enroll_from_sis()
-            if count >= 0:
+            addcount, delcount = self.instance.enroll_from_sis()
+            if addcount >= 0:
+                # ngettext works only with one parameter at a time, hence the complicated setup.
                 messages.info(
                     self.request,
                     format_lazy(
                         ngettext(
-                            'STUDENT_ENROLLED_FROM_SIS -- {count}',
-                            'STUDENTS_ENROLLED_FROM_SIS -- {count}',
-                            count
+                            'STUDENT_ENROLLED_FROM_SIS -- {addcount}',
+                            'STUDENTS_ENROLLED_FROM_SIS -- {addcount}',
+                            addcount
                         ),
-                        count=count,
+                        addcount=addcount,
+                    ) + " " + format_lazy(
+                        ngettext(
+                            'STUDENT_REMOVED_FROM_SIS -- {delcount}',
+                            'STUDENTS_REMOVED_FROM_SIS -- {delcount}',
+                            delcount
+                        ),
+                        delcount=delcount,
                     )
                 )
             else:

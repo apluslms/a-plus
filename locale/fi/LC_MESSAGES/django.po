@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-13 12:10+0200\n"
+"POT-Creation-Date: 2023-02-03 14:48+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -868,10 +868,17 @@ msgstr "Muutosten tallentaminen epäonnistui."
 
 #: course/staff_views.py
 #, python-brace-format
-msgid "STUDENT_ENROLLED_FROM_SIS -- {count}"
-msgid_plural "STUDENTS_ENROLLED_FROM_SIS -- {count}"
-msgstr[0] "{count} opiskelija on lisätty opintotietojärjestelmästä."
-msgstr[1] "{count} opiskelijaa on lisätty opintotietojärjestelmästä."
+msgid "STUDENT_ENROLLED_FROM_SIS -- {addcount}"
+msgid_plural "STUDENTS_ENROLLED_FROM_SIS -- {addcount}"
+msgstr[0] "{addcount} opiskelija on lisätty opintotietojärjestelmästä."
+msgstr[1] "{addcount} opiskelijaa on lisätty opintotietojärjestelmästä."
+
+#: course/staff_views.py
+#, python-brace-format
+msgid "STUDENT_REMOVED_FROM_SIS -- {delcount}"
+msgid_plural "STUDENTS_REMOVED_FROM_SIS -- {delcount}"
+msgstr[0] "{delcount} opiskelija on poistettu opintotietojärjestelmästä."
+msgstr[1] "{delcount} opiskelijaa on poistettu opintotietojärjestelmästä."
 
 #: course/staff_views.py
 msgid "COULD_NOT_ACCESS_SIS"
