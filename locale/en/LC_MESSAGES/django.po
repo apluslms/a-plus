@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 14:48+0200\n"
+"POT-Creation-Date: 2023-02-07 16:28+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -2372,32 +2372,6 @@ msgid "BUILD_LOG_ERROR_EMPTY_LOG"
 msgstr "Remote URL returned an empty build log."
 
 #: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_URL_REQUIRED"
-msgstr "Configuration URL required."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}"
-msgstr ""
-"Request for a course configuration failed with error '{error!s}'. "
-"Configuration of course aborted."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}"
-msgstr "JSON parser raised error '{error!s}'. Configuration of course aborted."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_INVALID_JSON"
-msgstr ""
-"Invalid configuration JSON received from the service (JSON must define an "
-"object)."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
-msgstr ""
-"The service failed to export course configurations. The configurations may "
-"be invalid (for example, check the syntax of YAML files)."
-
-#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
 msgstr "Assistants must be given as a student ID array."
 
@@ -2442,29 +2416,30 @@ msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
 msgstr "Publishing changes ({publish_url}) failed:"
 
 #: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY"
-msgstr "ExerciseCollection requires collection_category."
+msgid "COURSE_CONFIG_URL_REQUIRED"
+msgstr "Configuration URL required."
 
 #: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_INSTANCE_URL"
-msgstr "ExerciseCollection requires URL to target course instance."
+msgid "COURSE_CONFIG_ERROR_REQUEST_FAILED -- {error!s}"
+msgstr ""
+"Request for a course configuration failed with error '{error!s}'. "
+"Configuration of course aborted."
 
 #: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}"
-msgstr "Course URL '{}' doesn't match service's domain name '{}'"
+msgid "COURSE_CONFIG_ERROR_JSON_PARSER_FAILED -- {error!s}"
+msgstr "JSON parser raised error '{error!s}'. Configuration of course aborted."
 
 #: edit_course/operations/configure.py
-msgid ""
-"COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}"
-msgstr "Couldn't determine course and/or instance from URL '{}'"
+msgid "COURSE_CONFIG_ERROR_INVALID_JSON"
+msgstr ""
+"Invalid configuration JSON received from the service (JSON must define an "
+"object)."
 
 #: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_NO_COURSE_FOUND -- {}, {}, {}"
-msgstr "No course found with URL '{}'. course_slug: '{}', instance_slug: '{}'"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_NOT_FOUND_IN_COURSE -- {}"
-msgstr "Category '{}' not found in target course."
+msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
+msgstr ""
+"The service failed to export course configurations. The configurations may "
+"be invalid (for example, check the syntax of YAML files)."
 
 #: edit_course/templates/edit_course/batch_assess.html
 msgid "BATCH_ASSESS_SUBMISSIONS"

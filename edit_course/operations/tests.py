@@ -9,7 +9,6 @@ from django.utils import timezone
 
 from .configure import configure, parse_bool
 from course.models import Course, CourseInstance, CourseModule
-from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
 
@@ -48,20 +47,6 @@ exercise_configs = {
             "category": "cat1",
             "title": "test_title",
         }
-    ],
-    "ExerciseCollection": [
-        {
-            "target_category": "category2",
-            "category": "cat1",
-            "max_points": 10,
-            "points_to_pass": 5,
-        },
-        {
-            "target_category": "cat2",
-            "category": "cat1",
-            "max_points": 20,
-            "points_to_pass": 15,
-        },
     ],
     "BaseExercise": [
         {
@@ -178,11 +163,6 @@ class ConfigureTest(TestCase):
             0,
             [2],
         )
-        self.insert_exercise(
-            self.config,
-            self.get_exercise_config("ExerciseCollection", 0, "test_ExerciseCollection"),
-            0,
-        )
 
         self.configure_and_test()
 
@@ -255,7 +235,6 @@ class ConfigureTest(TestCase):
 
         lobject_cls = (
             LTIExercise if "lti" in config
-            else ExerciseCollection if "target_category" in config
             else BaseExercise if "max_submissions" in config
             else CourseChapter
         )
@@ -344,9 +323,6 @@ class ConfigureTest(TestCase):
         values = {
             "key": key,
         }
-
-        if type == "ExerciseCollection":
-            values["target_url"] = settings.BASE_URL + "/" + self.instance.course.url + "/" + self.instance.url
 
         ret.update(values)
         return ret

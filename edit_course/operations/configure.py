@@ -1,19 +1,14 @@
-import json
 from datetime import datetime, timedelta
-from urllib.parse import urlparse
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple, Type
 
 from aplus_auth.payload import Permission, Permissions
 from aplus_auth.requests import get as aplus_get
 from django.db import transaction
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
-from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise, RevealRule
 from external_services.models import LTIService
 from lib.localization_syntax import format_localization
@@ -142,7 +137,6 @@ def configure_learning_objects( # noqa: MC0001
         # Select exercise class.
         lobject_cls = (
             LTIExercise if "lti" in o
-            else ExerciseCollection if "target_category" in o
             else BaseExercise if "max_submissions" in o
             else CourseChapter
         )
@@ -257,37 +251,6 @@ def configure_learning_objects( # noqa: MC0001
 
         lobject.category = category_map[o["category"]]
         lobject.parent = parent
-
-        if lobject_cls == ExerciseCollection:
-            target_category, error_msg = get_target_category(o["target_category"],
-                                                             o["target_url"],)
-            if error_msg:
-                errors.append("{} | {}".format(o["key"], error_msg))
-                continue
-
-            if target_category.id == lobject.category.id:
-                errors.append("{} | ExerciseCollection can't target its own category".format(o["key"]))
-                continue
-
-            for key in [
-                "min_group_size",
-                "max_group_size",
-                "max_submissions",
-            ]:
-                if key in o:
-                    errors.append("Can't define '{}' for ExerciseCollection".format(key))
-
-            if "max_points" in o and o["max_points"] <= 0:
-                errors.append("ExerciseCollection can't have max_points <= 0")
-                continue
-
-            lobject.max_points = o['max_points']
-            lobject.points_to_pass = o['points_to_pass']
-
-            lobject.target_category = target_category
-            lobject.min_group_size = 1
-            lobject.max_group_size = 1
-            lobject.max_submissions = 1
 
         if "order" in o:
             lobject.order = parse_int(o["order"], errors)
@@ -721,45 +684,3 @@ def configure_from_url(instance: CourseInstance, url: str) -> Tuple[bool, List[s
     result, new_errors = configure(instance, config)
 
     return result, errors + new_errors
-
-
-def get_target_category(category, course_url):
-
-    if not category:
-        return None, _('COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY')
-
-    if not course_url:
-        return None, _('COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_INSTANCE_URL')
-
-    parsed_url = urlparse(course_url)
-    service_hostname = urlparse(settings.BASE_URL).hostname
-
-    if parsed_url.hostname != service_hostname:
-        return None, format_lazy(
-            _('COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}'),
-            course_url,
-            service_hostname
-        )
-
-    try:
-        course_slug, instance_slug = parsed_url.path.split('/')[1:3]
-    except ValueError:
-        return None, format_lazy(
-            _('COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}'),
-            course_url
-        )
-
-    try:
-        course_instance = CourseInstance.objects.get(url=instance_slug,
-                                                     course__url=course_slug)
-    except ObjectDoesNotExist:
-        return None, format_lazy(_('COURSE_CONFIG_ERROR_NO_COURSE_FOUND -- {}, {}, {}'),
-            course_url, course_slug, instance_slug)
-
-    try:
-        target_category = course_instance.categories.get(name=category)
-    except ObjectDoesNotExist:
-        return None, format_lazy(_('COURSE_CONFIG_ERROR_CATEGORY_NOT_FOUND_IN_COURSE -- {}'),
-            category)
-
-    return target_category, None
