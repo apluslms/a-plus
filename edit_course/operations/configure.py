@@ -1,5 +1,8 @@
+import copy
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Tuple, Type
+import json
+from typing import Any, cast, Dict, List, Optional, Set, Tuple, Type, Union
 
 from aplus_auth.payload import Permission, Permissions
 from aplus_auth.requests import get as aplus_get
@@ -101,6 +104,67 @@ def remove_newlines(value):
     return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
 
 
+def get_config_changes(
+        old: Dict[str, Any],
+        new: Dict[str, Any],
+        *,
+        keep: Union[None, List[str], List[List[str]]] = None,
+        keep_unchanged: bool = False,
+        ) -> Optional[Dict]:
+    """Gets changes between configs.
+
+    :param old: old config
+    :param new: new config
+
+    Keyword-only parameters:
+    :param keep: fields in <new> to add output as-is (unless no changes were detected,
+    see the <keep_unchanged> param). May be a list of fields or a list of lists of fields
+    where first list is used to determine fields to keep now and later lists are
+    recursively used for nested dicts (second list is used for dicts nested in the
+    current dict, third for those nested in the nested dicts, etc.).
+    :param keep_unchanged: whether to add fields in <keep> to output even when they
+    have no changes. Fields in <keep> are normally not added to output
+    if there were no changes in the dict itself. E.g. comparison of {"field": "value"} to
+    itself will return None no matter what is in <keep> if <keep_unchanged> is False. If
+    instead <keep> = "field" and <keep_unchanged> = True, the function returns
+    {"field": "value"}.
+
+    Returns None if <new> == <old> (and <keep_unchanged> is False). Otherwise:
+    Recursively finds the differences in dicts <new> and <old>. If the values for
+    a key differ, the value in <new> is added to output. If the values are the same,
+    the key is removed from the output.
+    """
+    if keep is None:
+        keep = []
+
+    if len(keep) > 0 and isinstance(keep[0], list):
+        keep_now, *keep_later = cast(List[List[str]], keep)
+    else:
+        keep_now, keep_later = cast(List[str], keep), []
+
+    if not keep_unchanged and old == new:
+        return None
+
+    # Keys to keep in output whether changed or not. This includes the ones
+    # in <keep_now>, and the keys that are in <new> but not in <old>
+    kept = new.keys() - (old.keys() - keep_now)
+    # Keys that need to be compared: those that are in both dicts,
+    # and are not in <keep_now>
+    commonkeys_not_in_keep = old.keys() & new.keys() - keep_now
+
+    diff = {key: new[key] for key in kept}
+    for key in commonkeys_not_in_keep:
+        if isinstance(old[key], dict) and isinstance(new[key], dict):
+            new_val = get_config_changes(old[key], new[key], keep=keep_later, keep_unchanged=keep_unchanged)
+            # Do not include the attribute if there were no changes
+            if new_val is not None:
+                diff[key] = new_val
+        elif old[key] != new[key]:
+            diff[key] = new[key]
+
+    return diff
+
+
 def lobject_class(config: dict) -> Type[LearningObject]:
     if "lti" in config:
         return LTIExercise
@@ -113,7 +177,7 @@ def lobject_class(config: dict) -> Type[LearningObject]:
 
 def update_learning_objects( # noqa: MC0001
         category_map: Dict[str, LearningObjectCategory],
-        configs: List[Dict[str, Any]],
+        configs: Dict[str, Dict[str, Any]],
         learning_objects: Dict[str, LearningObject],
         errors: List[str],
         ) -> None:
@@ -124,8 +188,7 @@ def update_learning_objects( # noqa: MC0001
     :param learning_objects: maps lobject keys to LearningObject objects
     :param errors: list to append errors to
     """
-    for o in configs:
-        key = o["key"]
+    for key, o in configs.items():
         lobject = learning_objects[key]
 
         # Select exercise class.
@@ -220,7 +283,8 @@ def update_learning_objects( # noqa: MC0001
 
         lobject.category = category_map[o["category"]]
 
-        lobject.order = parse_int(o["order"], errors)
+        if "order" in o:
+            lobject.order = parse_int(o["order"], errors)
 
         if "url" in o:
             lobject.service_url = format_localization(o["url"])
@@ -333,15 +397,164 @@ def validate_lobject(
     return True
 
 
-def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]: # noqa: MC0001
+@dataclass
+class ConfigParts:
+    """
+    Contains the course config split into separate fields for easier handling.
+
+    The version returned by ConfigParts.diff has a few specialties:
+    - categories, modules, and module_lobjects only contain the changed fields
+    and some supplemental fields that are required elsewhere. E.g. to identify
+    the lobject class type.
+    - *_keys fields contain whatever the <new> config contained. I.e. they
+    contain the set of all such keys. E.g. module_keys contains the keys of
+    all modules in the <new> config.
+    """
+    config: Dict[Any, Any]
+
+    categories: Dict[str, Tuple[Any, Dict[Any, Any]]]
+    category_names: Set[str]
+    category_key_map: Dict[str, str]
+
+    modules: Dict[str, Dict[Any, Any]]
+    module_keys: Set[str]
+
+    module_lobjects: Dict[str, Dict[str, Any]]
+    module_lobject_keys: Dict[str, Set[Any]]
+
+    @staticmethod
+    def from_config(config: dict, errors: List[str]):
+        categories_config = {}
+        category_key_to_name = {}
+        for category_key, c in config.get("categories", {}).items():
+            if "name" not in c:
+                errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
+                continue
+
+            name = format_localization(c["name"])
+            categories_config[name] = (category_key,c)
+            category_key_to_name[category_key] = name
+
+        # Set module order information
+        set_order_information(config.get("modules", []))
+
+        def get_children(config, n = 0):
+            # We need to remove any invalid configs because invalid configs
+            # aren't saved but change detection assumes they were saved
+            # Invalid configs aren't saved in cache with this
+            children = [
+                c for c in config.get("children", [])
+                if validate_lobject(c, category_key_to_name, errors)
+            ]
+            n = set_order_information(children, n)
+
+            lobjects_config = {str(c["key"]): c for c in children}
+            config["children"] = set(lobjects_config.keys())
+
+            for child in children:
+                lobjects_config.update(get_children(child)[0])
+            return lobjects_config, n
+
+        # Get lobjects for each module, set lobject order information
+        # and make a key -> module config mapping
+        module_lobjects = {}
+        modules_config = {}
+        module_lobject_keys = {}
+        nn = 0
+        for m in config.get("modules", []):
+            if "key" not in m:
+                errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
+                continue
+
+            if not ("numerate_ignoring_modules" in config \
+                    and parse_bool(config["numerate_ignoring_modules"])):
+                nn = 0
+
+            module_key = str(m["key"])
+            module_lobjects[module_key], nn = get_children(m, nn)
+            modules_config[module_key] = m
+            module_lobject_keys[module_key] = set(module_lobjects[module_key].keys())
+
+        config["categories"] = set(categories_config.keys())
+        config["modules"] = set(modules_config.keys())
+
+        return ConfigParts(
+            config,
+            categories_config,
+            set(categories_config.keys()),
+            {name: key for name, (key, _) in categories_config.items()},
+            modules_config,
+            set(modules_config.keys()),
+            module_lobjects,
+            module_lobject_keys,
+        )
+
+    @staticmethod
+    def diff(old: Optional["ConfigParts"], new: "ConfigParts"):
+        if old is None:
+            return new
+
+        # Cannot be None due to keep_unchanged=True
+        config = get_config_changes(
+            old.config,
+            new.config,
+            keep=["publish_url", "errors", "build_log_url"],
+            keep_unchanged=True
+        )
+
+        categories_config = get_config_changes(old.categories, new.categories)
+        if categories_config is None:
+            categories_config = {}
+
+        modules_config = get_config_changes(old.modules, new.modules)
+        if modules_config is None:
+            modules_config = {}
+
+        module_lobjects = get_config_changes(
+            old.module_lobjects,
+            new.module_lobjects,
+            keep=[[], [], ["children", "category", "target_category", "target_url", "max_submissions", "lti"]],
+        )
+        if module_lobjects is None:
+            module_lobjects = {}
+
+        # Fully include all lobjects whose type has changed as they need to be remade
+        for module in old.module_keys.intersection(new.module_keys):
+            for lobject in old.module_lobject_keys[module].intersection(new.module_lobject_keys[module]):
+                old_lobject = old.module_lobjects[module][lobject]
+                new_lobject = new.module_lobjects[module][lobject]
+                if lobject_class(old_lobject) != lobject_class(new_lobject):
+                    module_lobjects[module][lobject] = new_lobject
+
+        return ConfigParts(
+            config,
+            categories_config,
+            new.category_names,
+            new.category_key_map,
+            modules_config,
+            new.module_keys,
+            module_lobjects,
+            new.module_lobject_keys,
+        )
+
+
+def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[str]]: # noqa: MC0001
+    new_config = copy.deepcopy(new_config)
+
     errors = []
 
-    if not "categories" in config or not isinstance(config["categories"], dict):
+    if "categories" not in new_config or not isinstance(new_config["categories"], dict):
         errors.append(_('COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT'))
         return False, errors
-    if not "modules" in config or not isinstance(config["modules"], list):
+    if "modules" not in new_config or not isinstance(new_config["modules"], list):
         errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
         return False, errors
+
+    old_cparts = instance.get_cached_config()
+    new_cparts = ConfigParts.from_config(new_config, errors)
+    cparts = ConfigParts.diff(old_cparts, new_cparts)
+
+    config = cparts.config
 
     # wrap everything in a transaction to make sure invalid configuration isn't saved
     with transaction.atomic():
@@ -450,24 +663,28 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
         instance.save()
 
         old_categories = instance.categories.defer(None).all()
-        categories_c = {format_localization(c["name"]): (key,c) for key, c in config.get("categories", {}).items() if "name" in c}
-        # Add errors for categories without a name
-        for i in range(len(config.get("categories", {})) - len(categories_c)):
-            errors.append(_('COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME'))
 
         # Create new categories
-        new_category_names = categories_c.keys() - (c.name for c in old_categories)
+        new_category_names = cparts.categories.keys() - (c.name for c in old_categories)
         new_categories = [LearningObjectCategory(course_instance=instance, name=name) for name in new_category_names]
 
+        category_map = {
+            cparts.category_key_map[category.name]: category
+            for category in list(old_categories) + new_categories
+        }
+
         # Configure learning object categories.
-        category_map = {}
         for category in list(old_categories) + new_categories:
-            if category.name not in categories_c:
+            if category.name not in cparts.category_names:
                 category.status = LearningObjectCategory.STATUS.HIDDEN
                 category.save()
                 continue
 
-            key, c = categories_c[category.name]
+            # Skip unchanged categories
+            if category.name not in cparts.categories:
+                continue
+
+            key, c = cparts.categories[category.name]
 
             if "status" in c:
                 category.status = str(c["status"])
@@ -485,49 +702,15 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
                     setattr(category, field, parse_bool(c[field]))
             category.full_clean()
             category.save()
-            category_map[key] = category
-
-        set_order_information(config["modules"])
 
         old_modules = instance.course_modules.defer(None).all()
-        modules_c = {str(c["key"]): c for c in config.get("modules", []) if "key" in c}
-        # Add errors for modules without a key
-        for i in range(len(config.get("modules", [])) - len(modules_c)):
-            errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
 
         # Create new modules
-        new_module_keys = modules_c.keys() - (c.url for c in old_modules)
+        new_module_keys = cparts.modules.keys() - (c.url for c in old_modules)
         new_modules = [CourseModule(course_instance=instance, url=key) for key in new_module_keys]
         # bulk_create doesn't get generated primary keys, so we need to save them individually
         for module in new_modules:
             module.save()
-
-        nn = 0
-        module_lobjects = {}
-        for m in config.get("modules", []):
-            def get_children(config, n = 0):
-                # We need to remove any invalid configs because invalid configs aren't saved
-                children = [
-                    c for c in config.get("children", [])
-                    if validate_lobject(
-                        c,
-                        {key: category.name for key, category in category_map.items()},
-                        errors
-                    )
-                ]
-                n = set_order_information(children, n)
-                config["children"] = [str(child["key"]) for child in children]
-                return children + [c2 for c in children for c2 in get_children(c)[0]], n
-
-            if "key" not in m:
-                errors.append(_('COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY'))
-                continue
-
-            if not ("numerate_ignoring_modules" in config \
-                    and parse_bool(config["numerate_ignoring_modules"])):
-                nn = 0
-
-            module_lobjects[str(m["key"])], nn = get_children(m, nn)
 
         # Update the learning objects within each of the new and old modules
         for module in list(old_modules) + new_modules:
@@ -540,14 +723,15 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
             # Keys of lobjects to be deleted/hidden (i.e. lobjects not present in new version)
             outdated_lobjects = [
                 lobject_map[key]
-                for key in old_lobject_keys - set(modules_c.get(module.url, {}).get("children", []))
+                for key in old_lobject_keys - cparts.module_lobject_keys.get(module.url, set())
             ]
-            if module.url in modules_c:
-                lobjects_config = module_lobjects[module.url]
+            # Only update changed learning objects
+            if module.url in cparts.module_lobjects:
+                lobjects_config = cparts.module_lobjects[module.url]
 
                 # Check and update exercise object types if they have changed
-                for lobject_config in lobjects_config:
-                    key = lobject_config["key"]
+                for key, lobject_config in lobjects_config.items():
+                    # Select exercise class.
                     lobject_cls = lobject_class(lobject_config)
 
                     if key in old_lobject_keys:
@@ -571,8 +755,8 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
                 )
 
                 # We can't set the children until they have been saved by update_learning_objects
-                for config in lobjects_config:
-                    lobject_map[config["key"]].children.set(
+                for key, config in lobjects_config.items():
+                    lobject_map[key].children.set(
                         lobject_map[child_key]
                         for child_key in config["children"]
                     )
@@ -592,7 +776,7 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
         # Update the modules
         for module in list(old_modules) + new_modules:
             #  Delete/hide any old modules not present in new version
-            if module.url not in modules_c:
+            if module.url not in cparts.module_keys:
                 if not module.learning_objects.exists():
                     module.delete()
                 else:
@@ -601,9 +785,14 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
 
                 continue
 
-            m = modules_c[module.url]
+            # Skip unchanged modules
+            if module.url not in cparts.modules:
+                continue
 
-            module.order = parse_int(m["order"], errors)
+            m = cparts.modules[module.url]
+
+            if "order" in m:
+                module.order = parse_int(m["order"], errors)
 
             if "title" in m:
                 module.name = format_localization(m["title"])
@@ -711,6 +900,9 @@ def configure(instance: CourseInstance, config: dict) -> Tuple[bool, List[str]]:
             if not success:
                 transaction.set_rollback(True)
                 return False, errors
+
+    # We only save the config in cache if the update was successful (i.e. changes were committed to database)
+    instance.set_cached_config(new_cparts)
 
     return True, errors
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 16:29+0200\n"
+"POT-Creation-Date: 2023-02-07 16:41+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1806,6 +1806,7 @@ msgstr "after"
 
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Override"
 
@@ -2372,6 +2373,14 @@ msgstr ""
 "for the LTI service. The assignment was not created/updated due to the error."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
+msgstr "Category requires a name."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
+msgstr "Module requires a key."
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
 msgstr "Categories required as an object."
 
@@ -2389,14 +2398,6 @@ msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
 msgstr ""
 "Adding the assistant failed, because an associated user with student ID {id} "
 "does not exist."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
-msgstr "Category requires a name."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
-msgstr "Module requires a key."
 
 #: edit_course/operations/configure.py
 #, python-brace-format
@@ -2512,12 +2513,30 @@ msgid "CLONING_COURSE"
 msgstr "Creating course instance..."
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
-msgstr "Import and override content configuration from URL"
+msgid "IMPORT_CONTENT_CONFIG_URL"
+msgstr "Import content configuration from URL"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "APPLY"
-msgstr "Apply"
+msgid "APPLY_CHANGES_TOOLTIP"
+msgstr ""
+"Compares new configuration to the previous configuration, and applies only "
+"the changes."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "APPLY_CHANGES"
+msgstr "Apply changes"
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "OVERRIDE_COURSE_CONFIGURATION_TOOLTIP"
+msgstr ""
+"Reapplies the full configuration. Slower than just applying changes. May fix "
+"issues with a part of the configuration not updating."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "CLEAR_CONTENT_CACHE_TOOLTIP"
+msgstr ""
+"Clears cached course content. May fix issues with content not updating on "
+"course pages."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "CLEAR_CONTENT_CACHE"

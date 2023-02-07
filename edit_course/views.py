@@ -441,6 +441,9 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
             self.configure(request)
         elif 'cache' in request.POST:
             self.clear_cache(request)
+        elif 'reset' in request.POST:
+            self.instance.delete_cached_config()
+            self.configure(request)
         return self.redirect(self.instance.get_url('course-edit'))
 
     def configure(self, request):

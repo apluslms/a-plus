@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 16:29+0200\n"
+"POT-Creation-Date: 2023-02-07 16:41+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1816,6 +1816,7 @@ msgstr "jälkeen"
 
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Ylikirjoita"
 
@@ -2385,6 +2386,14 @@ msgstr ""
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
+msgstr "Kategoria vaatii nimen."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
+msgstr "Moduuli vaatii avaimen."
+
+#: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
 msgstr "Kategoriat vaaditaan oliona."
 
@@ -2402,14 +2411,6 @@ msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
 msgstr ""
 "Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
 "ei ole olemassa."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
-msgstr "Kategoria vaatii nimen."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
-msgstr "Moduuli vaatii avaimen."
 
 #: edit_course/operations/configure.py
 #, python-brace-format
@@ -2525,12 +2526,30 @@ msgid "CLONING_COURSE"
 msgstr "Luodaan kurssikertaa..."
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
-msgstr "Tuo ja korvaa sisältöasetukset URL-osoitteesta"
+msgid "IMPORT_CONTENT_CONFIG_URL"
+msgstr "Tuo sisältöasetukset URL-osoitteesta"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "APPLY"
-msgstr "Tuo"
+msgid "APPLY_CHANGES_TOOLTIP"
+msgstr ""
+"Vertaa uusia sisältöasetuksia aikaisempiin, ja päivittää vain muuttuneet osat."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "APPLY_CHANGES"
+msgstr "Tuo muutokset"
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "OVERRIDE_COURSE_CONFIGURATION_TOOLTIP"
+msgstr ""
+"Päivittää kaikki sisältöasetukset. Hitaampi kuin pelkkien muutosten "
+"päivittäminen. Saattaa korjata ongelman, jossa jotkin sisältöasetukset eivät "
+"päivity."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "CLEAR_CONTENT_CACHE_TOOLTIP"
+msgstr ""
+"Poistaa kurssisisällön välimuistista. Saattaa korjata ongelman, jossa "
+"sisältö ei päivity kurssisivuilla."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "CLEAR_CONTENT_CACHE"
