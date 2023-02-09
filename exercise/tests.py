@@ -6,6 +6,7 @@ from io import BytesIO, StringIO
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.test import TestCase
@@ -474,6 +475,8 @@ class ExerciseTest(TestCase):
 
     def test_static_exercise_grade(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
+        SessionMiddleware().process_request(request)
+        request.session.save()
         sub = Submission.objects.create_from_post(self.static_exercise, [self.user.userprofile], request)
         static_exercise_page = self.static_exercise.grade(request, sub)
         self.assertIsInstance(static_exercise_page, ExercisePage)
