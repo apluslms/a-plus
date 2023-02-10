@@ -15,9 +15,9 @@ rm orig.pem
 
 ## Settings in local development
 
-For local development, settings in e.g. `local_settings.py` can be used. Copy-pasteable example in `lti_local_settings.py`. Still need to change the three `client_id` entries after adding the tool settings in moodle.
+For local development, A+ settings in e.g. `local_settings.py` can be used. Copy-pasteable example in `lti_local_settings.py`. You still need to change the three `client_id` entries there after adding the tool settings in Moodle.
 
-The following changes should be made in aplus-manual's docker-compose file.
+The following changes should be made in Aplus-manual's (or other test course's) docker-compose.yml file.
 
 Under `volumes`, add:
 ```
@@ -55,13 +55,15 @@ Under `services`, add moodle:
     volumes:
       - moodledb:/var/lib/postgresql/data
 ```
-And the following line in `services.plus.environment`:
+Create the `local_settings.py` file in the a-plus repo under the `aplus` directory next to the `settings.py` file.
+Copy-paste settings from `doc/lti_local_settings.py` and modify them if necessary.
+In docker-compose.yml, add the following line in `services.plus.environment`:
 ```
-APLUS_LOCAL_SETTINGS: '/srv/aplus/a-plus/local_settings.py'
+APLUS_LOCAL_SETTINGS: '/srv/aplus/aplus/local_settings.py'
 ```
-For development, your local a-plus code should likely be mounted in as well in `services.plus.volumes`:
+For development, your local a-plus code should be mounted in as well in `services.plus.volumes`:
 ```
-  [your-aplus-code-path]:/srv/a-plus/
+  [your-aplus-code-path]:/srv/aplus/
 ```
 
 The config mounts files `000-default.conf` and `ports.conf`. The contents of those should be as follows:
