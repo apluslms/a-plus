@@ -10,11 +10,8 @@
 {% block siblings_bottom %}{% endblock %}
 {% block footer %}{% endblock %}
 
-{% block exercise_wait %}
-{% include "lti_tool/_lti_exercise_wait.html" %}
-{% endblock %}
-
 {% block exerciseinfo %}
 {{ block.super }}
 {% include 'exercise/_submission_info.html' %}
+{% include "lti_tool/_lti_exercise_wait.html" %}
 {% endblock %}
