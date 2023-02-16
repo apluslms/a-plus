@@ -125,6 +125,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       .attr({ id: 'participant-' + user_id, 'data-user-id': user_id })
       .appendTo('tbody');
     var link = $('<a></a>').attr('href', participant.link);
+    var maillink = $('<a></a>').attr('href', 'mailto: ' + participant.email);
     if (is_teacher) {
       $('<td></td>').append(
         $('<input>').attr({
@@ -145,7 +146,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       .append(link.clone().text(participant.first_name))
       .appendTo(row);
     $('<td></td>').append(
-      link.clone().text(participant.email || participant.username)
+      maillink.clone().text(participant.email || participant.username)
     ).appendTo(row);
     $('<td></td>')
       .addClass('status-container')
