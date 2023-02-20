@@ -447,6 +447,9 @@ class PendingSubmissionAdmin(admin.ModelAdmin):
         'submission_time',
         'num_retries',
     )
+    raw_id_fields = (
+        'submission',
+    )
 
 
 admin.site.register(CourseChapter, CourseChapterAdmin)
