@@ -4,7 +4,9 @@ from typing import Optional, Sequence, Tuple
 from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseInstance
@@ -38,3 +40,19 @@ class RecentCourseInstanceListFilter(admin.SimpleListFilter):
         course_instance_id = self.value()
         if course_instance_id is not None:
             return queryset.filter(**{self.course_instance_query: course_instance_id})
+
+
+def make_column_link(obj, admin_edit_view_name: str):
+    """Return an HTML string for a hyperlink
+    that refers to the Django admin edit view of the given object.
+
+    This can be used to build links in the ModelAdmin.list_display option.
+    """
+    return format_html(
+        '<a href="{}">{}</a>',
+        reverse(
+            admin_edit_view_name,
+            args=(obj.pk,),
+        ),
+        str(obj),
+    )

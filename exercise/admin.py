@@ -20,7 +20,7 @@ from exercise.models import (
     PendingSubmission,
 )
 from exercise.exercisecollection_models import ExerciseCollection
-from lib.admin_helpers import RecentCourseInstanceListFilter
+from lib.admin_helpers import make_column_link, RecentCourseInstanceListFilter
 
 
 def real_class(obj):
@@ -442,14 +442,58 @@ class LearningObjectDisplayAdmin(admin.ModelAdmin):
 
 
 class PendingSubmissionAdmin(admin.ModelAdmin):
+    list_display_links = ('id',)
     list_display = (
-        'submission',
+        'id',
+        'course_instance_link',
+        'exercise_link',
+        'submission_link',
         'submission_time',
         'num_retries',
+        'submission_status',
+    )
+    list_filter = (
+        'submission__status',
+        'submission_time',
+    )
+    search_fields = (
+        'id',
+        'submission__exercise__name',
+        'submission__exercise__course_module__course_instance__instance_name',
+        'submission__submitters__student_id',
+        'submission__submitters__user__username',
+        'submission__submitters__user__first_name',
+        'submission__submitters__user__last_name',
+        'submission__submitters__user__email',
     )
     raw_id_fields = (
         'submission',
     )
+
+    @admin.display(description=_('LABEL_SUBMISSION'))
+    def submission_link(self, pending_submission):
+        return make_column_link(
+            pending_submission.submission,
+            'admin:exercise_submission_change',
+        )
+
+    @admin.display(description=_('LABEL_COURSE_INSTANCE'))
+    def course_instance_link(self, pending_submission):
+        return make_column_link(
+            pending_submission.submission.exercise.course_module.course_instance,
+            'admin:course_courseinstance_change',
+        )
+
+    @admin.display(description=_('LABEL_EXERCISE'))
+    def exercise_link(self, pending_submission):
+        return make_column_link(
+            pending_submission.submission.exercise,
+            'admin:exercise_baseexercise_change',
+        )
+
+    @admin.display(description=_('LABEL_STATUS'))
+    def submission_status(self, pending_submission):
+        return Submission.STATUS[pending_submission.submission.status]
 
 
 admin.site.register(CourseChapter, CourseChapterAdmin)
