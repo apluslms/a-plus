@@ -170,6 +170,10 @@
     last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
     // For active elements:
     active_element_attr: "data-aplus-active-element",
+    interactive_code_attr: "data-aplus-interactive-code",
+    points_selector: '.exercise-nav-points',
+    exercise_info_selector: '.exercise-nav-info',
+    interactive_code_graded_attr: "data-aplus-interactive-code-graded",
     ae_result_selector: '.ae_result',
     input: false, // determines whether the active element is an input element or not
   };
@@ -184,7 +188,9 @@
     this.quiz = false;
     this.ajax = false;
     this.active_element = false;
+    this.interactive_code = false;
     this.loader = null;
+    this.interactive_code_graded = false;
     this.messages = {};
     this.init();
   }
@@ -208,6 +214,12 @@
 
       // Check if the exercise is an active element.
       this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);
+
+      // Check if the exercise is an interactive code block.
+      this.interactive_code = (this.element.attr(this.settings.interactive_code_attr) !== undefined);
+      if (this.interactive_code) {
+        this.interactive_code_graded = (this.element.attr(this.settings.interactive_code_graded_attr) !== undefined);
+      }
 
       // set exercise mime type
       this.exercise_type =
@@ -364,12 +376,17 @@
       this.dom_element.dispatchEvent(
         new CustomEvent("aplus:exercise-loaded", {bubbles: true, detail: {type: this.exercise_type}}));
 
-      if (exercise.active_element) {
+      if (exercise.active_element && !exercise.interactive_code) {
         var title = "";
         if (exercise.element.attr("data-title"))
           title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
         exercise.element.find(exercise.settings.summary_selector).remove();
         $(title).prependTo(exercise.element.find(".exercise-response"));
+      }
+
+      if (exercise.interactive_code && !exercise.interactive_code_graded) {
+        exercise.element.find(exercise.settings.points_selector).remove();
+        exercise.element.find(exercise.settings.exercise_info_selector).remove();
       }
 
       content.show();
