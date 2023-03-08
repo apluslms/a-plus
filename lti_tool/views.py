@@ -19,6 +19,7 @@ from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView
 from exercise.viewbase import ExerciseBaseView
 from exercise.models import LearningObject, BaseExercise
 from exercise.views import ExerciseView, SubmissionView
+from lib.localization_syntax import pick_localized
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseMixin
 from authorization.permissions import ACCESS
 from .utils import get_tool_conf, get_launch_data_storage, get_launch_url
@@ -257,7 +258,7 @@ class LtiSelectCourseView(LtiSelectContentMixin, CourseInstanceBaseView):
             lineitem_exists = bool([li for li in lineitems if li['tag'] == str(e.id)])
             if e.max_points > 0 and not lineitem_exists:
                 li = LineItem()
-                li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(str(e))
+                li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(pick_localized(str(e), 'en'))
                 ags.find_or_create_lineitem(li)
 
         # Send activity settings
@@ -268,7 +269,7 @@ class LtiSelectCourseView(LtiSelectContentMixin, CourseInstanceBaseView):
                 "course_slug": kwargs['course_slug'],
                 "instance_slug": kwargs['instance_slug']
             })
-            .set_title("{}: {}".format(self.course.name, self.instance.instance_name)))
+            .set_title("{}: {}".format(pick_localized(self.course.name, 'en'), pick_localized(self.instance.instance_name, 'en'))))
         return HttpResponse(deep_link.output_response_form([resource]))
 
     # Get list of modules in course
@@ -291,7 +292,7 @@ class LtiSelectModuleView(LtiSelectContentMixin, CourseModuleBaseView):
             lineitem_exists = bool([li for li in lineitems if li['tag'] == str(e.id)])
             if e.max_points > 0 and not lineitem_exists:
                 li = LineItem()
-                li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(str(e))
+                li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(pick_localized(str(e), 'en'))
                 ags.find_or_create_lineitem(li)
 
         # Send activity settings
@@ -303,7 +304,7 @@ class LtiSelectModuleView(LtiSelectContentMixin, CourseModuleBaseView):
                 "instance_slug": kwargs['instance_slug'],
                 "module_slug": kwargs['module_slug']
             })
-            .set_title(str(self.module)))
+            .set_title(pick_localized(str(self.module), 'en')))
         return HttpResponse(deep_link.output_response_form([resource]))
 
     # Get list of exercises in module
@@ -329,7 +330,7 @@ class LtiSelectExerciseView(LtiSelectContentMixin, ExerciseBaseView):
             for e in children:
                 if e.max_points > 0:
                     li = LineItem()
-                    li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(str(e))
+                    li.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(pick_localized(str(e), 'en'))
                     ags.find_or_create_lineitem(li)
         else:
             try:
@@ -337,7 +338,7 @@ class LtiSelectExerciseView(LtiSelectContentMixin, ExerciseBaseView):
                     li = LineItem()
                     (li.set_tag(str(self.exercise.id))
                         .set_score_maximum(self.exercise.max_points)
-                        .set_label(str(self.exercise)))
+                        .set_label(pick_localized(str(self.exercise), 'en')))
                     ags.find_or_create_lineitem(li)
             except AttributeError as e:
                 logger.info("Importing LTI exercise with no max_points attribute")
@@ -352,5 +353,5 @@ class LtiSelectExerciseView(LtiSelectContentMixin, ExerciseBaseView):
                 "module_slug": kwargs['module_slug'],
                 "exercise_path": kwargs['exercise_path']
             })
-            .set_title(str(self.exercise)))
+            .set_title(pick_localized(str(self.exercise), 'en')))
         return HttpResponse(deep_link.output_response_form([resource]))
