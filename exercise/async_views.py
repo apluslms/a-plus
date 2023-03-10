@@ -52,6 +52,12 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.feedback = form.cleaned_data["feedback"]
         submission.grading_data = post_data
 
+        # Acos-submissions initialize this as an empty string for some reason; fix here
+        if submission.meta_data == "":
+            submission.meta_data = {}
+        if form.cleaned_data["lti_launch_id"]:
+            submission.meta_data["lti-launch-id"] = form.cleaned_data["lti_launch_id"]
+
         if form.cleaned_data["error"]:
             submission.set_error()
         else:
