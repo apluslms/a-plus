@@ -955,7 +955,7 @@ class BaseExercise(LearningObject):
             )
             return self._build_service_url(
                 language, students,
-                ordinal, url_name, submission_url
+                ordinal, url_name, submission_url, lti_launch_id=request.session.get("lti-launch-id")
             )
         return super().get_load_url(language, request, students, url_name, ordinal)
 
@@ -994,12 +994,12 @@ class BaseExercise(LearningObject):
         """
         pass
 
-    def _build_service_url(self, language, students, ordinal_number, url_name, submission_url):
+    def _build_service_url(self, language, students, ordinal_number, url_name, submission_url, lti_launch_id=None):
         """
         Generates complete URL with added parameters to the exercise service.
         """
         uid_str = '-'.join(sorted(str(profile.user.id) for profile in students)) if students else ''
-        return update_url_params(self.get_service_url(language), {
+        params = {
             "max_points": self.max_points,
             "max_submissions": self.max_submissions,
             "submission_url": build_aplus_url(submission_url),
@@ -1007,7 +1007,10 @@ class BaseExercise(LearningObject):
             "uid": uid_str,
             "ordinal_number": ordinal_number,
             "lang": language,
-        })
+        }
+        if lti_launch_id:
+            params["lti_launch_id"] = lti_launch_id
+        return update_url_params(self.get_service_url(language), params)
 
     @property
     def can_regrade(self):
