@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
-from django.db.models import Count, Max, Prefetch, Q
+from django.db.models import Count, Max, Prefetch, Q, F
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -324,27 +324,42 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        # Query submitters who have not been assessed yet.
         submitter = None
-        submitters = (UserProfile.objects
-            .filter(submissions__exercise=self.exercise)
-            .annotate(
-                count_assessed=Count(
-                    'submissions__id',
-                    filter=(Q(submissions__grader__isnull=False)),
-                ),
-            )
-            .filter(count_assessed=0)
-            .order_by('id'))
+
+        # submissions for this exercise
+        submissions = Submission.objects.filter(exercise=self.exercise)
+
+        # filter only the latest submissions
+        submissions = (submissions.annotate(latest=Max('submission_time'))
+           .filter(submission_time=F('latest'))
+           .order_by('latest'))
 
         previous_user_id = request.GET.get('prev')
-        if previous_user_id:
-            # Find specifically the submitter AFTER the previously inspected one.
-            submitters_after = submitters.filter(id__gt=previous_user_id)
-            submitter = submitters_after.first()
+        previous_submission_time = None
 
+        # if we had a previous user then we need to find their submission time before we filter already assessed users.
+        if previous_user_id:
+            previous_submission_time = submissions.filter(submitters__id=previous_user_id).first().submission_time
+
+        # filter users who's have submissions that have been assessed
+        submissions = (submissions.annotate(
+            count_assessed=Count(
+                'id',
+                filter=(Q(grader__isnull=False)),
+            ),
+        )
+        .filter(count_assessed=0))
+
+        # if we had a previous time then try find the next submitter after this time
+        if previous_submission_time:
+            submission = submissions.filter(submission_time__gt=previous_submission_time).first()
+            if submission:
+                submitter = submission.submitters.first()
+
+        # if we don't have one just take the first submitter
         if not submitter:
-            submitter = submitters.first()
+            if submissions.first():
+                submitter = submissions.first().submitters.first()
 
         if not submitter:
             # There are no more unassessed submitters.
