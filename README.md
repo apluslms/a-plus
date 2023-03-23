@@ -7,7 +7,8 @@ Karavirta, V. & Ihantola, P. & Koskinen, T. (2013)
 Service-Oriented Approach to Improve Interoperability of E-Learning Systems
 http://dx.doi.org/10.1109/ICALT.2013.105
 
-The system has since been developed by various contributors at Aalto University, Finland.
+The system has since been developed by various [contributors](https://apluslms.github.io/about/authors/)
+at Aalto University, Finland.
 
 Requirements
 ------------
