@@ -7,8 +7,8 @@ class NoSuchContent(Exception):
     pass
 
 
-class HierarchyIterator(object):
-
+class HierarchyIterator:
+    # pylint: disable-next=too-many-arguments
     def __init__(self, children, idx=None, tree=None, visited=False, enclosed=True):
         if idx is None:
             self._default_start(children)
@@ -22,7 +22,7 @@ class HierarchyIterator(object):
         self.enclose_begun = not enclosed
         self.enclose_ended = not enclosed
 
-    def __iter__(self):
+    def __iter__(self): # pylint: disable=non-iterator-returned
         return self
 
 
@@ -86,19 +86,19 @@ class PreviousIterator(HierarchyIterator):
         if not self.visited:
             self.visited = True
             return level[i]
-        elif i > 0:
+        if i > 0:
             i -= 1
             self.idx[-1] = i
             self._goto_last(level[i].get('children'))
             return self.levels[-1][self.idx[-1]]
-        elif len(self.idx) > 1:
+        if len(self.idx) > 1:
             self.idx = self.idx[:-1]
             self.levels = self.levels[:-1]
             return self.levels[-1][self.idx[-1]]
         raise StopIteration()
 
 
-class ContentMixin(object):
+class ContentMixin:
 
     def created(self):
         return self.data['created']
@@ -176,8 +176,8 @@ class ContentMixin(object):
         _, entries = self.search_entries(**kwargs)
         return [e for e in entries if e['type'] == 'exercise']
 
-    def search_entries(self, number=None, category_id=None, module_id=None,
-                       exercise_id=None, filter_for_assistant=False, best=False,
+    def search_entries(self, number=None, category_id=None, module_id=None, # noqa: MC0001
+                       exercise_id=None, filter_for_assistant=False, best=False, # pylint: disable=unused-argument
                        raise_404=True):
         entry = None
         if number:
@@ -189,19 +189,19 @@ class ContentMixin(object):
                     exercise_id = entry['id']
             except NoSuchContent:
                 if raise_404:
-                    raise Http404()
+                    raise Http404() # pylint: disable=raise-missing-from
                 raise
         search = None
-        if not exercise_id is None:
+        if exercise_id is not None:
             search = { 'type': 'exercise', 'id': int(exercise_id) }
-        elif not module_id is None:
+        elif module_id is not None:
             search = { 'type': 'module', 'id': int(module_id) }
         if search:
             try:
                 idx = self._model_idx(search)
             except NoSuchContent:
                 if raise_404:
-                    raise Http404()
+                    raise Http404() # pylint: disable=raise-missing-from
                 raise
             tree = self._by_idx(self.modules(), idx)
             if not entry:
@@ -209,9 +209,10 @@ class ContentMixin(object):
         else:
             tree = [{ 'type': 'all', 'children': self.modules() }]
         exercises = []
+
         def recursion(entry):
             if (
-                entry['type'] == 'module' or (
+                entry['type'] == 'module' or ( # pylint: disable=too-many-boolean-expressions
                     entry['type'] == 'exercise' and
                     (category_id is None or entry['category_id'] == category_id) and
                     (not filter_for_assistant or entry['allow_assistant_viewing'])
@@ -245,7 +246,7 @@ class ContentMixin(object):
             entry_type = model.get('type', None)
             if entry_type == 'module':
                 return find(self.data['module_index'], model['id'])
-            elif entry_type == 'exercise':
+            if entry_type == 'exercise':
                 return find(self.data['exercise_index'], model['id'])
         elif isinstance(model, CourseModule):
             return find(self.data['module_index'], model.id)

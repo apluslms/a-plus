@@ -12,9 +12,9 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def prepare_course_menu(context):
-    if not 'instance' in context:
+    if 'instance' not in context:
         raise TagUsageError()
-    if not 'course_menu' in context:
+    if 'course_menu' not in context:
         context['course_menu'] = CachedCourseMenu(context['instance'])
     return ""
 

@@ -1,6 +1,6 @@
 from datetime import timedelta
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.test import TestCase
 from django.utils import timezone
 

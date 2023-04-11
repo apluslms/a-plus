@@ -1,0 +1,33 @@
+inherits:
+  - default
+ignore-paths:
+  - venv
+  - aplus/local_settings.py
+  - aplus/local_settings.example.py
+  - aplus/local_settings.test.py
+  - aplus/secret_key.py
+  - src/drf-extensions
+ignore-patterns:
+  - ^.*\/migrations\/.*$
+
+pycodestyle:
+  disable:
+    - E722
+  options:
+    max-line-length: 119
+
+pylint:
+  enable:
+    - trailing-whitespace
+  disable:
+    - consider-using-f-string
+    - import-error
+    - protected-access
+    - django-not-configured
+    - relative-beyond-top-level
+    - cyclic-import
+  options:
+    jobs: 0
+
+pyflakes:
+  run: false

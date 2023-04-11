@@ -15,7 +15,7 @@ class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
 
     Note: not an actual model but a manager
     """
-    def from_jwt_permission(
+    def from_jwt_permission( # pylint: disable=too-many-arguments
             self,
             user: AnyUser,
             payload: Payload,
@@ -42,12 +42,14 @@ class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
         """
         return self.filter(**perm).all()
 
+    # pylint: disable-next=unused-argument
     def has_create_access(self, user: AnyUser, payload: Payload, kwargs: Dict[str, Any]) -> bool:
         """
         Check that <payload> has create access to kwargs.
         """
         return False
 
+    # pylint: disable-next=unused-argument
     def has_access(self, user: AnyUser, payload: Payload, permission: Permission, instance: _ModelT) -> bool:
         """
         Check that <payload> has <permission> access to <instance>.

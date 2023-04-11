@@ -1,4 +1,3 @@
-import html
 import urllib.parse
 
 from aplus_auth.payload import Permission, Permissions
@@ -6,11 +5,8 @@ from aplus_auth.requests import post as aplus_post
 from aplus_auth.requests import put as aplus_put
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.models import User
 from django.db import models, IntegrityError
-from django.http.response import Http404, HttpResponse
-from django.urls import reverse
+from django.http.response import Http404
 from django.utils.text import format_lazy, capfirst
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy as ngettext
@@ -27,8 +23,8 @@ from lib.viewbase import (
 )
 from aplus.api import api_reverse
 from authorization.permissions import ACCESS
-from course.models import CourseInstance, UserTag, UserTagging
-from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
+from course.models import UserTag, UserTagging
+from course.viewbase import CourseInstanceMixin
 from exercise.cache.content import CachedContent
 from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
@@ -36,6 +32,8 @@ from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
     CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
+from .operations.batch import create_submissions
+from .operations.configure import configure_content, get_build_log
 from lib.logging import SecurityLog
 from userprofile.models import UserProfile
 
@@ -138,7 +136,7 @@ class ModelBaseMixin(CourseInstanceMixin):
             "exercise": ExerciseManager,
         }
         self.model = self._get_kwarg(self.model_kw)
-        if not self.model in MANAGERS:
+        if self.model not in MANAGERS:
             raise Http404()
         self.manager = MANAGERS[self.model]()
         self.model_name = self.manager.name
@@ -308,7 +306,6 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
     template_name = "edit_course/batch_assess.html"
 
     def post(self, request, *args, **kwargs):
-        from .operations.batch import create_submissions
         errors = create_submissions(self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
         if errors:
@@ -336,7 +333,7 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def form_valid(self, form):
-        from .operations.clone import clone
+        from .operations.clone import clone # pylint: disable=import-outside-toplevel
         new_instance = clone(
             cloner=UserProfile.get_by_request(self.request),
             instance=self.instance,
@@ -350,7 +347,9 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             sisenroll=form.cleaned_data.get('sis_enroll'),
         )
 
-        if not all([settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]):
+        if not all(
+            [settings.GITMANAGER_URL, form.cleaned_data.get('git_origin'), form.cleaned_data.get('git_branch')]
+        ):
             # Do not create a new entry in Git manager
             messages.success(self.request, _('COURSE_INSTANCE_CLONED'))
             return self.redirect(new_instance.get_url('course-details'))
@@ -446,7 +445,6 @@ class ConfigureContentView(CourseInstanceMixin, BaseRedirectView):
 
     def configure(self, request):
         try:
-            from .operations.configure import configure_content
             success, errors = configure_content(self.instance, request.POST.get('url'))
             if success:
                 if errors:
@@ -480,7 +478,6 @@ class BuildLogView(CourseInstanceMixin, BaseTemplateView):
     template_name = "edit_course/build_log.html"
 
     def get_context_data(self, *args, **kwargs):
-        from .operations.configure import get_build_log
         context = super().get_context_data(*args, **kwargs)
         context.update(get_build_log(self.instance))
         return context

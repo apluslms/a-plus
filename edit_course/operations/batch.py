@@ -21,7 +21,7 @@ def create_submissions(instance, admin_profile, json_text):
         )]
 
     if isinstance(submissions_json, dict):
-        if not "objects" in submissions_json:
+        if "objects" not in submissions_json:
             return [_('JSON_FIELD_MISSING_OBJECTS')]
         submissions_json = submissions_json["objects"]
     if not isinstance(submissions_json, list):
@@ -32,7 +32,7 @@ def create_submissions(instance, admin_profile, json_text):
     count = 0
     for submission_json in submissions_json:
         count += 1
-        if not "exercise_id" in submission_json:
+        if "exercise_id" not in submission_json:
             errors.append(
                 format_lazy(
                     _('JSON_ERROR_MISSING_FIELD_EXERCISE_ID -- {count:d}'),

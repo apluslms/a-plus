@@ -59,4 +59,3 @@ class Command(BaseCommand):
                     rows=n,
                     table=typ,
                 ))
-

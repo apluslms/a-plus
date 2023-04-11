@@ -43,7 +43,7 @@ EXERCISE_FIELDS = [
 ]
 
 
-class LearningObjectMixin(object):
+class LearningObjectMixin:
 
     def init_fields(self, **kwargs):
         self.lobject = kwargs.get('instance')

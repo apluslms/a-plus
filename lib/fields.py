@@ -15,7 +15,7 @@ class PercentField(models.FloatField):
     A float in range 0.0 to 1.0
     """
     def clean(self, value, model_instance):
-        value = super(PercentField, self).clean(value, model_instance)
+        value = super().clean(value, model_instance)
         if value and (value < 0.0 or value > 1.0):
             raise exceptions.ValidationError(
                 _('ERROR_NUMBER_MUST_BE_BETWEEN_0_AND_1')
@@ -40,7 +40,7 @@ class DurationField(forms.MultiValueField):
     # Default units
     units: List[Tuple[str, int]] = [DAYS, HOURS, MINUTES]
 
-    def __init__(
+    def __init__( # pylint: disable=keyword-arg-before-vararg
             self,
             units: List[Tuple[str, int]] = None,
             min_value: Optional[int] = None,
@@ -65,7 +65,7 @@ class DurationField(forms.MultiValueField):
         Convert the values given in different units into minutes.
         """
         total_minutes = None
-        for value, (name, factor) in zip(data_list, self.units):
+        for value, (_name, factor) in zip(data_list, self.units):
             if value is None:
                 continue
             if total_minutes is None:
@@ -124,7 +124,7 @@ class SearchSelectField(forms.ModelMultipleChoiceField):
         choices and the input is validated using queryset, which should be
         "bigger" than initial_queryset.
         """
-        if not 'widget' in kwargs:
+        if 'widget' not in kwargs:
             kwargs['widget'] = SearchSelect(ajax=True)
         super().__init__(queryset, *args, **kwargs)
         self.initial_queryset = initial_queryset
@@ -182,7 +182,7 @@ class UsersSearchSelectField(SearchSelectField):
         # to_field_name affects both the value attributes in the HTML form and
         # the validation of the user's input.
         kwargs['to_field_name'] = 'user_id' # userprofile.user.id
-        if not 'widget' in kwargs:
+        if 'widget' not in kwargs:
             # Create a search select widget specialized for users.
             kwargs['widget'] = SearchSelect(
                 ajax=True,
@@ -205,7 +205,7 @@ class JSONField(models.TextField):
     Stores JSON object in a text field.
     """
     def __init__(self, *args, **kwargs):
-        super(JSONField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def parse_json(cls, value):
@@ -214,8 +214,8 @@ class JSONField(models.TextField):
         if isinstance(value, str):
             try:
                 return json.loads(value)
-            except (TypeError, ValueError):
-                raise exceptions.ValidationError(_('ERROR_ENTER_VALID_JSON'))
+            except (TypeError, ValueError) as exc:
+                raise exceptions.ValidationError(_('ERROR_ENTER_VALID_JSON')) from exc
         return value
 
     @classmethod
@@ -226,7 +226,7 @@ class JSONField(models.TextField):
             return value
         return json.dumps(value)
 
-    def from_db_value(self, value, expression, connection):
+    def from_db_value(self, value, expression, connection): # pylint: disable=unused-argument
         try:
             return JSONField.parse_json(value)
         except (exceptions.ValidationError):
@@ -243,7 +243,7 @@ class JSONField(models.TextField):
             'form_class': JSONFormField,
         }
         defaults.update(kwargs)
-        field = super(JSONField, self).formfield(**defaults)
+        field = super().formfield(**defaults)
         if not field.help_text:
             field.help_text = _('ERROR_ENTER_VALID_JSON')
         return field

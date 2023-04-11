@@ -11,7 +11,7 @@ from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission
 
 
-class BaseMixin(object):
+class BaseMixin:
     """
     Extend to handle data and mixin with one of the views implementing
     get/post methods. Calling the super method is required when overriding
@@ -44,7 +44,6 @@ class BaseMixin(object):
 
 class BaseViewMixin(AuthorizedResourceMixin):
     permission_classes = [] # common come from BaseMixin and this drops NoPermission default
-    pass
 
 
 class BaseView(BaseViewMixin, View):

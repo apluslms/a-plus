@@ -15,7 +15,7 @@ class Command(BaseCommand):
         parser.add_argument('path', metavar="PATH_TO_JSON",
                             help="Path to a json file with a lti service configuration")
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options): # noqa: MC0001
         if options['course']:
             course_s = options['course'].strip().strip('/')
             if course_s == 'all':
@@ -27,22 +27,24 @@ class Command(BaseCommand):
 
                 try:
                     courses = [CourseInstance.objects.get(course__url=course_p[0], url=course_p[1])]
-                except CourseInstance.DoesNotExist:
-                    raise CommandError("Could not find course instance with path '{}'.".format(course_s))
+                except CourseInstance.DoesNotExist as exc:
+                    raise CommandError("Could not find course instance with path '{}'.".format(course_s)) from exc
         else:
             courses = []
 
         path = options['path']
         try:
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding="utf-8") as f:
                 data = json.load(f)
         except json.JSONDecodeError as error:
-            raise CommandError("Could not parse json file '{}', error: {}".format(path, error))
+            raise CommandError("Could not parse json file '{}', error: {}".format(path, error)) from error
 
         try:
             label = data['label']
         except KeyError as error:
-            raise CommandError("Could not data from json file '{}', key {} not found and is required!".format(path, error))
+            raise CommandError(
+                "Could not data from json file '{}', key {} not found and is required!".format(path, error)
+            ) from error
 
         all_ = LTIService.objects.filter(menu_label=label).all()
         if all_.count() == 1:
@@ -56,7 +58,9 @@ class Command(BaseCommand):
             instance.consumer_key = data['key']
             instance.consumer_secret = data['secret']
         except KeyError as error:
-            raise CommandError("Could not data from json file '{}', key {} not found and is required!".format(path, error))
+            raise CommandError(
+                "Could not data from json file '{}', key {} not found and is required!".format(path, error)
+            ) from error
 
         if 'icon' in data:
             instance.menu_icon_class = data['icon']

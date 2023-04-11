@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Optional, Tuple, Union
 
 from django import template
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.db import models
 from django.template.context import Context
 from django.utils import timezone
@@ -25,20 +25,21 @@ register = template.Library()
 
 
 def _prepare_now(context):
-    if not 'now' in context:
+    if 'now' not in context:
         context['now'] = timezone.now()
     return context['now']
 
 
 def _prepare_context(context: Context, student: Optional[User] = None) -> CachedPoints:
-    if not 'instance' in context:
+    if 'instance' not in context:
         raise TagUsageError()
     instance = context['instance']
     _prepare_now(context)
-    if not 'content' in context:
+    if 'content' not in context:
         context['content'] = CachedContent(instance)
+
     def points(user: User, key: str) -> CachedPoints:
-        if not key in context:
+        if key not in context:
             context[key] = CachedPoints(instance, user, context['content'], context['is_course_staff'])
         return context[key]
     if student:
@@ -147,7 +148,7 @@ def _reveal_rule(exercise: BaseExercise, user: User) -> Tuple[bool, Optional[dat
     return is_revealed, reveal_time
 
 
-def _points_data(
+def _points_data( # pylint: disable=too-many-locals
         obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
         user: User,
         classes: Optional[str] = None,
@@ -295,8 +296,7 @@ def module_accessible(context, entry):
     t = entry.get('reading_opening_time')
     if t:
         return _is_accessible(context, entry, t)
-    else:
-        return exercise_accessible(context, entry)
+    return exercise_accessible(context, entry)
 
 
 @register.simple_tag(takes_context=True)
@@ -322,11 +322,11 @@ def get_grading_errors(submission):
 
 @register.inclusion_tag("exercise/_text_stats.html", takes_context=True)
 def exercise_text_stats(context: Context, exercise: Union[int, BaseExercise]) -> Dict[str, Any]:
-    if not 'instance' in context:
+    if 'instance' not in context:
         raise TagUsageError()
     instance = context['instance']
 
-    if not 'student_count' in context:
+    if 'student_count' not in context:
         context['student_count'] = instance.students.count()
     total = context['student_count']
 
@@ -344,7 +344,7 @@ def exercise_text_stats(context: Context, exercise: Union[int, BaseExercise]) ->
 
 
 @register.simple_tag
-def get_format_info(format):
+def get_format_info(format): # pylint: disable=redefined-builtin
     format_infos = {
         'json' : {
             'name': 'json',

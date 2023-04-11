@@ -76,7 +76,7 @@ class GradeListFilter(admin.SimpleListFilter):
             ('grade__lt=200', '< 200'),
             ('grade__gte=200', '>= 200'),
         ]
-
+    # pylint: disable-next=inconsistent-return-statements
     def queryset(self, request: HttpRequest, queryset: QuerySet) -> Optional[QuerySet]:
         lookup = self.value()
         if not lookup:

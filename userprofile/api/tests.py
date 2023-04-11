@@ -1,11 +1,10 @@
 from typing import Set
 from django.test import TestCase
-from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 class UserProfileAPITest(TestCase):
     # use same setUp as for normal tests
-    from ..tests import UserProfileTest
+    from ..tests import UserProfileTest # pylint: disable=import-outside-toplevel
     setUp = UserProfileTest.setUp
 
     def test_get_userlist(self):
@@ -23,7 +22,7 @@ class UserProfileAPITest(TestCase):
             'previous': None,
         }
 
-        for key in model:
+        for key in model: # pylint: disable=consider-using-dict-items
             with self.subTest(key=key):
                 self.assertIn(key, response.data)
                 self.assertEqual(response.data[key], model[key])

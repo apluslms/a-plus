@@ -1,7 +1,5 @@
 from django.template import loader
 
-from lib.helpers import settings_text
-
 
 def render_avatars(profiles):
     template = loader.get_template("course/_avatars.html")

@@ -77,7 +77,7 @@ class CustomLoginView(LoginView):
 def set_user_language(request):
     """Overrides set_language function from django.views.i18n."""
     LANGUAGE_PARAMETER = 'language'
-
+    # pylint: disable-next=redefined-builtin
     next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
     if ((next or not request.is_ajax()) and
             not is_safe_url(url=next,
@@ -176,7 +176,9 @@ class AccessibilityStatementView(UserProfileView):
             if not local_template:
                 logger.error("No local accessibility content at all!")
 
-            local_accessibility_statement = local_template.render() if local_template else gettext('NO_LOCAL_ACCESSIBILITY_STATEMENT')
+            local_accessibility_statement = local_template.render() if local_template else gettext(
+                'NO_LOCAL_ACCESSIBILITY_STATEMENT'
+            )
 
             system_template_name = "accessibility_issues{}.html"
             system_template = try_get_template(system_template_name.format(lang))
@@ -188,7 +190,9 @@ class AccessibilityStatementView(UserProfileView):
             if not system_template:
                 logger.error("No system accessibility content at all!")
 
-            system_accessibility_statement = system_template.render() if system_template else gettext('NO_SYSTEM-WIDE_ACCESSIBILITY_STATEMENT')
+            system_accessibility_statement = system_template.render() if system_template else gettext(
+                'NO_SYSTEM-WIDE_ACCESSIBILITY_STATEMENT'
+            )
 
             accessibility_statement = local_accessibility_statement + system_accessibility_statement
             cache.set(key, accessibility_statement)

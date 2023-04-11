@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 from course.models import CourseInstance
-from lib.helpers import Enum
 from lib.models import UrlMixin
 
 
@@ -43,4 +42,4 @@ class News(models.Model, UrlMixin):
         return "{} {}".format(str(self.publish), self.title)
 
     def get_url_kwargs(self):
-        return dict(news_id=self.id, **self.course_instance.get_url_kwargs())
+        return dict(news_id=self.id, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal

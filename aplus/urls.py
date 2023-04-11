@@ -6,9 +6,13 @@ from django.urls import path
 
 import shibboleth_login.urls
 import social_django.urls
-import userprofile.urls, userprofile.sitemaps
-import course.urls, course.long_urls, course.sitemaps
-import exercise.urls, exercise.sitemaps
+import userprofile.sitemaps
+import userprofile.urls
+import course.long_urls
+import course.sitemaps
+import course.urls
+import exercise.sitemaps
+import exercise.urls
 import edit_course.urls
 import deviations.urls
 import notification.urls

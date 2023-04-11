@@ -1,7 +1,7 @@
 import unittest
 
 from test_initializer import TestInitializer
-from page_objects import LoginPage, EditModulePage, CourseName
+from page_objects import LoginPage, EditModulePage
 
 
 class EditModulePageTest(unittest.TestCase):
@@ -13,8 +13,8 @@ class EditModulePageTest(unittest.TestCase):
     def testShouldSaveModule(self):
         COURSE_NAME = "Testikurssi"
         POINTS_TO_PASS = "10"
-        OPENING_TIME = "2014-01-01 00:00:00"
-        CLOSING_TIME = "2016-01-01 00:00:00"
+        #OPENING_TIME = "2014-01-01 00:00:00"
+        #CLOSING_TIME = "2016-01-01 00:00:00"
         MODULE_ID = 1
 
         editModulePage = EditModulePage(self.driver, MODULE_ID)
@@ -35,6 +35,7 @@ class EditModulePageTest(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

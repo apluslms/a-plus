@@ -122,6 +122,7 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
         unique_together = ["exercise", "submitter"]
 
     def get_url_kwargs(self):
+        # pylint: disable-next=use-dict-literal
         return dict(deviation_id=self.id, **self.exercise.course_instance.get_url_kwargs())
 
     def update_by_form(self, form_data: Dict[str, Any]) -> None:

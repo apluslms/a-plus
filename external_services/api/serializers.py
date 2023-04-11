@@ -22,7 +22,7 @@ class LTIOutcomeSerializer(serializers.Serializer):
     ])
     sourced_id = serializers.CharField(max_length=1024)
     score = serializers.FloatField(min_value=0, max_value=1, required=False)
-    
+
     def create(self, validated_data):
         exercise = validated_data['exercise']
         submission = Submission.objects.create(
@@ -40,7 +40,7 @@ class LTIOutcomeSerializer(serializers.Serializer):
         # the submission must be saved before its many-to-many field submitters may be updated
         submission.submitters.add(validated_data['submitter'])
         return submission
-    
+
     def to_representation(self, instance):
         '''Takes the object instance that requires serialization, and should
         return a primitive representation. Typically this means returning
@@ -68,13 +68,13 @@ class LTIOutcomeSerializer(serializers.Serializer):
             else:
                 ret['score'] = ''
                 # an empty result score should be returned if no grade has been set or it has been deleted
-            
+
         elif ret['req_type'] == LTIOutcomeXMLParser.TYPE_DELETE:
             # we don't delete any submissions
             ret['code_major'] = LTIOutcomeResponseRenderer.CODE_MAJOR_UNSUPPORTED
-        
+
         return ret
-    
+
     def to_internal_value(self, data):
         '''Takes the unvalidated incoming data as input and should return the
         validated data that will be made available as serializer.validated_data.
@@ -90,14 +90,14 @@ class LTIOutcomeSerializer(serializers.Serializer):
         except serializers.ValidationError as e:
             logger.warning('Validation error in LTI Outcomes request: %s', str(e.detail))
             raise
-        
+
         if (validated_data['req_type'] == LTIOutcomeXMLParser.TYPE_REPLACE
                 and 'score' not in validated_data):
             logger.warning('LTI Outcomes replaceResultRequest did not contain the result score')
             raise serializers.ValidationError({
                 'score': [LTIOutcomeXMLParser.TYPE_REPLACE + ' request must include the new result score.']
             })
-        
+
         # retrieve the exercise and user profile instances
         if 'exercise' not in data or 'submitter' not in data:
             exercise, user_profile = parse_sourced_id(validated_data['sourced_id'])
@@ -110,6 +110,5 @@ class LTIOutcomeSerializer(serializers.Serializer):
             user_profile = data['submitter']
         validated_data['exercise'] = exercise
         validated_data['submitter'] = user_profile
-        
-        return validated_data
 
+        return validated_data

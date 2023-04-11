@@ -4,7 +4,7 @@ from django.contrib.staticfiles.storage import StaticFilesStorage
 
 
 class BumpStaticFilesStorage(StaticFilesStorage):
-
+    # pylint: disable-next=keyword-arg-before-vararg
     def __init__(self, location=None, base_url=None, *args, **kwargs):
         super().__init__(location, base_url, *args, **kwargs)
         self.bump = self.create_bump()
@@ -19,11 +19,11 @@ class BumpStaticFilesStorage(StaticFilesStorage):
         return None
 
     def _read_file(self, path):
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return f.read()
 
     def url(self, name):
         url = super().url(name)
         if self.bump:
-             return url + "?" + self.bump
+            return url + "?" + self.bump
         return url

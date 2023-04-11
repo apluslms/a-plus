@@ -1,4 +1,4 @@
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -8,9 +8,9 @@ from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT_ME
 
 from ..models import UserProfile
-from ..permissions import IsAdminOrUserObjIsSelf, IsTeacherOrAdminOrSelf
-from .serializers import *
-from .full_serializers import *
+from ..permissions import IsTeacherOrAdminOrSelf
+from .serializers import UserBriefSerializer
+from .full_serializers import UserSerializer
 
 
 class UserViewSet(ListSerializerMixin,
@@ -62,7 +62,7 @@ class MeDetail(APIView):
     `GET /me/`:
         returns the details of the current user.
     """
-    def get(self, request, version, format=None):
+    def get(self, request, version, format=None): # pylint: disable=unused-argument redefined-builtin
         userinstance = self.request.user.userprofile
 
         serializer = UserSerializer(userinstance, context={

@@ -1,9 +1,5 @@
-from django.contrib import messages
-from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
-from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
@@ -18,7 +14,7 @@ from .permissions import (
     CourseVisiblePermission,
     CourseModulePermission,
 )
-from .models import Course, CourseInstance, CourseModule, UserTagging, Enrollment
+from .models import Course, CourseInstance, CourseModule, Enrollment
 
 
 class CourseMixin(UserProfileMixin):
@@ -37,7 +33,7 @@ class CourseBaseView(CourseMixin, BaseTemplateView):
     pass
 
 
-class CourseInstanceBaseMixin(object):
+class CourseInstanceBaseMixin:
     course_kw = CourseMixin.course_kw
     instance_kw = "instance_slug"
     course_permission_classes = (
@@ -55,7 +51,7 @@ class CourseInstanceBaseMixin(object):
         super().get_resource_objects()
         user = self.request.user
         instance = self.get_course_instance_object()
-        if instance is not None:
+        if instance is not None: # pylint: disable=too-many-nested-blocks
             self.instance = instance
             self.course = self.instance.course
             self.content = CachedContent(self.instance)
@@ -136,8 +132,16 @@ class CourseInstanceBaseMixin(object):
             instance_languages = self.instance.language.strip("|").split("|")
             url = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             for i, lang in enumerate(instance_languages):
-                instance_languages[i] = {"name": get_language_info(lang)['name'], "url": update_url_params(url, {'hl' : lang})}
-            return render(self.request, '404.html', {'error_msg': str(exc), 'languages': instance_languages}, status=404)
+                instance_languages[i] = {
+                    "name": get_language_info(lang)['name'],
+                    "url": update_url_params(url, {'hl' : lang})
+                }
+            return render(
+                self.request,
+                '404.html',
+                {'error_msg': str(exc), 'languages': instance_languages},
+                status=404
+            )
         return super().handle_exception(exc)
 
 class CourseInstanceMixin(CourseInstanceBaseMixin, UserProfileMixin):
@@ -188,7 +192,7 @@ class EnrollableViewMixin(CourseInstanceMixin):
         self.note('enrolled', 'enrollable')
 
 
-class CourseModuleBaseMixin(object):
+class CourseModuleBaseMixin:
     module_kw = "module_slug"
     module_permissions_classes = (
         CourseModulePermission,

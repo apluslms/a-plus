@@ -31,4 +31,3 @@ class ApiResourceMixin(ResourceMixin):
             return model.objects.get(**filters)
         except model.DoesNotExist:
             return None
-

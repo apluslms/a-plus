@@ -30,7 +30,7 @@ class SecurityLog:
     @staticmethod
     def logevent(
             request: HttpRequest,
-            type: str,
+            type: str, # pylint: disable=redefined-builtin
             message: str,
             severity: int = 5,
             ) -> None:
@@ -59,17 +59,17 @@ class SecurityLog:
 # This example was used as an inspiration for the following functions:
 # https://stackoverflow.com/questions/37618473/how-can-i-log-both-successful-and-failed-login-and-logout-attempts-in-django
 @receiver(user_logged_in)
-def user_logged_in_callback(sender, request, user, **kwargs):
+def user_logged_in_callback(sender, request, user, **kwargs): # pylint: disable=unused-argument
     SecurityLog.logevent(request, "login", "")
 
 @receiver(user_logged_out)
-def user_logged_out_callback(sender, request, user, **kwargs):
+def user_logged_out_callback(sender, request, user, **kwargs): # pylint: disable=unused-argument
     SecurityLog.logevent(request, "logout", "")
 
 # Unfortunately the request object is not passed with this signal,
 # so we cannot get the IP.
 @receiver(user_login_failed)
-def user_login_failed_callback(sender, credentials, **kwargs):
+def user_login_failed_callback(sender, credentials, **kwargs): # pylint: disable=unused-argument
     try:
         SecurityLog.logevent(None, "login-failed", f"username: {credentials['username']}")
     except KeyError:

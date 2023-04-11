@@ -30,7 +30,7 @@ def enroll():
     """
     Traverse the currently open courses that are linked to SIS and update enrollments.
     """
-    from course.models import CourseInstance
+    from course.models import CourseInstance # pylint: disable=import-outside-toplevel
     now = datetime.datetime.now(datetime.timezone.utc)
     # Enroll students for active courses, or those that will start in 14 days
     courses = CourseInstance.objects.filter(
@@ -45,23 +45,28 @@ def enroll():
 
 @app.task
 def retry_submissions():
-    from exercise.submission_models import PendingSubmission, PendingSubmissionManager
+    # pylint: disable-next=import-outside-toplevel
+    from exercise.submission_models import PendingSubmission
 
     # Recovery state: only send one grading request to probe the state of grader
     # We pick the one with most attempts, so that total_retries comes down more quickly
     # when things are back to normal, and we can return to normal state
     if not PendingSubmission.objects.is_grader_stable():
         pending = PendingSubmission.objects.order_by('-num_retries').first()
+        # pylint: disable-next=logging-fstring-interpolation
         logging.info(f"Recovery state: retrying expired submission {pending.submission}")
         pending.submission.exercise.grade(pending.submission)
         return
 
     # Stable state: retry all expired submissions
-    expiry_time = datetime.datetime.now(datetime.timezone.utc) - relativedelta(seconds=settings.SUBMISSION_EXPIRY_TIMEOUT)
+    expiry_time = datetime.datetime.now(datetime.timezone.utc) - relativedelta(
+        seconds=settings.SUBMISSION_EXPIRY_TIMEOUT
+    )
     expired = PendingSubmission.objects.filter(submission_time__lt=expiry_time)
 
     for pending in expired:
         if pending.submission.exercise.can_regrade:
+            # pylint: disable-next=logging-fstring-interpolation
             logger.info(f"Retrying expired submission {pending.submission}")
             pending.submission.exercise.grade(pending.submission)
             sleep(0.5)  # Delay 500 ms to avoid choking grader

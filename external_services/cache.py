@@ -1,5 +1,4 @@
 from django.db.models.signals import post_save, post_delete
-from django.utils.translation import gettext as _
 
 from lib.cache import CachedAbstract
 from .models import MenuItem
@@ -12,14 +11,14 @@ class CachedCourseMenu(CachedAbstract):
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance, data=None):
+    def _generate_data(self, instance, data=None): # pylint: disable=arguments-differ
         student_groups = {}
         student_order = []
         staff_groups = {}
         staff_order = []
 
         def append_to_group(groups, group_order, group_label, menu_entry):
-            if not group_label in group_order:
+            if group_label not in group_order:
                 group_order.append(group_label)
                 groups[group_label] = {
                     'label': group_label,
@@ -60,7 +59,7 @@ class CachedCourseMenu(CachedAbstract):
         return entry['access'] <= MenuItem.ACCESS.ASSISTANT
 
 
-def invalidate_content(sender, instance, **kwargs):
+def invalidate_content(sender, instance, **kwargs): # pylint: disable=unused-argument
     CachedCourseMenu.invalidate(instance.course_instance)
 
 

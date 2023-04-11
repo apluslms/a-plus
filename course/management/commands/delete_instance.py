@@ -28,13 +28,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         course_instances: QuerySet[CourseInstance] = CourseInstance.objects.none()
-        
+
         if options['ending_since']:
             deletetime = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(
                 days=options['ending_since']
             )
             course_instances = CourseInstance.objects.filter(ending_time__lt=deletetime)
-        
+
         if options['course_instance']:
             for i in options['course_instance']:
                 course_instances = course_instances.union(CourseInstance.objects.filter(id=i))

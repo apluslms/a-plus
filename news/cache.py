@@ -12,8 +12,8 @@ class CachedNews(CachedAbstract):
         self.instance = course_instance
         super().__init__(course_instance)
 
-    def _generate_data(self, instance, data=None):
-        news = [ 
+    def _generate_data(self, instance, data=None): # pylint: disable=arguments-differ
+        news = [
             {
                 'id': item.id,
                 'audience': item.audience,
@@ -34,6 +34,7 @@ class CachedNews(CachedAbstract):
     def for_user(self, is_external=True):
         EXTERNAL = (News.AUDIENCE.EXTERNAL_USERS, News.AUDIENCE.ALL_USERS)
         INTERNAL = (News.AUDIENCE.INTERNAL_USERS, News.AUDIENCE.ALL_USERS)
+
         def filter_news(items, audiences):
             now = timezone.now()
             return [
@@ -54,7 +55,7 @@ class CachedNews(CachedAbstract):
         return entry['publish'] <= when
 
 
-def invalidate_content(sender, instance, **kwargs):
+def invalidate_content(sender, instance, **kwargs): # pylint: disable=unused-argument
     CachedNews.invalidate(instance.course_instance)
 
 

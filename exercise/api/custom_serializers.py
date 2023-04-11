@@ -6,10 +6,9 @@ from rest_framework.reverse import reverse
 from course.api.serializers import CourseUsertagBriefSerializer
 from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
-from userprofile.api.serializers import UserBriefSerializer, UserListField
+from userprofile.api.serializers import UserBriefSerializer
 from userprofile.models import UserProfile
 from ..cache.points import CachedPoints
-from .full_serializers import SubmissionSerializer
 
 
 class UserToTagSerializer(AlwaysListSerializer, CourseUsertagBriefSerializer):
@@ -48,11 +47,11 @@ class UserWithTagsSerializer(UserBriefSerializer):
             return Enrollment.ENROLLMENT_ROLE[enrollment.role]
         except Enrollment.DoesNotExist:
             return ""
-        
+
 
 class ExercisePointsSerializer(serializers.Serializer):
 
-    def to_representation(self, entry):
+    def to_representation(self, entry): # pylint: disable=arguments-renamed
         request = self.context['request']
 
         def exercise_url(exercise_id):
@@ -104,7 +103,7 @@ class ExercisePointsSerializer(serializers.Serializer):
 
 class UserPointsSerializer(UserWithTagsSerializer):
 
-    def to_representation(self, obj: UserProfile) -> Dict[str, Any]:
+    def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
         points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
@@ -137,7 +136,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
 class SubmitterStatsSerializer(UserWithTagsSerializer):
 
-    def to_representation(self, obj: UserProfile) -> Dict[str, Any]:
+    def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
         points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)

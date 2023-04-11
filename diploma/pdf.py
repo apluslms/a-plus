@@ -8,10 +8,10 @@ from reportlab.graphics import renderPDF
 def text_lines(text, value_map):
     for key,value in value_map.items():
         text = text.replace(key, value)
-    return [l.strip() for l in text.split("\n")]
+    return [l.strip() for l in text.split("\n")] # noqa: E741
 
 
-def render_diploma(request, response, diploma):
+def render_diploma(request, response, diploma): # pylint: disable=too-many-locals
     design = diploma.design
 
     c = canvas.Canvas(response)
@@ -23,14 +23,20 @@ def render_diploma(request, response, diploma):
     cLeft = marginLeft
     cMiddle = 21 * cm / 2
     logoHeight = 1.4 * cm
-    pictureHeight = 2.5 * cm
 
     text_value_map = {
         '$grade': str(diploma.grade),
     }
 
     if design.logo:
-        c.drawImage(design.logo.path, cLeft, cTop - logoHeight, height=logoHeight, preserveAspectRatio=True, anchor="nw")
+        c.drawImage(
+            design.logo.path,
+            cLeft,
+            cTop - logoHeight,
+            height=logoHeight,
+            preserveAspectRatio=True,
+            anchor="nw"
+        )
 
     c.setFont("Helvetica-Bold", 30)
     c.setFillColorRGB(0, 0.25, 0.5)

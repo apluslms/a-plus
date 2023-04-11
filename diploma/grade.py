@@ -6,13 +6,13 @@ def calculate_grade(total_points, point_limits, pad_points):
     d_points = copy(total_points['points_by_difficulty'])
 
     def pass_limit(bound):
-        if isinstance(bound, list):
+        if isinstance(bound, list): # pylint: disable=too-many-nested-blocks
             ds,ls = zip(*bound)
             for i,d in enumerate(ds):
 
                 if pad_points:
                     p = d_points.get(d, 0)
-                    l = ls[i]
+                    l = ls[i] # noqa: E741
                     if p < l:
                         for j in range(i + 1, len(ds)):
                             jd = ds[j]
@@ -21,10 +21,9 @@ def calculate_grade(total_points, point_limits, pad_points):
                                 d_points[jd] -= l - p
                                 d_points[d] = l
                                 break
-                            else:
-                                p += jp
-                                d_points[d] = p
-                                d_points[jd] = 0
+                            p += jp
+                            d_points[d] = p
+                            d_points[jd] = 0
                     else:
                         continue
 
@@ -32,8 +31,7 @@ def calculate_grade(total_points, point_limits, pad_points):
                     return False
 
             return True
-        else:
-            return points >= bound
+        return points >= bound
 
     grade = 0
     for bound in point_limits:

@@ -64,8 +64,8 @@ def get_valid_message(msg):
     """
     try:
         data = urlsafe_b64decode(msg)
-    except Exception:
-        raise ValueError("message data is invalid for b64decode")
+    except Exception as exc:
+        raise ValueError("message data is invalid for b64decode") from exc
 
     # get message time stamp and check it
     stamp = data[0:4]

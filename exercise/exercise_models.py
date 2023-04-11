@@ -1,14 +1,14 @@
 import json
+import os
 from typing import Any, TYPE_CHECKING, List, Optional, Tuple
 from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
 from django.http.request import HttpRequest
-from django.urls import reverse
 from django.db import models
 from django.db.models import signals
 from django.db.models.signals import post_delete, post_save
@@ -247,7 +247,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                     ):
                     return "{:d}.{} {}".format(self.course_module.order, number, self.name)
                 return "{} {}".format(number, self.name)
-            elif content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
+            if content_numbering == CourseInstance.CONTENT_NUMBERING.ROMAN:
                 return "{} {}".format(roman_numeral(self.order), self.name)
         return self.name
 
@@ -266,7 +266,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def parent_list(self):
         if not hasattr(self, '_parents'):
             def recursion(obj, parents):
-                if not obj is None:
+                if obj is not None:
                     return recursion(obj.parent, [obj] + parents)
                 return parents
             self._parents = recursion(self.parent, [self])
@@ -298,6 +298,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     ABSOLUTE_URL_NAME = "exercise"
 
     def get_url_kwargs(self):
+        # pylint: disable-next=use-dict-literal
         return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
 
     def get_display_url(self):
@@ -335,7 +336,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         page.is_loaded = True
         return page
 
-    def load_page(
+    def load_page( # pylint: disable=too-many-arguments
             self,
             language: str,
             request: HttpRequest,
@@ -354,13 +355,13 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def get_service_url(self, language):
         return pick_localized(self.service_url, language)
 
-    def get_load_url(
+    def get_load_url( # pylint: disable=too-many-arguments
             self,
             language: str,
             request: HttpRequest,
-            students: List[UserProfile],
-            url_name: str = "exercise",
-            ordinal: Optional[int] = None,
+            students: List[UserProfile], # pylint: disable=unused-argument
+            url_name: str = "exercise", # pylint: disable=unused-argument
+            ordinal: Optional[int] = None, # pylint: disable=unused-argument
             ) -> str:
         return update_url_params(self.get_service_url(language), {
             'lang': language,
@@ -395,7 +396,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return keys
 
 
-def invalidate_exercise(sender, instance, **kwargs):
+def invalidate_exercise(sender, instance, **kwargs): # pylint: disable=unused-argument
     for language,_ in settings.LANGUAGES:
         ExerciseCache.invalidate(instance, modifiers=[language])
 
@@ -783,7 +784,7 @@ class BaseExercise(LearningObject):
         success, warnings, students = self._check_submission_allowed(profile, request)
         return success, list(str(w) for w in warnings), students
 
-    def _check_submission_allowed(self, profile, request=None):
+    def _check_submission_allowed(self, profile, request=None): # noqa: MC0001
         students = [profile]
         warnings = []
 
@@ -827,7 +828,7 @@ class BaseExercise(LearningObject):
             if group_id is None:
                 group_id = request.POST.get("_aplus_group")
 
-        if not group_id is None:
+        if group_id is not None:
             try:
                 gid = int(group_id)
                 if gid > 0:
@@ -889,7 +890,7 @@ class BaseExercise(LearningObject):
         else:
             access_ok, access_warnings = self.one_has_access(students)
         is_staff = all(self.course_instance.is_course_staff(p.user) for p in students)
-        ok = (access_ok and len(warnings) == 0) or is_staff
+        ok = (access_ok and len(warnings) == 0) or is_staff # pylint: disable=consider-using-ternary
         all_warnings = warnings + access_warnings
         if not ok:
             if len(all_warnings) == 0:
@@ -910,8 +911,7 @@ class BaseExercise(LearningObject):
         submitters = list(submission.submitters.all())
         if group:
             return not group.equals(submitters)
-        else:
-            return len(submitters) > 1 or submitters[0] != profile
+        return len(submitters) > 1 or submitters[0] != profile
 
     def _detect_submissions(self, profile, group):
         if group:
@@ -926,7 +926,7 @@ class BaseExercise(LearningObject):
             .filter(submissions__exercise=self) \
             .distinct().count()
 
-    def get_load_url(
+    def get_load_url( # pylint: disable=too-many-arguments
             self,
             language: str,
             request: HttpRequest,
@@ -987,13 +987,13 @@ class BaseExercise(LearningObject):
             page.errors.append(msg)
             return page
 
-    def modify_post_parameters(self, data, files, user, students, request, url):
+    def modify_post_parameters(self, data, files, user, students, request, url): # pylint: disable=too-many-arguments
         """
         Allows to modify submission POST parameters before they are sent to
         the grader. Extending classes may implement this function.
         """
-        pass
 
+    # pylint: disable-next=too-many-arguments
     def _build_service_url(self, language, students, ordinal_number, url_name, submission_url, lti_launch_id=None):
         """
         Generates complete URL with added parameters to the exercise service.
@@ -1026,7 +1026,7 @@ class BaseExercise(LearningObject):
         if not student.is_authenticated:
             return False
 
-        from .reveal_states import ExerciseRevealState
+        from .reveal_states import ExerciseRevealState # pylint: disable=import-outside-toplevel
         state = ExerciseRevealState(self, student)
         return self.active_model_solutions_reveal_rule.is_revealed(state)
 
@@ -1171,10 +1171,10 @@ class LTIExercise(BaseExercise):
                 add,
                 exercise=self,
             )
-        except PermissionDenied:
+        except PermissionDenied: # pylint: disable=try-except-raise
             raise
 
-    def get_load_url(
+    def get_load_url( # pylint: disable=too-many-arguments
             self,
             language: str,
             request: HttpRequest,
@@ -1188,7 +1188,7 @@ class LTIExercise(BaseExercise):
             return lti.sign_get_query(url)
         return url
 
-    def modify_post_parameters(self, data, files, user, students, request, url):
+    def modify_post_parameters(self, data, files, user, students, request, url): # pylint: disable=too-many-arguments
         literals = {key: str(val[0]) for key,val in data.items()}
         lti = self._get_lti(user, students, request, add=literals)
         data.update(lti.sign_post_parameters(url))
@@ -1299,9 +1299,8 @@ class ExerciseWithAttachment(BaseExercise):
         """
         if len(self.files_to_submit.strip()) == 0:
             return []
-        else:
-            files = self.files_to_submit.split("|")
-            return [filename.strip() for filename in files]
+        files = self.files_to_submit.split("|")
+        return [filename.strip() for filename in files]
 
     def load(
             self,
@@ -1322,25 +1321,24 @@ class ExerciseWithAttachment(BaseExercise):
 
         return page
 
-    def modify_post_parameters(self, data, files, user, students, request, url):
+    def modify_post_parameters(self, data, files, user, students, request, url): # pylint: disable=too-many-arguments
         """
         Adds the attachment file to post parameters.
         """
-        import os
         files['content_0'] = (
             os.path.basename(self.attachment.path),
-            open(self.attachment.path, "rb")
+            open(self.attachment.path, "rb") # pylint: disable=consider-using-with
         )
 
 
-def _delete_file(sender, instance, **kwargs):
+def _delete_file(sender, instance, **kwargs): # pylint: disable=unused-argument
     """
     Deletes exercise attachment file after the exercise in database is removed.
     """
     default_storage.delete(instance.attachment.path)
 
 
-def _clear_cache(sender, instance, **kwargs):
+def _clear_cache(sender, instance, **kwargs): # pylint: disable=unused-argument
     """
     Clears parent's cached html if any.
     """

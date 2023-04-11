@@ -1,9 +1,10 @@
 import datetime
 from typing import Any, Dict, List, Optional, overload, Union
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User # pylint: disable=imported-auth-user
 
 from deviations.models import DeadlineRuleDeviation
+from .cache.content import CachedContent
 from .exercise_models import BaseExercise
 
 
@@ -38,9 +39,11 @@ class ExerciseRevealState(BaseRevealState):
     retrieved from the CachedPoints cache.
     """
     @overload
-    def __init__(self, exercise: BaseExercise, student: User): ...
+    def __init__(self, exercise: BaseExercise, student: User):
+        ...
     @overload
-    def __init__(self, exercise: Dict[str, Any]): ...
+    def __init__(self, exercise: Dict[str, Any]):
+        ...
     def __init__(
             self,
             exercise: Union[BaseExercise, Dict[str, Any]],
@@ -50,8 +53,7 @@ class ExerciseRevealState(BaseRevealState):
         # CachedPoints exercise entry. If a BaseExercise is provided, the
         # cache entry is fetched here.
         if isinstance(exercise, BaseExercise):
-            from .cache.content import CachedContent
-            from .cache.points import CachedPoints
+            from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
             cached_content = CachedContent(exercise.course_instance)
             # 'True' is always passed to CachedPoints as the is_staff argument
             # because we need to know the actual points.

@@ -40,8 +40,7 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
             if isinstance(exp, datetime):
                 exp = exp - datetime.now()
             return min(exp, timedelta(days=1))
-        else:
-            return self.expiration_time
+        return self.expiration_time
 
     def get(self,
             request: Request,

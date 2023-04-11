@@ -8,7 +8,6 @@ from news.models import News
 
 from ..models import (
     CourseInstance,
-    CourseModule,
     UserTag,
     StudentGroup,
 )

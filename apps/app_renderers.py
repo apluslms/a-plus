@@ -39,15 +39,15 @@ from lib.helpers import update_url_params
 logger = logging.getLogger("aplus.apps")
 
 
-def build_plugin_renderers(plugins,
+def build_plugin_renderers(plugins, # pylint: disable=too-many-arguments
                            view_name,
                            user_profile=None,
                            submission=None,
                            exercise=None,
                            course_instance=None,
-                           course=None,
-                           course_module=None,
-                           category=None):
+                           course=None, # pylint: disable=unused-argument
+                           course_module=None, # pylint: disable=unused-argument
+                           category=None): # pylint: disable=unused-argument
 
     try:
         if view_name == "submission":
@@ -90,7 +90,7 @@ def build_plugin_renderers(plugins,
         return []
 
 
-class ExternalIFramePluginRenderer(object):
+class ExternalIFramePluginRenderer:
 
     def __init__(self, plugin, view_name, context):
         self.plugin = plugin
@@ -123,7 +123,7 @@ class ExternalIFramePluginRenderer(object):
             return ""
 
 
-class ExternalIFrameTabRenderer(object):
+class ExternalIFrameTabRenderer:
 
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
@@ -146,7 +146,7 @@ class ExternalIFrameTabRenderer(object):
         })
 
 
-class TabRenderer(object):
+class TabRenderer:
 
     def __init__(self, tab, user_profile, course_instance):
         self.tab = tab
