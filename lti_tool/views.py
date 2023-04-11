@@ -187,11 +187,21 @@ class LtiSelectContentMixin(LtiSessionMixin):
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        self.is_teacher = Enrollment.objects.filter(
-            user_profile=self.request.user.userprofile,
-            role=Enrollment.ENROLLMENT_ROLE.TEACHER,
-            status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
-        ).exists()
+        try:
+            # If the session (cookie) has been lost,
+            # AnonymousUser does not have a user profile.
+            user_profile = self.request.user.userprofile
+        except AttributeError:
+            self.is_teacher = False
+        else:
+            self.is_teacher = (
+                self.request.user.is_superuser
+                or Enrollment.objects.filter(
+                    user_profile=user_profile,
+                    role=Enrollment.ENROLLMENT_ROLE.TEACHER,
+                    status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                ).exists()
+            )
 
     def get_common_objects(self):
         super().get_common_objects()
