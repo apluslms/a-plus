@@ -55,7 +55,7 @@ def send_lti_points(request, submission):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        logger.warn(f"Tried to send LTI points for a non-existing user '{username}'")
+        logger.warning("Tried to send LTI points for a non-existing user '%s'.", username)
         return
 
     # Moodle does not have gradebook entries for teachers - don't send result if submitter is a teacher
@@ -75,10 +75,10 @@ def send_lti_points(request, submission):
         line_item.set_tag(str(submission.exercise.id))
         try:
             ags.put_grade(grade, line_item)
-        except LtiServiceException as e:
+        except LtiServiceException as exc:
             # At least Moodle sends a 409 when trying to save
             # a grade with same timestamp as an existing grade
-            if e.response.status_code == 409:
+            if exc.response.status_code == 409:
                 logger.info("Grade for submission has already been saved through LTI; continuing")
             else:
-                raise e
+                raise exc
