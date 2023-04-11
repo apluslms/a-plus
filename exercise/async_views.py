@@ -74,13 +74,8 @@ def _post_async_submission(request, exercise, submission, errors=None):
             Notification.remove(submission)
 
         # If the submission was made through LTI, send results back to the platform.
-        # In some cases meta_data is a string (Acos?)
-        try:
-            if submission.lti_launch_id:
-                send_lti_points(request, submission)
-        except AttributeError:
-            # No meta_data nor lti launch id available.
-            pass
+        if submission.lti_launch_id:
+            send_lti_points(request, submission)
 
         return {
             "success": True,
