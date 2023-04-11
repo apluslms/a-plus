@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from pylti1p3.grade import Grade
 from pylti1p3.contrib.django import DjangoMessageLaunch, DjangoCacheDataStorage, DjangoDbToolConf
 from pylti1p3.lineitem import LineItem
-from pylti1p3.exception import LtiServiceException
+from pylti1p3.exception import LtiException, LtiServiceException
 
 logger = logging.getLogger('aplus.lti_tool')
 
@@ -30,12 +30,22 @@ def send_lti_points(request, submission):
     from exercise.exercise_summary import UserExerciseSummary
     exercise = submission.exercise
     request.COOKIES['lti1p3-session-id'] = submission.meta_data.get('lti-session-id')
-    launch = DjangoMessageLaunch.from_cache(
-        submission.lti_launch_id,
-        request,
-        get_tool_conf(),
-        launch_data_storage=get_launch_data_storage()
-    )
+    try:
+        launch = DjangoMessageLaunch.from_cache(
+            submission.lti_launch_id,
+            request,
+            get_tool_conf(),
+            launch_data_storage=get_launch_data_storage(),
+        )
+    except LtiException:
+        logger.warning(
+            "Failed to send LTI points for submission id '%s' "
+            "because the LTI launch data was not found. "
+            "The LTI launch id saved in the submission may have "
+            "expired in the cache.",
+            submission.pk,
+        )
+        return
 
     try:
         username = launch.get_launch_data()['https://purl.imsglobal.org/spec/lti/claim/ext']['user_username']
