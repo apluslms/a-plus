@@ -52,10 +52,14 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.feedback = form.cleaned_data["feedback"]
         submission.grading_data = post_data
 
-        # Acos-submissions initialize this as an empty string for some reason; fix here
+        # If A+ is used as LTI Tool and the assignment uses the Acos-server,
+        # the submission has not been able to save the LTI launch id before
+        # this phase. The launch id is needed for sending the grade to
+        # the LTI Platform.
         if submission.meta_data == "":
             submission.meta_data = {}
-        if form.cleaned_data["lti_launch_id"]:
+        if (form.cleaned_data["lti_launch_id"]
+                and submission.meta_data.get("lti-launch-id") is None):
             submission.meta_data["lti-launch-id"] = form.cleaned_data["lti_launch_id"]
 
         if form.cleaned_data["error"]:
