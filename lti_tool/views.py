@@ -206,11 +206,11 @@ class LtiSelectContentMixin(LtiSessionMixin):
     def get_common_objects(self):
         super().get_common_objects()
         self.parse_lti_session_params()
-        self.teacher_enrollments = Enrollment.objects.select_related("course_instance").filter(
-            user_profile=self.request.user.userprofile,
-            role=Enrollment.ENROLLMENT_ROLE.TEACHER,
-            status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
-        )
+        #FIXME do not include old, closed courses so that the course lists are reasonable
+        if self.request.user.is_superuser:
+            self.teaching_courses = CourseInstance.objects.all()
+        else:
+            self.teaching_courses = CourseInstance.objects.get_teaching(self.request.user.userprofile)
 
 
 class LtiSelectContentView(LtiSelectContentMixin, BaseTemplateView):
@@ -219,7 +219,7 @@ class LtiSelectContentView(LtiSelectContentMixin, BaseTemplateView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.instances = [e.course_instance for e in self.teacher_enrollments]
+        self.instances = self.teaching_courses
         self.note("instances")
 
 
