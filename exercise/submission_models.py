@@ -238,8 +238,10 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             meta_data_dict['lang'] = get_language()
 
         try:
-            meta_data_dict['lti-launch-id'] = request.session.get("lti-launch-id")
-            meta_data_dict['lti-session-id'] = request.COOKIES.get('lti1p3-session-id')
+            if 'lti-launch-id' in request.session:
+                meta_data_dict['lti-launch-id'] = request.session.get('lti-launch-id')
+            if 'lti1p3-session-id' in request.COOKIES:
+                meta_data_dict['lti-session-id'] = request.COOKIES.get('lti1p3-session-id')
 
             new_submission = Submission.objects.create(
                 exercise=exercise,
