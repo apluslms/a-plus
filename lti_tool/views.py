@@ -17,7 +17,6 @@ from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView
 from exercise.viewbase import ExerciseBaseView
 from exercise.models import LearningObject, BaseExercise
 from exercise.views import ExerciseView, SubmissionView
-from userprofile.models import UserProfile
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseMixin
 from authorization.permissions import ACCESS
 from .utils import get_tool_conf, get_launch_data_storage, get_launch_url
@@ -57,18 +56,19 @@ class LtiLaunchView(BaseRedirectView):
         try:
             self.user = User.objects.get(username=username)
         except User.DoesNotExist:
-            self.user = User.objects.create(
-                username=username,
+            self.user = User.objects.create_user(
+                username,
                 email=self.message_launch_data["email"],
                 first_name=self.message_launch_data["given_name"],
-                last_name=self.message_launch_data["family_name"]
+                last_name=self.message_launch_data["family_name"],
             )
             profile = self.user.userprofile
             profile.language = self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/launch_presentation"]["locale"]
             profile.student_id = self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/lis"]["person_sourcedid"]
+            # Note: profile.organization is not set since we can't know it
+            # based on the LTI launch.
             profile.save()
 
-            self.profile = profile
         login(self.request, self.user, backend='django.contrib.auth.backends.ModelBackend')
         self.request.session["lti-launch-id"] = message_launch.get_launch_id()
 
