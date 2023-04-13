@@ -5,7 +5,7 @@ from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.files.storage import default_storage
 from django.http.request import HttpRequest

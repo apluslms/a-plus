@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase
 from django.utils import timezone

@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Optional, Tuple, Union
 
 from django import template
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.db import models
 from django.template.context import Context
 from django.utils import timezone

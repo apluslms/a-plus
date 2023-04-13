@@ -1,7 +1,7 @@
 import logging
 
 from django.db import transaction
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from course.models import CourseInstance
 from course.sis import get_sis_configuration, StudentInfoSystem
 

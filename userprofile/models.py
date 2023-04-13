@@ -3,7 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 from aplus_auth.payload import Permission
 from django.conf import settings
-from django.contrib.auth.models import User, AnonymousUser # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User, AnonymousUser
 from django.urls import reverse
 from django.db import models
 from django.db.models.signals import post_save

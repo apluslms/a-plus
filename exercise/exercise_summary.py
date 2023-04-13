@@ -1,7 +1,7 @@
 import itertools
 from typing import Optional
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Max
 

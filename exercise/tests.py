@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from io import BytesIO, StringIO
 
 from django.conf import settings
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import ValidationError
 from django.test import TestCase

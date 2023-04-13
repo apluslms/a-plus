@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance

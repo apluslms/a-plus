@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, Dict, List, Optional, overload, Union
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 
 from deviations.models import DeadlineRuleDeviation
 from .cache.content import CachedContent

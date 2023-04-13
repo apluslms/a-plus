@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from course.models import Course, CourseInstance
 from exercise.models import LearningObjectCategory
 from django.utils import timezone

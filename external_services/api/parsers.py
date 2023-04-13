@@ -3,7 +3,7 @@ import hashlib
 from io import BytesIO
 import logging
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from rest_framework.parsers import BaseParser
 from rest_framework.exceptions import ParseError
 from lxml import etree

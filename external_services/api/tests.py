@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.utils.formats import date_format
 from django.utils import timezone
 import lxml

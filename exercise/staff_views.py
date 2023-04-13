@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict
 
 from django.contrib import messages
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
 from django.db.models import Count, Max, Prefetch, Q

@@ -1,6 +1,6 @@
 from urllib.parse import quote
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase, modify_settings, override_settings
 

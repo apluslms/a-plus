@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 

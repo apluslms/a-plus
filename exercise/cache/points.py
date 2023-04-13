@@ -11,7 +11,7 @@ from typing import (
     Union,
 )
 
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone

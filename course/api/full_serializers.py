@@ -10,7 +10,7 @@ from lib.api.serializers import (
 from exercise.api.full_serializers import TreeExerciseSerializer
 from exercise.api.serializers import ExerciseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer, UserListField
-from django.contrib.auth.models import User # pylint: disable=imported-auth-user
+from django.contrib.auth.models import User
 from ..models import (
     CourseInstance,
     Course,
