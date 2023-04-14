@@ -1,5 +1,4 @@
 from django.conf.urls import url
-from django.views.decorators.csrf import csrf_exempt
 
 from . import views
 from exercise.views import SubmissionPollView
@@ -37,7 +36,7 @@ urlpatterns = [
         views.LtiSelectExerciseView.as_view(),
         name="lti-select-exercise"),
     url(LTI_PREFIX + r'launch/$',
-        csrf_exempt(views.LtiLaunchView.as_view()),
+        views.LtiLaunchView.as_view(),
         name="lti-launch"),
     url(LTI_SUBMISSION_URL_PREFIX + r'$',
         views.LtiSubmissionView.as_view(),
