@@ -1,4 +1,5 @@
 import logging
+
 from django.http import HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
@@ -6,6 +7,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from pylti1p3.contrib.django import DjangoOIDCLogin, DjangoMessageLaunch
 from pylti1p3.deep_link_resource import DeepLinkResource
 from pylti1p3.lineitem import LineItem
@@ -21,9 +23,10 @@ from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseMixin
 from authorization.permissions import ACCESS
 from .utils import get_tool_conf, get_launch_data_storage, get_launch_url
 
+
 logger = logging.getLogger('aplus.lti_tool')
 
-# CSRF exempts due to difficulty in proper implementation. To re-review later.
+
 @csrf_exempt
 @xframe_options_exempt
 def lti_login(request):
@@ -35,12 +38,12 @@ def lti_login(request):
     return oidc_login.enable_check_cookies().redirect(target_link_uri)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
 class LtiLaunchView(BaseRedirectView):
 
     access_mode = ACCESS.ANONYMOUS
 
-    # this has been CSRF exempted in the urls file
-    @xframe_options_exempt
     def post(self, request, *args, **kwargs):
         tool_conf = get_tool_conf()
         launch_data_storage = get_launch_data_storage()
@@ -109,8 +112,7 @@ class LtiLaunchView(BaseRedirectView):
 
 class LtiSessionMixin(BaseMixin):
 
-    @csrf_exempt
-    @xframe_options_exempt
+    @method_decorator(xframe_options_exempt)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
@@ -169,6 +171,15 @@ class LtiExerciseView(LtiSessionMixin, ExerciseView):
     post_url_name = "lti-exercise"
     submission_url_name = "lti-submission"
     exercise_url_name = "lti-exercise"
+
+    # The dispatch method needs to be overridden here so that we can apply
+    # different method decorators specifically in this class.
+    # csrf_exempt is needed since it is used in ExerciseView and
+    # the exercise forms do not include any csrf token.
+    @method_decorator(csrf_exempt)
+    @method_decorator(xframe_options_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs, redirect_view='lti-submission')
