@@ -12,11 +12,13 @@ from aplus_auth import settings as auth_settings
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.staticfiles import finders
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q
 from django.db.models.base import DEFERRED
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import format_lazy
@@ -1101,6 +1103,24 @@ class CourseInstance(UrlMixin, models.Model):
         # specific problem. For more read out stackoverflow answer about merging
         # python dicts in single line: http://stackoverflow.com/a/26853961
         return dict(instance_slug=self.url, **self.course.get_url_kwargs()) # pylint: disable=use-dict-literal
+
+    @property
+    def config_cache_key(self) -> str:
+        return f"instance.config.{self.id}"
+
+    def delete_cached_config(self) -> None:
+        cache.delete(self.config_cache_key)
+
+    def set_cached_config(self, obj: Any) -> None:
+        cache.set(self.config_cache_key, obj)
+
+    def get_cached_config(self, default=None) -> Any:
+        return cache.get(self.config_cache_key, default)
+
+
+@receiver(post_delete, sender=CourseInstance)
+def post_instance_delete(instance: CourseInstance, *args, **kwargs) -> None:
+    instance.delete_cached_config()
 
 
 class CourseHook(models.Model):

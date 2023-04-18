@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 14:48+0200\n"
+"POT-Creation-Date: 2023-02-07 16:41+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1806,6 +1806,7 @@ msgstr "after"
 
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Override"
 
@@ -2325,6 +2326,29 @@ msgid "ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}"
 msgstr "Field '{field}' has an unknown value '{value}'."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
+msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgstr ""
+"Invalid reveal rule definition '{key}'. Must be a JSON object with a "
+"'trigger' field."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_URL_BLANK"
+msgstr "Cannot request build log from build_log_url when it is blank."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
+msgstr "Requesting build log failed with error '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
+msgstr "Parsing the build log JSON raised error '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_EMPTY_LOG"
+msgstr "Remote URL returned an empty build log."
+
+#: edit_course/operations/configure.py
 msgid "LEARNING_OBJECT_ERROR_REQUIRES_KEY"
 msgstr "Learning object requires a key."
 
@@ -2349,27 +2373,48 @@ msgstr ""
 "for the LTI service. The assignment was not created/updated due to the error."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
+msgstr "Category requires a name."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
+msgstr "Module requires a key."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
+msgstr "Categories required as an object."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
+msgstr "Modules required as an array."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
+msgstr "Assistants must be given as a student ID array."
+
+#: edit_course/operations/configure.py
 #, python-brace-format
-msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
 msgstr ""
-"Invalid reveal rule definition '{key}'. Must be a JSON object with a "
-"'trigger' field."
+"Adding the assistant failed, because an associated user with student ID {id} "
+"does not exist."
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_URL_BLANK"
-msgstr "Cannot request build log from build_log_url when it is blank."
+#, python-brace-format
+msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+msgstr "Publishing responded with status {status_code}"
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
-msgstr "Requesting build log failed with error '{error!s}'."
+#, python-brace-format
+msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
+msgstr ""
+"Failed to load publishing response JSON: {e}:\n"
+"{text}"
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
-msgstr "Parsing the build log JSON raised error '{error!s}'."
-
-#: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_EMPTY_LOG"
-msgstr "Remote URL returned an empty build log."
+#, python-brace-format
+msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
+msgstr "Publishing changes ({publish_url}) failed:"
 
 #: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_URL_REQUIRED"
@@ -2396,75 +2441,6 @@ msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
 msgstr ""
 "The service failed to export course configurations. The configurations may "
 "be invalid (for example, check the syntax of YAML files)."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
-msgstr "Assistants must be given as a student ID array."
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
-msgstr ""
-"Adding the assistant failed, because an associated user with student ID {id} "
-"does not exist."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
-msgstr "Categories required as an object."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
-msgstr "Modules required as an array."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
-msgstr "Category requires a name."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
-msgstr "Module requires a key."
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
-msgstr "Publishing responded with status {status_code}"
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
-msgstr ""
-"Failed to load publishing response JSON: {e}:\n"
-"{text}"
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
-msgstr "Publishing changes ({publish_url}) failed:"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY"
-msgstr "ExerciseCollection requires collection_category."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_INSTANCE_URL"
-msgstr "ExerciseCollection requires URL to target course instance."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}"
-msgstr "Course URL '{}' doesn't match service's domain name '{}'"
-
-#: edit_course/operations/configure.py
-msgid ""
-"COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}"
-msgstr "Couldn't determine course and/or instance from URL '{}'"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_NO_COURSE_FOUND -- {}, {}, {}"
-msgstr "No course found with URL '{}'. course_slug: '{}', instance_slug: '{}'"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_NOT_FOUND_IN_COURSE -- {}"
-msgstr "Category '{}' not found in target course."
 
 #: edit_course/templates/edit_course/batch_assess.html
 msgid "BATCH_ASSESS_SUBMISSIONS"
@@ -2537,12 +2513,30 @@ msgid "CLONING_COURSE"
 msgstr "Creating course instance..."
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
-msgstr "Import and override content configuration from URL"
+msgid "IMPORT_CONTENT_CONFIG_URL"
+msgstr "Import content configuration from URL"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "APPLY"
-msgstr "Apply"
+msgid "APPLY_CHANGES_TOOLTIP"
+msgstr ""
+"Compares new configuration to the previous configuration, and applies only "
+"the changes."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "APPLY_CHANGES"
+msgstr "Apply changes"
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "OVERRIDE_COURSE_CONFIGURATION_TOOLTIP"
+msgstr ""
+"Reapplies the full configuration. Slower than just applying changes. May fix "
+"issues with a part of the configuration not updating."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "CLEAR_CONTENT_CACHE_TOOLTIP"
+msgstr ""
+"Clears cached course content. May fix issues with content not updating on "
+"course pages."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "CLEAR_CONTENT_CACHE"

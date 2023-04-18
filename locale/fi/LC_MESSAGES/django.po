@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 14:48+0200\n"
+"POT-Creation-Date: 2023-02-07 16:41+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1816,6 +1816,7 @@ msgstr "jälkeen"
 
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Ylikirjoita"
 
@@ -2338,6 +2339,29 @@ msgid "ERROR_JSON_FIELD_UNKNOWN_VALUE -- {field}, {value}"
 msgstr "Kentällä '{field}' on tuntematon arvo '{value}'."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
+msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgstr ""
+"Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
+"jolla on 'trigger'-kenttä."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_URL_BLANK"
+msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
+msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
+msgstr "Käännöslokin jäsentäminen palautti virheen '{error!s}'."
+
+#: edit_course/operations/configure.py
+msgid "BUILD_LOG_ERROR_EMPTY_LOG"
+msgstr "Etäpalvelin palautti tyhjän käännöslokin."
+
+#: edit_course/operations/configure.py
 msgid "LEARNING_OBJECT_ERROR_REQUIRES_KEY"
 msgstr "Oppimissisältö vaatii avaimen."
 
@@ -2362,27 +2386,48 @@ msgstr ""
 "asetuksia. Tehtävää ei luotu/päivitetty tämän virheen takia."
 
 #: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
+msgstr "Kategoria vaatii nimen."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
+msgstr "Moduuli vaatii avaimen."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
+msgstr "Kategoriat vaaditaan oliona."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
+msgstr "Moduulit vaaditaan taulukkona."
+
+#: edit_course/operations/configure.py
+msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
+msgstr "Assistentit tulee antaa opiskelijanumero-taulukkona."
+
+#: edit_course/operations/configure.py
 #, python-brace-format
-msgid "REVEAL_RULE_ERROR_INVALID_JSON -- {key}"
+msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
 msgstr ""
-"Viallinen paljastamissäännön määrittely '{key}'. Täytyy olla JSON-objekti, "
-"jolla on 'trigger'-kenttä."
+"Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
+"ei ole olemassa."
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_URL_BLANK"
-msgstr "Käännöslokin hakeminen ei onnistu jos build_log_url on tyhjä."
+#, python-brace-format
+msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
+msgstr "Julkaiseminen palautti statuksen {status_code}"
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_REQUESTING_FAILED -- {error!s}"
-msgstr "Käännöslokin hakeminen epäonnistui virheellä '{error!s}'."
+#, python-brace-format
+msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
+msgstr ""
+"Julkaisun vastaus-JSONin lataus epäonnistui: {e}:\n"
+"{text}"
 
 #: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_PARSING_JSON -- {error!s}"
-msgstr "Käännöslokin jäsentäminen palautti virheen '{error!s}'."
-
-#: edit_course/operations/configure.py
-msgid "BUILD_LOG_ERROR_EMPTY_LOG"
-msgstr "Etäpalvelin palautti tyhjän käännöslokin."
+#, python-brace-format
+msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
+msgstr "Asetusten muuttaminen ({publish_url}) epäonnistui:"
 
 #: edit_course/operations/configure.py
 msgid "COURSE_CONFIG_URL_REQUIRED"
@@ -2410,77 +2455,6 @@ msgid "COURSE_CONFIG_ERROR_SERVICE_FAILED_TO_EXPORT"
 msgstr ""
 "Palvelu epäonnistui viemään kurssin asetukset. Asetukset saattavat olla "
 "epäkelpoja (esim. tarkista kurssin YAML-tiedostojen syntaksi)."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_ASSISTANTS_AS_SID_ARRAY"
-msgstr "Assistentit tulee antaa opiskelijanumero-taulukkona."
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "COURSE_CONFIG_ERROR_ASSISTANT_NO_USER_WITH_SID -- {id}"
-msgstr ""
-"Assistentin lisääminen epäonnistui, sillä käyttäjää opiskelijanumerolla {id} "
-"ei ole olemassa."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORIES_REQUIRED_OBJECT"
-msgstr "Kategoriat vaaditaan oliona."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY"
-msgstr "Moduulit vaaditaan taulukkona."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_REQUIRES_NAME"
-msgstr "Kategoria vaatii nimen."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_MODULE_REQUIRES_KEY"
-msgstr "Moduuli vaatii avaimen."
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISH_RESPONSE_NON_200 -- {status_code}"
-msgstr "Julkaiseminen palautti statuksen {status_code}"
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISH_ERROR_JSON_PARSER_FAILED -- {e}, {text}"
-msgstr ""
-"Julkaisun vastaus-JSONin lataus epäonnistui: {e}:\n"
-"{text}"
-
-#: edit_course/operations/configure.py
-#, python-brace-format
-msgid "PUBLISHED_WITH_ERRORS -- {publish_url}"
-msgstr "Asetusten muuttaminen ({publish_url}) epäonnistui:"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_CATEGORY"
-msgstr "Tehtäväkokoelma tarvitsee collection_category:n."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_EXERCISECOLLECTION_REQUIRES_INSTANCE_URL"
-msgstr "Tehtäväkokoelma tarvitsee kohdekurssikerran URL:n."
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_COURSE_URL_SHOULD_MATCH_SERVICE -- {}, {}"
-msgstr "Kurssin URL '{}' ei vastaa palvelun verkkotunnuksen nimeä '{}'"
-
-#: edit_course/operations/configure.py
-msgid ""
-"COURSE_CONFIG_ERROR_DETERMINING_COURSE_OR_INSTANCE_FROM_URL_FAILED -- {}"
-msgstr "Kurssin ja/tai kurssikerran selvittäminen ei onnistunut URL:stä '{}'"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_NO_COURSE_FOUND -- {}, {}, {}"
-msgstr ""
-"Yhtään kurssia ei löytynyt URLlla '{}' (course_slug: '{}', instance_slug: "
-"'{}')"
-
-#: edit_course/operations/configure.py
-msgid "COURSE_CONFIG_ERROR_CATEGORY_NOT_FOUND_IN_COURSE -- {}"
-msgstr "Kategoriaa '{}' ei löytynyt kohdekurssista."
 
 #: edit_course/templates/edit_course/batch_assess.html
 msgid "BATCH_ASSESS_SUBMISSIONS"
@@ -2552,12 +2526,30 @@ msgid "CLONING_COURSE"
 msgstr "Luodaan kurssikertaa..."
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "IMPORT_AND_OVERRIDE_CONTENT_CONFIG_URL"
-msgstr "Tuo ja korvaa sisältöasetukset URL-osoitteesta"
+msgid "IMPORT_CONTENT_CONFIG_URL"
+msgstr "Tuo sisältöasetukset URL-osoitteesta"
 
 #: edit_course/templates/edit_course/edit_content.html
-msgid "APPLY"
-msgstr "Tuo"
+msgid "APPLY_CHANGES_TOOLTIP"
+msgstr ""
+"Vertaa uusia sisältöasetuksia aikaisempiin, ja päivittää vain muuttuneet osat."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "APPLY_CHANGES"
+msgstr "Tuo muutokset"
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "OVERRIDE_COURSE_CONFIGURATION_TOOLTIP"
+msgstr ""
+"Päivittää kaikki sisältöasetukset. Hitaampi kuin pelkkien muutosten "
+"päivittäminen. Saattaa korjata ongelman, jossa jotkin sisältöasetukset eivät "
+"päivity."
+
+#: edit_course/templates/edit_course/edit_content.html
+msgid "CLEAR_CONTENT_CACHE_TOOLTIP"
+msgstr ""
+"Poistaa kurssisisällön välimuistista. Saattaa korjata ongelman, jossa "
+"sisältö ei päivity kurssisivuilla."
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "CLEAR_CONTENT_CACHE"

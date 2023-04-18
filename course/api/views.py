@@ -17,7 +17,7 @@ from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.statistics import BaseStatisticsView
 from news.models import News
 
-from edit_course.operations.configure import configure_content
+from edit_course.operations.configure import configure_from_url
 from ..models import (
     Enrollment,
     USERTAG_EXTERNAL,
@@ -136,7 +136,7 @@ class CourseViewSet(ListSerializerMixin,
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
     def notify_update(self, request, *args, **kwargs):
         try:
-            success, errors = configure_content(self.instance, self.instance.configure_url)
+            success, errors = configure_from_url(self.instance, self.instance.configure_url)
         except Exception as e:
             success = False
             errors = [format_lazy(
