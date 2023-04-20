@@ -755,10 +755,10 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                 )
 
                 # We can't set the children until they have been saved by update_learning_objects
-                for key, config in lobjects_config.items():
+                for key, lobject_config in lobjects_config.items():
                     lobject_map[key].children.set(
                         lobject_map[child_key]
-                        for child_key in config["children"]
+                        for child_key in lobject_config["children"]
                     )
 
             for lobject in outdated_lobjects:
