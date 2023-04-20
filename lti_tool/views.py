@@ -128,6 +128,11 @@ class LtiSessionMixin(BaseMixin):
             )
             self.message_launch_data = self.message_launch.get_launch_data()
 
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.disable_staff_nav = True
+        self.note("disable_staff_nav")
+
 
 class LtiInstanceView(LtiSessionMixin, InstanceView):
 

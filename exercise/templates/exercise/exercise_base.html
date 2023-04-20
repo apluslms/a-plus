@@ -93,23 +93,25 @@
 			{% if is_course_staff %}
 			<li>
 					<p class="navbar-text navbar-btn">
-							{% if submission %}
+							{% if submission and not disable_staff_nav %}
 							<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 									<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
 									{% translate "INSPECT_SUBMISSION" %}
 							</a>
-							{% elif is_teacher %}
+							{% elif is_teacher and not disable_staff_nav %}
 							{% load editcourse %}
 							<a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 									{% translate "EDIT_EXERCISE" %}
 							</a>
 							{% endif %}
-							{% if is_teacher or exercise.allow_assistant_viewing %}
-							<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-									<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-									{% translate "VIEW_ALL_SUBMISSIONS" %}
-							</a>
+							{% if not disable_staff_nav %}
+								{% if is_teacher or exercise.allow_assistant_viewing %}
+								<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+										<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+										{% translate "VIEW_ALL_SUBMISSIONS" %}
+								</a>
+								{% endif %}
 							{% endif %}
 					</p>
 			</li>
