@@ -885,7 +885,7 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                             publish_errors = publish_errors.get("errors", [])
 
                         if isinstance(publish_errors, list):
-                            publish_errors = (str(e) for e in publish_errors)
+                            publish_errors = [str(e) for e in publish_errors]
                         else:
                             publish_errors = [str(publish_errors)]
 
