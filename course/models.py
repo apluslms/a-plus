@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import string
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 import urllib.request
 import urllib.parse
 from random import choice
@@ -43,6 +43,9 @@ from lib.typing import AnyUser
 from lib.validators import generate_url_key_validator
 from userprofile.models import User, UserProfile, GraderUser
 from .sis import get_sis_configuration, StudentInfoSystem
+
+if TYPE_CHECKING:
+    from edit_course.operations.configure import ConfigParts
 
 
 logger = logging.getLogger('aplus.course')
@@ -1113,6 +1116,9 @@ class CourseInstance(UrlMixin, models.Model):
         # python dicts in single line: http://stackoverflow.com/a/26853961
         return dict(instance_slug=self.url, **self.course.get_url_kwargs()) # pylint: disable=use-dict-literal
 
+    # A ConfigPart object is cached for each instance during an update. Cache is cleared
+    # when the instance is deleted. The edit_course_operations.configure logic is responsible
+    # for setting the cache on update.
     @property
     def config_cache_key(self) -> str:
         return f"instance.config.{self.id}"
@@ -1120,10 +1126,10 @@ class CourseInstance(UrlMixin, models.Model):
     def delete_cached_config(self) -> None:
         cache.delete(self.config_cache_key)
 
-    def set_cached_config(self, obj: Any) -> None:
+    def set_cached_config(self, obj: "ConfigParts") -> None:
         cache.set(self.config_cache_key, obj)
 
-    def get_cached_config(self, default=None) -> Any:
+    def get_cached_config(self, default=None) -> Optional["ConfigParts"]:
         return cache.get(self.config_cache_key, default)
 
 

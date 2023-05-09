@@ -408,7 +408,10 @@ class ConfigParts:
     the lobject class type.
     - *_keys fields contain whatever the <new> config contained. I.e. they
     contain the set of all such keys. E.g. module_keys contains the keys of
-    all modules in the <new> config.
+    all modules in the <new> config. They can be used to determined whether
+    a module, exercise, etc. still exists in the course config even if nothing
+    has changed (e.g. module config disappears from the modules field in the
+    .diff() result if it had no changes).
     """
     config: Dict[Any, Any]
 
@@ -490,7 +493,8 @@ class ConfigParts:
         )
 
     @staticmethod
-    def diff(old: Optional["ConfigParts"], new: "ConfigParts"):
+    def diff(old: Optional["ConfigParts"], new: "ConfigParts") -> "ConfigParts":
+        """Return a new ConfigParts object containing the differences between the old and new configs"""
         if old is None:
             return new
 
@@ -502,6 +506,7 @@ class ConfigParts:
             keep_unchanged=True
         )
 
+        # Get the changes between the configs
         categories_config = get_config_changes(old.categories, new.categories)
         if categories_config is None:
             categories_config = {}
@@ -550,8 +555,11 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
         errors.append(_('COURSE_CONFIG_ERROR_MODULES_REQUIRED_ARRAY'))
         return False, errors
 
+    # Get the previous config (the one used in the last successful update)
     old_cparts = instance.get_cached_config()
     new_cparts = ConfigParts.from_config(new_config, errors)
+    # Get the changes between the new config and the previous config with some auxiliary information.
+    # See ConfigParts and ConfigParts.diff for more info
     cparts = ConfigParts.diff(old_cparts, new_cparts)
 
     config = cparts.config
@@ -761,6 +769,7 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                         for child_key in lobject_config["children"]
                     )
 
+            # Delete or hide learning objects that are not included in the module anymore
             for lobject in outdated_lobjects:
                 if (
                     not isinstance(lobject, BaseExercise)
