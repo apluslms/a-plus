@@ -24,6 +24,7 @@ from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_colortag.models import ColorTag
+from requests.exceptions import HTTPError
 
 from apps.models import BaseTab, BasePlugin
 from authorization.models import JWTAccessible
@@ -935,9 +936,11 @@ class CourseInstance(UrlMixin, models.Model):
         delcount = 0
         try:
             participants = sis.get_participants(self.sis_id)
+        except HTTPError as exc:
+            logger.exception("%s: Error %d when getting participants from SIS.", self, exc.response.status_code)
+            return -1, -1
         except Exception:
-            # pylint: disable-next=logging-fstring-interpolation
-            logger.exception(f"{self}: Error in getting participants from SIS.")
+            logger.exception("%s: Error in getting participants from SIS.", self)
             return -1, -1
 
         from exercise.models import LearningObject # pylint: disable=import-outside-toplevel
@@ -954,19 +957,23 @@ class CourseInstance(UrlMixin, models.Model):
                 # yet logged in to A+, then the user profile does not exist yet.
                 pass
 
-        # Remove SIS-enrolled students who are not anymore in SIS participants,
-        # for example, because they have first enrolled in SIS, but then
-        # unenrolled themselves.
-        students = self.all_students.filter(enrollment__from_sis=True)
-        to_remove = students.exclude(student_id__in=participants)
-        qs = Enrollment.objects.filter(user_profile__in=to_remove, course_instance=self)
-        qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
-        for e in qs:
-            invalidate_content(Enrollment, e)
-            delcount += 1
+        # Ignore empty participants list caused by a rare SIS API gateway malfunction
+        if participants:
+            # Remove SIS-enrolled students who are not anymore in SIS participants,
+            # for example, because they have first enrolled in SIS, but then
+            # unenrolled themselves.
+            students = self.all_students.filter(enrollment__from_sis=True)
+            to_remove = students.exclude(student_id__in=participants)
+            qs = Enrollment.objects.filter(user_profile__in=to_remove, course_instance=self)
+            qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+            for e in qs:
+                invalidate_content(Enrollment, e)
+                delcount += 1
+        else:
+            logger.warning("%s: Received an empty participants list from SIS.", self)
+            return 0, 0
 
-        # pylint: disable-next=logging-fstring-interpolation
-        logger.info(f"{self}: enrolled {addcount}, removed {delcount} students based on SIS")
+        logger.info("%s: enrolled %d, removed %d students based on SIS", self, addcount, delcount)
         return addcount, delcount
 
     def set_users_with_role(self, users, role, remove_others_with_role=False):
