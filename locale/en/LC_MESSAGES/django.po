@@ -3827,7 +3827,6 @@ msgstr "Total number of submitters"
 
 #: exercise/templates/exercise/_exercise_wait.html
 #: exercise/templates/exercise/exercise.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "There was a problem loading the assignment. Try loading the page again "
@@ -3836,14 +3835,12 @@ msgstr ""
 "staff."
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
 msgstr ""
 "Unfortunately grading takes longer than expected. Return later to see the "
 "result."
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "GRADING_SUBMISSION"
 msgstr "Grading submission..."
 

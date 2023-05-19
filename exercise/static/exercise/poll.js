@@ -7,14 +7,15 @@
 
 	var pluginName = "aplusExercisePoll";
 	var defaults = {
-    poll_url_attr: "data-poll-url",
+		poll_url_attr: "data-poll-url",
+		ready_url_attr: "data-ready-url",
 		poll_delays: [2,3,5,5,5,10,10,10,10],
 		message_selector: ".progress-bar",
 		message_attr: {
 			error: "data-msg-error",
 			timeout: "data-msg-timeout"
 		}
-  };
+	};
 
 	function AplusExercisePoll(element, callback, options) {
 		this.element = $(element);
@@ -73,13 +74,13 @@
 			// evaluation and polling is finished.
 			if ($.data(this.element[0], "plugin_" + pluginName)) $.removeData(this.element[0], "plugin_" + pluginName);
 
-			var suburl = this.url.substr(0, this.url.length - "poll/".length);
+			const ready_url = this.element.attr(this.settings.ready_url_attr);
 			if (this.callback) {
-				this.callback(suburl, error);
+				this.callback(ready_url, error);
 			} else {
-				window.location = suburl;
+				window.location = ready_url;
 			}
-	    },
+		},
 
 		message: function(messageType) {
 			this.element.removeClass("active").find(this.settings.message_selector)

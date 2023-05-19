@@ -3836,7 +3836,6 @@ msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_wait.html
 #: exercise/templates/exercise/exercise.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "Tehtävän lataaminen epäonnistui. Yritä uudelleen myöhemmin. "
@@ -3845,14 +3844,12 @@ msgstr ""
 "kurssihenkilökuntaan."
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
 msgstr ""
 "Valitettavasti arvostelu kestää odotettua kauemmin. Palaa myöhemmin "
 "katsomaan palautetta."
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: lti_tool/templates/lti_tool/_lti_exercise_wait.html
 msgid "GRADING_SUBMISSION"
 msgstr "Palautusta arvostellaan..."
 
