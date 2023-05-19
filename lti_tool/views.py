@@ -131,7 +131,11 @@ class LtiSessionMixin(BaseMixin):
     def get_common_objects(self):
         super().get_common_objects()
         self.disable_staff_nav = True
-        self.note("disable_staff_nav")
+        self.submission_poll_ready_url_name = "lti-submission"
+        self.note(
+            "disable_staff_nav",
+            "submission_poll_ready_url_name",
+        )
 
 
 class LtiInstanceView(LtiSessionMixin, InstanceView):
