@@ -81,7 +81,7 @@ def clone(
     instance.configure_url = ""
     instance.url = url
     instance.instance_name = name
-    instance.sis_id =''
+    instance.sis_id = ''
     instance.sis_enroll = False
     instance.save()
 
