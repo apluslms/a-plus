@@ -964,11 +964,13 @@ class CourseInstance(UrlMixin, models.Model):
             # unenrolled themselves.
             students = self.all_students.filter(enrollment__from_sis=True)
             to_remove = students.exclude(student_id__in=participants)
-            qs = Enrollment.objects.filter(user_profile__in=to_remove, course_instance=self)
-            qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+            qs = (Enrollment.objects
+                  .filter(user_profile__in=to_remove, course_instance=self)
+                  .exclude(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+            )
             for e in qs:
                 invalidate_content(Enrollment, e)
-                delcount += 1
+            delcount = qs.update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
         else:
             logger.warning("%s: Received an empty participants list from SIS.", self)
             return 0, 0
