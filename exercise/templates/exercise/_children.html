@@ -15,7 +15,7 @@
   {% if entry.is_empty %}
     {{ entry.name|parse_localization }}
   {% else %}
-    <a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+    <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
   {% endif %}
   {% if entry.submission_count %}
     {% points_badge entry %}

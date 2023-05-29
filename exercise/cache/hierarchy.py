@@ -301,7 +301,10 @@ class ContentMixin(object):
             return (
                 entry.get('category_status') != LearningObjectCategory.STATUS.HIDDEN
                 and entry.get('module_status') != CourseModule.STATUS.UNLISTED
-                and entry['status'] != LearningObject.STATUS.UNLISTED
+                and not entry['status'] in (
+                    LearningObject.STATUS.UNLISTED,
+                    LearningObject.STATUS.MAINTENANCE,
+                )
             )
         if t == 'module':
             return entry['status'] != CourseModule.STATUS.UNLISTED
