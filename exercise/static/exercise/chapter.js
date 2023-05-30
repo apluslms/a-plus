@@ -460,7 +460,8 @@
         data: formData,
         contentType: false,
         processData: false,
-        dataType: "html"
+        dataType: "html",
+        timeout: 10000,
       }).fail(function(xhr, textStatus, errorThrown) {
         //$(form_element).find(":input").prop("disabled", false);
         //exercise.showLoader("error");
