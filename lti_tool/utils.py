@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from pylti1p3.grade import Grade
@@ -13,21 +13,20 @@ def get_launch_url(request):
     target_link_uri = request.POST.get('target_link_uri', request.GET.get('target_link_uri'))
     if not target_link_uri:
         logger.error('Missing "target_link_uri" param')
-        raise Exception('Missing "target_link_uri" param')
+        raise Exception('Missing "target_link_uri" param') # pylint: disable=broad-exception-raised
     return target_link_uri
 
 def get_tool_conf():
     # Cannot default to DjangoDbToolConf() in settings.py due to models not being initialized yet
     if hasattr(settings, "LTI_TOOL_CONF"):
         return settings.LTI_TOOL_CONF
-    else:
-        return DjangoDbToolConf()
+    return DjangoDbToolConf()
 
 def get_launch_data_storage():
     return DjangoCacheDataStorage()
 
 def send_lti_points(request, submission):
-    from exercise.exercise_summary import UserExerciseSummary
+    from exercise.exercise_summary import UserExerciseSummary # pylint: disable=import-outside-toplevel
     exercise = submission.exercise
     request.COOKIES['lti1p3-session-id'] = submission.meta_data.get('lti-session-id')
     try:

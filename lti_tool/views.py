@@ -68,8 +68,12 @@ class LtiLaunchView(BaseRedirectView):
                 last_name=self.message_launch_data["family_name"],
             )
             profile = self.user.userprofile
-            profile.language = self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/launch_presentation"]["locale"]
-            profile.student_id = self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/lis"]["person_sourcedid"]
+            profile.language = (
+                self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/launch_presentation"]["locale"]
+            )
+            profile.student_id = (
+                self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/lis"]["person_sourcedid"]
+            )
             # Note: profile.organization is not set since we can't know it
             # based on the LTI launch.
             profile.save()
@@ -86,36 +90,34 @@ class LtiLaunchView(BaseRedirectView):
             roles = self.message_launch_data["https://purl.imsglobal.org/spec/lti/claim/roles"]
             is_course_teacher = instance.is_course_staff(self.user)
             if "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner" in roles and not is_course_teacher:
-                enrolment_success = instance.enroll_student(self.user)
+                instance.enroll_student(self.user)
 
             if "exercise_path" in launch_params:
                 url_params = {
                     k: launch_params[k] for k in ["exercise_path", "module_slug", "course_slug", "instance_slug"]
                 }
                 return redirect("lti-exercise", **url_params)
-            elif "module_slug" in launch_params:
+            if "module_slug" in launch_params:
                 url_params = {
                     k: launch_params[k] for k in ["module_slug", "course_slug", "instance_slug"]
                 }
                 return redirect("lti-module", **url_params)
-            elif "course_slug" in launch_params and "instance_slug" in launch_params:
+            if "course_slug" in launch_params and "instance_slug" in launch_params:
                 url_params = {
                     k: launch_params[k] for k in ["course_slug", "instance_slug"]
                 }
                 return redirect("lti-course", **url_params)
-            else:
-                raise LtiException("Invalid parameters for an LTI launch")
-        elif message_launch.is_deep_link_launch():
+            raise LtiException("Invalid parameters for an LTI launch")
+        if message_launch.is_deep_link_launch():
             return redirect("lti-select-content")
-        else:
-            raise LtiException("Invalid LTI launch type")
+        raise LtiException("Invalid LTI launch type")
 
 
 class LtiSessionMixin(BaseMixin):
 
     @method_decorator(xframe_options_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
 
     def parse_lti_session_params(self):
         launch_id = self.request.session.get("lti-launch-id", None)
@@ -269,7 +271,13 @@ class LtiSelectCourseView(LtiSelectContentMixin, CourseInstanceBaseView):
                 "course_slug": kwargs['course_slug'],
                 "instance_slug": kwargs['instance_slug']
             })
-            .set_title("{}: {}".format(pick_localized(self.course.name, 'en'), pick_localized(self.instance.instance_name, 'en'))))
+            .set_title(
+                "{}: {}".format(
+                    pick_localized(self.course.name, 'en'),
+                    pick_localized(self.instance.instance_name, 'en')
+                )
+            )
+        )
         return HttpResponse(deep_link.output_response_form([resource]))
 
     # Get list of modules in course
@@ -340,7 +348,7 @@ class LtiSelectExerciseView(LtiSelectContentMixin, ExerciseBaseView):
                         .set_score_maximum(self.exercise.max_points)
                         .set_label(pick_localized(str(self.exercise), 'en')))
                     ags.find_or_create_lineitem(li)
-            except AttributeError as e:
+            except AttributeError:
                 logger.info("Importing LTI exercise with no max_points attribute")
 
         # Send activity settings

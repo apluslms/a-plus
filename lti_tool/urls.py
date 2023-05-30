@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
 from . import views
-from exercise.views import SubmissionPollView
 from course.urls import INSTANCE_URL_PREFIX, MODULE_URL_PREFIX
 from exercise.urls import EXERCISE_URL_PREFIX, SUBMISSION_URL_PREFIX
 
