@@ -3987,9 +3987,10 @@ msgstr "Palautusta lähetetään..."
 #: exercise/templates/exercise/_submit_progress.html
 msgid "SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE"
 msgstr ""
-"Palautuksen lähettämisessä arvosteluun tapahtui virhe eikä palautuskertoja "
-"kulunut. Voit yrittää vielä uudestaan. Tarkistathan internet-yhteytesi. "
-"Henkilökunnalle on ilmoitettu mikäli onglema on palvelussa."
+"Palautuksen lähettämisessä arvosteluun tapahtui virhe. Tarkistathan internet-"
+"yhteytesi. Jos palautuskerta käytettiin, palautus arvostellaan "
+"automaattisesti, kun palvelu on jälleen käytettävissä. Kurssihenkilökunnalle "
+"on ilmoitettu mikäli ongelma on palvelussa."
 
 #: exercise/templates/exercise/_template_files.html
 msgid "EXERCISE_HAS_NO_TEMPLATE"

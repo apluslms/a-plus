@@ -3979,9 +3979,10 @@ msgstr "Posting submission..."
 #: exercise/templates/exercise/_submit_progress.html
 msgid "SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE"
 msgstr ""
-"There was an error sending the submission for grading, so no submission was "
-"consumed. You can try again. Make sure you're connected to the internet. "
-"Course staff have been informed if the problem is with the service."
+"An error occurred while sending the submission for grading. Make sure you're "
+"connected to the internet. If a submission was consumed, the submission will "
+"be automatically graded after the service is available again. Course staff "
+"have been informed in case the problem is with the service."
 
 #: exercise/templates/exercise/_template_files.html
 msgid "EXERCISE_HAS_NO_TEMPLATE"
