@@ -694,7 +694,7 @@ class CourseInstance(UrlMixin, models.Model):
             errors['instance_name'] = format_lazy(_('COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}'), self.instance_name)
         if self.url in RESERVED:
             errors['url'] = format_lazy(_('COURSE_INSTANCE_ERROR_URL -- {}'), self.url)
-        if self.ending_time <= self.starting_time:
+        if self.ending_time and self.starting_time and self.ending_time <= self.starting_time:
             errors['ending_time'] = _('COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING')
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:
             errors['lifesupport_time'] = _('COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING')
