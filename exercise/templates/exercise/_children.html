@@ -2,33 +2,32 @@
 {% load course %}
 {% load exercise %}
 {% for entry in children %}
-
-{% if entry.type == 'level' %}
-{% if entry.down %}
-<ul class="toc">
-{% elif entry.up %}
-</ul>
-{% endif %}
-{% elif entry|is_listed %}
-<li>
-  {% if accessible and not entry.submittable or exercise_accessible %}
-  {% if entry.is_empty %}
-    {{ entry.name|parse_localization }}
-  {% else %}
-    <a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
-  {% endif %}
-  {% if entry.submission_count %}
-    {% points_badge entry %}
-  {% endif %}
-  {% else %}
-    {{ entry.name|parse_localization }}
-  {% if is_course_staff %}
-  <a href="{{ entry.link }}">
-    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-    {% translate "EARLY_ACCESS" %}
-  </a>
-  {% endif %}
-  {% endif %}
-</li>
-{% endif %}
+	{% if entry.type == 'level' %}
+		{% if entry.down %}
+			<ul class="toc">
+		{% elif entry.up %}
+			</ul>
+		{% endif %}
+	{% elif entry|is_listed %}
+		<li>
+		{% if accessible and not entry.submittable or exercise_accessible %}
+			{% if entry.is_empty %}
+				{{ entry.name|parse_localization }}
+			{% else %}
+				<a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
+			{% endif %}
+			{% if entry.submission_count %}
+				{% points_badge entry %}
+			{% endif %}
+		{% else %}
+			{{ entry.name|parse_localization }}
+			{% if is_course_staff %}
+				<a href="{{ entry.link }}">
+					<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+					{% translate "EARLY_ACCESS" %}
+				</a>
+			{% endif %}
+		{% endif %}
+		</li>
+	{% endif %}
 {% endfor %}
