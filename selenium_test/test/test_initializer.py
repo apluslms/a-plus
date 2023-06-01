@@ -29,11 +29,13 @@ class TestInitializer:
 
         if Browser.firefox.value == browser:
             options = FirefoxOptions()
-            options.headless = headless
+            if headless:
+                options.add_argument('-headless')
             driver = Firefox(options=options)
         elif Browser.chrome.value == browser:
             options = ChromeOptions()
-            options.headless = headless
+            if headless:
+                options.add_argument('-headless')
             driver = Chrome(chrome_options=options)
         else:
             raise ValueError(f"Browser value {browser} unknown")
