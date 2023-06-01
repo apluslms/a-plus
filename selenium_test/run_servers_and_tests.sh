@@ -2,22 +2,22 @@
 
 cd `dirname "$0"`/test
 
-TEST=nosetests
+TEST="python3 -m unittest"
 XVFB=`which xvfb-run`
 
 if [ -z "$WORKSPACE" ]; then
 	WORKSPACE=.
 fi
 
-if [ -n "$VENV_HOME" ]; then
-	TEST="$VENV_HOME/nosetests --verbosity=3 --with-xunit --xunit-file=$WORKSPACE/selenium_test_report.xml"
-fi
+echo "Starting servers..."
 
 trap '../kill_servers.sh' EXIT
 ../run_servers.sh
 
+echo "Running tests..."
+
 if [ -x "$XVFB" ]; then
-	$XVFB $TEST *_test.py
+	$XVFB $TEST discover -p "*_test.py"
 else
-	$TEST *_test.py
+	$TEST discover -p "*_test.py"
 fi
