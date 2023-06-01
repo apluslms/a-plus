@@ -1,11 +1,4 @@
-
-A+ is using a continuous integration server running Jenkins.
-The Jenkins is currently running at http://plustest.cs.hut.fi
-
-* The Jenkins UI at port 8080 is limited by firewall at Aalto University.
-* Test reports and test site are public to internet.
-* Pull requests at GitHub are automatically tested and commented by Jenkins.
-
+Jenkins is not currently used but the instructions and configurations are left here in case it will be used in the future. Note that the configurations want a `selenium_test_report.xml` file from the selenium tests but it is not produced anymore.
 
 Jenkins setup
 =============
