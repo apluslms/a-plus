@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-14 14:12+0300\n"
+"POT-Creation-Date: 2023-07-19 08:06+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -4011,8 +4011,16 @@ msgid "FILTER_VIEW"
 msgstr "Show"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "SHOW_OLDER_ASSIGNMENTS"
-msgstr "Show older assignments"
+msgid "EXPAND_ALL_MODULES"
+msgstr "Expand all modules"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "AUTO_SCROLL"
+msgstr "Automatic scrolling"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "AUTO_SCROLL_BEHAVIOR_INSTANT"
+msgstr "Instant scrolling"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "OPENS ON"

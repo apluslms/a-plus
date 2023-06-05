@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-14 14:12+0300\n"
+"POT-Creation-Date: 2023-07-19 08:06+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -4021,8 +4021,16 @@ msgid "FILTER_VIEW"
 msgstr "Näytä"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "SHOW_OLDER_ASSIGNMENTS"
-msgstr "Näytä vanhemmat tehtävät"
+msgid "EXPAND_ALL_MODULES"
+msgstr "Laajenna kaikki moduulit"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "AUTO_SCROLL"
+msgstr "Automaattinen vieritys"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "AUTO_SCROLL_BEHAVIOR_INSTANT"
+msgstr "Nopea vieritys"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "OPENS ON"
