@@ -1,13 +1,16 @@
 {% load i18n %}
+{% load static %}
 {% load course %}
 {% load exercise %}
+
+<script src="{% static 'exercise/user_results.js' %}"></script>
 
 {% if categories|len_listed > 1 %}
 <p class="filter-categories">
 	<small>{% translate "FILTER_VIEW" %}:</small>
 	{% for entry in categories %}
 	{% if entry|is_listed %}
-	<button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}">
+	<button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}" aria-pressed="true">
 		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
 		{{ entry.name|parse_localization }}
 	</button>
@@ -16,10 +19,18 @@
 </p>
 {% endif %}
 
-<p id="toggle-expired" class="hide">
-	<button class="aplus-button--secondary aplus-button--xs">
-		<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-		{% translate "SHOW_OLDER_ASSIGNMENTS" %}
+<p>
+	<button id="toggle-expand-all-modules" class="aplus-button--secondary aplus-button--xs" aria-pressed="false" style="display:none">
+		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		{% translate "EXPAND_ALL_MODULES" %}
+	</button>
+	<button id="toggle-auto-scroll" class="aplus-button--secondary aplus-button--xs" aria-pressed="true" style="display:none">
+		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+		{% translate "AUTO_SCROLL" %}
+	</button>
+	<button id="auto-scroll-behavior-instant" class="aplus-button--secondary aplus-button--xs" aria-pressed="false" style="display:none">
+		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		{% translate "AUTO_SCROLL_BEHAVIOR_INSTANT" %}
 	</button>
 </p>
 
@@ -28,7 +39,7 @@
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
-<div class="panel panel-primary module-panel{% if not open and after_open %} module-expired{% endif %}">
+<div class="panel panel-primary module-panel{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
 	<a class="panel-heading{% if not accessible or not open and after_open %} collapsed{% endif %}"
 		role="button" href="#module{{ module.id }}" data-toggle="collapse"
 		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
@@ -221,41 +232,8 @@
 {% endfor %}
 
 <script>
-var aplusPointsTotal = {{ total_json|safe }};
-
-$(function() {
-	var limit = 2;
-	var expired = $(".module-expired");
-	if (expired.length > limit) {
-		expired.slice(0, expired.length - limit).hide();
-		$("#toggle-expired").removeClass("hide")
-		.find("button").on("click", function(event) {
-			event.preventDefault();
-			$(".module-expired:hidden").show();
-			$(this).parent().hide();
-		});
-	}
-
-	$('.filter-categories button').on("click", function(event) {
-		var button = $(this);
-		var id = button.attr("data-category");
-		if (button.hasClass("active")) {
-			button.removeClass("active")
-			.find("span").removeClass("glyphicon-unchecked").addClass("glyphicon-check");
-			$('.module-panel tr[data-category="' + id + '"]').removeClass("hide");
-		} else {
-			button.addClass("active")
-			.find("span").removeClass("glyphicon-check").addClass("glyphicon-unchecked");
-			$('.module-panel tr[data-category="' + id + '"]').addClass("hide");
-		}
-		$('.module-panel').each(function(index, panel) {
-			var mod = $(panel);
-			if (mod.find("tr:not(.hide)").length > 0) {
-				mod.removeClass("hide");
-			} else {
-				mod.addClass("hide");
-			}
-		});
-	});
-});
+	var aplusPointsTotal = {{ total_json|safe }};
+	window.addEventListener("load", function() {
+		startListen("{{course|safe}}");
+	}, false);
 </script>
