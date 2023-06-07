@@ -602,8 +602,10 @@
             // that is always included: <div class="quiz-submit-error alert alert-danger hide">
             const alerts = content.find('.alert-danger:not(.hide)');
             if (!alerts.length) {
-              var poll_url = content.find(".exercise-wait").attr("data-poll-url");
+              const poll_url = content.find(".exercise-wait").attr("data-poll-url");
               output.attr('data-poll-url', poll_url);
+              const ready_url = content.find(".exercise-wait").attr("data-ready-url");
+              output.attr('data-ready-url', ready_url);
 
               exercise.updateSubmission(content);
             } else if (alerts.contents().text()
