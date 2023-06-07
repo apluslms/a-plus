@@ -366,6 +366,7 @@ $(function() {
     var defaults = {
         loader_selector: ".modal-progress",
         loader_text_selector: ".progress-bar",
+        alert_text_selector: ".modal-submit-error",
         title_selector: ".modal-title",
         content_selector: ".modal-body",
         error_message_attribute: "data-msg-error",
@@ -382,6 +383,7 @@ $(function() {
         init: function() {
             this.loader = this.element.find(this.settings.loader_selector);
             this.loaderText = this.loader.find(this.settings.loader_text_selector);
+            this.alertText = this.loader.find(this.settings.alert_text_selector);
             this.title = this.element.find(this.settings.title_selector);
             this.content = this.element.find(this.settings.content_selector);
             this.messages = {
@@ -407,6 +409,7 @@ $(function() {
         open: function(data) {
             this.title.hide();
             this.content.hide();
+            this.alertText.hide();
             this.loaderText
                 .removeClass('progress-bar-danger').addClass('active')
                 .text(data || this.messages.loading);
@@ -418,9 +421,10 @@ $(function() {
         },
 
         showError: function(data) {
-            this.loaderText
-                .removeClass('active').addClass('progress-bar-danger')
-                .text(data || this.messages.error);
+            if (data) {
+                this.alertText.text(data).show();
+            }
+            this.loaderText.removeClass('active').addClass('progress-bar-danger').text(this.messages.error);
         },
 
         showContent: function(data) {
