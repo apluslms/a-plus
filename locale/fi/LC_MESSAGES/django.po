@@ -3849,7 +3849,7 @@ msgid "TOTAL_NUMBER_OF_SUBMITTERS"
 msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: exercise/templates/exercise/exercise.html
+#: exercise/templates/exercise/exercise.html templates/base.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "Tehtävän lataaminen epäonnistui. Yritä uudelleen myöhemmin. "

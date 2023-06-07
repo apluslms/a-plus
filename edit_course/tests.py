@@ -33,8 +33,9 @@ class CourseCloneTest(CourseTestCase):
             'key_month': 'Test',
         }, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "alert alert-danger")
-        self.assertContains(response, "alert alert-success")
+        stripped_content = response.content.decode("utf-8").replace("modal-submit-error alert alert-danger", "")
+        self.assertNotIn("alert alert-danger", stripped_content)
+        self.assertIn("alert alert-success", stripped_content)
 
         # Partial clone
         response = self.client.post(url, {
@@ -48,8 +49,9 @@ class CourseCloneTest(CourseTestCase):
             'key_month': 'Test',
         }, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "alert alert-danger")
-        self.assertContains(response, "alert alert-success")
+        stripped_content = response.content.decode("utf-8").replace("modal-submit-error alert alert-danger", "")
+        self.assertNotIn("alert alert-danger", stripped_content)
+        self.assertIn("alert alert-success", stripped_content)
 
         instance = CourseInstance.objects.get(id=1)
         self.assertEqual(instance.url, instance_url)
@@ -104,8 +106,9 @@ class CourseCloneTest(CourseTestCase):
             'sis': '123',
         }, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "alert alert-danger")
-        self.assertContains(response, "alert alert-success")
+        stripped_content = response.content.decode("utf-8").replace("modal-submit-error alert alert-danger", "")
+        self.assertNotIn("alert alert-danger", stripped_content)
+        self.assertIn("alert alert-success", stripped_content)
 
         # The asserted values are coming from in sis_test.py
         sis_instance = CourseInstance.objects.get(course=instance.course, url="sis-test")

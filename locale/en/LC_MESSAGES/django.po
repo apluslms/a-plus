@@ -3842,7 +3842,7 @@ msgid "TOTAL_NUMBER_OF_SUBMITTERS"
 msgstr "Total number of submitters"
 
 #: exercise/templates/exercise/_exercise_wait.html
-#: exercise/templates/exercise/exercise.html
+#: exercise/templates/exercise/exercise.html templates/base.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
 "There was a problem loading the assignment. Try loading the page again "
