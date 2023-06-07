@@ -16,7 +16,19 @@ class AJAXJSONEncoder(DjangoJSONEncoder):
     javascript, instead of just serializing the object.
     """
     def default(self, obj: Any) -> Any:
-        # Any custom types come here `if isinstance(obj, ...):`
+        if isinstance(obj, Submission):
+            return {
+                "id": obj.id,
+                "poll_url": obj.get_url("submission-poll"),
+                "ready_url": obj.get_url(
+                    getattr(self, "submission_poll_ready_url_name", "submission")
+                ),
+            }
+        elif isinstance(obj, ExercisePage):
+            return {
+                "content": obj.content,
+                "errors": obj.errors,
+            }
 
         return super().default(obj)
 

@@ -453,14 +453,16 @@
     },
 
     // Submit the formData to given url and then execute the callback.
-    submitAjax: function(url, formData, callback) {
+    submitAjax: function(url, formData, ajaxParams, callback) {
+      ajaxParams = ajaxParams ?? {};
+      ajaxParams.dataType = ajaxParams.dataType ?? "html";
       var exercise = this;
       $.ajax(url, {
         type: "POST",
         data: formData,
         contentType: false,
         processData: false,
-        dataType: "html"
+        ...ajaxParams,
       }).fail(function(xhr, textStatus, errorThrown) {
         //$(form_element).find(":input").prop("disabled", false);
         //exercise.showLoader("error");
@@ -596,24 +598,24 @@
           out_content.html("<p>Evaluating</p>");
 
           var url = exercise.url;
-          exercise.submitAjax(url, formData, function(data) {
-            const content = $(data);
-            // Look for error alerts in the feedback, but skip the hidden element
-            // that is always included: <div class="quiz-submit-error alert alert-danger hide">
-            const alerts = content.find('.alert-danger:not(.hide)');
-            if (!alerts.length) {
-              var poll_url = content.find(".exercise-wait").attr("data-poll-url");
-              output.attr('data-poll-url', poll_url);
+          exercise.submitAjax(url, formData, {dataType: "json"}, function(data) {
+            output.find(data.messages.selector).replaceWith(data.messages.html);
 
-              exercise.updateSubmission(content);
-            } else if (alerts.contents().text()
-            .indexOf("The grading queue is not configured.") >= 0) {
-              output.find(exercise.settings.ae_result_selector)
-              .html(content.find(".alert:not(.hide)").text());
-              output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
+            // Look for error alerts in the feedback
+            const content = $(data.page.content);
+            const alerts = content.find('.alert-danger:not(.hide)');
+            output.find(data.messages.selector).append(alerts);
+
+            if (data.submission) {
+              output.attr('data-poll-url', data.submission.poll_url);
+              output.attr('data-ready-url', data.submission.ready_url);
+
+              exercise.updateSubmission();
             } else {
-              output.find(exercise.settings.ae_result_selector)
-              .html(alerts.contents());
+              out_content.html("<p>Failed to submit:</p>")
+              for(const err of data.errors) {
+                out_content.append("<p>" + err + "</p>")
+              }
             }
           });
         });
@@ -636,7 +638,7 @@
           } else {
             formData.set('__aplus__', JSON.stringify({hash: hash}));
           }
-          exercise.submitAjax(url, formData, function(data) {
+          exercise.submitAjax(url, formData, {}, function(data) {
             //$(form_element).find(":input").prop("disabled", false);
             //exercise.hideLoader();
             var input = $(data);

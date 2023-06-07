@@ -16,6 +16,8 @@ from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name
+from lib.json import json_response_with_messages
+from lib.mime_request import accepts_mimes, MIMERequest
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
@@ -141,7 +143,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                            latest_enrollment_submission_data=all_enroll_data,
                            **kwargs)
 
-    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    @accepts_mimes(["text/html", "application/json"])
+    def post(self, request: MIMERequest, *args: Any, **kwargs: Any) -> HttpResponse:
         # Stop submit trials for e.g. chapters.
         # However, allow posts from exercises switched to maintenance status.
         if not self.exercise.is_submittable:
@@ -149,7 +152,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         new_submission = None
         page = ExercisePage(self.exercise)
-        _submission_status, submission_allowed, _issues, students = (
+        _submission_status, submission_allowed, issues, students = (
             self.submission_check(True, request)
         )
         if submission_allowed:
@@ -212,7 +215,17 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
             # Redirect non AJAX content page request back.
             if not request.is_ajax() and "__r" in request.GET:
-                return self.redirect(request.GET["__r"], backup=self.exercise);
+                return self.redirect(request.GET["__r"], backup=self.exercise)
+
+        if request.expected_mime == "application/json":
+            return json_response_with_messages(
+                request,
+                {
+                    "page": page,
+                    "submission": new_submission,
+                    "errors": issues,
+                }
+            )
 
         self.get_summary_submissions()
         return self.render_to_response(self.get_context_data(
