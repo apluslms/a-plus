@@ -406,7 +406,7 @@ class ConfigParts:
     - categories, modules, and module_lobjects only contain the changed fields
     and some supplemental fields that are required elsewhere. E.g. to identify
     the lobject class type.
-    - *_keys fields contain whatever the <new> config contained. I.e. they
+    - *_names and *_keys fields contain whatever the <new> config contained. I.e. they
     contain the set of all such keys. E.g. module_keys contains the keys of
     all modules in the <new> config. They can be used to determined whether
     a module, exercise, etc. still exists in the course config even if nothing
@@ -415,8 +415,10 @@ class ConfigParts:
     """
     config: Dict[Any, Any]
 
+    # category name -> (category key, category config)
     categories: Dict[str, Tuple[Any, Dict[Any, Any]]]
     category_names: Set[str]
+    # category name -> category key
     category_key_map: Dict[str, str]
 
     modules: Dict[str, Dict[Any, Any]]
@@ -676,9 +678,11 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
         new_category_names = cparts.categories.keys() - (c.name for c in old_categories)
         new_categories = [LearningObjectCategory(course_instance=instance, name=name) for name in new_category_names]
 
+        # category key -> LearningObjectCategory object
         category_map = {
             cparts.category_key_map[category.name]: category
             for category in list(old_categories) + new_categories
+            if category.name in cparts.category_names
         }
 
         # Configure learning object categories.
