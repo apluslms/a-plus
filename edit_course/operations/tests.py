@@ -2,13 +2,13 @@ from copy import deepcopy
 from datetime import timedelta
 import itertools
 import logging
-from typing import Any, List, Optional, Union, Tuple
+from typing import Any, Iterable, List, Optional, Union, Tuple
 
 from django.test import TestCase
 from django.utils import timezone
 
 from .configure import configure, parse_bool
-from course.models import Course, CourseInstance, CourseModule
+from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
 
@@ -61,6 +61,19 @@ exercise_configs = {
             "title": "test_title",
         }
     ],
+}
+
+category_configs = {
+    "cat1": {
+        "name": "category1",
+    },
+    "cat2": {
+        "name": "category2",
+    },
+    "cat3": {
+        "name": "cat3",
+        "accept_unofficial_submits": True,
+    },
 }
 
 class ConfigureTest(TestCase):
@@ -116,6 +129,7 @@ class ConfigureTest(TestCase):
             "lti": ("lti_service", self.get_lti_service),
             "target_url": None,
         }
+        self.category_field_map = {}
 
     def tearDown(self) -> None:
         self.instance.course_modules.all().delete()
@@ -218,6 +232,18 @@ class ConfigureTest(TestCase):
                 0,
             )
 
+    def test_categories(self):
+        self.set_category(self.config, "cat3", category_configs["cat3"])
+
+        self.configure_and_test()
+
+        self.remove_category(self.config, "cat2")
+
+        self.configure_and_test()
+
+        self.set_category(self.config, "cat1", category_configs["cat2"])
+
+        self.configure_and_test()
 
     def configure_and_test(self):
         success, errors = configure(self.instance, self.config)
@@ -226,6 +252,24 @@ class ConfigureTest(TestCase):
         self.assertTrue(success)
         self.assertTrue(not errors)
         self.check_instance_config(self.instance, self.config)
+
+
+    def check_categories_config(self, categories: Iterable[LearningObjectCategory], config: dict):
+        # Hidden categories are old, so skip them
+        categories = [
+            category
+            for category in categories
+            if category.status != LearningObjectCategory.STATUS.HIDDEN
+        ]
+        category_names = {category.name for category in categories}
+        name_to_category_config = {c["name"]: c for c in config.values()}
+        config_category_names = set(name_to_category_config.keys())
+
+        self.assertEqual(category_names, config_category_names)
+
+        for category in categories:
+            self.check_fields(self.category_field_map, category, name_to_category_config[category.name])
+
 
     def check_lobject_config(self, lobject: LearningObject, config: dict):
         # order should be set by check_instance_config
@@ -278,6 +322,8 @@ class ConfigureTest(TestCase):
         modules = {c["key"]: c for c in config.get("modules", [])}
         self.assertEqual(set(modules.keys()), set(module.url for module in instance.course_modules.all()))
 
+        self.check_categories_config(instance.categories.all(), config["categories"])
+
         n = 0
         nn = 0
         for o in config.get("modules", []):
@@ -308,7 +354,6 @@ class ConfigureTest(TestCase):
 
             self.assertEqual(getattr(obj, key), value, f"attr: {key}")
 
-
     def get_module_config(self, index, key):
         ret = deepcopy(module_configs[index])
         values = {
@@ -326,7 +371,6 @@ class ConfigureTest(TestCase):
 
         ret.update(values)
         return ret
-
 
     def insert_module(
             self,
@@ -411,6 +455,20 @@ class ConfigureTest(TestCase):
         else:
             del parent["children"][index]
 
+    def set_category(
+            self,
+            config: dict,
+            category_key: str,
+            category_config: dict,
+            ) -> None:
+        config["categories"][category_key] = category_config
+
+    def remove_category(
+            self,
+            config: dict,
+            category_key: str,
+            ) -> None:
+        del config["categories"][category_key]
 
     def get_category_by_key(self, category_key):
         return self.instance.categories.get(name=self.config["categories"][category_key]["name"])
