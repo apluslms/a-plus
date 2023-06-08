@@ -296,6 +296,8 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
 
+    point_annotator = "annotate_submitter_points"
+
     def get_queryset(self):
         if self.action == 'list':
             return self.instance.students
@@ -319,15 +321,18 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
 
     # pylint: disable-next=too-many-arguments
     def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
+        query = (
             Submission.objects
             .filter(exercise__in=ids, submitters__in=profiles)
             .exclude(status__in=(exclude_list))
             .values('submitters__user_id', 'exercise_id')
             .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
         )
+
+        # Call annotate_best_submitter_points or annotate_submitter_points depending on the selection
+        query = getattr(query, self.point_annotator)('total', revealed_ids, show_unofficial)
+
+        return query.order_by()
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
@@ -369,17 +374,7 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
-    # pylint: disable-next=too-many-arguments
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate_best_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
-        )
+    point_annotator = "annotate_best_submitter_points"
 
 
 def int_or_none(value):
