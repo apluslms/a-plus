@@ -1,5 +1,5 @@
 from itertools import groupby
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple, Type
 
 from django.db import models
 from django.http import HttpRequest, HttpResponse
@@ -40,6 +40,19 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.instance
         return kwargs
+
+    def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
+        def list_arg(arg):
+            return arg.split(",")
+
+        spec = super().get_initial_get_param_spec()
+        spec.update({
+            "module": list_arg,
+            "exercise": list_arg,
+            "submitter": list_arg,
+            "submitter_tag": list_arg,
+        })
+        return spec
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
         exercises = get_exercises(form.cleaned_data)
