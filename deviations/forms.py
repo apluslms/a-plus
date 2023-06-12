@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -40,9 +40,9 @@ class BaseDeviationForm(forms.Form):
         label=_('LABEL_SUBMITTER'),
     )
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, initial: Optional[Dict[str, Any]] = None, **kwargs: Any) -> None:
         course_instance = kwargs.pop('instance')
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, initial=initial, **kwargs)
         self.fields['module'].queryset = CourseModule.objects.filter(
             course_instance=course_instance
         )
@@ -51,6 +51,14 @@ class BaseDeviationForm(forms.Form):
         )
         self.fields['submitter_tag'].queryset = course_instance.usertags
         self.fields['submitter'].queryset = course_instance.get_student_profiles()
+        if initial is not None:
+            try:
+                # Support setting the initial value for submitter
+                self.fields['submitter'].initial_queryset = (
+                    course_instance.get_student_profiles().filter(id__in=initial.get('submitter'))
+                )
+            except (ValueError, TypeError):
+                pass
         self.fields['submitter'].widget.search_api_url = api_reverse(
             "course-students-list",
             kwargs={'course_id': course_instance.id},

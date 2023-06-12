@@ -2,6 +2,8 @@
 Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
+from typing import Any, Callable, Dict, Optional
+
 from django.http.response import HttpResponseRedirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
@@ -93,4 +95,29 @@ class BaseFormMixin(BaseRedirectMixin, BaseTemplateMixin, FormMixin):
 
 
 class BaseFormView(BaseFormMixin, BaseViewMixin, FormView):
-    pass
+    def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
+        """Return (Field name -> converter callable) -dict that will be used to
+        populate the initial values from the GET parameters.
+
+        E.g. {"instance": int} will set the initial value of field "instance" to
+        int(request.GET["instance"]). Set the converter to None if no conversion
+        is needed.
+        """
+        return {}
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        for name, converter in self.get_initial_get_param_spec().items():
+            if name not in self.request.GET:
+                continue
+
+            value = self.request.GET[name]
+            if converter is not None:
+                try:
+                    value = converter(value)
+                except: # pylint: disable=bare-except
+                    pass
+            initial[name] = value
+
+        return initial

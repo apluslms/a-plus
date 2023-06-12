@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Optional
 
 from django.utils.dateparse import parse_datetime
 
@@ -27,6 +27,15 @@ class AddDeadlinesView(AddDeviationsView):
     form_class = DeadlineRuleDeviationForm
     deviation_model = DeadlineRuleDeviation
     session_key = 'add-deviations-data-dl'
+
+    def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
+        spec = super().get_initial_get_param_spec()
+        spec.update({
+            "minutes": int,
+            "new_date": None,
+            "without_late_penalty": lambda x: x == "true",
+        })
+        return spec
 
     def serialize_session_data(self, form_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().serialize_session_data(form_data)
