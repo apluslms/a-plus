@@ -12,5 +12,11 @@
   "Luonnos tallennettu",
 
   "Submitted file is too large":
-  "Palautettu tiedosto on liian suuri"
+  "Palautettu tiedosto on liian suuri",
+
+  "Evaluating...":
+  "Arvioidaan...",
+
+  "Failed to submit":
+  "Palauttaminen epäonnistui"
 }

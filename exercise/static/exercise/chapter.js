@@ -594,29 +594,30 @@
           if (typeof output.data("scale") != "undefined") {
             out_content.css({ 'height' : (out_content.height())});
           }
-          out_content.html("<p>Evaluating</p>");
+          out_content.html("<p>" + _("Evaluating...") + "</p>");
 
           var url = exercise.url;
           exercise.submitAjax(url, formData, function(data) {
             const content = $(data);
+
+            const site_alerts = content.find('.site-messages');
+            output.find(".site-messages").replaceWith(site_alerts);
+
             // Look for error alerts in the feedback, but skip the hidden element
             // that is always included: <div class="quiz-submit-error alert alert-danger hide">
-            const alerts = content.find('.alert-danger:not(.hide)');
-            if (!alerts.length) {
+            const alerts = content.find(':not(.site-messages) .alert-danger:not(.hide)');
+            output.find(".site-messages").append(alerts);
+
+            if (content.find(".exercise-wait").length != 0) {
               const poll_url = content.find(".exercise-wait").attr("data-poll-url");
               output.attr('data-poll-url', poll_url);
               const ready_url = content.find(".exercise-wait").attr("data-ready-url");
               output.attr('data-ready-url', ready_url);
 
               exercise.updateSubmission(content);
-            } else if (alerts.contents().text()
-            .indexOf("The grading queue is not configured.") >= 0) {
-              output.find(exercise.settings.ae_result_selector)
-              .html(content.find(".alert:not(.hide)").text());
-              output.find(exercise.settings.ae_result_selector).append(content.find(".grading-task").text());
             } else {
-              output.find(exercise.settings.ae_result_selector)
-              .html(alerts.contents());
+              out_content.html("<p>" + _("Failed to submit") + ":</p>")
+              out_content.append(output.find(".site-messages").clone());
             }
           });
         });

@@ -94,7 +94,7 @@ class EditModulePageLocators:
     SUBMIT_BUTTON = (By.XPATH, "//form//*[@type='submit']")
     SUCCESSFUL_SAVE_BANNER = (
         By.XPATH,
-        "//div[contains(@class, 'site-content')]/div[contains(@class, 'alert alert-success')]"
+        "//div[contains(@class, 'site-messages')]/div[contains(@class, 'alert alert-success')]"
     )
 
 class EditExercisePageLocators:
@@ -109,7 +109,7 @@ class EditExercisePageLocators:
     SUBMIT_BUTTON = (By.XPATH, "//form//*[@type='submit']")
     SUCCESSFUL_SAVE_BANNER = (
         By.XPATH,
-        "//div[contains(@class, 'site-content')]/div[contains(@class, 'alert alert-success')]"
+        "//div[contains(@class, 'site-messages')]/div[contains(@class, 'alert alert-success')]"
     )
 
 class SubmissionPageLocators:
