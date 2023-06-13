@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
-from django.db.models import Count, Max, Prefetch, Q
+from django.db.models import Count, Max, Min, Prefetch, Q
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -350,17 +350,24 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
                     'submissions__id',
                     filter=(Q(submissions__grader__isnull=False)),
                 ),
+                earliest_submission=Min('submissions__submission_time'),
             )
-            .filter(count_assessed=0)
-            .order_by('id'))
-
+            .order_by('earliest_submission'))
         previous_user_id = request.GET.get('prev')
         if previous_user_id:
-            # Find specifically the submitter AFTER the previously inspected one.
-            submitters_after = submitters.filter(id__gt=previous_user_id)
+            # get the previous time
+            previous_time = submitters.filter(user__id=previous_user_id).first().earliest_submission
+
+            # remove the submitters who have been assessed (we do this after we've found the
+            # previous submitter's time as the previous submitter might have been assessed)
+            submitters = submitters.filter(count_assessed=0)
+
+            # Find specifically the submitter who's submission was submitted right after this one
+            submitters_after = submitters.filter(earliest_submission__gt=previous_time)
             submitter = submitters_after.first()
 
         if not submitter:
+            submitters = submitters.filter(count_assessed=0)
             submitter = submitters.first()
 
         if not submitter:

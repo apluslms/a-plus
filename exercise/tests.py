@@ -1513,3 +1513,94 @@ class ExerciseTest(ExerciseTestBase):
             self.enrollment_exercise.check_submission_allowed(self.user.userprofile)[0],
             BaseExercise.SUBMIT_STATUS.CANNOT_ENROLL,
         )
+
+    def test_next_unassessed_submitter_view(self):
+        # parses the user ID from the URL response of NextUnassessedSubmitterView for convenience. If the URL format is
+        # different (e.g. redirect when all have been graded) return just the url
+        def get_url_user_id(args=''):
+            response = self.client.get(
+                f"{exercise.get_absolute_url()}submitters/next-unassessed/{args}")
+            try:
+                return int(response.url.split('/submissions/')[1].split('/inspect/')[0])
+            except Exception:
+                return response.url
+
+        def create_submission(user, submission_time):
+            submission = Submission.objects.create(
+                exercise=exercise,
+            )
+            submission.submitters.add(user)
+            submission.submission_time = submission_time
+            submission.save()
+            return submission
+
+        self.client.login(username="staff", password="staffPassword")
+
+        exercise = BaseExercise.objects.create(
+            order=10,
+            name="Unassessed Exercise Submitter View",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="unassessed",
+            max_submissions=1,
+        )
+        exercise.save()
+
+        user_submission = create_submission(self.user.userprofile, self.yesterday)
+
+        user2_submission = create_submission(self.user2.userprofile, self.today)
+
+        # user submission day before user2
+        self.assertEqual(user_submission.id, get_url_user_id())
+        self.assertEqual(user2_submission.id,
+                         get_url_user_id(f"?prev={self.user.id}"))
+
+        user2_submission.submission_time = self.yesterday - timedelta(days=1)
+        user2_submission.save()
+
+        # now user2 submission is earlier
+        self.assertEqual(user2_submission.id, get_url_user_id())
+
+        # we should now expect to get user1's submission first since user2s earlier submission has been graded
+        user2_submission.grader = self.teacher.userprofile
+        user2_submission.save()
+        self.assertEqual(user_submission.id, get_url_user_id())
+
+        # test with prev parameter
+        self.assertEqual(user_submission.id, get_url_user_id(f"?prev={self.user2.id}"))
+
+        # remove grader for further tests
+        user2_submission.grader = None
+        user2_submission.save()
+
+        # create a submission for user so the newest submission was made by user again and not user2
+        user_earlier_submission = create_submission(self.user.userprofile, self.yesterday - timedelta(days=2))
+
+        self.assertEqual(user_submission.id, get_url_user_id())
+
+        user2_other_exercise_submission  = Submission.objects.create(
+            exercise=self.exercise_with_attachment
+        )
+        user2_other_exercise_submission.submitters.add(self.user2.userprofile)
+        user2_other_exercise_submission.submission_time = self.yesterday - timedelta(days=3)
+        user2_other_exercise_submission.save()
+
+        # an even earlier submission in another exercise doesn't matter
+        self.assertEqual(user_submission.id, get_url_user_id())
+
+        # we should now expect user2's submission to be shown because user1's latest submission has been graded
+        user_earlier_submission.grader = self.teacher.userprofile
+        user_earlier_submission.save()
+        self.assertEqual(user2_submission.id, get_url_user_id())
+
+        # grading in an older submission (not latest) should also mean user1 is skipped
+        user_earlier_submission.grader = self.teacher.userprofile
+        user_earlier_submission.save()
+        user_submission.grader = None
+        user_submission.save()
+        self.assertEqual(user2_submission.id, get_url_user_id())
+
+        # everything has been graded (we should get the submissions list)
+        user2_submission.grader = self.teacher.userprofile
+        user2_submission.save()
+        self.assertEqual(exercise.get_submission_list_url(), get_url_user_id())
