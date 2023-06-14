@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-10 14:22+0300\n"
+"POT-Creation-Date: 2023-06-14 14:12+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -5274,6 +5274,10 @@ msgstr "Valitse koko moduuli"
 #: news/forms.py
 msgid "SEND_EMAIL_TO_STUDENTS"
 msgstr "Lähetä sähköpostia opiskelijoille"
+
+#: news/forms.py
+msgid "SEND_EMAIL_TO_STAFF"
+msgstr "Lähetä sähköpostia kurssihenkilökunnalle"
 
 #: news/models.py
 msgid "LABEL_PUBLISH"

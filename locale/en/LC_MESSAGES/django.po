@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-10 14:22+0300\n"
+"POT-Creation-Date: 2023-06-14 14:12+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -5253,6 +5253,10 @@ msgstr "Use the whole module"
 #: news/forms.py
 msgid "SEND_EMAIL_TO_STUDENTS"
 msgstr "Send email to students"
+
+#: news/forms.py
+msgid "SEND_EMAIL_TO_STAFF"
+msgstr "Send email to course staff"
 
 #: news/models.py
 msgid "LABEL_PUBLISH"
