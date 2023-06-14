@@ -78,7 +78,7 @@ class ExerciseRevealState(BaseRevealState):
         if isinstance(exercise, BaseExercise):
             from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
             cached_content = CachedContent(exercise.course_instance)
-            # 'True' is always passed to CachedPoints as the is_staff argument
+            # 'True' is always passed to CachedPoints as the show_unrevealed argument
             # because we need to know the actual points.
             cached_points = CachedPoints(exercise.course_instance, student, cached_content, True)
             entry,_,_,_ = cached_points.find(exercise)
