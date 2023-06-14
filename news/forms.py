@@ -6,9 +6,13 @@ from .models import News
 
 class NewsForm(forms.ModelForm):
 
-    email = forms.BooleanField(
+    email_students = forms.BooleanField(
         required=False,
         label=_("SEND_EMAIL_TO_STUDENTS"),
+    )
+    email_staff = forms.BooleanField(
+        required=False,
+        label=_("SEND_EMAIL_TO_STAFF"),
     )
 
     class Meta:
@@ -17,7 +21,8 @@ class NewsForm(forms.ModelForm):
             'audience',
             'publish',
             'pin',
-            'email',
+            'email_students',
+            'email_staff',
             'title',
             'body',
         ]

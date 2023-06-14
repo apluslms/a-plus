@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
 from lib.viewbase import BaseFormView, BaseRedirectView
-from lib.email_messages import email_course_students
+from lib.email_messages import email_course_students_and_staff
 from .forms import NewsForm
 from .models import News
 
@@ -49,13 +49,15 @@ class EditNewsView(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         form.save()
-        if form.cleaned_data['email']:
+        if form.cleaned_data['email_students'] or form.cleaned_data['email_staff']:
             subject = f"[{settings.BRAND_NAME} course news] {self.instance.course.code}: {self.news_item.title}"
-            if email_course_students(
+            student_audience = self.news_item.audience if form.cleaned_data['email_students'] else None
+            if email_course_students_and_staff(
                 self.instance,
                 subject,
                 self.news_item.body,
-                self.news_item.audience,
+                student_audience,
+                form.cleaned_data['email_staff'],
             ) < 0:
                 messages.error(self.request, _('FAILED_TO_SEND_EMAIL'))
         return super().form_valid(form)

@@ -5,6 +5,7 @@ from django.core.mail import send_mail, send_mass_mail
 
 from .helpers import Enum, build_aplus_url
 from course.models import CourseInstance
+from userprofile.models import UserProfile
 
 
 logger = logging.getLogger('aplus.lib.email_messages')
@@ -64,24 +65,27 @@ def email_course_error(request, exercise, message, exception=True):
         pass
 
 
-def email_course_students(
+def email_course_students_and_staff(
         instance: CourseInstance,
         subject: str,
         message: str,
-        audience: Enum = CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
+        student_audience: Enum = CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS,
+        include_staff: bool = False,
         ) -> int:
     """
-    Sends an email to students on the course. Audience parameter controls whether the mail goes
-    to all (default), just internal, or just external students.
+    Sends an email to students and staff of the course. Audience parameter controls whether the mail goes
+    to all, just internal, or just external students.
     Returns number of emails sent, or -1 in case of error.
     """
-    students = instance.students
-    if audience == CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
-        students = students.filter(organization=settings.LOCAL_ORGANIZATION)
-    elif audience == CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:
-        students = students.exclude(organization=settings.LOCAL_ORGANIZATION)
+    student_querys = {
+        CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS: instance.students,
+        CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS: instance.students.filter(organization=settings.LOCAL_ORGANIZATION),
+        CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS: instance.students.exclude(organization=settings.LOCAL_ORGANIZATION),
+    }
+    recipients = student_querys.get(student_audience, UserProfile.objects.none()).exclude(user__email='').values_list("user__email", flat=True)
+    if include_staff:
+        recipients = recipients.union(instance.course_staff.exclude(user__email='').values_list("user__email", flat=True))
 
-    recipients = students.exclude(user__email='').values_list("user__email", flat=True)
     emails = tuple(map(lambda x: (subject, message, settings.SERVER_EMAIL, [x]), recipients))
 
     try:
