@@ -48,10 +48,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
     Extends `CachedContent` to include data about a user's submissions and
     points in the course's exercises.
 
-    Note that the `data` returned by this is dependent on the `is_staff`
-    parameter. When `is_staff` is `False`, reveal rules are respected and
+    Note that the `data` returned by this is dependent on the `show_unrevealed`
+    parameter. When `show_unrevealed` is `False`, reveal rules are respected and
     exercise results are hidden when the reveal rule does not evaluate to true.
-    When `is_staff` is `True`, reveal rules are ignored and the results are
+    When `show_unrevealed` is `True`, reveal rules are ignored and the results are
     always revealed.
     """
     KEY_PREFIX = 'points'
@@ -61,13 +61,13 @@ class CachedPoints(ContentMixin, CachedAbstract):
             course_instance: CourseInstance,
             user: User,
             content: CachedContent,
-            is_staff: bool = False,
+            show_unrevealed: bool = False,
             ) -> None:
         self.content = content
         self.instance = course_instance
         self.user = user
         super().__init__(course_instance, user)
-        self._extract_tuples(self.data, 0 if is_staff else 1)
+        self._extract_tuples(self.data, 0 if show_unrevealed else 1)
 
     def _needs_generation(self, data: Dict[str, Any]) -> bool:
         return (
@@ -137,7 +137,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
 
     def _generate_data_internal( # noqa: MC0001
             self,
-            is_staff: bool,
+            show_unrevealed: bool,
             is_authenticated: bool,
             submissions: Iterable[Submission],
             deadline_deviations: Iterable[DeadlineRuleDeviation],
@@ -253,7 +253,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 ):
                     data['invalidate_time'] = invalidate_time
 
-            def check_reveal_rule() -> None:
+            def apply_reveal_rule() -> None:
                 """
                 Evaluate the reveal rule of the current exercise and ensure
                 that feedback is hidden appropriately.
@@ -290,10 +290,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 # The submissions are ordered by exercise. Check here if the
                 # exercise has changed.
                 if exercise is None or submission.exercise.id != exercise.id:
-                    if exercise is not None and not is_staff:
+                    if exercise is not None and not show_unrevealed:
                         # Check the reveal rule of the last exercise now that
                         # all of its submissions have been iterated.
-                        check_reveal_rule()
+                        apply_reveal_rule()
                     final_submission = None
                     last_submission = None
                     # These variables stay constant throughout the exercise.
@@ -389,10 +389,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         entry['unseen'] = True
             # All submissions of all exercises have been iterated. Check the
             # reveal rule of the last exercise (if there was one).
-            if exercise is not None and not is_staff:
-                check_reveal_rule()
+            if exercise is not None and not show_unrevealed:
+                apply_reveal_rule()
 
-        if not is_staff:
+        if not show_unrevealed:
             def update_is_revealed_recursive(entry: Dict[str, Any], is_revealed: bool) -> None:
                 if is_revealed:
                     return
