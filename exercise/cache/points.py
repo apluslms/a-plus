@@ -88,7 +88,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         # Perform all database queries before generating the cache.
         if user.is_authenticated:
             submissions = list(
-                user.userprofile.submissions.exclude_errors()
+                user.userprofile.submissions
                 .filter(exercise__course_module__course_instance=instance)
                 .select_related()
                 .prefetch_related('exercise__parent', 'exercise__submission_feedback_reveal_rule', 'notifications')
@@ -488,6 +488,23 @@ class CachedPoints(ContentMixin, CachedAbstract):
             fallback_to_last: bool = False,
             raise_404=True,
             ) -> List[int]:
+        """Return submission ids for the exercises matching the search terms
+
+        :param best: whether to get the best submission for each exercise or all submissions
+        :param fallback_to_last: whether to fallback to the latest submission when best == True.
+        Prioritizes INITIALIZED and WAITING submissions over REJECTED and ERROR.
+        """
+        def latest_submission(submissions: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+            # Find latest non REJECTED or ERROR submission
+            for entry in submissions:
+                if entry["submission_status"] not in (Submission.STATUS.REJECTED, Submission.STATUS.ERROR):
+                    return entry
+
+            if submissions:
+                return submissions[0] # Last submission is first in the cache
+
+            return None
+
         exercises = self.search_exercises(
             number=number,
             category_id=category_id,
@@ -503,9 +520,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 if sid is not None:
                     submissions.append(sid)
                 elif fallback_to_last:
-                    entry_submissions = entry.get('submissions', [])
-                    if entry_submissions:
-                        submissions.append(entry_submissions[0]['id']) # Last submission is first in the cache
+                    latest = latest_submission(entry.get('submissions', []))
+                    if latest is not None:
+                        submissions.append(latest["id"])
         else:
             for entry in exercises:
                 submissions.extend(s['id'] for s in entry.get('submissions', []))
