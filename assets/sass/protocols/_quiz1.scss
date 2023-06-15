@@ -12,6 +12,10 @@ $questionnaire-focus-bg: #bce8f1;
 		margin-bottom: 20px;
 	}
 
+	.question-area > label:first-of-type {
+		display: inline;
+	}
+
 	.question-description {
 		margin-bottom: 5px;
 	}
