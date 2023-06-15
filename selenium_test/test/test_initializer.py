@@ -36,7 +36,7 @@ class TestInitializer:
             options = ChromeOptions()
             if headless:
                 options.add_argument('-headless')
-            driver = Chrome(chrome_options=options)
+            driver = Chrome(options=options)
         else:
             raise ValueError(f"Browser value {browser} unknown")
 
