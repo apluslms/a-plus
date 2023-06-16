@@ -1,8 +1,9 @@
 from datetime import datetime
-from django.core.cache import cache
 from time import time
 import logging
 
+from django.core.cache import cache
+from django.db.models import Model
 
 logger = logging.getLogger('aplus.cached')
 
@@ -12,7 +13,7 @@ class CachedAbstract:
 
     @classmethod
     def _key(cls, *models, modifiers):
-        keys = [str(m if isinstance(m, int) else getattr(m, 'pk', None))
+        keys = [str(m.id if isinstance(m, Model) else m)
                 for m in models]
         keys.extend(modifiers)
         return "%s:%s" % (cls.KEY_PREFIX, ','.join(keys))
@@ -26,6 +27,7 @@ class CachedAbstract:
         # Keep this value in the cache for an hour, so it will be removed from
         # the memory at some point, but not before all generations have finished.
         cache.set(cache_key, (None, time()), 60*60)
+        # TODO: flush old version cache automatically
 
     def __init__(self, *models, modifiers=[]): # pylint: disable=dangerous-default-value
         self.__models = models
