@@ -1,7 +1,7 @@
 from lib.testdata import CourseTestCase
 from course.models import CourseModule, LearningObjectCategory
 from .cache.content import CachedContent
-from .cache.hierarchy import PreviousIterator
+from .cache.hierarchy import previous_iterator
 from .cache.points import CachedPoints
 from .models import BaseExercise, StaticExercise, Submission, CourseChapter, RevealRule
 from deviations.models import DeadlineRuleDeviation
@@ -84,7 +84,7 @@ class CachedContentTest(CourseTestCase):
 
     def test_backwards(self):
         c = CachedContent(self.instance)
-        backwards = list(PreviousIterator(c.modules()))
+        backwards = list(previous_iterator(c.modules()))
         hierarcy = [
             'exercise','module',
             'exercise','exercise','module',

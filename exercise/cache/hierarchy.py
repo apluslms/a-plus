@@ -21,95 +21,97 @@ def _get_tree_indices(children: List[Entry], tree: List[Entry]) -> List[int]:
     return indices
 
 
-class HierarchyIterator:
-    # pylint: disable-next=too-many-arguments
-    def __init__(self, children, tree=None, visited=False, enclosed=True):
-        if tree is None:
-            self._default_start(children)
+def next_iterator(
+        children: List[Entry],
+        tree: Optional[List[Entry]] = None,
+        skip_first: bool = False,
+        enclosed: bool = True,
+        ) -> Generator[Entry, None, None]:
+    def descendants(entry, start: List[int]) -> Generator[Entry, None, None]:
+        children = entry.get("children", [])
+        if start:
+            children = children[start[0]:]
         else:
-            self.idx = _get_tree_indices(children, tree)
-            self.levels = [children]
-            if tree and len(tree) > 1:
-                for entry in tree[:-1]:
-                    self.levels.append(entry['children'])
-        self.visited = visited
-        self.enclose_begun = not enclosed
-        self.enclose_ended = not enclosed
+            yield entry
+            if not children:
+                return
+            yield {'type':'level','down':True}
 
-    def __iter__(self): # pylint: disable=non-iterator-returned
-        return self
+        for child in children:
+            yield from descendants(child, start[1:])
 
+        yield {'type':'level','up':True}
 
-class NextIterator(HierarchyIterator):
+    if enclosed:
+        yield {'type':'level','down':True}
 
-    def _default_start(self, children):
-        self.idx = [0]
-        self.levels = [children]
+    # Get the starting index list of the first entry as specified by tree
+    if tree is not None:
+        tree_indices = _get_tree_indices(children, tree)
+    else:
+        tree_indices = [0]
 
-    def __next__(self):
-        if not self.enclose_begun:
-            self.enclose_begun = True
-            return {'type':'level','down':True}
-        i = self.idx[-1]
-        level = self.levels[-1]
-        if not self.visited:
-            if i < len(level):
-                self.visited = True
-                return level[i]
+    if skip_first:
+        # Move the starting index to the next element
+        first_entry = tree[-1] if tree else children[0]
+        if first_entry.get("children"):
+            tree_indices.append(0)
         else:
-            children = level[i].get('children')
-            if children:
-                self.levels.append(children)
-                self.idx.append(0)
-                self.visited = False
-                return {'type':'level','down':True}
-            i += 1
-            if i < len(level):
-                self.idx[-1] = i
-                return level[i]
-        if len(self.idx) > 1:
-            self.idx = self.idx[:-1]
-            self.levels = self.levels[:-1]
-            self.idx[-1] += 1
-            self.visited = False
-            return {'type':'level','up':True}
-        if not self.enclose_ended:
-            self.enclose_ended = True
-            return {'type':'level','up':True}
-        raise StopIteration()
+            tree_indices[-1] += 1
+
+    children = children[tree_indices[0]:]
+
+    for child in children:
+        yield from descendants(child, tree_indices[1:])
+
+    if enclosed:
+        yield {'type':'level','up':True}
 
 
-class PreviousIterator(HierarchyIterator):
+def previous_iterator(
+        children: List[Entry],
+        tree: Optional[List[Entry]] = None,
+        skip_first: bool = False,
+        ) -> Generator[Entry, None, None]:
+    def descendants(children, start: List[int]) -> Generator[Entry, None, None]:
+        if start:
+            if len(start) == 1:
+                yield children[start[0]]
+                children = children[:start[0]]
+            else:
+                children = children[:start[0]+1]
 
-    def _default_start(self, children):
-        self.idx = []
-        self.levels = []
-        self._goto_last(children)
+        for child in reversed(children):
+            yield from descendants(child.get("children", []), start[1:])
+            yield child
 
-    def _goto_last(self, children):
-        level = children
-        while level:
-            i = len(level) - 1
-            self.idx.append(i)
-            self.levels.append(level)
-            level = level[i].get('children')
+    def _go_to_last(indices: List[int]):
+        nonlocal children
+        current = children
+        for s in indices:
+            current = current[s]["children"]
 
-    def __next__(self):
-        i = self.idx[-1]
-        level = self.levels[-1]
-        if not self.visited:
-            self.visited = True
-            return level[i]
-        if i > 0:
-            i -= 1
-            self.idx[-1] = i
-            self._goto_last(level[i].get('children'))
-            return self.levels[-1][self.idx[-1]]
-        if len(self.idx) > 1:
-            self.idx = self.idx[:-1]
-            self.levels = self.levels[:-1]
-            return self.levels[-1][self.idx[-1]]
-        raise StopIteration()
+        while current:
+            indices.append(len(current)-1)
+            current = current[-1].get("children", [])
+
+    # Get the starting index list of the first entry as specified by tree
+    if tree is not None:
+        tree_indices = _get_tree_indices(children, tree)
+    else:
+        tree_indices = []
+        _go_to_last(tree_indices)
+
+    if skip_first:
+        # Move the starting index to the previous element
+        while tree_indices[-1] == 0:
+            tree_indices = tree_indices[:-1]
+        if not tree_indices:
+            return
+        tree_indices[-1] -= 1
+        _go_to_last(tree_indices)
+
+    yield from descendants(children, tree_indices)
 
 
 class ContentMixin:
@@ -125,7 +127,7 @@ class ContentMixin:
 
     def modules_flatted(self):
         for module in self.data['modules']:
-            module['flatted'] = self.flat_module(module)
+            module['flatted'] = list(self.flat_module(module))
         return self.data['modules']
 
     def exercises(self) -> Iterable[Entry]:
@@ -138,10 +140,10 @@ class ContentMixin:
 
     def flat_module(self, module: Union[Entry, CourseModule], enclosed: bool = True):
         entry = self.entry_for_model(module)
-        return NextIterator(entry['children'], enclosed=enclosed)
+        return next_iterator(entry['children'], enclosed=enclosed)
 
     def flat_full(self):
-        return NextIterator(self.modules(), enclosed=False)
+        return next_iterator(self.modules(), enclosed=False)
 
     def begin(self):
         for entry in self.flat_full():
@@ -310,14 +312,14 @@ class ContentMixin:
         return entry, entries
 
     def _previous(self, tree: List[Entry]) -> Optional[Entry]:
-        for entry in PreviousIterator(self.modules(), tree, skip_first=True):
+        for entry in previous_iterator(self.modules(), tree, skip_first=True):
             if self.is_listed(entry):
                 return entry
         return None
 
     def _next(self, tree: List[Entry]) -> Optional[Entry]:
         # TODO: does the type: level entries cause potential bugs?
-        for entry in NextIterator(self.modules(), tree, skip_first=True, enclosed=False):
+        for entry in next_iterator(self.modules(), tree, skip_first=True, enclosed=False):
             if self.is_listed(entry):
                 return entry
         return None
