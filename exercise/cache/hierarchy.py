@@ -1,20 +1,33 @@
-from typing import Tuple
+from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Union
+
 from django.http.response import Http404
+
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
+
+
+Entry = Dict[str, Any]
 
 
 class NoSuchContent(Exception):
     pass
 
 
+def _get_tree_indices(children: List[Entry], tree: List[Entry]) -> List[int]:
+    indices = []
+    for e in tree:
+        indices.append([c["id"] for c in children].index(e["id"]))
+        children = e["children"]
+    return indices
+
+
 class HierarchyIterator:
     # pylint: disable-next=too-many-arguments
-    def __init__(self, children, idx=None, tree=None, visited=False, enclosed=True):
-        if idx is None:
+    def __init__(self, children, tree=None, visited=False, enclosed=True):
+        if tree is None:
             self._default_start(children)
         else:
-            self.idx = idx.copy()
+            self.idx = _get_tree_indices(children, tree)
             self.levels = [children]
             if tree and len(tree) > 1:
                 for entry in tree[:-1]:
@@ -115,16 +128,17 @@ class ContentMixin:
             module['flatted'] = self.flat_module(module)
         return self.data['modules']
 
+    def exercises(self) -> Iterable[Entry]:
+        return self.data["exercise_index"].values()
+
     def categories(self):
         categories = list(self.data['categories'].values())
         categories.sort(key=lambda entry: entry['name'])
         return categories
 
-    def flat_module(self, module, enclosed=True):
-        modules = self.modules()
-        idx = self._model_idx(module)
-        tree = self._by_idx(modules, idx)
-        return NextIterator(tree[0]['children'], enclosed=enclosed)
+    def flat_module(self, module: Union[Entry, CourseModule], enclosed: bool = True):
+        entry = self.entry_for_model(module)
+        return NextIterator(entry['children'], enclosed=enclosed)
 
     def flat_full(self):
         return NextIterator(self.modules(), enclosed=False)
@@ -141,7 +155,12 @@ class ContentMixin:
             return paths[path]
         raise NoSuchContent()
 
-    def find_number(self, number):
+    def find_number(self, number: str) -> Entry:
+        """Find item by a period separated list of order numbers
+
+        E.g. number="3.2.5" takes the fifth learning object in the second
+        learning object of the third module
+        """
         hit = None
         search = self.modules()
         parts = number.split('.')
@@ -156,21 +175,23 @@ class ContentMixin:
                 raise NoSuchContent()
         return hit
 
-    def find_category(self, category_id):
+    def find_category(self, category_id: int) -> Entry:
         categories = self.data['categories']
         if category_id in categories:
             return categories[category_id]
         raise NoSuchContent()
 
-    def find(self, model):
-        modules = self.modules()
-        idx = self._model_idx(model)
-        tree = self._by_idx(modules, idx)
+    def find(
+            self,
+            model: Union[LearningObject, CourseModule],
+             ) -> Tuple[Entry, List[Entry], Optional[Entry], Optional[Entry]]:
+        entry = self.entry_for_model(model)
+        tree = self._tree(entry)
         return (
-            tree[-1],
+            entry,
             tree,
-            self._previous(idx, tree),
-            self._next(idx, tree),
+            self._previous(tree),
+            self._next(tree),
         )
 
     def get_absolute_order_number(self, learning_object_id: int) -> int:
@@ -194,45 +215,82 @@ class ContentMixin:
             if found:
                 return n
 
+    def _tree(self, entry: Entry) -> List[Entry]:
+        module = entry.get("module")
+        tree = []
+        while entry is not None:
+            tree.append(entry)
+            entry = entry["parent"]
+
+        if module is not None:
+            tree.append(module)
+
+        tree.reverse()
+        return tree
+
+    def entry_for_model(self, model: Union[Entry, LearningObject, CourseModule]) -> Entry:
+        if isinstance(model, dict):
+            entry_type = model.get('type', None)
+            if entry_type == 'module':
+                return self.get_module(model['id'])
+            if entry_type == 'exercise':
+                return self.get_exercise(model['id'])
+        elif isinstance(model, CourseModule):
+            return self.get_module(model.id)
+        elif isinstance(model, LearningObject):
+            return self.get_exercise(model.id)
+
+        raise NoSuchContent()
+
+    def get_exercise(self, id: int) -> Entry:
+        if id in self.data['exercise_index']:
+            return self.data['exercise_index'][id]
+        raise NoSuchContent()
+
+    def get_module(self, id: int) -> Entry:
+        if id in self.data['module_index']:
+            return self.data['module_index'][id]
+        raise NoSuchContent()
+
     def search_exercises(self, **kwargs):
         _, entries = self.search_entries(**kwargs)
         return [e for e in entries if e['type'] == 'exercise']
 
-    def search_entries(self, number=None, category_id=None, module_id=None, # noqa: MC0001
-                       exercise_id=None, filter_for_assistant=False, best=False, # pylint: disable=unused-argument
-                       raise_404=True):
-        entry = None
-        if number:
-            try:
-                entry = self.find_number(number)
-                if entry['type'] == 'module':
-                    module_id = entry['id']
-                elif entry['type'] == 'exercise':
-                    exercise_id = entry['id']
-            except NoSuchContent:
-                if raise_404:
-                    raise Http404() # pylint: disable=raise-missing-from
-                raise
-        search = None
-        if exercise_id is not None:
-            search = { 'type': 'exercise', 'id': int(exercise_id) }
-        elif module_id is not None:
-            search = { 'type': 'module', 'id': int(module_id) }
-        if search:
-            try:
-                idx = self._model_idx(search)
-            except NoSuchContent:
-                if raise_404:
-                    raise Http404() # pylint: disable=raise-missing-from
-                raise
-            tree = self._by_idx(self.modules(), idx)
-            if not entry:
-                entry = tree[-1]
-        else:
-            tree = [{ 'type': 'all', 'children': self.modules() }]
-        exercises = []
+    def search_entries(
+            self,
+            number: Optional[str] = None,
+            category_id: Optional[int] = None,
+            module_id: Optional[str] = None, # noqa: MC0001
+            exercise_id: Optional[str] = None,
+            filter_for_assistant: bool = False,
+            best: bool = False, # pylint: disable=unused-argument
+            raise_404: bool = True,
+            ) -> Tuple[Optional[Entry], List[Entry]]:
+        """Returns an entry and its filtered descendants.
 
-        def recursion(entry):
+        The entry is specified using number, module_id or exercise_id.
+        category_id and filter_for_assistant are used to filter the descendants"""
+        entry = None
+        try:
+            if number:
+                try:
+                    entry = self.find_number(number)
+                except NoSuchContent:
+                    if raise_404:
+                        raise Http404() # pylint: disable=raise-missing-from
+                    raise
+            elif exercise_id is not None:
+                entry = self.get_exercise(int(exercise_id))
+            elif module_id is not None:
+                entry = self.get_module(int(module_id))
+        except NoSuchContent:
+            if raise_404:
+                raise Http404() # pylint: disable=raise-missing-from
+            raise
+
+        entries = []
+
+        def search_descendants(entry: Entry) -> None:
             if (
                 entry['type'] == 'module' or ( # pylint: disable=too-many-boolean-expressions
                     entry['type'] == 'exercise' and
@@ -240,51 +298,29 @@ class ContentMixin:
                     (not filter_for_assistant or entry['allow_assistant_viewing'])
                 )
             ):
-                exercises.append(entry)
+                entries.append(entry)
             for child in entry['children']:
-                recursion(child)
-        recursion(tree[-1])
-        return entry, exercises
+                search_descendants(child)
 
-    def _previous(self, idx, tree):
-        for entry in PreviousIterator(self.modules(), idx, tree, visited=True):
-            if self.is_listed(entry):
-                return entry
-        return None
-
-    def _next(self, idx, tree):
-        for entry in NextIterator(self.modules(), idx, tree, visited=True, enclosed=False):
-            if self.is_listed(entry):
-                return entry
-        return None
-
-    def _model_idx(self, model):
-        def find(index, search):
-            if search in index:
-                return index[search]
-            raise NoSuchContent()
-        entry_type = None
-        if isinstance(model, dict):
-            entry_type = model.get('type', None)
-            if entry_type == 'module':
-                return find(self.data['module_index'], model['id'])
-            if entry_type == 'exercise':
-                return find(self.data['exercise_index'], model['id'])
-        elif isinstance(model, CourseModule):
-            return find(self.data['module_index'], model.id)
-        elif isinstance(model, LearningObject):
-            return find(self.data['exercise_index'], model.id)
+        if entry:
+            search_descendants(entry)
         else:
-            raise NoSuchContent()
+            search_descendants({ 'type': 'all', 'children': self.modules() })
 
-    @classmethod
-    def _by_idx(cls, hierarchy, idx):
-        tree = []
-        for i in idx:
-            entry = hierarchy[i]
-            hierarchy = entry['children']
-            tree.append(entry)
-        return tree
+        return entry, entries
+
+    def _previous(self, tree: List[Entry]) -> Optional[Entry]:
+        for entry in PreviousIterator(self.modules(), tree, skip_first=True):
+            if self.is_listed(entry):
+                return entry
+        return None
+
+    def _next(self, tree: List[Entry]) -> Optional[Entry]:
+        # TODO: does the type: level entries cause potential bugs?
+        for entry in NextIterator(self.modules(), tree, skip_first=True, enclosed=False):
+            if self.is_listed(entry):
+                return entry
+        return None
 
     @classmethod
     def _add_by_difficulty(cls, to, difficulty, points):
