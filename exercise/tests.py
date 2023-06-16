@@ -1414,7 +1414,12 @@ class ExerciseTest(TestCase):
 
         self.assertEqual(user_submission.id, get_url_user_id())
 
-        user2_other_exercise_submission = create_submission(self.user2.userprofile, self.yesterday)
+        user2_other_exercise_submission  = Submission.objects.create(
+            exercise=self.exercise_with_attachment
+        )
+        user2_other_exercise_submission.submitters.add(self.user2.userprofile)
+        user2_other_exercise_submission.submission_time = self.yesterday - timedelta(days=3)
+        user2_other_exercise_submission.save()
 
         # an even earlier submission in another exercise doesn't matter
         self.assertEqual(user_submission.id, get_url_user_id())

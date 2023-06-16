@@ -336,8 +336,6 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
                 earliest_submission=Min('submissions__submission_time'),
             )
             .order_by('earliest_submission'))
-
-
         previous_user_id = request.GET.get('prev')
         if previous_user_id:
             # get the previous time
