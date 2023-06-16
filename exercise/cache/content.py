@@ -37,18 +37,19 @@ class CachedContent(ContentMixin, CachedAbstract):
                 module: Dict[str, Any],
                 objects: List[LearningObject],
                 parents: List[LearningObject],
-                indexes: List[int],
-                container: List[Dict[str, Any]]
+                container: List[Dict[str, Any]],
                 ) -> None:
             """ Recursively travels exercises hierarchy """
-            select = parents[-1].id if parents else None
-            children = [o for o in objects if o.parent_id == select]
+            parent_id = parents[-1].id if parents else None
+            children = [o for o in objects if o.parent_id == parent_id]
             j = 0
             for o in children:
                 o._parents = parents + [o]
                 category = o.category
                 entry = {
                     'type': 'exercise',
+                    'module': module,
+                    'parent': exercise_index[parent_id] if parent_id is not None else None,
                     'category': str(category),
                     'category_id': category.id,
                     'category_status': category.status,
@@ -81,8 +82,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'children': [],
                 }
                 container.append(entry)
-                idx = indexes + [j]
-                exercise_index[o.id] = idx
+                exercise_index[o.id] = entry
                 paths[module['id']][o.get_path()] = o.id
                 if category.id not in categories:
                     categories[category.id] = {
@@ -95,7 +95,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                         'max_points': 0,
                         'max_points_by_difficulty': {},
                     }
-                recursion(module, objects, o._parents, idx, entry['children'])
+                recursion(module, objects, o._parents, entry['children'])
                 j += 1
 
         # Collect each module.
@@ -133,11 +133,10 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'children': [],
             }
             modules.append(entry)
-            idx = [i]
-            module_index[module.id] = idx
+            module_index[module.id] = entry
             paths[module.id] = {}
             all_children = list(module.learning_objects.all())
-            recursion(entry, all_children, [], idx, entry['children'])
+            recursion(entry, all_children, [], entry['children'])
             i += 1
 
         # Augment submittable exercise parameters.
@@ -152,11 +151,11 @@ class CachedContent(ContentMixin, CachedAbstract):
         for exercise in BaseExercise.objects\
               .filter(course_module__course_instance=instance):
             try:
-                tree = self._by_idx(modules, exercise_index[exercise.id])
+                entry = exercise_index[exercise.id]
             except KeyError:
                 self.dirty = True
                 continue
-            tree[-1].update({
+            entry.update({
                 'submittable': True,
                 'points_to_pass': exercise.points_to_pass,
                 'difficulty': exercise.difficulty,
@@ -165,13 +164,15 @@ class CachedContent(ContentMixin, CachedAbstract):
                 'allow_assistant_viewing': exercise.allow_assistant_viewing,
             })
 
-            if tree[-1]['confirm_the_level']:
-                parent = tree[-2]
+            if entry['confirm_the_level']:
+                parent = entry["parent"]
+                if parent is None:
+                    parent = entry["module"]
                 parent['unconfirmed'] = True
                 for entry in parent['children']:
                     entry['unconfirmed'] = True
             else:
-                add_to(tree[0], exercise)
+                add_to(entry["module"], exercise)
                 add_to(categories[exercise.category.id], exercise)
                 add_to(total, exercise)
 
