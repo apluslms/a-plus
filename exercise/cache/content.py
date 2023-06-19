@@ -7,12 +7,13 @@ from django.utils import timezone
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from lib.cache import CachedAbstract
 from ..models import LearningObject, BaseExercise
-from .hierarchy import ContentMixin
+from .hierarchy import ContentMixin, Entry
 
 
 class CachedContent(ContentMixin, CachedAbstract):
     """ Course content hierarchy for template presentations """
     KEY_PREFIX = 'content'
+    data: Entry
 
     def __init__(self, course_instance: CourseInstance) -> None:
         self.instance = course_instance
