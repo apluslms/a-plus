@@ -1,5 +1,6 @@
 import datetime
 from copy import deepcopy
+import itertools
 from typing import (
     Any,
     Dict,
@@ -25,7 +26,7 @@ from userprofile.models import UserProfile
 from ..models import BaseExercise, Submission, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
 from .content import CachedContent
-from .hierarchy import ContentMixin
+from .hierarchy import ContentMixin, Entry
 
 
 def has_more_points(submission: Submission, current_best_submission: Optional[Submission]) -> bool:
@@ -43,6 +44,10 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
     )
 
 
+def exercise_points(users: List[User], exercises: List[BaseExercise], submissions: Optional[List[Submission]]):
+    ...
+
+
 class CachedPoints(ContentMixin, CachedAbstract):
     """
     Extends `CachedContent` to include data about a user's submissions and
@@ -55,6 +60,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
     always revealed.
     """
     KEY_PREFIX = 'points'
+    data: Entry
 
     def __init__(
             self,
@@ -139,7 +145,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             self,
             show_unrevealed: bool,
             is_authenticated: bool,
-            submissions: Iterable[Submission],
+            all_submissions: Iterable[Submission],
             deadline_deviations: Iterable[DeadlineRuleDeviation],
             submission_deviations: Iterable[MaxSubmissionsRuleDeviation],
             module_instances: Iterable[CourseModule],
@@ -149,7 +155,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         All source data is prefetched by `_generate_data` and provided as
         arguments to this method.
         """
-        data = deepcopy(self.content.data)
+        data: Entry = deepcopy(self.content.data)
         module_index = data['module_index']
         exercise_index = data['exercise_index']
         modules = data['modules']
@@ -233,13 +239,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     entry['max_submissions'] + deviation.extra_submissions
                 )
 
-            # Initialize variables for the submission loop.
-            exercise = None
-            entry = None
-            is_better_than = None
-            final_submission = None
-            last_submission = None
-
             def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
                 if (
                     invalidate_time is not None
@@ -251,15 +250,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 ):
                     data['invalidate_time'] = invalidate_time
 
-            def apply_reveal_rule() -> None:
+            def apply_reveal_rule(data: Entry, entry: Entry, reveal_rule: RevealRule, last_submission: Submission) -> None:
                 """
                 Evaluate the reveal rule of the current exercise and ensure
                 that feedback is hidden appropriately.
                 """
-                rule = exercise.active_submission_feedback_reveal_rule
                 state = ExerciseRevealState(entry)
-                is_revealed = rule.is_revealed(state)
-                reveal_time = rule.get_reveal_time(state)
+                is_revealed = reveal_rule.is_revealed(state)
+                reveal_time = reveal_rule.get_reveal_time(state)
 
                 entry.update({
                     'best_submission': entry['best_submission'] if is_revealed else last_submission.id,
@@ -284,110 +282,108 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 update_invalidation_time(reveal_time)
 
             # Augment submission data.
-            for submission in submissions:
-                # The submissions are ordered by exercise. Check here if the
-                # exercise has changed.
-                if exercise is None or submission.exercise.id != exercise.id:
-                    if exercise is not None and not show_unrevealed:
-                        # Check the reveal rule of the last exercise now that
-                        # all of its submissions have been iterated.
-                        apply_reveal_rule()
-                    final_submission = None
-                    last_submission = None
-                    # These variables stay constant throughout the exercise.
-                    exercise = submission.exercise
-                    try:
-                        entry = exercise_index[exercise.id]
-                    except KeyError:
-                        self.dirty = True
-                        continue
-                    if exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
-                        is_better_than = has_more_points
-                    elif exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
-                        is_better_than = is_newer
-                    else:
-                        is_better_than = has_more_points
-                ready = submission.status == Submission.STATUS.READY
-                unofficial = submission.status == Submission.STATUS.UNOFFICIAL
-                if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
-                    entry['submission_count'] += 1
-                entry['submissions'].append({
-                    'type': 'submission',
-                    'id': submission.id,
-                    'max_points': entry['max_points'],
-                    'points_to_pass': entry['points_to_pass'],
-                    'confirm_the_level': entry.get('confirm_the_level', False),
-                    'submission_count': 1, # to fool points badge
-                    'points': submission.grade,
-                    'formatted_points': format_points(submission.grade, True, False),
-                    'graded': submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                    'passed': (submission.grade >= entry['points_to_pass']),
-                    'submission_status': submission.status if not submission.is_graded else False,
-                    'unofficial': unofficial,
-                    'date': submission.submission_time,
-                    'url': submission.get_url('submission-plain'),
-                    'feedback_revealed': True,
-                    'feedback_reveal_time': None,
-                })
-                # Update best submission if exercise points are not forced, and
-                # one of these is true:
-                # 1) current submission in ready (thus is not unofficial) AND
-                #    a) current best is an unofficial OR
-                #    b) current submission is better depending on grading mode
-                # 2) All of:
-                #    - current submission is unofficial AND
-                #    - current best is unofficial
-                #    - current submission is better depending on grading mode
-                if submission.force_exercise_points:
-                    # This submission is chosen as the final submission and no
-                    # further submissions are considered.
-                    entry.update({
-                        'best_submission': submission.id,
+            # The submissions are ordered by exercise, so we can use groupby
+            for (exercise, submissions) in itertools.groupby(all_submissions, key=lambda o: o.exercise):
+                final_submission = None
+                last_submission = None
+
+                try:
+                    entry = exercise_index[exercise.id]
+                except KeyError:
+                    self.dirty = True
+                    continue
+
+                if exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
+                    is_better_than = has_more_points
+                elif exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
+                    is_better_than = is_newer
+                else:
+                    is_better_than = has_more_points
+
+                for submission in submissions:
+                    ready = submission.status == Submission.STATUS.READY
+                    unofficial = submission.status == Submission.STATUS.UNOFFICIAL
+                    if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
+                        entry['submission_count'] += 1
+                    entry['submissions'].append({
+                        'type': 'submission',
+                        'id': submission.id,
+                        'max_points': entry['max_points'],
+                        'points_to_pass': entry['points_to_pass'],
+                        'confirm_the_level': entry.get('confirm_the_level', False),
+                        'submission_count': 1, # to fool points badge
                         'points': submission.grade,
                         'formatted_points': format_points(submission.grade, True, False),
-                        'passed': (ready and submission.grade >= entry['points_to_pass']),
-                        'graded': True,
-                        'unofficial': False,
-                        'forced_points': True,
+                        'graded': submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
+                        'passed': (submission.grade >= entry['points_to_pass']),
+                        'submission_status': submission.status if not submission.is_graded else False,
+                        'unofficial': unofficial,
+                        'date': submission.submission_time,
+                        'url': submission.get_url('submission-plain'),
+                        'feedback_revealed': True,
+                        'feedback_reveal_time': None,
                     })
-                    final_submission = submission
-                if not entry.get('forced_points', False):
-                    if ( # pylint: disable=too-many-boolean-expressions
-                        ready and (
-                            entry['unofficial'] or
-                            is_better_than(submission, final_submission)
-                        )
-                    ) or (
-                        unofficial and
-                        not entry['graded'] and # NOTE: == entry['unofficial'],
-                        # but before any submissions entry['unofficial'] is False
-                        is_better_than(submission, final_submission)
-                    ):
+                    # Update best submission if exercise points are not forced, and
+                    # one of these is true:
+                    # 1) current submission in ready (thus is not unofficial) AND
+                    #    a) current best is an unofficial OR
+                    #    b) current submission is better depending on grading mode
+                    # 2) All of:
+                    #    - current submission is unofficial AND
+                    #    - current best is unofficial
+                    #    - current submission is better depending on grading mode
+                    if submission.force_exercise_points:
+                        # This submission is chosen as the final submission and no
+                        # further submissions are considered.
                         entry.update({
                             'best_submission': submission.id,
                             'points': submission.grade,
                             'formatted_points': format_points(submission.grade, True, False),
                             'passed': (ready and submission.grade >= entry['points_to_pass']),
-                            'graded': ready, # != unofficial
-                            'unofficial': unofficial,
+                            'graded': True,
+                            'unofficial': False,
+                            'forced_points': True,
                         })
                         final_submission = submission
-                # Update last_submission to be the last submission, or the last
-                # official submission if there are any official submissions.
-                # Note that the submissions are ordered by descendng time.
-                if last_submission is None or (
-                    last_submission.status == Submission.STATUS.UNOFFICIAL
-                    and not unofficial
-                ):
-                    last_submission = submission
-                if submission.notifications.exists():
-                    entry['notified'] = True
-                    if submission.notifications.filter(seen=False).exists():
-                        entry['unseen'] = True
-            # All submissions of all exercises have been iterated. Check the
-            # reveal rule of the last exercise (if there was one).
-            if exercise is not None and not show_unrevealed:
-                apply_reveal_rule()
+                    if not entry.get('forced_points', False):
+                        if ( # pylint: disable=too-many-boolean-expressions
+                            ready and (
+                                entry['unofficial'] or
+                                is_better_than(submission, final_submission)
+                            )
+                        ) or (
+                            unofficial and
+                            not entry['graded'] and # NOTE: == entry['unofficial'],
+                            # but before any submissions entry['unofficial'] is False
+                            is_better_than(submission, final_submission)
+                        ):
+                            entry.update({
+                                'best_submission': submission.id,
+                                'points': submission.grade,
+                                'formatted_points': format_points(submission.grade, True, False),
+                                'passed': (ready and submission.grade >= entry['points_to_pass']),
+                                'graded': ready, # != unofficial
+                                'unofficial': unofficial,
+                            })
+                            final_submission = submission
+                    # Update last_submission to be the last submission, or the last
+                    # official submission if there are any official submissions.
+                    # Note that the submissions are ordered by descendng time.
+                    if last_submission is None or (
+                        last_submission.status == Submission.STATUS.UNOFFICIAL
+                        and not unofficial
+                    ):
+                        last_submission = submission
+                    if submission.notifications.exists():
+                        entry['notified'] = True
+                        if submission.notifications.filter(seen=False).exists():
+                            entry['unseen'] = True
+
+                # Check the reveal rule now that all submissions for the exercise have been iterated.
+                # last_submission is never None here but this appeases the typing system.
+                if not show_unrevealed and last_submission is not None:
+                    reveal_rule = exercise.active_submission_feedback_reveal_rule
+                    apply_reveal_rule(data, entry, reveal_rule, last_submission)
 
         if not show_unrevealed:
             def update_is_revealed_recursive(entry: Dict[str, Any], is_revealed: bool) -> None:
