@@ -7,9 +7,44 @@
 {% block view_tag %}home{% endblock %}
 {% block breadcrumb %}{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+<script>
+	function escapeHtml(unsafe) {
+		return unsafe
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	};
+
+	$(function () {
+		const lastVisitedObject = JSON.parse(localStorage.getItem("lastVisitedReminder"));
+		if (lastVisitedObject) {
+			const lastVisited = lastVisitedObject[$("li.menu-home > a").attr("href")];
+			if (lastVisited) {
+				const alert = $('#left-off-reminder');
+				alert.removeClass("hidden");
+
+				// Add link child
+				const link = $("<a></a>");
+				link.attr("href", escapeHtml(lastVisited.url));
+				link.text(escapeHtml(lastVisited.title));
+				alert.append(link);
+			}
+		}
+	});
+</script>
+{% endblock %}
+
 {% block coursecontent %}
 
 {% include "course/_enroll_form.html" %}
+
+<div id="left-off-reminder" class="alert alert-info hidden">
+	<h4>{% translate "LEFT_OFF_REMINDER" %}</h4>
+</div>
 
 <div class="index">
   {{ instance.description|safe }}

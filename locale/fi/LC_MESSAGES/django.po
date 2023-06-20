@@ -5944,3 +5944,7 @@ msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GRADED"
 msgstr "arvosteltu"
+
+#: course/templates/course/index.html
+msgid "CONTINUE"
+msgstr "Jatka siitä, mihin jäit"
