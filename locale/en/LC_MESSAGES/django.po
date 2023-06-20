@@ -5738,3 +5738,7 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
+
+#: course/templates/course/index.html
+msgid "LEFT_OFF_REMINDER"
+msgstr "Continue where you left off"

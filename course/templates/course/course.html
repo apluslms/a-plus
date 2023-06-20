@@ -7,9 +7,35 @@
 {% block view_tag %}home{% endblock %}
 {% block breadcrumb %}{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+<script>
+	$(function () {
+		const lastVisitedObject = JSON.parse(localStorage.getItem("lastVisitedReminder"));
+		if (lastVisitedObject) {
+			const lastVisited = lastVisitedObject[$("li.menu-home > a").attr("href")];
+			if (lastVisited) {
+				const alert = $('#left-off-reminder');
+				alert.removeClass('hidden');
+
+				// add link child
+				const link = $('<a></a>');
+				link.attr('href', lastVisited.url);
+				link.text(lastVisited.title);
+				alert.append(link);
+			}
+		}
+	});
+</script>
+{% endblock %}
+
 {% block coursecontent %}
 
 {% include "course/_enroll_form.html" %}
+
+<div id="left-off-reminder" class="alert alert-info hidden">
+	<h4>{% translate "LEFT_OFF_REMINDER" %}</h4>
+</div>
 
 <div class="index">
   {{ instance.description|safe }}

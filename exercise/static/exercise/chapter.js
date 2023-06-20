@@ -87,6 +87,21 @@
 
         window.addEventListener("scroll", hashScrollListener);
       }
+
+      // get the title text from the breadcrumb (more reliable than selecting the title
+      // for example single exercise don't have the title element)
+      const title = $("ol.breadcrumb > li").last().text()
+
+      // get the instance url of this chapter
+      const instanceUrl = $("li.menu-home > a").attr("href")
+
+      // get the lastVisited object or empty object
+      const lastVisited = JSON.parse(localStorage.getItem("lastVisitedReminder")) || {}
+
+      // update lastVisited so that the last visited exercise is this exercise
+      lastVisited[instanceUrl] = { url: window.location.href, title }
+
+      localStorage.setItem("lastVisitedReminder", JSON.stringify(lastVisited));
     },
 
     nextExercise: function() {
