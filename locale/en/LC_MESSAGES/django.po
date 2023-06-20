@@ -5917,3 +5917,7 @@ msgstr "No support page. Please notify administration!"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GRADED"
 msgstr "graded"
+
+#: course/templates/course/index.html
+msgid "LEFT_OFF_REMINDER"
+msgstr "Continue where you left off"
