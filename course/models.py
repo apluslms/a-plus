@@ -45,7 +45,11 @@ from userprofile.models import User, UserProfile, GraderUser
 from .sis import get_sis_configuration, StudentInfoSystem
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+
     from edit_course.operations.configure import ConfigParts
+    from exercise.exercise_models import LearningObject
+    from threshold.models import CourseModuleRequirement
 
 
 logger = logging.getLogger('aplus.course')
@@ -689,6 +693,10 @@ class CourseInstance(UrlMixin, models.Model):
 
     objects = CourseInstanceManager()
 
+    if TYPE_CHECKING:
+        id: int
+        course_modules: RelatedManager["CourseModule"]
+
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_INSTANCE')
         verbose_name_plural = _('MODEL_NAME_COURSE_INSTANCE_PLURAL')
@@ -1301,6 +1309,11 @@ class CourseModule(UrlMixin, models.Model):
 
     objects = CourseModuleManager()
 
+    if TYPE_CHECKING:
+        id: int
+        learning_objects: RelatedManager[LearningObject]
+        requirements: RelatedManager[CourseModuleRequirement]
+
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_MODULE')
         verbose_name_plural = _('MODEL_NAME_COURSE_MODULE_PLURAL')
@@ -1456,6 +1469,10 @@ class LearningObjectCategory(models.Model):
 
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)
+
+    if TYPE_CHECKING:
+        id: int
+        learning_objects: RelatedManager[LearningObject]
 
     class Meta:
         verbose_name = _('MODEL_NAME_LEARNING_OBJECT_CATEGORY')
