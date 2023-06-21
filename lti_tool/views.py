@@ -150,11 +150,11 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
         # Edit links to point to LTI views
         module_model_objs = CourseModule.objects.filter(course_instance=self.instance)
         learningobjects = LearningObject.objects.filter(course_module__course_instance=self.instance)
-        for module in self.content.data['modules']:
-            module_model_obj = next((x for x in module_model_objs if x.id == module['id']), None)
+        for module in self.content.data.modules:
+            module_model_obj = next((x for x in module_model_objs if x.id == module.id), None)
             module.update({'link': module_model_obj.get_url("lti-module")})
-            for exercise in module['children']:
-                lo_model_obj = next((x for x in learningobjects if x.id == exercise['id']), None)
+            for exercise in module.children:
+                lo_model_obj = next((x for x in learningobjects if x.id == exercise.id), None)
                 exercise.update({'link': lo_model_obj.get_url("lti-exercise")})
         return super().get(request, *args, **kwargs)
 
@@ -169,10 +169,10 @@ class LtiModuleView(LtiSessionMixin, ModuleView):
         learningobjects_dict = { obj.id: obj for obj in learningobjects }
         # Can't use self.children for iteration, so this instead
         flat_module = self.content.flat_module(self.module)
-        exercises = [entry for entry in flat_module if entry['type'] == 'exercise']
+        exercises = [entry for entry in flat_module if entry.type == 'exercise']
         for exercise in exercises:
-            learningobj = learningobjects_dict[exercise['id']]
-            exercise['link'] = learningobj.get_url('lti-exercise')
+            learningobj = learningobjects_dict[exercise.id]
+            exercise.link = learningobj.get_url('lti-exercise')
         return super().get(request, *args, **kwargs)
 
 
@@ -320,10 +320,10 @@ class LtiSelectModuleView(LtiSelectContentMixin, CourseModuleBaseView):
         self.learningobjects = LearningObject.objects.filter(course_module=self.module)
         self.learningobjects_dict = { obj.id: obj for obj in self.learningobjects }
         self.flat_module = self.content.flat_module(self.module)
-        exercises = [entry for entry in self.content.flat_module(self.module) if entry['type'] == 'exercise']
+        exercises = [entry for entry in self.content.flat_module(self.module) if entry.type == 'exercise']
         for exercise in exercises:
-            learningobj = self.learningobjects_dict[exercise['id']]
-            exercise['link'] = learningobj.get_url('lti-select-exercise')
+            learningobj = self.learningobjects_dict[exercise.id]
+            exercise.link = learningobj.get_url('lti-select-exercise')
         self.note("learningobjects", "flat_module")
         return super().get(request, *args, **kwargs)
 

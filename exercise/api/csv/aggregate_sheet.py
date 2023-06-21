@@ -23,8 +23,8 @@ def aggregate_sheet(profiles, taggings, exercises, aggregate, number): # pylint:
     exercise_nums = []
     num = None
     for e in exercises:
-        level = len(e['number'].split('.'))
-        enum = '.'.join(e['number'].split('.')[:d])
+        level = len(e.number.split('.'))
+        enum = '.'.join(e.number.split('.')[:d])
         # num needs to be checked here because in some cases, the exercises list
         # is missing parents for some exercises. Especially when search
         # entries are filtered with the filter_for_assistant parameter.
@@ -33,19 +33,19 @@ def aggregate_sheet(profiles, taggings, exercises, aggregate, number): # pylint:
             # the variables are initialized here. The children come after
             # the parent in the exercises list.
             # The children enter the next if branch since their level is higher.
-            num = e['number'] if level == d else enum
+            num = e.number if level == d else enum
             exercise_nums.append(num)
             exercise_max[num] = 0
             for n in OBJECT_FIELDS:
                 exercise_fields.append(n.format(num))
-            if e['type'] == 'exercise':
-                exercise_map[e['id']] = num
-                exercise_max[num] += e['max_points']
+            if e.type == 'exercise':
+                exercise_map[e.id] = num
+                exercise_max[num] += e.max_points
         elif level > d:
             # Child object of the previous parent.
             # Parent comes before its children in the exercises list.
-            exercise_map[e['id']] = num
-            exercise_max[num] += e['max_points']
+            exercise_map[e.id] = num
+            exercise_max[num] += e.max_points
 
     agg = {}
     for row in aggregate:

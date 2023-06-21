@@ -21,8 +21,8 @@ class GroupsForm(forms.Form):
         self.content = kwargs.pop('content')
         super().__init__(*args, **kwargs)
         total = self.content.total()
-        min_size = max(total['min_group_size'], 2)
-        max_size = total['max_group_size']
+        min_size = max(total.min_group_size, 2)
+        max_size = total.max_group_size
 
         for n in range(2, max_size + 1):
             widget = forms.TextInput(attrs={'class':'form-control'})
