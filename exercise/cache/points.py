@@ -1,13 +1,19 @@
-import datetime
+from __future__ import annotations
 from copy import deepcopy
+from dataclasses import dataclass, field, Field, fields, MISSING
+import datetime
 import itertools
 from typing import (
     Any,
+    cast,
+    ClassVar,
     Dict,
     Iterable,
     List,
+    Literal,
     Optional,
     Type,
+    TypeVar,
     Tuple,
     Union,
 )
@@ -23,10 +29,45 @@ from lib.cache import CachedAbstract
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
+from .basetypes import CachedDataBase, CategoryEntryBase, EqById, ExerciseEntryBase, ModuleEntryBase, TotalsBase
+from .content import CachedContent
+from .hierarchy import ContentMixin
 from ..models import BaseExercise, Submission, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
-from .content import CachedContent
-from .hierarchy import ContentMixin, Entry
+
+
+T = TypeVar("T")
+def upgrade(cls: Type[T], data: Any, kwargs: Dict[str, Any]) -> T:
+    """Sets data class to be cls, and sets any missing fields using kwargs and the field defaults"""
+    num_base_fields = len(data._dc_fields) # type: ignore
+    new_fields = cast(Iterable[Field], cls._dc_fields[num_base_fields:]) # type: ignore
+
+    for field in new_fields:
+        if field.name in kwargs:
+            setattr(data, field.name, kwargs[field.name])
+        elif field.default is not MISSING:
+            setattr(data, field.name, field.default)
+        elif field.default_factory is not MISSING:
+            setattr(data, field.name, field.default_factory())
+        else:
+            raise TypeError(f"upgrade() missing required argument {field.name}")
+
+    data.__class__ = cls
+
+    return data
+
+
+def cache_fields(cls):
+    """Caches dataclass fields in the _dc_fields attribute of the class"""
+    cls._dc_fields = fields(cls)
+    for b in cls.__bases__:
+        if not hasattr(b, "_dc_fields"):
+            try:
+                b._dc_fields = fields(b)
+            except:
+                pass
+
+    return cls
 
 
 def has_more_points(submission: Submission, current_best_submission: Optional[Submission]) -> bool:
@@ -44,11 +85,177 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
     )
 
 
-def exercise_points(users: List[User], exercises: List[BaseExercise], submissions: Optional[List[Submission]]):
-    ...
+@dataclass(repr=False)
+class CommonPointData:
+    submission_count: int = 0
+    points: int = 0
+    formatted_points: str = "0"
 
 
-class CachedPoints(ContentMixin, CachedAbstract):
+@dataclass(repr=False)
+class CommonStats:
+    points_by_difficulty: Dict[str, int] = field(default_factory=dict)
+    unconfirmed_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
+    feedback_revealed: bool = True
+
+
+TotalsType = TypeVar("TotalsType", bound=TotalsBase)
+@cache_fields
+@dataclass
+class Totals(CommonPointData, CommonStats, TotalsBase):
+    @classmethod
+    def upgrade(cls: Type[TotalsType], data: TotalsBase, **kwargs) -> TotalsType:
+        if data.__class__ is cls:
+            return cast(cls, data)
+
+        return upgrade(cls, data, kwargs)
+
+
+CategoryEntryType = TypeVar("CategoryEntryType", bound=CategoryEntryBase)
+@cache_fields
+@dataclass(eq=False)
+class CategoryEntry(CommonPointData, CommonStats, CategoryEntryBase):
+    passed: bool = False # TODO: no default
+
+    @classmethod
+    def upgrade(cls: Type[CategoryEntryType], data: CategoryEntryBase, **kwargs) -> CategoryEntryType:
+        if data.__class__ is cls:
+            return cast(cls, data)
+
+        return upgrade(cls, data, kwargs)
+
+
+ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
+@cache_fields
+@dataclass(eq=False)
+class ModuleEntry(CommonPointData, CommonStats, ModuleEntryBase):
+    passed: bool = False # TODO: no default
+    unconfirmed: bool = False
+
+    @classmethod
+    def upgrade(cls: Type[ModuleEntryType], data: ModuleEntryBase, **kwargs) -> ModuleEntryType:
+        if data.__class__ is cls:
+            return cast(cls, data)
+
+        data = upgrade(cls, data, kwargs)
+
+        for child in data.children:
+            if child.submittable:
+                SubmittableExerciseEntry.upgrade(child)
+            else:
+                ExerciseEntry.upgrade(child)
+
+        return cast(cls, data)
+
+
+@dataclass(eq=False)
+class SubmissionEntryBase(EqById):
+    type: ClassVar[str] = 'submission'
+    id: int
+    max_points: int
+    points_to_pass: int
+    confirm_the_level: bool
+    graded: bool
+    passed: bool
+    submission_status: Union[str, bool]
+    unofficial: bool
+    date: datetime.datetime
+    url: str
+    feedback_revealed: bool = True
+    feedback_reveal_time: Optional[datetime.datetime] = None
+
+
+@dataclass(eq=False)
+class SubmissionEntry(CommonPointData, SubmissionEntryBase): ...
+
+
+ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
+@cache_fields
+@dataclass(eq=False)
+class ExerciseEntry(CommonPointData, ExerciseEntryBase):
+    unconfirmed: bool = False
+    is_revealed: bool = True
+
+    @classmethod
+    def upgrade(cls: Type[ExerciseEntryType], data: ExerciseEntryBase, **kwargs) -> ExerciseEntryType:
+        if data.__class__ is cls:
+            return cast(cls, data)
+
+        data = upgrade(cls, data, kwargs)
+
+        ModuleEntry.upgrade(data.module)
+
+        if data.parent is not None:
+            if data.parent.submittable:
+                SubmittableExerciseEntry.upgrade(data.parent)
+            else:
+                ExerciseEntry.upgrade(data.parent)
+
+        for child in data.children:
+            if child.submittable:
+                SubmittableExerciseEntry.upgrade(child)
+            else:
+                ExerciseEntry.upgrade(child)
+
+        return cast(cls, data)
+
+
+@cache_fields
+@dataclass(eq=False)
+class SubmittableExerciseEntry(ExerciseEntry):
+    submittable: Literal[True] = True
+    submissions: List[SubmissionEntry] = field(default_factory=list)
+    best_submission: Optional[int] = None
+    passed: bool = False # TODO: no default
+    graded: bool = False
+    unofficial: bool = False # TODO: this should be True,
+    # but we need to ensure nothing breaks when it's changed
+    confirmable_points: bool = False
+    forced_points: bool = False
+    notified: bool = False
+    unseen: bool = False
+    personal_deadline: Optional[datetime.datetime] = None
+    personal_deadline_has_penalty: Optional[bool] = None
+    personal_max_submissions: Optional[int] = None
+    feedback_revealed: bool = True
+    feedback_reveal_time: Optional[datetime.datetime] = None
+
+
+EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
+
+
+CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
+@cache_fields
+@dataclass(eq=False)
+class CachedPointsData(CachedDataBase):
+    invalidate_time: Optional[datetime.datetime] = None
+    points_created: datetime.datetime = field(default_factory=timezone.now)
+
+    @classmethod
+    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, **kwargs: Any) -> CachedPointsDataType:
+        if data.__class__ is cls:
+            return cast(cls, data)
+
+        data = upgrade(cls, data, kwargs)
+
+        for module in data.modules:
+            ModuleEntry.upgrade(module)
+
+        for entry in data.exercise_index.values():
+            if entry.submittable:
+                SubmittableExerciseEntry.upgrade(entry)
+            else:
+                ExerciseEntry.upgrade(entry)
+
+        for entry in data.categories.values():
+            CategoryEntry.upgrade(entry)
+
+        Totals.upgrade(data.total)
+
+        return cast(CachedPointsDataType, data)
+
+
+class CachedPoints(CachedAbstract, ContentMixin):
     """
     Extends `CachedContent` to include data about a user's submissions and
     points in the course's exercises.
@@ -60,7 +267,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
     always revealed.
     """
     KEY_PREFIX = 'points'
-    data: Entry
+    data: CachedPointsData
 
     def __init__(
             self,
@@ -75,13 +282,13 @@ class CachedPoints(ContentMixin, CachedAbstract):
         super().__init__(course_instance, user)
         self._extract_tuples(self.data, 0 if show_unrevealed else 1)
 
-    def _needs_generation(self, data: Dict[str, Any]) -> bool:
+    def _needs_generation(self, data: Optional[CachedPointsData]) -> bool:
         return (
             data is None
-            or data['created'] < self.content.created()
+            or data.created < self.content.created()
             or (
-                data.get('invalidate_time') is not None
-                and timezone.now() >= data['invalidate_time']
+                data.invalidate_time is not None
+                and timezone.now() >= data.invalidate_time
             )
         )
 
@@ -90,7 +297,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             instance: CourseInstance,
             user: User,
             data: Optional[Dict[str, Any]] = None,
-            ) -> Dict[str, Any]:
+            ) -> CachedPointsData:
         # Perform all database queries before generating the cache.
         if user.is_authenticated:
             submissions = list(
@@ -128,17 +335,17 @@ class CachedPoints(ContentMixin, CachedAbstract):
         self._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
 
         # Pick the lowest invalidate_time if it is duplicated.
-        invalidate_time = staff_data['invalidate_time']
+        invalidate_time = staff_data.invalidate_time
         if isinstance(invalidate_time, tuple):
             if invalidate_time[0] is not None:
                 if invalidate_time[1] is not None:
-                    staff_data['invalidate_time'] = min(invalidate_time)
+                    staff_data.invalidate_time = min(invalidate_time)
                 else:
-                    staff_data['invalidate_time'] = invalidate_time[0]
+                    staff_data.invalidate_time = invalidate_time[0]
             else:
-                staff_data['invalidate_time'] = invalidate_time[1]
+                staff_data.invalidate_time = invalidate_time[1]
 
-        staff_data['points_created'] = timezone.now()
+        staff_data.points_created = timezone.now()
         return staff_data
 
     def _generate_data_internal( # noqa: MC0001
@@ -149,94 +356,45 @@ class CachedPoints(ContentMixin, CachedAbstract):
             deadline_deviations: Iterable[DeadlineRuleDeviation],
             submission_deviations: Iterable[MaxSubmissionsRuleDeviation],
             module_instances: Iterable[CourseModule],
-            ) -> Dict[str, Any]:
+            ) -> CachedPointsData:
         """
         Handles the generation of one version of the cache (staff or student).
         All source data is prefetched by `_generate_data` and provided as
         arguments to this method.
         """
-        data: Entry = deepcopy(self.content.data)
-        module_index = data['module_index']
-        exercise_index = data['exercise_index']
-        modules = data['modules']
-        categories = data['categories']
-        total = data['total']
-        data['invalidate_time'] = None
-
-        # Augment submission parameters.
-        def r_augment(children: List[Dict[str, Any]]) -> None:
-            for entry in children:
-                if entry['submittable']:
-                    entry.update({
-                        'submission_count': 0,
-                        'submissions': [],
-                        'best_submission': None,
-                        'points': 0,
-                        'formatted_points': '0',
-                        'passed': entry['points_to_pass'] == 0,
-                        'graded': False,
-                        'unofficial': False, # TODO: this should be True,
-                        # but we need to ensure nothing breaks when it's changed
-                        'forced_points': False,
-                        'personal_deadline': None,
-                        'personal_deadline_has_penalty': None,
-                        'personal_max_submissions': None,
-                        'feedback_revealed': True,
-                        'feedback_reveal_time': None,
-                    })
-                entry.update({
-                    'is_revealed': True,
-                })
-                r_augment(entry.get('children'))
-        for module in modules:
-            module.update({
-                'submission_count': 0,
-                'points': 0,
-                'formatted_points': '0',
-                'points_by_difficulty': {},
-                'unconfirmed_points_by_difficulty': {},
-                'passed': module['points_to_pass'] == 0,
-                'feedback_revealed': True,
-            })
-            r_augment(module['children'])
-        for entry in categories.values():
-            entry.update({
-                'submission_count': 0,
-                'points': 0,
-                'formatted_points': '0',
-                'points_by_difficulty': {},
-                'unconfirmed_points_by_difficulty': {},
-                'passed': entry['points_to_pass'] == 0,
-                'feedback_revealed': True,
-            })
-        total.update({
-            'submission_count': 0,
-            'points': 0,
-            'points_by_difficulty': {},
-            'unconfirmed_points_by_difficulty': {},
-        })
+        # "upgrade" the type of self.content.data to CachedPointsData.
+        # This replaces each object in the data with the CachedPointsData version
+        # while retaining any common object references (e.g. module.children and
+        # exercise_index.values() refer to the same object instances)
+        data: CachedPointsData = CachedPointsData.upgrade(deepcopy(self.content.data))
+        exercise_index = data.exercise_index
+        modules = data.modules
+        categories = data.categories
+        total = data.total
 
         if is_authenticated:
             # Augment deviation data.
             for deviation in deadline_deviations:
                 try:
-                    entry = exercise_index[deviation.exercise.id]
+                    # deviation.exercise is a BaseExercise (i.e. submittable)
+                    entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
                 except KeyError:
                     self.dirty = True
                     continue
-                entry['personal_deadline'] = (
-                    entry['closing_time'] + datetime.timedelta(minutes=deviation.extra_minutes)
+                entry.personal_deadline = (
+                    entry.closing_time + datetime.timedelta(minutes=deviation.extra_minutes)
                 )
-                entry['personal_deadline_has_penalty'] = not deviation.without_late_penalty
+                entry.personal_deadline_has_penalty = not deviation.without_late_penalty
 
             for deviation in submission_deviations:
                 try:
-                    entry = exercise_index[deviation.exercise.id]
+                    # deviation.exercise is a BaseExercise (i.e. submittable)
+                    entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
                 except KeyError:
                     self.dirty = True
                     continue
-                entry['personal_max_submissions'] = (
-                    entry['max_submissions'] + deviation.extra_submissions
+                entry.personal_max_submissions = (
+                    entry.max_submissions + deviation.extra_submissions
                 )
 
             def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
@@ -244,13 +402,18 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     invalidate_time is not None
                     and invalidate_time > timezone.now()
                     and (
-                        data['invalidate_time'] is None
-                        or invalidate_time < data['invalidate_time']
+                        data.invalidate_time is None
+                        or invalidate_time < data.invalidate_time
                     )
                 ):
-                    data['invalidate_time'] = invalidate_time
+                    data.invalidate_time = invalidate_time
 
-            def apply_reveal_rule(data: Entry, entry: Entry, reveal_rule: RevealRule, last_submission: Submission) -> None:
+            def apply_reveal_rule(
+                    data: CachedPointsData,
+                    entry: SubmittableExerciseEntry,
+                    reveal_rule: RevealRule,
+                    last_submission: Submission
+                    ) -> None:
                 """
                 Evaluate the reveal rule of the current exercise and ensure
                 that feedback is hidden appropriately.
@@ -259,23 +422,21 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 is_revealed = reveal_rule.is_revealed(state)
                 reveal_time = reveal_rule.get_reveal_time(state)
 
-                entry.update({
-                    'best_submission': entry['best_submission'] if is_revealed else last_submission.id,
-                    'points': entry['points'] if is_revealed else 0,
-                    'formatted_points': format_points(entry['points'], is_revealed, False),
-                    'passed': entry['passed'] if is_revealed else False,
-                    'feedback_revealed': is_revealed,
-                    'feedback_reveal_time': reveal_time,
-                })
+                if not is_revealed:
+                    entry.best_submission = last_submission.id
+                    entry.points = 0
+                    entry.formatted_points = format_points(entry.points, is_revealed, False)
+                    entry.passed = False
+                entry.feedback_revealed = is_revealed
+                entry.feedback_reveal_time = reveal_time
 
-                for submission in entry['submissions']:
-                    submission.update({
-                        'points': submission['points'] if is_revealed else 0,
-                        'formatted_points': format_points(submission['points'], is_revealed, False),
-                        'passed': submission['passed'] if is_revealed else False,
-                        'feedback_revealed': is_revealed,
-                        'feedback_reveal_time': reveal_time,
-                    })
+                for submission in entry.submissions:
+                    if not is_revealed:
+                        submission.points = 0
+                        submission.formatted_points = format_points(submission.points, is_revealed, False)
+                        submission.passed = False
+                    submission.feedback_revealed = is_revealed
+                    submission.feedback_reveal_time = reveal_time
 
                 # If the reveal rule depends on time, update the cache's
                 # invalidation time.
@@ -288,7 +449,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 last_submission = None
 
                 try:
-                    entry = exercise_index[exercise.id]
+                    entry = cast(SubmittableExerciseEntry, exercise_index[exercise.id])
                 except KeyError:
                     self.dirty = True
                     continue
@@ -304,25 +465,26 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     ready = submission.status == Submission.STATUS.READY
                     unofficial = submission.status == Submission.STATUS.UNOFFICIAL
                     if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
-                        entry['submission_count'] += 1
-                    entry['submissions'].append({
-                        'type': 'submission',
-                        'id': submission.id,
-                        'max_points': entry['max_points'],
-                        'points_to_pass': entry['points_to_pass'],
-                        'confirm_the_level': entry.get('confirm_the_level', False),
-                        'submission_count': 1, # to fool points badge
-                        'points': submission.grade,
-                        'formatted_points': format_points(submission.grade, True, False),
-                        'graded': submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                        'passed': (submission.grade >= entry['points_to_pass']),
-                        'submission_status': submission.status if not submission.is_graded else False,
-                        'unofficial': unofficial,
-                        'date': submission.submission_time,
-                        'url': submission.get_url('submission-plain'),
-                        'feedback_revealed': True,
-                        'feedback_reveal_time': None,
-                    })
+                        entry.submission_count += 1
+                    entry.submissions.append(
+                        SubmissionEntry(
+                            id = submission.id,
+                            max_points = entry.max_points,
+                            points_to_pass = entry.points_to_pass,
+                            confirm_the_level = entry.confirm_the_level,
+                            submission_count = 1, # to fool points badge
+                            points = submission.grade,
+                            formatted_points = format_points(submission.grade, True, False),
+                            graded = submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
+                            passed = (submission.grade >= entry.points_to_pass),
+                            submission_status = submission.status if not submission.is_graded else False,
+                            unofficial = unofficial,
+                            date = submission.submission_time,
+                            url = submission.get_url('submission-plain'),
+                            feedback_revealed = True,
+                            feedback_reveal_time = None,
+                        )
+                    )
                     # Update best submission if exercise points are not forced, and
                     # one of these is true:
                     # 1) current submission in ready (thus is not unofficial) AND
@@ -335,36 +497,34 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     if submission.force_exercise_points:
                         # This submission is chosen as the final submission and no
                         # further submissions are considered.
-                        entry.update({
-                            'best_submission': submission.id,
-                            'points': submission.grade,
-                            'formatted_points': format_points(submission.grade, True, False),
-                            'passed': (ready and submission.grade >= entry['points_to_pass']),
-                            'graded': True,
-                            'unofficial': False,
-                            'forced_points': True,
-                        })
+                        entry.best_submission = submission.id
+                        entry.points = submission.grade
+                        entry.formatted_points = format_points(submission.grade, True, False)
+                        entry.passed = (ready and submission.grade >= entry.points_to_pass)
+                        entry.graded = True
+                        entry.unofficial = False
+                        entry.forced_points = True
+
                         final_submission = submission
-                    if not entry.get('forced_points', False):
+                    if not entry.forced_points:
                         if ( # pylint: disable=too-many-boolean-expressions
                             ready and (
-                                entry['unofficial'] or
+                                entry.unofficial or
                                 is_better_than(submission, final_submission)
                             )
                         ) or (
                             unofficial and
-                            not entry['graded'] and # NOTE: == entry['unofficial'],
-                            # but before any submissions entry['unofficial'] is False
+                            not entry.graded and # NOTE: == entry.unofficial,
+                            # but before any submissions entry.unofficial is False
                             is_better_than(submission, final_submission)
                         ):
-                            entry.update({
-                                'best_submission': submission.id,
-                                'points': submission.grade,
-                                'formatted_points': format_points(submission.grade, True, False),
-                                'passed': (ready and submission.grade >= entry['points_to_pass']),
-                                'graded': ready, # != unofficial
-                                'unofficial': unofficial,
-                            })
+                            entry.best_submission = submission.id
+                            entry.points = submission.grade
+                            entry.formatted_points = format_points(submission.grade, True, False)
+                            entry.passed = (ready and submission.grade >= entry.points_to_pass)
+                            entry.graded = ready # != unofficial
+                            entry.unofficial = unofficial
+
                             final_submission = submission
                     # Update last_submission to be the last submission, or the last
                     # official submission if there are any official submissions.
@@ -375,9 +535,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
                     ):
                         last_submission = submission
                     if submission.notifications.exists():
-                        entry['notified'] = True
+                        entry.notified = True
                         if submission.notifications.filter(seen=False).exists():
-                            entry['unseen'] = True
+                            entry.unseen = True
 
                 # Check the reveal rule now that all submissions for the exercise have been iterated.
                 # last_submission is never None here but this appeases the typing system.
@@ -389,10 +549,8 @@ class CachedPoints(ContentMixin, CachedAbstract):
             def update_is_revealed_recursive(entry: Dict[str, Any], is_revealed: bool) -> None:
                 if is_revealed:
                     return
-                entry.update({
-                    'is_revealed': is_revealed,
-                })
-                for child in entry.get('children', []):
+                entry.is_revealed = is_revealed
+                for child in entry.children:
                     update_is_revealed_recursive(child, is_revealed)
 
             for module in module_instances:
@@ -408,104 +566,104 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 update_is_revealed_recursive(entry, is_revealed)
                 update_invalidation_time(reveal_time)
 
-        # Confirm points.
+        # Unconfirm points.
         for entry in exercise_index.values():
             if (
-                entry['submittable']
-                and entry['confirm_the_level']
-                and entry['passed']
+                entry.submittable
+                and entry.confirm_the_level
+                and not entry.passed
             ):
-                parent = entry["parent"]
+                parent = entry.parent
                 if parent is None:
-                    parent = entry["module"]
-                parent.pop('unconfirmed', None)
-                for child in parent.get('children', []):
-                    child.pop('unconfirmed', None)
-                    # TODO: should recurse to all descendants
+                    parent = entry.module
+                parent.unconfirmed = True
+                for child in parent.children:
+                    child.unconfirmed = True
 
         # Collect points and check limits.
-        def add_to(target: Dict[str, Any], entry: Dict[str, Any]) -> None:
-            target['submission_count'] += entry['submission_count']
-            target['feedback_revealed'] = target.get('feedback_revealed', False) and entry['feedback_revealed']
+        def add_to(target: Union[ModuleEntry, CategoryEntry, Totals], entry: SubmittableExerciseEntry) -> None:
+            target.submission_count += entry.submission_count
+            target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
             # NOTE: entry can be only ready or unofficial (exercise level
             # points are only copied, only if submission is in ready or
             # unofficial state)
-            if entry.get('unofficial', False):
+            if entry.unofficial:
                 pass
             # thus, all points are now ready..
-            elif entry.get('unconfirmed', False):
+            elif entry.unconfirmed:
                 self._add_by_difficulty(
-                    target['unconfirmed_points_by_difficulty'],
-                    entry['difficulty'],
-                    entry['points']
+                    target.unconfirmed_points_by_difficulty,
+                    entry.difficulty,
+                    entry.points
                 )
             # and finally, only remaining points are official (not unofficial & not unconfirmed)
             else:
-                target['points'] += entry['points']
-                target['formatted_points'] = format_points(
-                    target['points'],
-                    target['feedback_revealed'],
+                target.points += entry.points
+                target.formatted_points = format_points(
+                    target.points,
+                    target.feedback_revealed,
                     True,
                 )
                 self._add_by_difficulty(
-                    target['points_by_difficulty'],
-                    entry['difficulty'],
-                    entry['points']
+                    target.points_by_difficulty,
+                    entry.difficulty,
+                    entry.points
                 )
 
         def r_collect(
-                module: Dict[str, Any],
-                parent: Dict[str, Any],
-                children: List[Dict[str, Any]],
+                module: ModuleEntry,
+                parent: Optional[EitherExerciseEntry],
+                children: List[EitherExerciseEntry],
                 ) -> Tuple[bool, bool]:
             passed = True
             is_revealed = True
             max_points = 0
             submissions = 0
             points = 0
-            confirm_entry = None
+            confirm_entry: Optional[SubmittableExerciseEntry] = None
             for entry in children:
-                if entry['submittable']:
+                if entry.submittable:
+                    entry = cast(SubmittableExerciseEntry, entry)
                     # TODO: this seems to skip counting points and submission for
                     # exercises with confirm_the_level = True
-                    if entry['confirm_the_level']:
+                    if entry.confirm_the_level:
                         confirm_entry = entry
                     else:
-                        passed = passed and entry['passed']
-                        is_revealed = is_revealed and entry['feedback_revealed']
-                        max_points += entry['max_points']
-                        submissions += entry['submission_count']
-                        if entry['graded']:
-                            points += entry['points']
+                        passed = passed and entry.passed
+                        is_revealed = is_revealed and entry.feedback_revealed
+                        max_points += entry.max_points
+                        submissions += entry.submission_count
+                        if entry.graded:
+                            points += entry.points
                             add_to(module, entry)
-                            add_to(categories[entry['category_id']], entry)
+                            add_to(categories[entry.category_id], entry)
                             add_to(total, entry)
-                r_passed, r_is_revealed = r_collect(module, entry, entry.get('children', []))
+                r_passed, r_is_revealed = r_collect(module, entry, entry.children)
                 passed = r_passed and passed
                 is_revealed = r_is_revealed and is_revealed
             if confirm_entry and submissions > 0:
-                confirm_entry['confirmable_points'] = True
-            if parent and not parent['submittable']:
-                parent['max_points'] = max_points
-                parent['submission_count'] = submissions
-                parent['points'] = points
-                parent['formatted_points'] = format_points(points, is_revealed, True)
+                confirm_entry.confirmable_points = True
+            if parent and not parent.submittable:
+                parent.max_points = max_points
+                parent.submission_count = submissions
+                parent.points = points
+                parent.formatted_points = format_points(points, is_revealed, True)
             return passed, is_revealed
         for module in modules:
-            passed, _ = r_collect(module, None, module['children'])
-            module['passed'] = (
+            passed, _ = r_collect(module, None, module.children)
+            module.passed = (
                 passed
-                and module['points'] >= module['points_to_pass']
+                and module.points >= module.points_to_pass
             )
         for category in categories.values():
-            category['passed'] = (
-                category['points'] >= category['points_to_pass']
+            category.passed = (
+                category.points >= category.points_to_pass
             )
 
         return data
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
-        return self.data['points_created'], super().created()
+        return self.data.points_created, super().created()
 
     def submission_ids( # pylint: disable=too-many-arguments
             self,
@@ -524,10 +682,10 @@ class CachedPoints(ContentMixin, CachedAbstract):
         :param fallback_to_last: whether to fallback to the latest submission when best == True.
         Prioritizes INITIALIZED and WAITING submissions over REJECTED and ERROR.
         """
-        def latest_submission(submissions: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        def latest_submission(submissions: List[SubmissionEntry]) -> Optional[SubmissionEntry]:
             # Find latest non REJECTED or ERROR submission
             for entry in submissions:
-                if entry["submission_status"] not in (Submission.STATUS.REJECTED, Submission.STATUS.ERROR):
+                if entry.submission_status not in (Submission.STATUS.REJECTED, Submission.STATUS.ERROR):
                     return entry
 
             if submissions:
@@ -546,16 +704,22 @@ class CachedPoints(ContentMixin, CachedAbstract):
         submissions = []
         if best:
             for entry in exercises:
-                sid = entry.get('best_submission', None)
+                if not isinstance(entry, SubmittableExerciseEntry):
+                    continue
+
+                sid = entry.best_submission
                 if sid is not None:
                     submissions.append(sid)
                 elif fallback_to_last:
-                    latest = latest_submission(entry.get('submissions', []))
+                    latest = latest_submission(entry.submissions)
                     if latest is not None:
-                        submissions.append(latest["id"])
+                        submissions.append(latest.id)
         else:
             for entry in exercises:
-                submissions.extend(s['id'] for s in entry.get('submissions', []))
+                if not isinstance(entry, SubmittableExerciseEntry):
+                    continue
+
+                submissions.extend(s.id for s in entry.submissions)
         return submissions
 
     def _pack_tuples(self, value1, value2):
@@ -569,22 +733,29 @@ class CachedPoints(ContentMixin, CachedAbstract):
         """
         packing = set()
         def pack_tuples(value1, value2, parent_container, parent_key):
-            if isinstance(value1, dict):
+            if isinstance(value1, (dict, CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
                 if id(value1) in packing:
                     return
 
                 packing.add(id(value1))
 
+            if isinstance(value1, dict):
                 for key, inner_value1 in value1.items():
                     inner_value2 = value2[key]
                     pack_tuples(inner_value1, inner_value2, value1, key)
+            elif isinstance(value1, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+                for f in value1._dc_fields:
+                    pack_tuples(getattr(value1, f.name), getattr(value2, f.name), value1, f.name)
             elif isinstance(value1, list):
                 for index, inner_value1 in enumerate(value1):
                     inner_value2 = value2[index]
                     pack_tuples(inner_value1, inner_value2, value1, index)
             else:
                 if value1 != value2:
-                    parent_container[parent_key] = (value1, value2)
+                    if hasattr(parent_container, "__getitem__"):
+                        parent_container[parent_key] = (value1, value2)
+                    else:
+                        setattr(parent_container, parent_key, (value1, value2))
 
         pack_tuples(value1, value2, None, None)
 
@@ -598,19 +769,26 @@ class CachedPoints(ContentMixin, CachedAbstract):
         """
         extracting = set()
         def extract_tuples(value, tuple_index, parent_container, parent_key):
-            if isinstance(value, dict):
+            if isinstance(value, (dict, CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
                 if id(value) in extracting:
                     return
 
                 extracting.add(id(value))
 
+            if isinstance(value, dict):
                 for key, inner_value in value.items():
                     extract_tuples(inner_value, tuple_index, value, key)
+            elif isinstance(value, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+                for f in value._dc_fields:
+                    extract_tuples(getattr(value, f.name), tuple_index, value, f.name)
             elif isinstance(value, list):
                 for index, inner_value in enumerate(value):
                     extract_tuples(inner_value, tuple_index, value, index)
             elif isinstance(value, tuple):
-                parent_container[parent_key] = value[tuple_index]
+                if hasattr(parent_container, "__getitem__"):
+                    parent_container[parent_key] = value[tuple_index]
+                else:
+                    setattr(parent_container, parent_key, value[tuple_index])
 
         extract_tuples(value, tuple_index, None, None)
 
