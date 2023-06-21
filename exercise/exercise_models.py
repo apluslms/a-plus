@@ -180,6 +180,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
 
     objects = LearningObjectManager()
 
+    if TYPE_CHECKING:
+        id: int
+        parent_id: Optional[int]
+        children: RelatedManager["LearningObject"]
+
     class Meta:
         verbose_name = _('MODEL_NAME_LEARNING_OBJECT')
         verbose_name_plural = _('MODEL_NAME_LEARNING_OBJECT_PLURAL')
