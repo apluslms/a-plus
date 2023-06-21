@@ -423,6 +423,10 @@ class Submission(UrlMixin, models.Model):
 
     objects = SubmissionManager()
 
+    if TYPE_CHECKING:
+        id: int
+        submitters: models.ManyToManyField[UserProfile, 'Submission']
+
     class Meta:
         verbose_name = _('MODEL_NAME_SUBMISSION')
         verbose_name_plural = _('MODEL_NAME_SUBMISSION_PLURAL')

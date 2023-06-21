@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 from django.db import models
 from django.utils.text import format_lazy
@@ -37,6 +37,11 @@ class Threshold(models.Model):
         verbose_name=_('LABEL_CONSUME_HARDER_POINTS'),
         default=False,
         help_text=_('HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS'))
+
+    if TYPE_CHECKING:
+        passed_modules: models.ManyToManyField[CourseModule, "Threshold"]
+        passed_categories: models.ManyToManyField[LearningObjectCategory, "Threshold"]
+        passed_exercises: models.ManyToManyField[BaseExercise, "Threshold"]
 
     class Meta:
         verbose_name = _('MODEL_NAME_THRESHOLD')

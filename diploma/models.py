@@ -1,5 +1,6 @@
 import hashlib
 import time
+from typing import List, Tuple, TYPE_CHECKING, Union
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -58,7 +59,7 @@ class CourseDiplomaDesign(models.Model):
         verbose_name=_('LABEL_SMALL_PRINT'),
         blank=True,
     )
-    point_limits = JSONField(
+    point_limits = JSONField( # type: ignore
         verbose_name=_('LABEL_POINT_LIMITS'),
         blank=True,
         help_text=_('DIPLOMA_POINT_LIMITS_HELPTEXT'),
@@ -76,6 +77,11 @@ class CourseDiplomaDesign(models.Model):
         verbose_name=_('LABEL_MODULES_TO_PASS'),
         blank=True,
     )
+
+    if TYPE_CHECKING:
+        point_limits: List[Union[int, List[Tuple[str, int]]]]
+        exercises_to_pass: models.ManyToManyField[BaseExercise, "CourseDiplomaDesign"]
+        modules_to_pass: models.ManyToManyField[CourseModule, "CourseDiplomaDesign"]
 
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_DIPLOMA_DESIGN')
