@@ -74,7 +74,7 @@ class DiplomaCreateView(DiplomaMixin, BaseRedirectView):
         if (profile != self.profile and not self.is_course_staff):
             raise PermissionDenied()
 
-        points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
+        points = CachedPoints(self.instance, profile.user, self.is_course_staff)
         grade = assign_grade(points, design)
         if grade < 0:
             raise PermissionDenied()

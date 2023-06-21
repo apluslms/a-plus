@@ -188,7 +188,7 @@ class TreeExerciseSerializer(serializers.Serializer):
     """
     Serializes items in the `children` lists found in the `CachedContent.data`
     data structure. Does not derive from `AplusModelSerializer` because the
-    items are `dict`s instead of model objects.
+    items are cache entries instead of model objects.
     """
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -200,11 +200,11 @@ class TreeExerciseSerializer(serializers.Serializer):
     children = serializers.SerializerMethodField()
 
     def get_type(self, obj):
-        return 'exercise' if obj['submittable'] else 'chapter'
+        return 'exercise' if obj.submittable else 'chapter'
 
     def get_children(self, obj):
         serializer = TreeExerciseSerializer(
-            instance=obj['children'],
+            instance=obj.children,
             many=True,
             context=self.context
         )

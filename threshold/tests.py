@@ -5,13 +5,19 @@ from exercise.cache.points import CachedPoints
 from .models import Threshold
 
 
-class ThresholdTest(CourseTestCase):
+class MockTotals:
+    def __init__(self, data):
+        self.__dict__.update(data)
 
-    class MockCachedPoints:
-        def __init__(self, total_data):
-            self.data = total_data
-        def total(self):
-            return self.data
+
+class MockCachedPoints:
+    def __init__(self, total_data):
+        self.data = MockTotals(total_data)
+    def total(self):
+        return self.data
+
+
+class ThresholdTest(CourseTestCase):
 
     GRADE_0 = MockCachedPoints({
         'points':8,

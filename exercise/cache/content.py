@@ -6,39 +6,41 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from lib.cache import CachedAbstract
+from .basetypes import CachedDataBase, CategoryEntryBase, ExerciseEntryBase, ModuleEntryBase, TotalsBase
+from .hierarchy import ContentMixin
 from ..models import LearningObject, BaseExercise
-from .hierarchy import ContentMixin, Entry
+
+
+Totals = TotalsBase
+CategoryEntry = CategoryEntryBase
+ModuleEntry = ModuleEntryBase
+ExerciseEntry = ExerciseEntryBase
+CachedContentData = CachedDataBase
 
 
 class CachedContent(ContentMixin, CachedAbstract):
     """ Course content hierarchy for template presentations """
     KEY_PREFIX = 'content'
-    data: Entry
+    data: CachedContentData
 
     def __init__(self, course_instance: CourseInstance) -> None:
         self.instance = course_instance
         super().__init__(course_instance)
     # pylint: disable-next=arguments-differ too-many-locals
-    def _generate_data(self, instance: CourseInstance, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _generate_data(self, instance: CourseInstance, data: Optional[CachedContentData] = None) -> CachedContentData:
         """ Returns object that is cached into self.data """
-        module_index = {}
-        exercise_index = {}
-        paths = {}
-        modules = []
-        categories = {}
-        total = {
-            'exercise_count': 0,
-            'max_points': 0,
-            'max_points_by_difficulty': {},
-            'min_group_size': 100000,
-            'max_group_size': 1,
-        }
+        module_index: Dict[int, ModuleEntry] = {}
+        exercise_index: Dict[int, ExerciseEntry] = {}
+        paths: Dict[int, Dict[str, int]] = {}
+        modules: List[ModuleEntry] = []
+        categories: Dict[int, CategoryEntry] = {}
+        total = Totals()
 
         def recursion(
-                module: Dict[str, Any],
+                module: ModuleEntry,
                 objects: List[LearningObject],
                 parents: List[LearningObject],
-                container: List[Dict[str, Any]],
+                container: List[ExerciseEntry],
                 ) -> None:
             """ Recursively travels exercises hierarchy """
             parent_id = parents[-1].id if parents else None
@@ -47,56 +49,45 @@ class CachedContent(ContentMixin, CachedAbstract):
             for o in children:
                 o._parents = parents + [o]
                 category = o.category
-                entry = {
-                    'type': 'exercise',
-                    'module': module,
-                    'parent': exercise_index[parent_id] if parent_id is not None else None,
-                    'category': str(category),
-                    'category_id': category.id,
-                    'category_status': category.status,
-                    'confirm_the_level': category.confirm_the_level,
-                    'module_id': module['id'],
-                    'module_status': module['status'],
-                    'id': o.id,
-                    'order': o.order,
-                    'status': o.status,
-                    'name': str(o),
-                    'hierarchical_name': o.hierarchical_name(),
-                    'number': module['number'] + '.' + o.number(),
-                    'link': o.get_display_url(),
-                    'submittable': False,
-                    'submissions_link': o.get_submission_list_url(),
-                    'requirements': module['requirements'],
-                    'opening_time': module['opening_time'],
-                    'reading_opening_time': module['reading_opening_time'],
-                    'closing_time': module['closing_time'],
-                    'late_allowed': module['late_allowed'],
-                    'late_time': module['late_time'],
-                    'late_percent': module['late_percent'],
-                    'is_empty': o.is_empty(),
-                    'get_path': o.get_path(),
-                    'points_to_pass': 0,
-                    'difficulty': '',
-                    'max_submissions': 0,
-                    'max_points': 0,
-                    'allow_assistant_viewing': False,
-                    'children': [],
-                }
+                entry = ExerciseEntry(
+                    module = module,
+                    parent = exercise_index[parent_id] if parent_id is not None else None,
+                    category = str(category),
+                    category_id = category.id,
+                    category_status = category.status,
+                    confirm_the_level = category.confirm_the_level,
+                    module_id = module.id,
+                    module_status = module.status,
+                    id = o.id,
+                    order = o.order,
+                    status = o.status,
+                    name = str(o),
+                    hierarchical_name = o.hierarchical_name(),
+                    number = module.number + '.' + o.number(),
+                    link = o.get_display_url(),
+                    submittable = False,
+                    submissions_link = o.get_submission_list_url(),
+                    requirements = module.requirements,
+                    opening_time = module.opening_time,
+                    reading_opening_time = module.reading_opening_time,
+                    closing_time = module.closing_time,
+                    late_allowed = module.late_allowed,
+                    late_time = module.late_time,
+                    late_percent = module.late_percent,
+                    is_empty = o.is_empty(),
+                    get_path = o.get_path(),
+                )
                 container.append(entry)
                 exercise_index[o.id] = entry
-                paths[module['id']][o.get_path()] = o.id
+                paths[module.id][o.get_path()] = o.id
                 if category.id not in categories:
-                    categories[category.id] = {
-                        'type': 'category',
-                        'id': category.id,
-                        'status': category.status,
-                        'name': str(category),
-                        'points_to_pass': category.points_to_pass,
-                        'exercise_count': 0,
-                        'max_points': 0,
-                        'max_points_by_difficulty': {},
-                    }
-                recursion(module, objects, o._parents, entry['children'])
+                    categories[category.id] = CategoryEntry(
+                        id = category.id,
+                        status = category.status,
+                        name = str(category),
+                        points_to_pass = category.points_to_pass,
+                    )
+                recursion(module, objects, o._parents, entry.children)
                 j += 1
 
         # Collect each module.
@@ -110,42 +101,37 @@ class CachedContent(ContentMixin, CachedAbstract):
             'requirements__threshold__points',
             'learning_objects',
         ):
-            entry = {
-                'type': 'module',
-                'id': module.id,
-                'order': module.order,
-                'status': module.status,
-                'url': module.url,
-                'name': str(module),
-                'number': str(module.order),
-                'introduction': module.introduction,
-                'link': module.get_absolute_url(),
-                'requirements': [str(r) for r in module.requirements.all()],
-                'opening_time': module.opening_time,
-                'reading_opening_time': module.reading_opening_time,
-                'closing_time': module.closing_time,
-                'late_allowed': module.late_submissions_allowed,
-                'late_time': module.late_submission_deadline,
-                'late_percent': module.get_late_submission_point_worth(),
-                'points_to_pass': module.points_to_pass,
-                'exercise_count': 0,
-                'max_points': 0,
-                'max_points_by_difficulty': {},
-                'children': [],
-            }
+            entry = ModuleEntry(
+                id = module.id,
+                order = module.order,
+                status = module.status,
+                url = module.url,
+                name = str(module),
+                number = str(module.order),
+                introduction = module.introduction,
+                link = module.get_absolute_url(),
+                requirements = [str(r) for r in module.requirements.all()],
+                opening_time = module.opening_time,
+                reading_opening_time = module.reading_opening_time,
+                closing_time = module.closing_time,
+                late_allowed = module.late_submissions_allowed,
+                late_time = module.late_submission_deadline,
+                late_percent = module.get_late_submission_point_worth(),
+                points_to_pass = module.points_to_pass,
+            )
             modules.append(entry)
             module_index[module.id] = entry
             paths[module.id] = {}
             all_children = list(module.learning_objects.all())
-            recursion(entry, all_children, [], entry['children'])
+            recursion(entry, all_children, [], entry.children)
             i += 1
 
         # Augment submittable exercise parameters.
-        def add_to(target: Dict[str, Any], exercise: BaseExercise) -> None:
-            target['exercise_count'] += 1
-            target['max_points'] += exercise.max_points
+        def add_to(target: Union[ModuleEntry, CategoryEntry, Totals], exercise: BaseExercise) -> None:
+            target.exercise_count += 1
+            target.max_points += exercise.max_points
             self._add_by_difficulty(
-                target['max_points_by_difficulty'],
+                target.max_points_by_difficulty,
                 exercise.difficulty,
                 exercise.max_points
             )
@@ -156,44 +142,36 @@ class CachedContent(ContentMixin, CachedAbstract):
             except KeyError:
                 self.dirty = True
                 continue
-            entry.update({
-                'submittable': True,
-                'points_to_pass': exercise.points_to_pass,
-                'difficulty': exercise.difficulty,
-                'max_submissions': exercise.max_submissions,
-                'max_points': exercise.max_points,
-                'allow_assistant_viewing': exercise.allow_assistant_viewing,
-            })
 
-            if entry['confirm_the_level']:
-                parent = entry["parent"]
-                if parent is None:
-                    parent = entry["module"]
-                parent['unconfirmed'] = True
-                for entry in parent['children']:
-                    entry['unconfirmed'] = True
-            else:
-                add_to(entry["module"], exercise)
+            entry.submittable = True
+            entry.points_to_pass = exercise.points_to_pass
+            entry.difficulty = exercise.difficulty
+            entry.max_submissions = exercise.max_submissions
+            entry.max_points = exercise.max_points
+            entry.allow_assistant_viewing = exercise.allow_assistant_viewing
+
+            if not entry.confirm_the_level:
+                add_to(entry.module, exercise)
                 add_to(categories[exercise.category.id], exercise)
                 add_to(total, exercise)
 
-                if exercise.max_group_size > total['max_group_size']:
-                    total['max_group_size'] = exercise.max_group_size
-                if exercise.max_group_size > 1 and exercise.min_group_size < total['min_group_size']:
-                    total['min_group_size'] = exercise.min_group_size
+                if exercise.max_group_size > total.max_group_size:
+                    total.max_group_size = exercise.max_group_size
+                if exercise.max_group_size > 1 and exercise.min_group_size < total.min_group_size:
+                    total.min_group_size = exercise.min_group_size
 
-        if total['min_group_size'] > total['max_group_size']:
-            total['min_group_size'] = 1
+        if total.min_group_size > total.max_group_size:
+            total.min_group_size = 1
 
-        return {
-            'created': timezone.now(),
-            'module_index': module_index,
-            'exercise_index': exercise_index,
-            'paths': paths,
-            'modules': modules,
-            'categories': categories,
-            'total': total,
-        }
+        return CachedContentData(
+            created = timezone.now(),
+            module_index = module_index,
+            exercise_index = exercise_index,
+            paths = paths,
+            modules = modules,
+            categories = categories,
+            total = total,
+        )
 
 
 def invalidate_content(
