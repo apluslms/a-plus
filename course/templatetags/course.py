@@ -1,5 +1,4 @@
 from typing import Any, Dict, List, Union
-from copy import deepcopy
 
 from django import template
 from django.db import models
@@ -7,6 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
 from exercise.cache.content import CachedContent
+from exercise.cache.points import SubmittableExerciseEntry
 from course.models import CourseInstance, UserTagging
 from lib.localization_syntax import pick_localized
 from userprofile.models import UserProfile
@@ -24,8 +24,8 @@ def _prepare_topmenu(context):
 
 
 def _deadline_extended_exercise_open(entry, now):
-    personal_deadline = entry.get('personal_deadline')
-    return personal_deadline is not None and entry['opening_time'] <= now <= personal_deadline
+    personal_deadline = entry.personal_deadline
+    return personal_deadline is not None and entry.opening_time <= now <= personal_deadline
 
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
@@ -90,7 +90,7 @@ def is_in_maintenance(entry):
 
 @register.filter
 def exercises_open(entry, now):
-    return entry['opening_time'] <= now <= entry['closing_time']
+    return entry.opening_time <= now <= entry.closing_time
 
 
 @register.filter
@@ -100,20 +100,23 @@ def deadline_extended_exercise_open(entry, now):
 
 @register.filter
 def deadline_extended_exercises_open(entry, now):
-    entries = deepcopy(entry['flatted'])
-    return any(_deadline_extended_exercise_open(entry, now) for entry in entries)
+    return any(
+        _deadline_extended_exercise_open(entry, now)
+        for entry in entry.flatted
+        if isinstance(entry, SubmittableExerciseEntry)
+    )
 
 
 @register.filter
 def exercises_submittable(entry, now):
-    if entry['late_allowed']:
-        return entry['opening_time'] <= now <= entry['late_time']
-    return entry['opening_time'] <= now <= entry['closing_time']
+    if entry.late_allowed:
+        return entry.opening_time <= now <= entry.late_time
+    return entry.opening_time <= now <= entry.closing_time
 
 
 @register.filter
 def has_opened(entry, now):
-    return entry['opening_time'] <= now
+    return entry.opening_time <= now
 
 
 @register.filter

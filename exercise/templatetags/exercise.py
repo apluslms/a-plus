@@ -1,3 +1,4 @@
+from dataclasses import asdict
 import datetime
 import json
 from typing import Any, Dict, Iterable, Optional, Tuple, Union
@@ -16,7 +17,15 @@ from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
 from ..cache.content import CachedContent
-from ..cache.points import CachedPoints
+from ..cache.points import (
+    CachedPoints,
+    CachedPointsData,
+    CategoryEntry,
+    ExerciseEntry,
+    ModuleEntry,
+    SubmissionEntry,
+    SubmittableExerciseEntry,
+)
 from ..exercise_summary import UserExerciseSummary
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 from ..reveal_states import ExerciseRevealState
@@ -54,7 +63,7 @@ def _get_toc(context, student=None):
     context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
-        'total': points.total(),
+        'total': asdict(points.total()),
         'is_course_staff': context.get('is_course_staff', False),
     })
     return context
@@ -63,7 +72,7 @@ def _get_toc(context, student=None):
 def _is_accessible(context, entry, t):
     if t and t > _prepare_now(context):
         return False
-    if entry.get('requirements'):
+    if entry.requirements:
         points = _prepare_context(context)
         module = CourseModule.objects.get(id=entry['id'])
         return module.are_requirements_passed(points)
@@ -148,9 +157,17 @@ def _reveal_rule(exercise: BaseExercise, user: User) -> Tuple[bool, Optional[dat
     reveal_time = rule.get_reveal_time(state)
     return is_revealed, reveal_time
 
+AnyPointsEntry = Union[
+    CachedPointsData,
+    ModuleEntry,
+    CategoryEntry,
+    ExerciseEntry,
+    SubmittableExerciseEntry,
+    SubmissionEntry,
+]
 
 def _points_data( # pylint: disable=too-many-locals
-        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        obj: Union[UserExerciseSummary, Submission, AnyPointsEntry],
         user: User,
         classes: Optional[str] = None,
         is_staff: bool = False,
@@ -206,29 +223,29 @@ def _points_data( # pylint: disable=too-many-locals
                     or obj.status != Submission.STATUS.WAITING
                 ):
             data['status'] = obj.status
-    else:
-        points = obj.get('points', 0)
-        max_points = obj.get('max_points', 0)
-        required = obj.get('points_to_pass', 0)
+    else: # All the different cached points entries
+        points = getattr(obj, 'points',  0)
+        max_points = getattr(obj, 'max_points',  0)
+        required = getattr(obj, 'points_to_pass',  0)
         data = {
             'points': points,
-            'formatted_points': obj.get('formatted_points', '0'),
+            'formatted_points': getattr(obj, 'formatted_points',  '0'),
             'max': max_points,
-            'difficulty': obj.get('difficulty', ''),
+            'difficulty': getattr(obj, 'difficulty',  ''),
             'required': required,
-            'confirm_the_level': obj.get('confirm_the_level', False),
+            'confirm_the_level': getattr(obj, 'confirm_the_level',  False),
             'missing_points': points < required,
-            'passed': obj.get('passed', True),
+            'passed': getattr(obj, 'passed',  True),
             'full_score': points >= max_points,
-            'submitted': obj.get('submission_count', 0) > 0,
-            'graded': obj.get('graded', True),
-            'status': obj.get('submission_status', False),
-            'unconfirmed': obj.get('unconfirmed', False),
-            'official': not obj.get('unofficial', False),
-            'confirmable_points': obj.get('confirmable_points', False),
-            'feedback_revealed': obj.get('feedback_revealed', True),
+            'submitted': getattr(obj, 'submission_count',  0) > 0,
+            'graded': getattr(obj, 'graded',  True),
+            'status': getattr(obj, 'submission_status',  False),
+            'unconfirmed': getattr(obj, 'unconfirmed',  False),
+            'official': not getattr(obj, 'unofficial',  False),
+            'confirmable_points': getattr(obj, 'confirmable_points',  False),
+            'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
         }
-        reveal_time = obj.get('feedback_reveal_time')
+        reveal_time = getattr(obj, 'feedback_reveal_time', None)
     percentage = 0
     required_percentage = None
     if data['max'] > 0:
@@ -237,7 +254,7 @@ def _points_data( # pylint: disable=too-many-locals
             required_percentage = int(round(100.0 * data['required'] / data['max']))
     feedback_hidden_description = None
     if not data.get('feedback_revealed'):
-        if isinstance(obj, dict) and obj.get('type') != 'exercise':
+        if isinstance(obj, (SubmissionEntry, CategoryEntry, ModuleEntry, CachedPointsData)):
             feedback_hidden_description = _('RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN')
         elif reveal_time is not None:
             formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")
@@ -259,7 +276,7 @@ def _points_data( # pylint: disable=too-many-locals
 @register.inclusion_tag("exercise/_points_progress.html", takes_context=True)
 def points_progress(
         context: Context,
-        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        obj: Union[UserExerciseSummary, Submission, CachedPointsData, ModuleEntry, CategoryEntry],
         is_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
     return _points_data(obj, context['request'].user, None, context['is_course_staff'], is_revealed)
@@ -268,7 +285,7 @@ def points_progress(
 @register.inclusion_tag("exercise/_points_badge.html", takes_context=True)
 def points_badge(
         context: Context,
-        obj: Union[UserExerciseSummary, Submission, Dict[str, Any]],
+        obj: Union[UserExerciseSummary, Submission, ModuleEntry, ExerciseEntry, SubmittableExerciseEntry, SubmissionEntry],
         classes: Optional[str] = None,
         is_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
@@ -283,18 +300,18 @@ def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
 @register.simple_tag(takes_context=True)
 def max_group_size(context):
     points = _prepare_context(context)
-    return points.total()['max_group_size']
+    return points.total().max_group_size
 
 
 @register.simple_tag(takes_context=True)
 def min_group_size(context):
     points = _prepare_context(context)
-    return points.total()['min_group_size']
+    return points.total().min_group_size
 
 
 @register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
-    t = entry.get('reading_opening_time')
+    t = entry.reading_opening_time
     if t:
         return _is_accessible(context, entry, t)
     return exercise_accessible(context, entry)
@@ -302,7 +319,7 @@ def module_accessible(context, entry):
 
 @register.simple_tag(takes_context=True)
 def exercise_accessible(context, entry):
-    t = entry.get('opening_time')
+    t = entry.opening_time
     return _is_accessible(context, entry, t)
 
 

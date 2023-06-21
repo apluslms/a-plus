@@ -2,8 +2,8 @@ from copy import copy
 
 
 def calculate_grade(total_points, point_limits, pad_points):
-    points = total_points['points']
-    d_points = copy(total_points['points_by_difficulty'])
+    points = total_points.points
+    d_points = copy(total_points.points_by_difficulty)
 
     def pass_limit(bound):
         if isinstance(bound, list): # pylint: disable=too-many-nested-blocks
@@ -59,7 +59,7 @@ def assign_grade(cached_points, diploma_design):
 
     def is_passed(model):
         entry,_,_,_ = cached_points.find(model)
-        return entry['passed']
+        return entry.passed
     if not all(is_passed(m) for m in diploma_design.modules_to_pass.all()):
         return 0
     if not all(is_passed(e) for e in diploma_design.exercises_to_pass.all()):

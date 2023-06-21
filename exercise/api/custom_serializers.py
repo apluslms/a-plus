@@ -67,19 +67,19 @@ class ExercisePointsSerializer(serializers.Serializer):
             }, request=request)
 
         def submission_obj(submission_cached):
-            id_ = submission_cached['id']
+            id_ = submission_cached.id
             return {
                 'id': id_,
                 'url': submission_url(id_),
-                'submission_time': submission_cached['date'],
-                'grade': submission_cached['points'],
+                'submission_time': submission_cached.date,
+                'grade': submission_cached.points,
             }
 
-        submissions = [submission_obj(s) for s in entry['submissions']]
+        submissions = [submission_obj(s) for s in entry.submissions]
         exercise_data = {
-            'url': exercise_url(entry['id']),
-            'best_submission': submission_url(entry['best_submission']),
-            'submissions': [s['url'] for s in submissions],
+            'url': exercise_url(entry.id),
+            'best_submission': submission_url(entry.best_submission),
+            'submissions': [s["url"] for s in submissions],
             'submissions_with_points': submissions,
         }
         for key in [
@@ -95,9 +95,9 @@ class ExercisePointsSerializer(serializers.Serializer):
             'passed',
             # 'official',
         ]:
-            exercise_data[key] = entry[key]
-        exercise_data['official'] = (entry['graded'] and
-                                     not entry.get('unconfirmed', False))
+            exercise_data[key] = getattr(entry, key)
+        exercise_data['official'] = (entry.graded and
+                                     not entry.unconfirmed)
         return exercise_data
 
 
@@ -115,11 +115,11 @@ class UserPointsSerializer(UserWithTagsSerializer):
                 'max_points', 'points_to_pass', 'submission_count',
                 'points', 'points_by_difficulty', 'passed',
             ]:
-                module_data[key] = module[key]
+                module_data[key] = getattr(module, key)
 
             exercises = []
-            for entry in module['flatted']:
-                if entry['type'] == 'exercise' and entry['submittable']:
+            for entry in module.flatted:
+                if entry.type == 'exercise' and entry.submittable:
                     exercises.append(
                         ExercisePointsSerializer(entry, context=self.context).data
                     )
@@ -128,7 +128,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
         total = points.total()
         for key in ['submission_count', 'points', 'points_by_difficulty']:
-            rep[key] = total[key]
+            rep[key] = getattr(total, key)
         rep['modules'] = modules
 
         return rep
@@ -140,7 +140,7 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
         rep = super().to_representation(obj)
         view = self.context['view']
         points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
-        entry,_,_,_ = points.find(view.exercise)
+        entry = points.get_exercise(view.exercise.id)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():
             rep[key] = value

@@ -58,28 +58,28 @@ class Threshold(models.Model):
         try:
             for module in self.passed_modules.all():
                 entry,_,_,_ = cached_points.find(module)
-                if not entry["passed"]:
+                if not entry.passed:
                     return False
             for category in self.passed_categories.all():
-                if not cached_points.find_category(category.id)["passed"]:
+                if not cached_points.find_category(category.id).passed:
                     return False
             for exercise in self.passed_exercises.all():
                 entry,_,_,_ = cached_points.find(exercise)
-                if not entry["passed"]:
+                if not entry.passed:
                     return False
         except NoSuchContent:
             return False
 
         total = cached_points.total()
-        d_points = total["points_by_difficulty"].copy()
+        d_points = total.points_by_difficulty.copy()
         if unconfirmed:
-            u_points = total["unconfirmed_points_by_difficulty"]
+            u_points = total.unconfirmed_points_by_difficulty
             for key,value in u_points.items():
                 if key in d_points:
                     d_points[key] += value
                 else:
                     d_points[key] = value
-        return self._are_points_passed(total["points"], d_points)
+        return self._are_points_passed(total.points, d_points)
 
     def _are_points_passed(self, points: int, points_by_difficulty: Dict[str, int]) -> bool:
         if not self.points.exists():

@@ -461,7 +461,7 @@ class CourseChapter(LearningObject):
         content = CachedContent(self.course_instance)
         points = CachedPoints(self.course_instance, user, content)
         entry, _, _, _ = points.find(self)
-        return entry['is_revealed']
+        return entry.is_revealed
 
     def _is_empty(self):
         return not self.generate_table_of_contents

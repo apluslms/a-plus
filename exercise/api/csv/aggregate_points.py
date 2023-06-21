@@ -19,9 +19,9 @@ def aggregate_points(profiles, taggings, exercises, aggregate): # pylint: disabl
     exercise_fields = []
 
     for e in exercises:
-        if e['type'] == 'exercise':
+        if e.type == 'exercise':
             for n in OBJECT_FIELDS:
-                exercise_fields.append(n.format(e['id']))
+                exercise_fields.append(n.format(e.id))
 
     agg = {}
     # Gather exercise points per student

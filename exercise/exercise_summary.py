@@ -1,4 +1,3 @@
-import itertools
 from typing import Optional
 
 from django.contrib.auth.models import User
@@ -181,17 +180,15 @@ class ResultTable:
 
 
     def __get_exercises(self):
+        def get_descendant_ids(children):
+            for child in children:
+                if child.children:
+                    yield from get_descendant_ids(child.children)
+                else:
+                    yield child.id
+
         content = CachedContent(self.course_instance)
-
-        def get_descendant_ids(node):
-            children = node['children']
-            if children:
-                return itertools.chain.from_iterable(
-                    get_descendant_ids(child) for child in children)
-            return (node['id'],)
-
-        root_node = { 'children': content.modules() }
-        for id in get_descendant_ids(root_node): # pylint: disable=redefined-builtin
+        for id in get_descendant_ids(content.modules()): # pylint: disable=redefined-builtin
             try:
                 yield BaseExercise.objects.get(learningobject_ptr_id=id)
             except ObjectDoesNotExist:
