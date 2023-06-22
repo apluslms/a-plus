@@ -86,11 +86,10 @@ class EditContentView(EditInstanceView):
             learning_objects = {lobject.id: lobject for lobject in module.learning_objects.all()}
             module.flat_objects = []
             try:
-                for entry in self.content.flat_module(module, enclosed=False):
-                    if entry.type != 'level':
-                        learning_object = learning_objects.get(entry.id)
-                        if learning_object:
-                            module.flat_objects.append(learning_object)
+                for entry in self.content.flat_module(module, level_markers=False):
+                    learning_object = learning_objects.get(entry.id)
+                    if learning_object:
+                        module.flat_objects.append(learning_object)
             except NoSuchContent:
                 continue
         self.categories = self.instance.categories.annotate(

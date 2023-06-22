@@ -85,7 +85,7 @@ class ExerciseRevealState(BaseRevealState):
             # 'True' is always passed to CachedPoints as the show_unrevealed argument
             # because we need to know the actual points.
             cached_points = CachedPoints(exercise.course_instance, student, cached_content, True)
-            entry,_,_,_ = cached_points.find(exercise)
+            entry = cached_points.get_exercise(exercise.id)
             self.cache = entry
         else:
             self.cache = exercise

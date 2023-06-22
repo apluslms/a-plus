@@ -29,8 +29,8 @@ class CachedContentTest(CourseTestCase):
         modules = c.modules()
         self.assertEqual(len(c.modules()), 3)
         self.assertEqual(len(c.categories()), 1)
-        exercises0 = list(c.flat_module(modules[0], enclosed=False))
-        exercises1 = list(c.flat_module(modules[1], enclosed=False))
+        exercises0 = list(c.flat_module(modules[0], level_markers=False))
+        exercises1 = list(c.flat_module(modules[1], level_markers=False))
         self.assertEqual(len(exercises0), 1)
         self.assertEqual(len(exercises1), 2)
         exercise = exercises0[0]
@@ -51,14 +51,22 @@ class CachedContentTest(CourseTestCase):
         c = CachedContent(self.instance)
         full = list(c.flat_full())
         hierarchy = [
+            'level',
             'module','level','exercise','level',
             'module','level','exercise','exercise','level',
             'module','level','exercise','level',
+            'level',
         ]
         for i,typ in enumerate(hierarchy):
             self.assertEqual(full[i].type, typ)
+
+        full = list(c.flat_full(level_markers=False))
+        hierarchy = [t for t in hierarchy if t != "level"]
+        for i,typ in enumerate(hierarchy):
+            self.assertEqual(full[i].type, typ)
+
         begin = c.begin()
-        self.assertEqual(begin, full[2])
+        self.assertEqual(begin, full[1])
 
     def test_find(self):
         c = CachedContent(self.instance)
