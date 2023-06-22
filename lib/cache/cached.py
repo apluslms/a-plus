@@ -1,5 +1,6 @@
 from datetime import datetime
 from time import time
+from typing import Generic, Optional, TypeVar
 import logging
 
 from django.core.cache import cache
@@ -8,8 +9,10 @@ from django.db.models import Model
 logger = logging.getLogger('aplus.cached')
 
 
-class CachedAbstract:
+DataType = TypeVar("DataType")
+class CachedAbstract(Generic[DataType]):
     KEY_PREFIX = 'abstract'
+    data: DataType
 
     @classmethod
     def _key(cls, *models, modifiers):
@@ -34,7 +37,7 @@ class CachedAbstract:
         self.__cache_key = self.__class__._key(*models, modifiers=modifiers)
         self.data = self.__get_data()
 
-    def __get_data(self):
+    def __get_data(self) -> DataType:
         cache_key = self.__cache_key
         cache_name = "%s[%s]" % (self.__class__.__name__, cache_key)
 
@@ -134,5 +137,5 @@ class CachedAbstract:
     def _needs_generation(self, data):
         return data is None
 
-    def _generate_data(self, *models, data=None):
+    def _generate_data(self, *models, data: Optional[DataType] = None) -> DataType:
         raise NotImplementedError("Subclass of CachedAbstract needs to implement _generate_data")
