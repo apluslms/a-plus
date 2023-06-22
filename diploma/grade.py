@@ -1,13 +1,24 @@
 from copy import copy
+from typing import List, Tuple, Union
+
+from exercise.cache.points import CachedPoints, Totals
+
+from .models import CourseDiplomaDesign
 
 
-def calculate_grade(total_points, point_limits, pad_points):
+def calculate_grade(
+        total_points: Totals,
+        point_limits: List[Union[int, List[Tuple[str, int]]]],
+        pad_points: bool,
+        ) -> int:
     points = total_points.points
     d_points = copy(total_points.points_by_difficulty)
 
-    def pass_limit(bound):
+    def pass_limit(bound: Union[int, List[Tuple[str, int]]]) -> int:
         if isinstance(bound, list): # pylint: disable=too-many-nested-blocks
-            ds,ls = zip(*bound)
+            ds: List[str]
+            ls: List[int]
+            ds,ls = zip(*bound) # type: ignore
             for i,d in enumerate(ds):
 
                 if pad_points:
@@ -42,7 +53,7 @@ def calculate_grade(total_points, point_limits, pad_points):
     return grade
 
 
-def assign_grade(cached_points, diploma_design):
+def assign_grade(cached_points: CachedPoints, diploma_design: CourseDiplomaDesign) -> int:
 
     if not (diploma_design and cached_points.user.is_authenticated):
         return -1
@@ -57,12 +68,15 @@ def assign_grade(cached_points, diploma_design):
         ):
             return -1
 
-    def is_passed(model):
-        entry,_,_,_ = cached_points.find(model)
-        return entry.passed
-    if not all(is_passed(m) for m in diploma_design.modules_to_pass.all()):
+    if not all(
+        cached_points.entry_for_module(m).passed
+        for m in diploma_design.modules_to_pass.all()
+    ):
         return 0
-    if not all(is_passed(e) for e in diploma_design.exercises_to_pass.all()):
+    if not all(
+        cached_points.entry_for_exercise(e).passed
+        for e in diploma_design.exercises_to_pass.all()
+    ):
         return 0
 
     return calculate_grade(

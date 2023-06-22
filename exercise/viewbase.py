@@ -133,8 +133,7 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
 
     def get_cached_points(self, user: Optional[User] = None) -> None:
         cache = CachedPoints(self.instance, user or self.request.user, self.content, self.is_course_staff)
-        entry, _, _, _ = cache.find(self.exercise)
-        self.cached_points = entry
+        self.cached_points = cache.get_exercise(self.exercise.id)
         self.note("cached_points")
 
 
