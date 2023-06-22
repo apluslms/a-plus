@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Literal, Optional
+from typing import Any, ClassVar, Dict, Generic, List, Literal, Optional, TypeVar
 
 
 class EqById:
@@ -14,12 +14,18 @@ class EqById:
         return self.id == other.id
 
 
+ExerciseEntry = TypeVar("ExerciseEntry", bound="ExerciseEntryBase")
+ModuleEntry = TypeVar("ModuleEntry", bound="ModuleEntryBase")
+CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
+Totals = TypeVar("Totals", bound="TotalsBase")
+
+
 @dataclass(eq=False)
-class ExerciseEntryBase(EqById):
+class ExerciseEntryBase(EqById, Generic[ModuleEntry, ExerciseEntry]):
     type: ClassVar[Literal['exercise']] = 'exercise'
     # Disable repr for ancestors so there are no infinite loops
-    module: ModuleEntryBase = field(repr=False)
-    parent: Optional[ExerciseEntryBase] = field(repr=False)
+    module: ModuleEntry = field(repr=False)
+    parent: Optional[ExerciseEntry] = field(repr=False)
     category: str
     category_id: int
     category_status: str
@@ -53,7 +59,7 @@ class ExerciseEntryBase(EqById):
 
 
 @dataclass(eq=False)
-class ModuleEntryBase(EqById):
+class ModuleEntryBase(EqById, Generic[ExerciseEntry]):
     type: ClassVar[Literal['module']] = 'module'
     id: int
     order: int
@@ -74,7 +80,7 @@ class ModuleEntryBase(EqById):
     exercise_count: int = 0
     max_points: int = 0
     max_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
-    children: List[ExerciseEntryBase] = field(default_factory=list)
+    children: List[ExerciseEntry] = field(default_factory=list)
 
 
 @dataclass(eq=False)
@@ -99,11 +105,11 @@ class TotalsBase:
 
 
 @dataclass
-class CachedDataBase:
+class CachedDataBase(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     created: datetime
-    module_index: Dict[int, ModuleEntryBase]
-    exercise_index: Dict[int, ExerciseEntryBase]
+    module_index: Dict[int, ModuleEntry]
+    exercise_index: Dict[int, ExerciseEntry]
     paths: Dict[int, Dict[str, int]]
-    modules: List[ModuleEntryBase]
-    categories: Dict[int, CategoryEntryBase]
-    total: TotalsBase
+    modules: List[ModuleEntry]
+    categories: Dict[int, CategoryEntry]
+    total: Totals

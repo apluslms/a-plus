@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -8,7 +8,7 @@ from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer
 from userprofile.models import UserProfile
-from ..cache.points import CachedPoints
+from ..cache.points import CachedPoints, SubmittableExerciseEntry, SubmissionEntry
 
 
 class UserToTagSerializer(AlwaysListSerializer, CourseUsertagBriefSerializer):
@@ -51,22 +51,22 @@ class UserWithTagsSerializer(UserBriefSerializer):
 
 class ExercisePointsSerializer(serializers.Serializer):
 
-    def to_representation(self, entry): # pylint: disable=arguments-renamed
+    def to_representation(self, entry: SubmittableExerciseEntry) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         request = self.context['request']
 
-        def exercise_url(exercise_id):
+        def exercise_url(exercise_id: int) -> str:
             return reverse('api:exercise-detail', kwargs={
                 'exercise_id': exercise_id,
             }, request=request)
 
-        def submission_url(submission_id):
+        def submission_url(submission_id: Optional[int]) -> Optional[str]:
             if submission_id is None:
                 return None
             return reverse('api:submission-detail', kwargs={
                 'submission_id': submission_id
             }, request=request)
 
-        def submission_obj(submission_cached):
+        def submission_obj(submission_cached: SubmissionEntry) -> Dict[str, Any]:
             id_ = submission_cached.id
             return {
                 'id': id_,
@@ -119,7 +119,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
             exercises = []
             for entry in module.flatted:
-                if entry.type == 'exercise' and entry.submittable:
+                if isinstance(entry, SubmittableExerciseEntry):
                     exercises.append(
                         ExercisePointsSerializer(entry, context=self.context).data
                     )

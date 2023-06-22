@@ -1,12 +1,19 @@
+from __future__ import annotations
 from datetime import datetime
 from typing import (
+    cast,
+    Dict,
     Generator,
+    Generic,
     Iterable,
     Iterator,
     List,
+    Literal,
     Optional,
+    overload,
     Sequence,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -15,6 +22,18 @@ from django.http.response import Http404
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
 from .basetypes import CachedDataBase, CategoryEntryBase, ExerciseEntryBase, ModuleEntryBase, TotalsBase
+
+
+ExerciseEntry = TypeVar("ExerciseEntry", bound="ExerciseEntryBase")
+ModuleEntry = TypeVar("ModuleEntry", bound="ModuleEntryBase")
+CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
+Totals = TypeVar("Totals", bound="TotalsBase")
+
+
+Entry = Union[ExerciseEntry, ModuleEntry]
+
+EE = TypeVar("EE", bound=ExerciseEntryBase)
+ME = TypeVar("ME", bound=ModuleEntryBase)
 
 
 class LevelMarker:
@@ -28,7 +47,7 @@ class NoSuchContent(Exception):
     pass
 
 
-def _get_tree_indices(children: Sequence[Union[ExerciseEntryBase, ModuleEntryBase]], tree: Sequence[Union[ExerciseEntryBase, ModuleEntryBase]]) -> List[int]:
+def _get_tree_indices(children: Sequence[Entry[EE,ME]], tree: Sequence[Entry[EE, ME]]) -> List[int]:
     indices = []
     for e in tree:
         indices.append([c.id for c in children].index(e.id))
@@ -36,13 +55,27 @@ def _get_tree_indices(children: Sequence[Union[ExerciseEntryBase, ModuleEntryBas
     return indices
 
 
+@overload
 def next_iterator(
-        children: Sequence[Union[ExerciseEntryBase, ModuleEntryBase]],
-        tree: Optional[Sequence[Union[ExerciseEntryBase, ModuleEntryBase]]] = None,
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
         skip_first: bool = False,
-        enclosed: bool = True,
-        ) -> Generator[Union[ExerciseEntryBase, ModuleEntryBase, LevelMarker], None, None]:
-    def descendants(entry: Union[ExerciseEntryBase, ModuleEntryBase], start: List[int]) -> Generator[Union[ExerciseEntryBase, ModuleEntryBase, LevelMarker], None, None]:
+        level_markers: Literal[True] = True,
+        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]: ...
+@overload
+def next_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        level_markers: Literal[False] = True, # type: ignore
+        ) -> Generator[Entry[EE, ME], None, None]: ...
+def next_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        level_markers: bool = True,
+        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+    def descendants(entry: Entry[EE, ME], start: List[int]) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
         children = entry.children
         if start:
             children = children[start[0]:]
@@ -50,15 +83,17 @@ def next_iterator(
             yield entry
             if not children:
                 return
-            yield LevelMarker(False)
+            if level_markers:
+                yield LevelMarker(False)
 
         for child in children:
             yield from descendants(child, start[1:])
             start = []
 
-        yield LevelMarker(True)
+        if level_markers:
+            yield LevelMarker(True)
 
-    if enclosed:
+    if level_markers:
         yield LevelMarker(False)
 
     # Get the starting index list of the first entry as specified by tree
@@ -81,19 +116,19 @@ def next_iterator(
         yield from descendants(child, tree_indices[1:])
         tree_indices = []
 
-    if enclosed:
+    if level_markers:
         yield LevelMarker(True)
 
 
 def previous_iterator(
-        children: Sequence[Union[ExerciseEntryBase, ModuleEntryBase]],
-        tree: Optional[Sequence[Union[ExerciseEntryBase, ModuleEntryBase]]] = None,
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
         skip_first: bool = False,
-        ) -> Generator[Union[ExerciseEntryBase, ModuleEntryBase], None, None]:
+        ) -> Generator[Entry[EE, ME], None, None]:
     def descendants(
-            children: Sequence[Union[ExerciseEntryBase, ModuleEntryBase]],
+            children: Sequence[Entry[EE, ME]],
             start: List[int]
-            ) -> Generator[Union[ExerciseEntryBase, ModuleEntryBase], None, None]:
+            ) -> Generator[Entry[EE, ME], None, None]:
         if start:
             if len(start) == 1:
                 yield children[start[0]]
@@ -137,26 +172,26 @@ def previous_iterator(
     yield from descendants(children, tree_indices)
 
 
-class ContentMixin:
-    data: CachedDataBase
+class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
+    data: CachedDataBase[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]
 
     def created(self) -> datetime:
         return self.data.created
 
-    def total(self) -> TotalsBase:
+    def total(self) -> Totals:
         return self.data.total
 
-    def modules(self) -> List[ModuleEntryBase]:
+    def modules(self) -> List[ModuleEntry]:
         return self.data.modules
 
-    def modules_flatted(self) -> List[ModuleEntryBase]:
+    def modules_flatted(self) -> List[ModuleEntry]:
         for module in self.data.modules:
             # TODO: this would be better as a cached property on the module entries themselves
             # which would make this whole method unnecessary
             module.flatted = list(self.flat_module(module))
         return self.data.modules
 
-    def exercises(self) -> Iterable[ExerciseEntryBase]:
+    def exercises(self) -> Iterable[ExerciseEntry]:
         return self.data.exercise_index.values()
 
     def categories(self):
@@ -164,20 +199,46 @@ class ContentMixin:
         categories.sort(key=lambda entry: entry.name)
         return categories
 
+    @overload
     def flat_module(
             self,
-            module: Union[ModuleEntryBase, CourseModule],
-            enclosed: bool = True,
-            ) -> Iterator[Union[ModuleEntryBase, ExerciseEntryBase, LevelMarker]]:
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: Literal[True] = True,
+            ) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]: ...
+    @overload
+    def flat_module(
+            self,
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: Literal[False] = True, # type: ignore
+            ) -> Iterator[Union[ModuleEntry, ExerciseEntry]]: ...
+    def flat_module(
+            self,
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: bool = True,
+            ) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
         entry = self.entry_for_model(module)
-        return next_iterator(entry.children, enclosed=enclosed)
+        children = cast(List[ExerciseEntry], entry.children)
+        return next_iterator(
+            children,
+            level_markers=level_markers, # type: ignore
+        )
 
-    def flat_full(self):
-        return next_iterator(self.modules(), enclosed=False)
+    @overload
+    def flat_full(self, level_markers: Literal[True] = True) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]: ...
+    @overload
+    def flat_full(
+            self,
+            level_markers: Literal[False] = True, # type: ignore
+            ) -> Iterator[Union[ModuleEntry, ExerciseEntry]]: ...
+    def flat_full(self, level_markers = True):
+        return next_iterator(
+            self.modules(),
+            level_markers=level_markers, # type: ignore
+        )
 
-    def begin(self):
-        for entry in self.flat_full():
-            if entry.type == 'exercise':
+    def begin(self) -> Optional[ExerciseEntry]:
+        for entry in self.flat_full(level_markers=False):
+            if isinstance(entry, ExerciseEntryBase):
                 return entry
         return None
 
@@ -187,27 +248,28 @@ class ContentMixin:
             return paths[path]
         raise NoSuchContent()
 
-    def find_number(self, number: str) -> Union[ModuleEntryBase, ExerciseEntryBase]:
+    def find_number(self, number: str) -> Union[ModuleEntry, ExerciseEntry]:
         """Find item by a period separated list of order numbers
 
         E.g. number="3.2.5" takes the fifth learning object in the second
         learning object of the third module
         """
-        hit = None
-        search = self.modules()
-        parts = number.split('.')
-        for i in range(len(parts)):
-            number = '.'.join(parts[0:i+1])
+        def find(search: Sequence[Union[ModuleEntry, ExerciseEntry]], number: str) -> Union[ModuleEntry, ExerciseEntry]:
             for s in search:
                 if s.number == number:
-                    hit = s
-                    search = hit.children
-                    break
-            else:
-                raise NoSuchContent()
+                    return s
+            raise NoSuchContent()
+
+        parts = number.split('.')
+        number = parts[0]
+        hit = find(self.modules(), number)
+        for part in parts[1:]:
+            number += "." + part
+            hit = find(cast(List[ExerciseEntry], hit.children), number)
+
         return hit
 
-    def find_category(self, category_id: int) -> CategoryEntryBase:
+    def find_category(self, category_id: int) -> CategoryEntry:
         categories = self.data.categories
         if category_id in categories:
             return categories[category_id]
@@ -217,10 +279,10 @@ class ContentMixin:
             self,
             model: Union[LearningObject, CourseModule],
             ) -> Tuple[
-                Union[ModuleEntryBase, ExerciseEntryBase],
-                List[Union[ModuleEntryBase, ExerciseEntryBase]],
-                Optional[Union[ModuleEntryBase, ExerciseEntryBase]],
-                Optional[Union[ModuleEntryBase, ExerciseEntryBase]]
+                Union[ModuleEntry, ExerciseEntry],
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
             ]:
         entry = self.entry_for_model(model)
         tree = self._tree(entry)
@@ -235,7 +297,7 @@ class ContentMixin:
         """Get the absolute order number of the given learning object
         (i.e. how manieth chapter or exercise it is in the material).
         """
-        def inner(parent: Union[ModuleEntryBase, ExerciseEntryBase], n: int) -> Tuple[bool, int]:
+        def inner(parent: Union[ModuleEntry, ExerciseEntry], n: int) -> Tuple[bool, int]:
             # parent is a cached dict representing a CourseModule or a LearningObject
             for entry in parent.children:
                 n += 1
@@ -252,7 +314,7 @@ class ContentMixin:
             if found:
                 return n
 
-    def _tree(self, entry: Union[ModuleEntryBase, ExerciseEntryBase]) -> List[Union[ModuleEntryBase, ExerciseEntryBase]]:
+    def _tree(self, entry: Union[ModuleEntry, ExerciseEntry]) -> List[Union[ModuleEntry, ExerciseEntry]]:
         if isinstance(entry, ModuleEntryBase):
             return [entry]
 
@@ -269,8 +331,8 @@ class ContentMixin:
 
     def entry_for_model(
             self,
-            model: Union[ModuleEntryBase, ExerciseEntryBase, LearningObject, CourseModule]
-            ) -> Union[ModuleEntryBase, ExerciseEntryBase]:
+            model: Union[ModuleEntry, ExerciseEntry, LearningObject, CourseModule]
+            ) -> Union[ModuleEntry, ExerciseEntry]:
         if isinstance(model, ModuleEntryBase):
             return self.get_module(model.id)
         elif isinstance(model, ExerciseEntryBase):
@@ -282,32 +344,38 @@ class ContentMixin:
 
         raise NoSuchContent()
 
-    def get_exercise(self, id: int) -> ExerciseEntryBase:
+    def entry_for_exercise(self, model: LearningObject) -> ExerciseEntry:
+        return self.get_exercise(model.id)
+
+    def get_exercise(self, id: int) -> ExerciseEntry:
         if id in self.data.exercise_index:
             return self.data.exercise_index[id]
         raise NoSuchContent()
 
-    def get_module(self, id: int) -> ModuleEntryBase:
+    def entry_for_module(self, model: CourseModule) -> ModuleEntry:
+        return self.get_module(model.id)
+
+    def get_module(self, id: int) -> ModuleEntry:
         if id in self.data.module_index:
             return self.data.module_index[id]
         raise NoSuchContent()
 
     def search_exercises(self, **kwargs) -> List[ExerciseEntryBase]:
         _, entries = self.search_entries(**kwargs)
-        return [e for e in entries if e.type == 'exercise']
+        return [e for e in entries if isinstance(e, ExerciseEntryBase)]
 
     def search_entries(
             self,
             number: Optional[str] = None,
             category_id: Optional[int] = None,
-            module_id: Optional[str] = None, # noqa: MC0001
-            exercise_id: Optional[str] = None,
+            module_id: Optional[int] = None, # noqa: MC0001
+            exercise_id: Optional[int] = None,
             filter_for_assistant: bool = False,
             best: bool = False, # pylint: disable=unused-argument
             raise_404: bool = True,
             ) -> Tuple[
-                Optional[Union[ModuleEntryBase, ExerciseEntryBase]],
-                List[Union[ModuleEntryBase, ExerciseEntryBase]]
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                List[Union[ModuleEntry, ExerciseEntry]]
             ]:
         """Returns an entry and its filtered descendants.
 
@@ -323,9 +391,9 @@ class ContentMixin:
                         raise Http404() # pylint: disable=raise-missing-from
                     raise
             elif exercise_id is not None:
-                entry = self.get_exercise(int(exercise_id))
+                entry = self.get_exercise(exercise_id)
             elif module_id is not None:
-                entry = self.get_module(int(module_id))
+                entry = self.get_module(module_id)
         except NoSuchContent:
             if raise_404:
                 raise Http404() # pylint: disable=raise-missing-from
@@ -333,7 +401,7 @@ class ContentMixin:
 
         entries = []
 
-        def search_descendants(entry: Union[ExerciseEntryBase, ModuleEntryBase]) -> None:
+        def search_descendants(entry: Union[ExerciseEntry, ModuleEntry]) -> None:
             if (
                 isinstance(entry, ModuleEntryBase) or ( # pylint: disable=too-many-boolean-expressions
                     isinstance(entry, ExerciseEntryBase) and
@@ -341,7 +409,7 @@ class ContentMixin:
                     (not filter_for_assistant or entry.allow_assistant_viewing)
                 )
             ):
-                entries.append(entry)
+                entries.append(entry) # type: ignore
 
             for entry in entry.children:
                 search_descendants(entry)
@@ -354,30 +422,28 @@ class ContentMixin:
 
         return entry, entries
 
-    def _previous(self, tree: List[Union[ExerciseEntryBase, ModuleEntryBase]]) -> Optional[Union[ExerciseEntryBase, ModuleEntryBase]]:
+    def _previous(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
         for entry in previous_iterator(self.modules(), tree, skip_first=True):
             if self.is_listed(entry):
                 return entry
         return None
 
-    def _next(self, tree: List[Union[ExerciseEntryBase, ModuleEntryBase]]) -> Optional[Union[ExerciseEntryBase, ModuleEntryBase]]:
-        # TODO: does the type: level entries cause potential bugs?
-        for entry in next_iterator(self.modules(), tree, skip_first=True, enclosed=False):
+    def _next(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
+        for entry in next_iterator(self.modules(), tree, skip_first=True, level_markers=False):
             if self.is_listed(entry):
                 return entry
         return None
 
     @classmethod
-    def _add_by_difficulty(cls, to, difficulty, points):
+    def _add_by_difficulty(cls, to: Dict[str, int], difficulty: str, points: int):
         if difficulty in to:
             to[difficulty] += points
         else:
             to[difficulty] = points
 
     @classmethod
-    def is_visible(cls, entry):
-        t = entry.type
-        if t == 'exercise':
+    def is_visible(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
+        if isinstance(entry, ExerciseEntryBase):
             return (
                 entry.category_status != LearningObjectCategory.STATUS.HIDDEN
                 and entry.module_status != CourseModule.STATUS.HIDDEN
@@ -387,21 +453,22 @@ class ContentMixin:
                     LearningObject.STATUS.ENROLLMENT_EXTERNAL,
                 )
             )
-        if t == 'module':
+        elif isinstance(entry, ModuleEntryBase):
             return entry.status != CourseModule.STATUS.HIDDEN
-        if t == 'category':
+        elif isinstance(entry, CategoryEntryBase):
             return not entry.status in (
                 LearningObjectCategory.STATUS.HIDDEN,
                 LearningObjectCategory.STATUS.NOTOTAL,
             )
+
         return False
 
     @classmethod
-    def is_listed(cls, entry):
+    def is_listed(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
         if not cls.is_visible(entry):
             return False
-        t = entry.type
-        if t == 'exercise':
+
+        if isinstance(entry, ExerciseEntryBase):
             return (
                 entry.category_status != LearningObjectCategory.STATUS.HIDDEN
                 and entry.module_status != CourseModule.STATUS.UNLISTED
@@ -410,20 +477,20 @@ class ContentMixin:
                     LearningObject.STATUS.MAINTENANCE,
                 )
             )
-        if t == 'module':
+        elif isinstance(entry, ModuleEntryBase):
             return entry.status != CourseModule.STATUS.UNLISTED
-        if t == 'category':
+        elif isinstance(entry, CategoryEntryBase):
             return entry.status != LearningObjectCategory.STATUS.HIDDEN
+
         return True
 
     @classmethod
-    def is_in_maintenance(cls, entry):
-        t = entry.type
-        if t == 'exercise':
+    def is_in_maintenance(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
+        if isinstance(entry, ExerciseEntryBase):
             return (
                 entry.module_status == CourseModule.STATUS.MAINTENANCE
                 or entry.status == LearningObject.STATUS.MAINTENANCE
             )
-        if t == 'module':
+        elif isinstance(entry, ModuleEntryBase):
             return entry.status == CourseModule.STATUS.MAINTENANCE
         return False

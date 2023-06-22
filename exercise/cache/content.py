@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Dict, List, Optional, Type, Union
 
 from django.db.models.base import Model
@@ -13,15 +14,15 @@ from ..models import LearningObject, BaseExercise
 
 Totals = TotalsBase
 CategoryEntry = CategoryEntryBase
-ModuleEntry = ModuleEntryBase
-ExerciseEntry = ExerciseEntryBase
-CachedContentData = CachedDataBase
+# This is a class because a type alias with ForwardRefs cannot be pickled, and exists purely for typing
+class ExerciseEntry(ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]): ...
+ModuleEntry = ModuleEntryBase[ExerciseEntry]
+CachedContentData = CachedDataBase[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]
 
 
-class CachedContent(ContentMixin, CachedAbstract):
+class CachedContent(CachedAbstract[CachedContentData], ContentMixin[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     """ Course content hierarchy for template presentations """
     KEY_PREFIX = 'content'
-    data: CachedContentData
 
     def __init__(self, course_instance: CourseInstance) -> None:
         self.instance = course_instance

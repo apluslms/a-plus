@@ -112,7 +112,7 @@ def user_last(context):
             learning_object__course_module__course_instance=context['instance'],
         ).select_related('learning_object').order_by('-timestamp').first()
         if last:
-            entry,_,_,_ = points.find(last.learning_object)
+            entry = points.get_exercise(last.learning_object.id)
             return {
                 'last': entry,
                 'last_time': last.timestamp,
