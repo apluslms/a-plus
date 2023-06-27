@@ -435,13 +435,6 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
         return None
 
     @classmethod
-    def _add_by_difficulty(cls, to: Dict[str, int], difficulty: str, points: int):
-        if difficulty in to:
-            to[difficulty] += points
-        else:
-            to[difficulty] = points
-
-    @classmethod
     def is_visible(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
         if isinstance(entry, ExerciseEntryBase):
             return (

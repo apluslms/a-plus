@@ -2,7 +2,7 @@ from django.test import SimpleTestCase
 from threading import Thread, Event, Barrier
 from unittest.mock import patch
 
-from lib.cache.cached import CachedAbstract
+from lib.cache.cached_old import CachedAbstract
 
 
 class TestCached(CachedAbstract):

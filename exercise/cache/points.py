@@ -26,12 +26,19 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
-from lib.cache import CachedAbstract
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
-from .basetypes import CachedDataBase, CategoryEntryBase, EqById, ExerciseEntryBase, ModuleEntryBase, TotalsBase
-from .content import CachedContent
+from .basetypes import (
+    add_by_difficulty,
+    CachedDataBase,
+    CategoryEntryBase,
+    EqById,
+    ExerciseEntryBase,
+    ModuleEntryBase,
+    TotalsBase,
+)
+from .content import CachedContentData
 from .hierarchy import ContentMixin
 from ..exercise_models import LearningObject
 from ..models import BaseExercise, Submission, RevealRule
@@ -230,15 +237,20 @@ CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
 @cache_fields
 @dataclass(eq=False)
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
+    KEY_PREFIX: ClassVar[str] = 'instancepoints'
     invalidate_time: Optional[datetime.datetime] = None
     points_created: datetime.datetime = field(default_factory=timezone.now)
 
+    def unpack(self, show_unrevealed):
+        self._extract_tuples(self, 0 if show_unrevealed else 1)
+
     @classmethod
-    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, **kwargs: Any) -> CachedPointsDataType:
+    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, models: Tuple[CourseInstance, Optional[User]], **kwargs: Any) -> CachedPointsDataType:
         if data.__class__ is cls:
             return cast(cls, data)
 
         data = upgrade(cls, data, kwargs)
+        data._cache_key = cls._key(*cls.parameter_ids(*models))
 
         for module in data.modules:
             ModuleEntry.upgrade(module)
@@ -256,51 +268,30 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
         return cast(CachedPointsDataType, data)
 
-
-class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
-    """
-    Extends `CachedContent` to include data about a user's submissions and
-    points in the course's exercises.
-
-    Note that the `data` returned by this is dependent on the `show_unrevealed`
-    parameter. When `show_unrevealed` is `False`, reveal rules are respected and
-    exercise results are hidden when the reveal rule does not evaluate to true.
-    When `show_unrevealed` is `True`, reveal rules are ignored and the results are
-    always revealed.
-    """
-    KEY_PREFIX = 'points'
-
-    def __init__(
-            self,
-            course_instance: CourseInstance,
-            user: User,
-            content: CachedContent,
-            show_unrevealed: bool = False,
-            ) -> None:
-        self.content = content
-        self.instance = course_instance
-        self.user = user
-        super().__init__(course_instance, user)
-        self._extract_tuples(self.data, 0 if show_unrevealed else 1)
-
-    def _needs_generation(self, data: Optional[CachedPointsData]) -> bool:
+    def is_valid(self) -> bool:
         return (
-            data is None
-            or data.created < self.content.created()
-            or (
-                data.invalidate_time is not None
-                and timezone.now() >= data.invalidate_time
+            self.points_created >= self.created
+            and (
+                self.invalidate_time is None
+                or timezone.now() < self.invalidate_time
             )
         )
 
+    @classmethod
     def _generate_data( # pylint: disable=arguments-differ
-            self,
-            instance: CourseInstance,
-            user: User,
-            data: Optional[Dict[str, Any]] = None,
+            cls,
+            instance_id: int,
+            user_id: int,
             ) -> CachedPointsData:
         # Perform all database queries before generating the cache.
-        if user.is_authenticated:
+        instance = CourseInstance.objects.get(id=instance_id)
+
+        if user_id is not None:
+            user = User.objects.get(id=user_id)
+        else:
+            user = None
+
+        if user and user.is_authenticated:
             submissions = list(
                 user.userprofile.submissions
                 .filter(exercise__course_module__course_instance=instance)
@@ -327,13 +318,20 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
             submission_deviations = []
             module_instances = []
 
+        content = CachedContentData.get(instance_id)
+        # "upgrade" the type of content to CachedPointsData.
+        # This replaces each object in the data with the CachedPointsData version
+        # while retaining any common object references (e.g. module.children and
+        # exercise_index values refer to the same object instances)
+        base_points_data = CachedPointsData.upgrade(content, models=(instance, user))
+
         # Generate the staff and student version of the cache, and merge them.
         generate_args = (
             user.is_authenticated, submissions, deadline_deviations, submission_deviations, module_instances
         )
-        staff_data = self._generate_data_internal(True, *generate_args)
-        student_data = self._generate_data_internal(False, *generate_args)
-        self._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
+        staff_data = cls._generate_data_internal(deepcopy(base_points_data), True, *generate_args)
+        student_data = cls._generate_data_internal(base_points_data, False, *generate_args)
+        staff_data._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
 
         # Pick the lowest invalidate_time if it is duplicated.
         invalidate_time = staff_data.invalidate_time
@@ -349,8 +347,10 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
         staff_data.points_created = timezone.now()
         return staff_data
 
+    @classmethod
     def _generate_data_internal( # noqa: MC0001
-            self,
+            cls,
+            data: CachedPointsData,
             show_unrevealed: bool,
             is_authenticated: bool,
             all_submissions: Iterable[Submission],
@@ -363,11 +363,6 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
         All source data is prefetched by `_generate_data` and provided as
         arguments to this method.
         """
-        # "upgrade" the type of self.content.data to CachedPointsData.
-        # This replaces each object in the data with the CachedPointsData version
-        # while retaining any common object references (e.g. module.children and
-        # exercise_index.values() refer to the same object instances)
-        data: CachedPointsData = CachedPointsData.upgrade(deepcopy(self.content.data))
         exercise_index = data.exercise_index
         modules = data.modules
         categories = data.categories
@@ -380,7 +375,6 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                     # deviation.exercise is a BaseExercise (i.e. submittable)
                     entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
                 except KeyError:
-                    self.dirty = True
                     continue
                 entry.personal_deadline = (
                     entry.closing_time + datetime.timedelta(minutes=deviation.extra_minutes)
@@ -392,7 +386,6 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                     # deviation.exercise is a BaseExercise (i.e. submittable)
                     entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
                 except KeyError:
-                    self.dirty = True
                     continue
                 entry.personal_max_submissions = (
                     entry.max_submissions + deviation.extra_submissions
@@ -452,7 +445,6 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                 try:
                     entry = cast(SubmittableExerciseEntry, exercise_index[exercise.id])
                 except KeyError:
-                    self.dirty = True
                     continue
 
                 if exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
@@ -592,7 +584,7 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                 pass
             # thus, all points are now ready..
             elif entry.unconfirmed:
-                self._add_by_difficulty(
+                add_by_difficulty(
                     target.unconfirmed_points_by_difficulty,
                     entry.difficulty,
                     entry.points
@@ -605,7 +597,7 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                     target.feedback_revealed,
                     True,
                 )
-                self._add_by_difficulty(
+                add_by_difficulty(
                     target.points_by_difficulty,
                     entry.difficulty,
                     entry.points
@@ -662,72 +654,6 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
 
         return data
 
-    def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
-        return self.data.points_created, super().created()
-
-    def submission_ids( # pylint: disable=too-many-arguments
-            self,
-            number: Optional[str] = None,
-            category_id: Optional[int] = None,
-            module_id: Optional[int] = None,
-            exercise_id: Optional[int] = None,
-            filter_for_assistant: bool = False,
-            best: bool = True,
-            fallback_to_last: bool = False,
-            raise_404=True,
-            ) -> List[int]:
-        """Return submission ids for the exercises matching the search terms
-
-        :param best: whether to get the best submission for each exercise or all submissions
-        :param fallback_to_last: whether to fallback to the latest submission when best == True.
-        Prioritizes INITIALIZED and WAITING submissions over REJECTED and ERROR.
-        """
-        def latest_submission(submissions: List[SubmissionEntry]) -> Optional[SubmissionEntry]:
-            # Find latest non REJECTED or ERROR submission
-            for entry in submissions:
-                if entry.submission_status not in (Submission.STATUS.REJECTED, Submission.STATUS.ERROR):
-                    return entry
-
-            if submissions:
-                return submissions[0] # Last submission is first in the cache
-
-            return None
-
-        exercises = self.search_exercises(
-            number=number,
-            category_id=category_id,
-            module_id=module_id,
-            exercise_id=exercise_id,
-            filter_for_assistant=filter_for_assistant,
-            raise_404=raise_404,
-        )
-        submissions = []
-        if best:
-            for entry in exercises:
-                if not isinstance(entry, SubmittableExerciseEntry):
-                    continue
-
-                if entry.best_submission is not None:
-                    submissions.append(entry.best_submission)
-                elif fallback_to_last:
-                    latest = latest_submission(entry.submissions)
-                    if latest is not None:
-                        submissions.append(latest.id)
-        else:
-            for entry in exercises:
-                if not isinstance(entry, SubmittableExerciseEntry):
-                    continue
-
-                submissions.extend(s.id for s in entry.submissions)
-        return submissions
-
-    @overload
-    def entry_for_exercise(self, model: BaseExercise) -> SubmittableExerciseEntry: ...
-    @overload
-    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry: ...
-    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry:
-        return super().entry_for_exercise(model)
-
     def _pack_tuples(self, value1, value2):
         """
         Compare two data structures, and when conflicting values are found,
@@ -750,18 +676,14 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                     inner_value2 = value2[key]
                     pack_tuples(inner_value1, inner_value2, value1, key)
             elif isinstance(value1, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
-                for f in value1._dc_fields: # type: ignore
-                    pack_tuples(getattr(value1, f.name), getattr(value2, f.name), value1, f.name)
+                pack_tuples(value1.__dict__, value2.__dict__, value1, "__dict__")
             elif isinstance(value1, list):
                 for index, inner_value1 in enumerate(value1):
                     inner_value2 = value2[index]
                     pack_tuples(inner_value1, inner_value2, value1, index)
             else:
                 if value1 != value2:
-                    if hasattr(parent_container, "__getitem__"):
-                        parent_container[parent_key] = (value1, value2)
-                    else:
-                        setattr(parent_container, parent_key, (value1, value2))
+                    parent_container[parent_key] = (value1, value2)
 
         pack_tuples(value1, value2, None, None)
 
@@ -785,18 +707,93 @@ class CachedPoints(CachedAbstract[CachedPointsData], ContentMixin[ModuleEntry, E
                 for key, inner_value in value.items():
                     extract_tuples(inner_value, tuple_index, value, key)
             elif isinstance(value, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
-                for f in value._dc_fields: # type: ignore
-                    extract_tuples(getattr(value, f.name), tuple_index, value, f.name)
+                extract_tuples(value.__dict__, tuple_index, value, "__dict__")
             elif isinstance(value, list):
                 for index, inner_value in enumerate(value):
                     extract_tuples(inner_value, tuple_index, value, index)
             elif isinstance(value, tuple):
-                if hasattr(parent_container, "__getitem__"):
-                    parent_container[parent_key] = value[tuple_index]
-                else:
-                    setattr(parent_container, parent_key, value[tuple_index])
+                parent_container[parent_key] = value[tuple_index]
 
         extract_tuples(value, tuple_index, None, None)
+
+
+class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
+    """
+    Extends `CachedContent` to include data about a user's submissions and
+    points in the course's exercises.
+
+    Note that the `data` returned by this is dependent on the `show_unrevealed`
+    parameter. When `show_unrevealed` is `False`, reveal rules are respected and
+    exercise results are hidden when the reveal rule does not evaluate to true.
+    When `show_unrevealed` is `True`, reveal rules are ignored and the results are
+    always revealed.
+    """
+    KEY_PREFIX = 'points'
+    data: CachedPointsData
+
+    def __init__(
+            self,
+            course_instance: CourseInstance,
+            user: User,
+            show_unrevealed: bool = False,
+            ) -> None:
+        self.instance = course_instance
+        self.user = user
+        self.data = CachedPointsData.get_for_models(course_instance, user)
+        self.data.unpack(show_unrevealed)
+
+    def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
+        return self.data.points_created, super().created()
+
+    def submission_ids( # pylint: disable=too-many-arguments
+            self,
+            number: Optional[str] = None,
+            category_id: Optional[int] = None,
+            module_id: Optional[int] = None,
+            exercise_id: Optional[int] = None,
+            filter_for_assistant: bool = False,
+            best: bool = True,
+            fallback_to_last: bool = False,
+            raise_404=True,
+            ) -> List[int]:
+        exercises = self.search_exercises(
+            number=number,
+            category_id=category_id,
+            module_id=module_id,
+            exercise_id=exercise_id,
+            filter_for_assistant=filter_for_assistant,
+            raise_404=raise_404,
+        )
+        submissions = []
+        if best:
+            for entry in exercises:
+                if not isinstance(entry, SubmittableExerciseEntry):
+                    continue
+
+                if entry.best_submission is not None:
+                    submissions.append(entry.best_submission)
+                elif fallback_to_last:
+                    entry_submissions = entry.submissions
+                    if entry_submissions:
+                        submissions.append(entry_submissions[0].id) # Last submission is first in the cache
+        else:
+            for entry in exercises:
+                if not isinstance(entry, SubmittableExerciseEntry):
+                    continue
+
+                submissions.extend(s.id for s in entry.submissions)
+        return submissions
+
+    @overload
+    def entry_for_exercise(self, model: BaseExercise) -> SubmittableExerciseEntry: ...
+    @overload
+    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry: ...
+    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry:
+        return super().entry_for_exercise(model)
+
+    @classmethod
+    def invalidate(cls, *models):
+        CachedPointsData.invalidate(*models)
 
 
 # pylint: disable-next=unused-argument
