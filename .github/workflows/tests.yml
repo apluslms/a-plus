@@ -1,5 +1,11 @@
 name: tests
-on: [push]
+on:
+  # trigger when pushed to any branch (for development)
+  push:
+  # trigger when a pull request is made to master
+  pull_request:
+    branches:
+      - master
 jobs:
   docker-build:
     runs-on: ubuntu-latest
