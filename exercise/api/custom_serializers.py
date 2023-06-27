@@ -106,7 +106,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
+        points = CachedPoints(view.instance, obj.user, view.is_course_staff)
         modules = []
         for module in points.modules_flatted():
             module_data = {}
@@ -139,7 +139,7 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
+        points = CachedPoints(view.instance, obj.user, view.is_course_staff)
         entry = points.get_exercise(view.exercise.id)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():

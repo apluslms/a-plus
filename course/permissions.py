@@ -266,7 +266,7 @@ class CourseModulePermissionBase(MessageMixin, Permission):
             return False
 
         if module.requirements.exists():
-            points = CachedPoints(module.course_instance, request.user, view.content, view.is_course_staff)
+            points = CachedPoints(module.course_instance, request.user, view.is_course_staff)
             return module.are_requirements_passed(points)
         return True
 
