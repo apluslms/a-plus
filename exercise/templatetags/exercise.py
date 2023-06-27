@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 from django import template
 from django.contrib.auth.models import User
@@ -11,9 +11,10 @@ from django.utils.formats import date_format
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseModule
+from course.models import CourseInstance, CourseModule
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
+from userprofile.models import UserProfile
 from ..cache.content import CachedContent
 from ..cache.points import CachedPoints
 from ..exercise_summary import UserExerciseSummary
@@ -395,3 +396,28 @@ def get_regrade_info_list(options):
 @register.simple_tag(takes_context=True)
 def is_ajax(context: Context) -> bool:
     return _is_ajax(context['request'])
+
+
+@register.inclusion_tag('exercise/staff/_deviationslink.html')
+def adddeviationsbutton(
+        instance: CourseInstance,
+        module: Optional[Union[Dict[str, Any], CourseModule]] = None,
+        exercise: Optional[Union[Dict[str, Any], LearningObject]] = None,
+        submitters: Optional[Union[User, UserProfile, Iterable[User], Iterable[UserProfile]]] = None,
+        ):
+    def user_id(user):
+        return str(user.user_id if isinstance(user, UserProfile) else user.id)
+
+    if submitters is None:
+        submitter_str = None
+    elif isinstance(submitters, (User, UserProfile)):
+        submitter_str = user_id(submitters)
+    else:
+        submitter_str = ",".join(user_id(s) for s in submitters)
+
+    return {
+        "instance": instance,
+        "module": module,
+        "exercise": exercise,
+        "submitters": submitter_str,
+    }
