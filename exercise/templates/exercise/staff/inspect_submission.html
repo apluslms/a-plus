@@ -48,6 +48,7 @@
 			<a href="{{ submission|url:'submission-edit-submitters' }}" class="aplus-button--secondary aplus-button--xs">
 				{% translate "EDIT" %}
 			</a>
+			{% adddeviationsbutton instance exercise=exercise submitters=submission.submitters.all %}
 			{% endif %}
 			{% profiles submission.submitters.all instance is_teacher %}
 		</div>

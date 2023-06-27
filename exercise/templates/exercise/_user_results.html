@@ -99,6 +99,9 @@
 
 		{% points_progress module %}
 		{{ module.introduction|safe }}
+		{% if student %}
+			{% adddeviationsbutton instance module submitters=student %}
+		{% endif %}
 	</div>
 	{% if not exercise_accessible and not is_course_staff %}
 	<div class="alert alert-warning clearfix site-message">
@@ -170,6 +173,9 @@
 						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
 						{% translate "INSPECT" %}
 					</a>
+					{% endif %}
+					{% if student %}
+						{% adddeviationsbutton instance exercise=entry submitters=student %}
 					{% endif %}
 				</td>
 				<td>
