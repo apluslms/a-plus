@@ -50,7 +50,7 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
     def points(user: User, key: str) -> CachedPoints:
         if key not in context:
-            context[key] = CachedPoints(instance, user, context['content'], context['is_course_staff'])
+            context[key] = CachedPoints(instance, user, context['is_course_staff'])
         return context[key]
     if student:
         return points(student, 'studentpoints')

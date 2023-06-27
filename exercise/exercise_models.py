@@ -461,10 +461,8 @@ class CourseChapter(LearningObject):
         If this chapter is a model solution to modules, check if the chapter
         can be revealed to the user according to the module's reveal rule.
         """
-        from .cache.content import CachedContent # pylint: disable=import-outside-toplevel
         from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
-        content = CachedContent(self.course_instance)
-        points = CachedPoints(self.course_instance, user, content)
+        points = CachedPoints(self.course_instance, user)
         entry, _, _, _ = points.find(self)
         return entry.is_revealed
 

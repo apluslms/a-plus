@@ -53,7 +53,7 @@ class DiplomaListView(DiplomaMixin, BaseTemplateView):
         pad_points = self.design.pad_points
         student_grades = []
         for profile in students:
-            points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
+            points = CachedPoints(self.instance, profile.user, self.is_course_staff)
             student_grades.append((
                 profile,
                 calculate_grade(points.total(), point_limits, pad_points),
