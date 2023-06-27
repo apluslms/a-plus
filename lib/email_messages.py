@@ -79,12 +79,23 @@ def email_course_students_and_staff(
     """
     student_querys = {
         CourseInstance.ENROLLMENT_AUDIENCE.ALL_USERS: instance.students,
-        CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS: instance.students.filter(organization=settings.LOCAL_ORGANIZATION),
-        CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS: instance.students.exclude(organization=settings.LOCAL_ORGANIZATION),
+        CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS:
+            instance.students.filter(organization=settings.LOCAL_ORGANIZATION),
+        CourseInstance.ENROLLMENT_AUDIENCE.EXTERNAL_USERS:
+            instance.students.exclude(organization=settings.LOCAL_ORGANIZATION),
     }
-    recipients = student_querys.get(student_audience, UserProfile.objects.none()).exclude(user__email='').values_list("user__email", flat=True)
+    recipients = (
+        student_querys
+        .get(student_audience, UserProfile.objects.none())
+        .exclude(user__email='')
+        .values_list("user__email", flat=True)
+    )
     if include_staff:
-        recipients = recipients.union(instance.course_staff.exclude(user__email='').values_list("user__email", flat=True))
+        recipients = recipients.union(
+            instance.course_staff
+            .exclude(user__email='')
+            .values_list("user__email", flat=True)
+        )
 
     emails = tuple(map(lambda x: (subject, message, settings.SERVER_EMAIL, [x]), recipients))
 
