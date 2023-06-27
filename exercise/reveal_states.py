@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 
 from deviations.models import DeadlineRuleDeviation
 from course.models import CourseModule
-from .cache.content import CachedContent
 from .exercise_models import BaseExercise
 
 if TYPE_CHECKING:
@@ -81,10 +80,9 @@ class ExerciseRevealState(BaseRevealState):
         # cache entry is fetched here.
         if isinstance(exercise, BaseExercise):
             from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
-            cached_content = CachedContent(exercise.course_instance)
             # 'True' is always passed to CachedPoints as the show_unrevealed argument
             # because we need to know the actual points.
-            cached_points = CachedPoints(exercise.course_instance, student, cached_content, True)
+            cached_points = CachedPoints(exercise.course_instance, student, True)
             entry = cached_points.get_exercise(exercise.id)
             self.cache = entry
         else:
@@ -139,8 +137,7 @@ class ModuleRevealState(BaseRevealState):
     def __init__(self, module: Union[CourseModule, ModuleEntry], student: Optional[User] = None):
         if isinstance(module, CourseModule):
             from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
-            cached_content = CachedContent(module.course_instance)
-            cached_points = CachedPoints(module.course_instance, student, cached_content, True)
+            cached_points = CachedPoints(module.course_instance, student, True)
             self.module_id = module.id
             cached_module, _, _, _ = cached_points.find(module)
             self.module = cached_module
