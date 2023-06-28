@@ -255,6 +255,9 @@
 						<li><a href="{% url 'accessibility_statement' %}">{% translate "ACCESSIBILITY_STATEMENT" %}</a></li>
 						<li><a href="{% url 'support_channels' %}">{% translate "SUPPORT" %}</a></li>
 						<li><a href="https://link.webropol.com/s/aplus-feedback" target="_blank">{% translate "FEEDBACK" %}</a></li>
+						{% if is_course_staff %}
+						<li><a href="{% url 'toggle-pseudonymization' %}">{% if pseudonymize %} Unpseudonymize {% else %} Pseudonymize {% endif %} personal data</a></li>
+						{% endif %}
 						<li><p class="navbar-text">{% brand_name %} {{ APLUS_VERSION }}</p></li>
 					</ul>
 				</div>

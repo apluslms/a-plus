@@ -16,6 +16,7 @@ from lib.viewbase import BaseFormView, BaseRedirectView
 from authorization.permissions import ACCESS
 from exercise.models import BaseExercise
 from userprofile.models import UserProfile
+from userprofile.pseudonymize import format_user
 
 
 class ListDeviationsView(CourseInstanceBaseView):
@@ -27,7 +28,7 @@ class ListDeviationsView(CourseInstanceBaseView):
         all_deviations = self.deviation_model.objects.filter(
             exercise__course_module__course_instance=self.instance
         )
-        self.deviation_groups = get_deviation_groups(all_deviations)
+        self.deviation_groups = get_deviation_groups(all_deviations, self.pseudonymize)
         self.note("deviation_groups")
 
 
@@ -120,7 +121,7 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
             exercise__in=self.exercises,
             submitter__in=self.submitters,
         )
-        self.deviation_groups = get_deviation_groups(self.existing_deviations)
+        self.deviation_groups = get_deviation_groups(self.existing_deviations, self.pseudonymize)
         self.note("session_data", "exercises", "submitters", "existing_deviations", "deviation_groups")
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
@@ -228,6 +229,7 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
 # pylint: disable-next=too-many-locals
 def get_deviation_groups(
         all_deviations: models.QuerySet[SubmissionRuleDeviation],
+        pseudonymize: bool = False,
         ) -> Iterable[Tuple[List[SubmissionRuleDeviation], bool, Optional[str]]]:
     """
     Group the deviations by user and module.
@@ -281,7 +283,8 @@ def get_deviation_groups(
         ordered_deviations,
         lambda obj: (obj.submitter, obj.exercise.course_module),
     )
-    for (_submitter, module), deviations_iter in deviation_groups:
+    for (submitter, module), deviations_iter in deviation_groups:
+        format_user(submitter.user, pseudonymize)
         deviations = list(deviations_iter)
         can_group = True
         show_granter = True
