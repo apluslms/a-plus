@@ -19,4 +19,5 @@ urlpatterns = [
     url(r'^setlang', views.set_user_language, name="set-user-language"),
     url(r'^regentoken/$', views.regenerate_access_token, name="regenerate-access-token"),
     url(r'^teachers/$', views.TeacherListView.as_view(), name="teachers"),
+    url(r'^pseudonymize/$', views.PseudonymizeView.as_view(), name="toggle-pseudonymization"),
 ]

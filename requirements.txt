@@ -35,3 +35,4 @@ binaryornot ~= 0.4.4
 django-model-utils ~= 4.2.0
 format_cef ~= 0.0.4
 PyLTI1p3 ~= 2.0.0
+Faker ~= 18.11.1

@@ -27,6 +27,7 @@ from lib.helpers import settings_text, extract_form_errors
 from lib.viewbase import BaseRedirectView, BaseFormView, BaseView
 from notification.models import Notification
 from userprofile.models import UserProfile
+from userprofile.pseudonymize import format_user
 from .models import BaseExercise, ExerciseTask, LearningObject, Submission
 from .forms import (
     SubmissionReviewForm,
@@ -47,6 +48,13 @@ from lib.logging import SecurityLog
 logger = logging.getLogger('aplus.exercise')
 
 
+def format_submission(submission: Submission, pseudonymized: bool):
+    if pseudonymized:
+        for submitter in submission.submitters.all():
+            submitter.user = format_user(submitter.user, pseudonymized=True)
+    return submission
+
+
 class ListSubmissionsView(ExerciseListBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/list_submissions.html"
@@ -65,6 +73,8 @@ class ListSubmissionsView(ExerciseListBaseView):
                 Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance)),
             )
         )
+        for submission in qs:
+            format_submission(submission, self.pseudonymize)
         self.all = self.request.GET.get('all', None)
         self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
         self.submissions = qs if self.all else qs[:self.default_limit]
@@ -114,6 +124,9 @@ class ListSubmittersView(ExerciseListBaseView):
             .prefetch_tags(self.instance)
             .in_bulk()
         )
+        if self.pseudonymize:
+            for profile in profiles.values():
+                format_user(profile.user, pseudonymized=True)
         # Add UserProfile instances to the dicts in submitter_summaries, so we can
         # use the 'profiles' template tag.
         for submitter_summary in submitter_summaries:
@@ -171,6 +184,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.not_best = False
         self.not_last = False
         for submission in self.submissions:
+            format_submission(submission, self.pseudonymize)
             if submission.id != self.submission.id:
                 if submission.force_exercise_points:
                     self.not_final = True
@@ -419,10 +433,11 @@ class UserResultsView(CourseInstanceBaseView):
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        self.student = get_object_or_404(
+        student = get_object_or_404(
             User,
             id=self.kwargs[self.user_kw],
         )
+        self.student = format_user(student, self.pseudonymize)
         self.note('student')
 
     def get_common_objects(self):

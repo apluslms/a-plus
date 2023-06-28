@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
+from userprofile.pseudonymize import format_user
 
 from .cache.hierarchy import NoSuchContent
 from .cache.points import CachedPoints
@@ -121,7 +122,8 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         self.current = cur
         self.next = nex
         self.breadcrumb = tree[1:-1]
-        self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name")
+        self.pseudonymize = self.request.session.get("pseudonymize", False)
+        self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name", "pseudonymize")
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
         self.summary = UserExerciseSummary(
@@ -206,6 +208,8 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
             # so that it does not pick submissions from request.user (the teacher).
             user = AnonymousUser()
             self.index = 0
+        format_user(user, self.pseudonymize)
+        format_user(self.submitter.user, self.pseudonymize)
         super().get_summary_submissions(user or self.submitter.user)
         if self.submissions:
             self.index = len(self.submissions) - list(self.submissions).index(self.submission)
