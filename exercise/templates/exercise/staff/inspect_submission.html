@@ -58,6 +58,7 @@
 				{% with prev_id=submission.submitters.all.0.id %}
 				<a href="{{ exercise|url:'submission-next-unassessed' }}?prev={{ prev_id }}" class="pull-right">
 					{% translate "ASSESS_NEXT_SUBMITTER_MANUALLY" %}
+					{{ request.session.manually_assessed_counter }}
 					<span aria-hidden="true">&raquo;</span>
 				</a>
 				{% endwith %}

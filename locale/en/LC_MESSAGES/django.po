@@ -5905,3 +5905,7 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GRADED"
+msgstr "graded"

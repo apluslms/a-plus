@@ -5932,3 +5932,7 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GRADED"
+msgstr "arvosteltu"
