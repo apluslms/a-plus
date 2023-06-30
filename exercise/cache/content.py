@@ -29,8 +29,12 @@ class CachedContent(ContentMixin[ModuleEntry, ExerciseEntry, CategoryEntry, Tota
         self.data = CachedContentData.get_for_models(instance)
 
     @classmethod
-    def invalidate(cls, *models):
-        CachedContentData.invalidate(*models)
+    def invalidate(cls, instance: CourseInstance):
+        CachedContentData.invalidate(instance)
+        for module in instance.course_modules.prefetch_related("learning_objects").all():
+            ModuleEntryBase.invalidate(module)
+            for exercise in module.learning_objects.all():
+                ExerciseEntryBase.invalidate(exercise)
 
 
 def invalidate_content(

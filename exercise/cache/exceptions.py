@@ -1,0 +1,2 @@
+class NoSuchContent(Exception):
+    pass
