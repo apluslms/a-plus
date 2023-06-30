@@ -1,13 +1,69 @@
 from __future__ import annotations
 from datetime import datetime
 from time import time
-from typing import Any, Tuple, Type, TypeVar
+from typing import Any, Dict, Iterable, Optional, Tuple, Type, TypeVar
 import logging
 
 from django.core.cache import cache
 from django.db.models import Model
 
 logger = logging.getLogger('aplus.cached2')
+
+
+ModelT = TypeVar("ModelT", bound=Model)
+class DBData:
+    # Model_class.__name__ -> {Model_object.id -> Model_object}
+    data: Dict[str, Dict[int, Any]]
+    gen_start: float
+
+    def __init__(self):
+        self.gen_start = time()
+        self.data = {}
+
+    def add(self, obj: Model):
+        container = self.data.setdefault(obj.__class__.__name__, {})
+        container[obj.id] = obj
+
+    def extend(self, cls: Type[ModelT], objects: Iterable[ModelT]):
+        container = self.data.setdefault(cls.__name__, {})
+        for obj in objects:
+            container[obj.id] = obj
+
+    def get_db_object(self: Optional[DBData], cls: Type[ModelT], model_id: int) -> ModelT:
+        """
+        Try to get an object from the prefeteched data, or get it from the database if not there.
+
+        Works with self == None, so you can do DBData.get_db_object(maybe_None_DBData, ...).
+        """
+        if self:
+            obj = self.data.get(cls.__name__, {}).get(model_id)
+            if obj is not None:
+                return obj
+        return cls.objects.get(id=model_id)
+
+    def filter_db_objects(self: Optional[DBData], cls: Type[ModelT], **search: Any) -> Iterable[ModelT]:
+        """
+        Search from prefetched_data if the prefetched data has data for the class, otherwise search from the database.
+
+        Works with self == None, so you can do DBData.filter_db_objects(maybe_None_DBData, ...).
+        WARNING: the returned data may not contain all of the matching objects if self.data contains some objects but
+        not all of the relevant ones.
+        """
+        if self and cls.__name__ in self.data:
+            objs = self.data[cls.__name__].values()
+            found = []
+            for obj in objs:
+                for k,v in search.items():
+                    if getattr(obj, k, None) != v:
+                        break
+                else:
+                    found.append(obj)
+            return found
+
+        return cls.objects.filter(**search)
+
+    def __bool__(self) -> bool:
+        return bool(self.data)
 
 
 T = TypeVar("T", bound="CacheBase")
@@ -20,12 +76,12 @@ class CacheBase:
         return True
 
     @classmethod
-    def get_for_models(cls: Type[T], *models) -> T:
+    def get_for_models(cls: Type[T], *models, prefetched_data: Optional[DBData] = None) -> T:
         params = cls.parameter_ids(*models)
-        return cls.get(*params)
+        return cls.get(*params, prefetched_data=prefetched_data)
 
     @classmethod
-    def get(cls: Type[T], *params) -> T:
+    def get(cls: Type[T], *params, prefetched_data: Optional[DBData] = None) -> T:
         cache_key = cls._key(*params)
 
         obj = cache.get(cache_key)
@@ -36,7 +92,7 @@ class CacheBase:
             obj = None
 
         if obj is None:
-            obj = cls._get_data(*params)
+            obj = cls._get_data(*params, prefetched_data=prefetched_data)
 
             stored_obj = cache.get(cache_key)
             if isinstance(stored_obj, tuple):
@@ -66,13 +122,16 @@ class CacheBase:
         cache.set(cache_key, time())
 
     @classmethod
-    def _get_data(cls: Type[T], *params) -> T:
+    def _get_data(cls: Type[T], *params, prefetched_data: Optional[DBData] = None) -> T:
         cache_key = cls._key(*params)
-        gen_start = time()
+        if prefetched_data is None:
+            gen_start = time()
+        else:
+            gen_start = prefetched_data.gen_start
         gen_start_dt = str(datetime.fromtimestamp(gen_start))
         cache_name = "%s[%s]" % (cls.__name__, cache_key)
         logger.debug("Generating cached data for %s with ts %s", cache_name, gen_start_dt)
-        obj = cls._generate_data(*params)
+        obj = cls._generate_data(*params, prefetched_data=prefetched_data)
         obj._generated_on = gen_start
         obj._cache_key = cache_key
 
@@ -84,5 +143,5 @@ class CacheBase:
         return tuple(getattr(model, "id", model) for model in models)
 
     @classmethod
-    def _generate_data(cls: Type[T], *params) -> T:
+    def _generate_data(cls: Type[T], *params, prefetched_data: Optional[DBData] = None) -> T:
         raise NotImplementedError(f"Subclass of CacheBase ({cls.__name__}) needs to implement _generate_data")
