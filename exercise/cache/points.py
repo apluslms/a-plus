@@ -26,6 +26,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
+from lib.cache.cached import DBData
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
@@ -282,12 +283,13 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             cls,
             instance_id: int,
             user_id: int,
+            prefetched_data: Optional[DBData] = None,
             ) -> CachedPointsData:
         # Perform all database queries before generating the cache.
-        instance = CourseInstance.objects.get(id=instance_id)
+        instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
 
         if user_id is not None:
-            user = User.objects.get(id=user_id)
+            user = DBData.get_db_object(prefetched_data, User, user_id)
         else:
             user = None
 
