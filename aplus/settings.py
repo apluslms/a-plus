@@ -363,7 +363,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 ##########################################################################
 
 # Cache (override in local_settings.py)
-# https://docs.djangoproject.com/en/1.10/topics/cache
+# https://docs.djangoproject.com/en/4.2/topics/cache
+# Use PyLibMCCache instead of PyMemcacheCache if using memcached as PyMemcacheCache
+# has bad get_many/set_many performance
 ##########################################################################
 CACHES = {
     'default': {
