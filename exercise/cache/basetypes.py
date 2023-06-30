@@ -1,12 +1,12 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, TypeVar, Union
+from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Type, TypeVar, Union
 
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
-from lib.cache.cached import CacheBase, DBData
+from lib.cache.cached import CacheBase, DBData, PrecreatedProxies
 from ..models import BaseExercise, LearningObject
 
 
@@ -117,9 +117,11 @@ class TotalsBase:
     max_group_size: int = 1
 
 
+T = TypeVar("T", bound="CachedDataBase")
 @dataclass
 class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instance'
+    instance_id: InitVar[int]
     created: datetime
     module_index: Dict[int, ModuleEntry]
     exercise_index: Dict[int, ExerciseEntry]
@@ -128,14 +130,20 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
     categories: Dict[int, CategoryEntry]
     total: Totals
 
-    # pylint: disable-next=arguments-differ too-many-locals
-    @classmethod
+    def __post_init__(self, instance_id: int):
+        self._resolved = True
+        self._params = (instance_id,)
+
+    def post_get(self, precreated: PrecreatedProxies):
+        pass
+
     def _generate_data(
-            cls,
-            instance_id: int,
+            self,
+            precreated: Optional[PrecreatedProxies] = None,
             prefetched_data: Optional[DBData] = None,
-            ) -> CachedDataBase[ModuleEntryBase, ExerciseEntryBase, CategoryEntryBase, TotalsBase]:
+            ):
         """ Returns object that is cached into self.data """
+        instance_id = self._params[0]
         instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
         if not prefetched_data:
             module_objs = CourseModule.objects.filter(course_instance=instance).prefetch_related(
@@ -152,12 +160,12 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
             module_objs = prefetched_data.filter_db_objects(CourseModule, course_instance_id=instance_id)
             lobjs = prefetched_data.filter_db_objects(LearningObject, course_module__in=module_objs)
 
-        exercise_index: Dict[int, ExerciseEntryBase] = {}
-        module_index: Dict[int, ModuleEntryBase] = {}
-        paths: Dict[int, Dict[str, int]] = {}
-        modules: List[ModuleEntryBase] = []
-        categories: Dict[int, CategoryEntryBase] = {}
-        total = TotalsBase()
+        self.exercise_index = exercise_index = {}
+        self.module_index = module_index = {}
+        self.paths = paths = {}
+        self.modules = modules = []
+        self.categories = categories = {}
+        self.total = total = TotalsBase()
 
         def recursion(
                 module: ModuleEntryBase,
@@ -273,12 +281,4 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         if total.min_group_size > total.max_group_size:
             total.min_group_size = 1
 
-        return CachedDataBase(
-            created = timezone.now(),
-            module_index = module_index,
-            exercise_index = exercise_index,
-            paths = paths,
-            modules = modules,
-            categories = categories,
-            total = total,
-        )
+        self.created = timezone.now()
