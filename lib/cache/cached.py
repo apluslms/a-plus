@@ -46,6 +46,10 @@ class DBData:
         for obj in objects:
             container[obj.id] = obj
 
+    def has_models(self, cls: Type[ModelT]) -> bool:
+        """Return whether any objects of type cls are contained"""
+        return cls.__name__ in self.data
+
     def get_db_object(self: Optional[DBData], cls: Type[ModelT], model_id: int) -> ModelT:
         """
         Try to get an object from the prefeteched data, or get it from the database if not there.
@@ -294,7 +298,7 @@ class CacheBase(metaclass=CacheMeta):
 
         return tuple([*values, self.__class__])
 
-    def __setstate__(self, data):
+    def __setstate__(self, data: Any):
         cls = data[-1]
         self.__class__ = cls
         objdict = self.__dict__
@@ -380,8 +384,13 @@ class CacheBase(metaclass=CacheMeta):
             ) -> Optional[Tuple[Any, ...]]:
         attrs = cache_data.get(self._cache_key)
         if attrs is not None:
-            self.__setstate__(attrs)
-            self.post_get(precreated)
+            try:
+                self.__setstate__(attrs)
+            except TypeError as e:
+                logger.warning(f"__setstate__ TypeError with {self.__class__.__name__}[{self._cache_key}]: {e}")
+                attrs = None # Generate new cache data
+            else:
+                self.post_get(precreated)
 
         if attrs is None or not self.is_valid():
             self._get_data(precreated, prefetched_data)

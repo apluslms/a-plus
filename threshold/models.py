@@ -9,10 +9,11 @@ from course.models import (
     CourseModule,
     LearningObjectCategory,
 )
-from exercise.cache.hierarchy import NoSuchContent
-from exercise.cache.points import CachedPoints
+from exercise.cache.exceptions import NoSuchContent
 from exercise.models import BaseExercise
 
+if TYPE_CHECKING:
+    from exercise.cache.points import CachedPoints
 
 class Threshold(models.Model):
     """
@@ -60,7 +61,7 @@ class Threshold(models.Model):
         ]
         return " ".join(checks)
 
-    def is_passed(self, cached_points: CachedPoints, unconfirmed: bool = False) -> bool:
+    def is_passed(self, cached_points: "CachedPoints", unconfirmed: bool = False) -> bool:
         try:
             for module in self.passed_modules.all():
                 entry = cached_points.entry_for_module(module)
