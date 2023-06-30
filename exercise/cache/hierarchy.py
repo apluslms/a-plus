@@ -22,6 +22,7 @@ from django.http.response import Http404
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
 from .basetypes import CachedDataBase, CategoryEntryBase, ExerciseEntryBase, ModuleEntryBase, TotalsBase
+from .exceptions import NoSuchContent
 
 
 ExerciseEntry = TypeVar("ExerciseEntry", bound="ExerciseEntryBase")
@@ -41,10 +42,6 @@ class LevelMarker:
         self.type = "level"
         self.up = up
         self.down = not up
-
-
-class NoSuchContent(Exception):
-    pass
 
 
 def _get_tree_indices(children: Sequence[Entry[EE,ME]], tree: Sequence[Entry[EE, ME]]) -> List[int]:
