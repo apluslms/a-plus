@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import filters, viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
@@ -5,19 +7,21 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
-from django.db.models import Prefetch, Q, QuerySet
+from django.db.models import Q, QuerySet
+from django.http import Http404
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-from exercise.exercise_models import BaseExercise
-from lib.email_messages import email_course_instance
 
+from aplus.api import api_reverse
+from edit_course.operations.configure import configure_from_url
+from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
-from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.statistics import BaseStatisticsView
+from lib.email_messages import email_course_instance
+from lib.helpers import build_aplus_url
 from news.models import News
 
-from edit_course.operations.configure import configure_from_url
 from ..models import (
     Enrollment,
     USERTAG_EXTERNAL,
@@ -40,7 +44,6 @@ from ..permissions import (
 )
 from .serializers import CourseBriefSerializer, CourseStudentGroupBriefSerializer, StudentBriefSerializer
 from .full_serializers import (
-    CourseModuleSerializer,
     CourseNewsSerializer,
     CourseSerializer,
     CourseStatisticsSerializer,
@@ -182,7 +185,7 @@ class CourseViewSet(ListSerializerMixin,
 class CourseExercisesViewSet(NestedViewSetMixin,
                              CourseModuleResourceMixin,
                              CourseResourceMixin,
-                             viewsets.ReadOnlyModelViewSet):
+                             viewsets.ViewSet):
     """
     The `exercises` endpoint returns information about the course modules
     defined in the course instance, and the exercises defined in those modules.
@@ -199,20 +202,71 @@ class CourseExercisesViewSet(NestedViewSetMixin,
     lookup_url_kwarg = 'exercisemodule_id'
     lookup_value_regex = REGEX_INT
     parent_lookup_map = {'course_id': 'course_instance.id'}
-    serializer_class = CourseModuleSerializer
 
-    def get_queryset(self) -> QuerySet[CourseModule]:
-        return (
-            CourseModule.objects
-            .get_visible(self.request.user)
-            .prefetch_related(
-                Prefetch('learning_objects', BaseExercise.objects.all(), 'exercises')
-            )
-            .all()
-        )
+    def __recurse_exercises(self, module, exercises):
+        for child in filter(lambda ex: ex['type'] == 'exercise', module['children']):
+            if child['submittable']:
+                # check if there is a xx.yy pattern at the start of the name (e.g. 6.2 Hello Python). Also matches 1.
+                # Also matches roman numerals
+                # https://stackoverflow.com/questions/267399/how-do-you-match-only-valid-roman-numerals-with-a-regular-expression
+                hierarchical_name = (
+                    child['name']
+                    if re.match(
+                        r"^([0-9]+\.[0-9.]* )|(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})) ",
+                        child['name'],
+                    )
+                    else f"{child['number']} {child['name']}"
+                )
+                exercise_dictionary = {
+                    'id': child['id'],
+                    'url': build_aplus_url(
+                        api_reverse('exercise-detail', kwargs={'exercise_id': child['id']}),
+                        True,
+                    ),
+                    'html_url': build_aplus_url(child['link'], True),
+                    'display_name': child['name'],
+                    'max_points': child['max_points'],
+                    'max_submissions': child['max_submissions'],
+                    'hierarchical_name': hierarchical_name,
+                    'difficulty': child['difficulty'],
+                }
+                exercises.append(exercise_dictionary)
 
-    def get_object(self):
-        return self.get_member_object('module', 'Exercise module')
+            # Both exercises and chapters may have children.
+            # (Chapters are "non-submittable exercises" in the cache.)
+            exercises = self.__recurse_exercises(child, exercises)
+
+        return exercises
+
+    def __module_to_dict(self, module, **kwargs):
+        kwargs['exercisemodule_id'] = module['id']
+        module_dictionary = {
+            'id': module['id'],
+            'url': build_aplus_url(api_reverse("course-exercises-detail", kwargs=kwargs), True),
+            'html_url': build_aplus_url(module['link'], True),
+            'display_name': module['name'],
+            'is_open': CourseModule.check_is_open(
+                module['reading_opening_time'],
+                module['opening_time'],
+                module['closing_time'],
+            ),
+        }
+        module_dictionary['exercises'] = self.__recurse_exercises(module, [])
+        return module_dictionary
+
+    def list(self, request, *args, **kwargs):
+        modules = []
+        for module in self.content.data['modules']:
+            modules.append(self.__module_to_dict(module, **kwargs))
+        return Response({"count": len(modules), "next": None, "previous": None, 'results': modules})
+
+    def retrieve(self, request, *args, **kwargs):
+        # try to get the module list index
+        idx = self.content.data['module_index'].get(int(kwargs['exercisemodule_id']))
+        if idx is None:
+            raise Http404()
+
+        return Response(self.__module_to_dict(self.content.data['modules'][idx[0]], **kwargs))
 
 
 class CourseExerciseTreeViewSet(CourseResourceMixin,

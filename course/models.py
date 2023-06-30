@@ -1319,11 +1319,15 @@ class CourseModule(UrlMixin, models.Model):
         if errors:
             raise ValidationError(errors)
 
-    def is_open(self, when=None):
+    @staticmethod
+    def check_is_open(reading_opening_time, opening_time, closing_time, when=None):
         when = when or timezone.now()
-        if self.reading_opening_time:
-            return self.reading_opening_time <= when <= self.closing_time
-        return self.opening_time <= when <= self.closing_time
+        if reading_opening_time:
+            return reading_opening_time <= when <= closing_time
+        return opening_time <= when <= closing_time
+
+    def is_open(self, when=None):
+        return self.check_is_open(self.reading_opening_time, self.opening_time, self.closing_time, when=when)
 
     def is_after_open(self, when=None):
         """
