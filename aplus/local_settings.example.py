@@ -128,7 +128,7 @@
 #CACHES = {
 #    'default': {
 #        # prefer memcached with unix socket
-#        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+#        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
 #        'LOCATION': 'unix:/tmp/memcached.sock',
 #
 #        # Database cache, if memcached is not possible
