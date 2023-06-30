@@ -1,6 +1,6 @@
 from __future__ import annotations
 from copy import deepcopy
-from dataclasses import dataclass, field, Field, fields, MISSING
+from dataclasses import dataclass, field, Field, fields, InitVar, MISSING
 import datetime
 import itertools
 from typing import (
@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
-from lib.cache.cached import DBData
+from lib.cache.cached import DBData, PrecreatedProxies
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
@@ -239,19 +239,28 @@ CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
 @dataclass(eq=False)
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
+    user_id: InitVar[int]
     invalidate_time: Optional[datetime.datetime] = None
     points_created: datetime.datetime = field(default_factory=timezone.now)
+
+    def __post_init__(self, instance_id: int, user_id: int):
+        self._resolved = True
+        self._params = (instance_id, user_id)
+
+    def post_get(self, precreated: PrecreatedProxies):
+        pass
 
     def unpack(self, show_unrevealed):
         self._extract_tuples(self, 0 if show_unrevealed else 1)
 
     @classmethod
-    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, models: Tuple[CourseInstance, Optional[User]], **kwargs: Any) -> CachedPointsDataType:
+    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, user_id: Optional[int], **kwargs: Any) -> CachedPointsDataType:
         if data.__class__ is cls:
             return cast(cls, data)
 
         data = upgrade(cls, data, kwargs)
-        data._cache_key = cls._key(*cls.parameter_ids(*models))
+        data._params = (*data._params, user_id)
+        data._cache_key = cls._key(*data._params)
 
         for module in data.modules:
             ModuleEntry.upgrade(module)
@@ -278,14 +287,13 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             )
         )
 
-    @classmethod
-    def _generate_data( # pylint: disable=arguments-differ
-            cls,
-            instance_id: int,
-            user_id: int,
+    def _generate_data(
+            self,
+            precreated: Optional[PrecreatedProxies] = None,
             prefetched_data: Optional[DBData] = None,
-            ) -> CachedPointsData:
+            ):
         # Perform all database queries before generating the cache.
+        instance_id, user_id = self._params
         instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
 
         if user_id is not None:
@@ -325,14 +333,14 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         # This replaces each object in the data with the CachedPointsData version
         # while retaining any common object references (e.g. module.children and
         # exercise_index values refer to the same object instances)
-        base_points_data = CachedPointsData.upgrade(content, models=(instance, user))
+        base_points_data = CachedPointsData.upgrade(content, user_id)
 
         # Generate the staff and student version of the cache, and merge them.
         generate_args = (
             user.is_authenticated, submissions, deadline_deviations, submission_deviations, module_instances
         )
-        staff_data = cls._generate_data_internal(deepcopy(base_points_data), True, *generate_args)
-        student_data = cls._generate_data_internal(base_points_data, False, *generate_args)
+        staff_data = self._generate_data_internal(deepcopy(base_points_data), True, *generate_args)
+        student_data = self._generate_data_internal(base_points_data, False, *generate_args)
         staff_data._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
 
         # Pick the lowest invalidate_time if it is duplicated.
@@ -347,7 +355,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                 staff_data.invalidate_time = invalidate_time[1]
 
         staff_data.points_created = timezone.now()
-        return staff_data
+        self.__dict__.update(staff_data.__dict__)
 
     @classmethod
     def _generate_data_internal( # noqa: MC0001
