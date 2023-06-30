@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
-from lib.cache.cached import DBData, PrecreatedProxies
+from lib.cache.cached import CacheBase, DBData, PrecreatedProxies
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
@@ -142,6 +142,12 @@ class ModuleEntry(CommonPointData, CommonStats, ModuleEntryBase["ExerciseEntry"]
     passed: bool = False # TODO: no default
     unconfirmed: bool = False
 
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, data):
+        self.__dict__.update(data)
+
     @classmethod
     def upgrade(cls: Type[ModuleEntryType], data: ModuleEntryBase, **kwargs) -> ModuleEntryType:
         if data.__class__ is cls:
@@ -181,10 +187,16 @@ class SubmissionEntry(CommonPointData, SubmissionEntryBase): ...
 
 ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
 @cache_fields
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class ExerciseEntry(CommonPointData, ExerciseEntryBase[ModuleEntry, "ExerciseEntry"]):
     unconfirmed: bool = False
     is_revealed: bool = True
+
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, data):
+        self.__dict__.update(data)
 
     @classmethod
     def upgrade(cls: Type[ExerciseEntryType], data: ExerciseEntryBase, **kwargs) -> ExerciseEntryType:
@@ -211,7 +223,7 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase[ModuleEntry, "ExerciseEnt
 
 
 @cache_fields
-@dataclass(eq=False)
+@dataclass(eq=False, repr=False)
 class SubmittableExerciseEntry(ExerciseEntry):
     submittable: Literal[True] = True
     submissions: List[SubmissionEntry] = field(default_factory=list)
@@ -249,6 +261,35 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
     def post_get(self, precreated: PrecreatedProxies):
         pass
+
+    @classmethod
+    def get_for_models(
+            cls: Type[CachedPointsDataType],
+            instance: CourseInstance,
+            user: User,
+            prefetch_children: bool = True,
+            prefetched_data: Optional[DBData] = None,
+            ) -> CachedPointsDataType:
+        return cls.get(instance.id, user.id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+
+    @classmethod
+    def get(
+            cls: Type[CachedPointsDataType],
+            instance_id: int,
+            user_id: int,
+            prefetch_children: bool = True,
+            prefetched_data: Optional[DBData] = None,
+            ) -> CachedPointsDataType:
+        return super(CachedDataBase, cls).get(instance_id, user_id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+
+    def __getstate__(self):
+        return self.__dict__
+
+    def __setstate__(self, data):
+        self.__dict__.update(data)
+
+    def get_child_proxies(self) -> Iterable[CacheBase]:
+        return []
 
     def unpack(self, show_unrevealed):
         self._extract_tuples(self, 0 if show_unrevealed else 1)
@@ -675,17 +716,19 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         """
         packing = set()
         def pack_tuples(value1, value2, parent_container, parent_key):
-            if isinstance(value1, (dict, CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+            if isinstance(value1, dict):
                 if id(value1) in packing:
                     return
-
                 packing.add(id(value1))
 
-            if isinstance(value1, dict):
                 for key, inner_value1 in value1.items():
                     inner_value2 = value2[key]
                     pack_tuples(inner_value1, inner_value2, value1, key)
             elif isinstance(value1, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+                if id(value1.__dict__) in packing:
+                    return
+                packing.add(id(value1.__dict__))
+
                 pack_tuples(value1.__dict__, value2.__dict__, value1, "__dict__")
             elif isinstance(value1, list):
                 for index, inner_value1 in enumerate(value1):
@@ -707,16 +750,18 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         """
         extracting = set()
         def extract_tuples(value, tuple_index, parent_container, parent_key):
-            if isinstance(value, (dict, CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+            if isinstance(value, dict):
                 if id(value) in extracting:
                     return
-
                 extracting.add(id(value))
 
-            if isinstance(value, dict):
                 for key, inner_value in value.items():
                     extract_tuples(inner_value, tuple_index, value, key)
             elif isinstance(value, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
+                if id(value.__dict__) in extracting:
+                    return
+                extracting.add(id(value.__dict__))
+
                 extract_tuples(value.__dict__, tuple_index, value, "__dict__")
             elif isinstance(value, list):
                 for index, inner_value in enumerate(value):

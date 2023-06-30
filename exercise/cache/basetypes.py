@@ -3,10 +3,12 @@ from dataclasses import dataclass, field, InitVar
 from datetime import datetime
 from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Type, TypeVar, Union
 
+from django.db.models import Prefetch
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
-from lib.cache.cached import CacheBase, DBData, PrecreatedProxies
+from lib.cache.cached import CacheBase, DBData, get_or_create_proxy, PrecreatedProxies, resolve_proxies
+from threshold.models import CourseModuleRequirement
 from ..models import BaseExercise, LearningObject
 
 
@@ -15,6 +17,16 @@ def add_by_difficulty(to: Dict[str, int], difficulty: str, points: int):
         to[difficulty] += points
     else:
         to[difficulty] = points
+
+
+def _add_to(target: Union[ModuleEntryBase, CategoryEntryBase, TotalsBase], exercise: BaseExercise) -> None:
+    target.exercise_count += 1
+    target.max_points += exercise.max_points
+    add_by_difficulty(
+        target.max_points_by_difficulty,
+        exercise.difficulty,
+        exercise.max_points
+    )
 
 
 class EqById:
@@ -33,12 +45,13 @@ CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
 Totals = TypeVar("Totals", bound="TotalsBase")
 
 
-@dataclass(eq=False)
-class ExerciseEntryBase(EqById, Generic[ModuleEntry, ExerciseEntry]):
+@dataclass(eq=False, repr=False)
+class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
+    KEY_PREFIX: ClassVar[str] = 'exercise'
     type: ClassVar[Literal['exercise']] = 'exercise'
     # Disable repr for ancestors so there are no infinite loops
-    module: ModuleEntry = field(repr=False)
-    parent: Optional[ExerciseEntry] = field(repr=False)
+    module: ModuleEntry
+    parent: Optional[ExerciseEntry]
     category: str
     category_id: int
     category_status: str
@@ -62,17 +75,96 @@ class ExerciseEntryBase(EqById, Generic[ModuleEntry, ExerciseEntry]):
     late_percent: int
     is_empty: bool
     get_path: str
+    points_to_pass: int
+    difficulty: str
+    max_submissions: int
+    max_points: int
+    allow_assistant_viewing: bool
+    children: List[ExerciseEntry]
     submittable: bool
-    points_to_pass: int = 0
-    difficulty: str = ''
-    max_submissions: int = 0
-    max_points: int = 0
-    allow_assistant_viewing: bool = False
-    children: List[ExerciseEntryBase] = field(default_factory=list)
+
+    def post_get(self, precreated: PrecreatedProxies):
+        self.module = get_or_create_proxy(precreated, ModuleEntryBase, *self.module)
+
+        if self.parent:
+            self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, *self.parent)
+
+        for i, params in enumerate(self.children):
+            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params)
+
+    def __post_init__(self):
+        self._resolved = True
+        self._params = (self.id,)
+
+    def get_proxy_keys(self) -> Iterable[str]:
+        return ["module", "parent", "children"]
+
+    def get_child_proxies(self) -> List[CacheBase]:
+        children = [self.module, *self.children]
+        if self.parent is not None:
+            children.append(self.parent)
+        return children
+
+    # pylint: disable-next=arguments-differ too-many-locals
+    def _generate_data(
+            self,
+            precreated: Optional[PrecreatedProxies] = None,
+            prefetched_data: Optional[DBData] = None,
+            ):
+        """ Returns object that is cached into self.data """
+        lobj_id = self._params[0]
+        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
+        children = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj_id)
+        module = DBData.get_db_object(prefetched_data, CourseModule, lobj.course_module_id)
+        category = lobj.category
+
+        self.module = get_or_create_proxy(precreated, ModuleEntryBase, module.id)
+        self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, lobj.parent_id) if lobj.parent_id is not None else None
+        self.category = str(category)
+        self.category_id = category.id
+        self.category_status = category.status
+        self.confirm_the_level = category.confirm_the_level
+        self.module_id = module.id
+        self.module_status = module.status
+        self.id = lobj.id
+        self.order = lobj.order
+        self.status = lobj.status
+        self.name = str(lobj)
+        self.hierarchical_name = lobj.hierarchical_name()
+        self.number = str(module.order) + '.' + lobj.number()
+        self.link = lobj.get_display_url()
+        self.submissions_link = lobj.get_submission_list_url()
+        self.requirements = [str(r) for r in module.requirements.all()]
+        self.opening_time = module.opening_time
+        self.reading_opening_time = module.reading_opening_time
+        self.closing_time = module.closing_time
+        self.late_allowed = module.late_submissions_allowed
+        self.late_time = module.late_submission_deadline
+        self.late_percent = module.get_late_submission_point_worth()
+        self.is_empty = lobj.is_empty()
+        self.get_path = lobj.get_path()
+        self.children = [get_or_create_proxy(precreated, ExerciseEntryBase, o.id) for o in children]
+
+        if isinstance(lobj, BaseExercise):
+            self.submittable = True
+            self.points_to_pass = lobj.points_to_pass
+            self.difficulty = lobj.difficulty
+            self.max_submissions = lobj.max_submissions
+            self.max_points = lobj.max_points
+            self.allow_assistant_viewing = lobj.allow_assistant_viewing
+        else:
+            self.submittable = False
+            self.points_to_pass = 0
+            self.difficulty = ''
+            self.max_submissions = 0
+            self.max_points = 0
+            self.allow_assistant_viewing = False
 
 
-@dataclass(eq=False)
-class ModuleEntryBase(EqById, Generic[ExerciseEntry]):
+
+@dataclass(eq=False, repr=False)
+class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
+    KEY_PREFIX: ClassVar[str] = 'module'
     type: ClassVar[Literal['module']] = 'module'
     id: int
     order: int
@@ -94,6 +186,60 @@ class ModuleEntryBase(EqById, Generic[ExerciseEntry]):
     max_points: int = 0
     max_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
     children: List[ExerciseEntry] = field(default_factory=list)
+
+    def post_get(self, precreated: PrecreatedProxies):
+        for i, params in enumerate(self.children):
+            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params)
+
+    def __post_init__(self):
+        self._resolved = True
+        self._params = (self.id,)
+
+    def get_proxy_keys(self) -> Iterable[str]:
+        return ["children"]
+
+    def get_child_proxies(self) -> Iterable[CacheBase]:
+        return self.children
+
+    # pylint: disable-next=arguments-differ too-many-locals
+    def _generate_data(
+            self,
+            precreated: Optional[PrecreatedProxies] = None,
+            prefetched_data: Optional[DBData] = None,
+            ):
+        """ Returns object that is cached into self.data """
+        module_id = self._params[0]
+        module = DBData.get_db_object(prefetched_data, CourseModule, module_id)
+        lobjs = DBData.filter_db_objects(prefetched_data, LearningObject, course_module_id=module_id)
+        children = DBData.filter_db_objects(
+            prefetched_data, LearningObject, parent_id=None, course_module_id=module_id
+        )
+
+        self.id = module.id
+        self.order = module.order
+        self.status = module.status
+        self.url = module.url
+        self.name = str(module)
+        self.number = str(module.order)
+        self.introduction = module.introduction
+        self.link = module.get_absolute_url()
+        self.requirements = [str(r) for r in module.requirements.all()]
+        self.opening_time = module.opening_time
+        self.reading_opening_time = module.reading_opening_time
+        self.closing_time = module.closing_time
+        self.late_allowed = module.late_submissions_allowed
+        self.late_time = module.late_submission_deadline
+        self.late_percent = module.get_late_submission_point_worth()
+        self.points_to_pass = module.points_to_pass
+        self.children = [get_or_create_proxy(precreated, ExerciseEntryBase, child.id) for child in children]
+        self.exercise_count = 0
+        self.max_points = 0
+        self.max_points_by_difficulty = {}
+
+        for exercise in lobjs:
+            if isinstance(exercise, BaseExercise):
+                if not exercise.category.confirm_the_level:
+                    _add_to(self, exercise)
 
 
 @dataclass(eq=False)
@@ -135,7 +281,37 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         self._params = (instance_id,)
 
     def post_get(self, precreated: PrecreatedProxies):
-        pass
+        for i, module_params in enumerate(self.modules):
+            proxy = get_or_create_proxy(precreated, ModuleEntryBase, *module_params)
+            self.modules[i] = proxy
+            self.module_index[module_params[0]] = proxy
+
+        for k, exercise_params in self.exercise_index.items():
+            self.exercise_index[k] = get_or_create_proxy(precreated, ExerciseEntryBase, *exercise_params)
+
+    @classmethod
+    def get_for_models(
+            cls: Type[T],
+            instance: CourseInstance,
+            prefetch_children: bool = True,
+            prefetched_data: Optional[DBData] = None,
+            ) -> T:
+        return cls.get(instance.id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+
+    @classmethod
+    def get(
+            cls: Type[T],
+            instance_id: int,
+            prefetch_children: bool = True,
+            prefetched_data: Optional[DBData] = None,
+            ) -> T:
+        return super().get(instance_id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+
+    def get_proxy_keys(self) -> Iterable[str]:
+        return ["module_index", "exercise_index", "modules"]
+
+    def get_child_proxies(self) -> Iterable[CacheBase]:
+        return self.modules + list(self.exercise_index.values())
 
     def _generate_data(
             self,
@@ -144,21 +320,40 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
             ):
         """ Returns object that is cached into self.data """
         instance_id = self._params[0]
-        instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
         if not prefetched_data:
-            module_objs = CourseModule.objects.filter(course_instance=instance).prefetch_related(
-                'requirements',
-                'requirements__threshold__passed_modules',
-                'requirements__threshold__passed_categories',
-                'requirements__threshold__passed_exercises',
-                'requirements__threshold__passed_exercises__parent',
-                'requirements__threshold__points',
-                'learning_objects',
+            prefetched_data = DBData()
+
+            instance = CourseInstance.objects.get(id=instance_id)
+            module_objs = (
+                CourseModule.objects
+                .filter(course_instance=instance)
+                .prefetch_related(
+                    Prefetch(
+                        "requirements",
+                        queryset=(
+                            CourseModuleRequirement.objects
+                            .select_related("threshold")
+                            .prefetch_related(
+                                "passed_modules"
+                                "passed_categories",
+                                Prefetch(
+                                    "passed_exercises",
+                                    queryset=BaseExercise.objects.select_related("parent"),
+                                ),
+                                "points",
+                            )
+                        )
+                    ),
+                )
             )
-            lobjs = LearningObject.objects.filter(course_module__in=module_objs).prefetch_related("children", "category")
+            lobjs = LearningObject.objects.filter(course_module__in=module_objs).prefetch_related("category")
+
+            prefetched_data.add(instance)
+            prefetched_data.extend(CourseModule, module_objs)
+            prefetched_data.extend(LearningObject, lobjs)
         else:
             module_objs = prefetched_data.filter_db_objects(CourseModule, course_instance_id=instance_id)
-            lobjs = prefetched_data.filter_db_objects(LearningObject, course_module__in=module_objs)
+            lobjs = [lobj for module in module_objs for lobj in module.learning_objects.all()]
 
         self.exercise_index = exercise_index = {}
         self.module_index = module_index = {}
@@ -167,111 +362,39 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         self.categories = categories = {}
         self.total = total = TotalsBase()
 
-        def recursion(
-                module: ModuleEntryBase,
-                objects: Iterable[LearningObject],
-                parents: List[LearningObject],
-                container: List[ExerciseEntryBase],
-                ) -> None:
-            """ Recursively travels exercises hierarchy """
-            parent_id = parents[-1].id if parents else None
-            children = [o for o in objects if o.parent_id == parent_id]
-            j = 0
-            for o in children:
-                o._parents = parents + [o]
-                category = o.category
-                entry = ExerciseEntryBase(
-                    module = module,
-                    parent = exercise_index[parent_id] if parent_id is not None else None,
-                    category = str(category),
-                    category_id = category.id,
-                    category_status = category.status,
-                    confirm_the_level = category.confirm_the_level,
-                    module_id = module.id,
-                    module_status = module.status,
-                    id = o.id,
-                    order = o.order,
-                    status = o.status,
-                    name = str(o),
-                    hierarchical_name = o.hierarchical_name(),
-                    number = module.number + '.' + o.number(),
-                    link = o.get_display_url(),
-                    submittable = False,
-                    submissions_link = o.get_submission_list_url(),
-                    requirements = module.requirements,
-                    opening_time = module.opening_time,
-                    reading_opening_time = module.reading_opening_time,
-                    closing_time = module.closing_time,
-                    late_allowed = module.late_allowed,
-                    late_time = module.late_time,
-                    late_percent = module.late_percent,
-                    is_empty = o.is_empty(),
-                    get_path = o.get_path(),
+        for lobj in lobjs:
+            exercise_index[lobj.id] = get_or_create_proxy(precreated, ExerciseEntryBase, lobj.id)
+            category = lobj.category
+            if category.id not in categories:
+                categories[category.id] = CategoryEntryBase(
+                    id = category.id,
+                    status = category.status,
+                    name = str(category),
+                    points_to_pass = category.points_to_pass,
                 )
-                container.append(entry)
-                exercise_index[o.id] = entry
-                paths[module.id][o.get_path()] = o.id
-                if category.id not in categories:
-                    categories[category.id] = CategoryEntryBase(
-                        id = category.id,
-                        status = category.status,
-                        name = str(category),
-                        points_to_pass = category.points_to_pass,
-                    )
-                recursion(module, objects, o._parents, entry.children)
-                j += 1
 
         # Collect each module.
-        i = 0
         for module in module_objs:
-            entry = ModuleEntryBase(
-                id = module.id,
-                order = module.order,
-                status = module.status,
-                url = module.url,
-                name = str(module),
-                number = str(module.order),
-                introduction = module.introduction,
-                link = module.get_absolute_url(),
-                requirements = [str(r) for r in module.requirements.all()],
-                opening_time = module.opening_time,
-                reading_opening_time = module.reading_opening_time,
-                closing_time = module.closing_time,
-                late_allowed = module.late_submissions_allowed,
-                late_time = module.late_submission_deadline,
-                late_percent = module.get_late_submission_point_worth(),
-                points_to_pass = module.points_to_pass,
-            )
+            entry = get_or_create_proxy(precreated, ModuleEntryBase, module.id)
             modules.append(entry)
             module_index[module.id] = entry
             paths[module.id] = {}
-            recursion(entry, lobjs, [], entry.children)
-            i += 1
+
+        resolve_proxies(
+            modules + list(exercise_index.values()),
+            prefetched_data=prefetched_data,
+        )
+
+        for entry in exercise_index.values():
+            paths[entry.module.id][entry.get_path] = entry.id
 
         # Augment submittable exercise parameters.
-        def add_to(target: Union[ModuleEntryBase, CategoryEntryBase, TotalsBase], exercise: BaseExercise) -> None:
-            target.exercise_count += 1
-            target.max_points += exercise.max_points
-            add_by_difficulty(
-                target.max_points_by_difficulty,
-                exercise.difficulty,
-                exercise.max_points
-            )
         for exercise in lobjs:
             if isinstance(exercise, BaseExercise):
                 entry = exercise_index[exercise.id]
-
-                entry.submittable = True
-                entry.points_to_pass = exercise.points_to_pass
-                entry.difficulty = exercise.difficulty
-                entry.max_submissions = exercise.max_submissions
-                entry.max_points = exercise.max_points
-                entry.allow_assistant_viewing = exercise.allow_assistant_viewing
-
                 if not entry.confirm_the_level:
-                    add_to(entry.module, exercise)
-                    add_to(categories[exercise.category.id], exercise)
-                    add_to(total, exercise)
+                    _add_to(categories[entry.category_id], exercise)
+                    _add_to(total, exercise)
 
                     if exercise.max_group_size > total.max_group_size:
                         total.max_group_size = exercise.max_group_size
