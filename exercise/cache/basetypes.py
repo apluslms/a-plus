@@ -1,12 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Generic, List, Literal, Optional, TypeVar, Union
+from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, TypeVar, Union
 
 from django.utils import timezone
 
-from course.models import CourseInstance
-from lib.cache.cached import CacheBase
+from course.models import CourseInstance, CourseModule
+from lib.cache.cached import CacheBase, DBData
 from ..models import BaseExercise, LearningObject
 
 
@@ -133,9 +133,24 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
     def _generate_data(
             cls,
             instance_id: int,
+            prefetched_data: Optional[DBData] = None,
             ) -> CachedDataBase[ModuleEntryBase, ExerciseEntryBase, CategoryEntryBase, TotalsBase]:
         """ Returns object that is cached into self.data """
-        instance = CourseInstance.objects.get(id=instance_id)
+        instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
+        if not prefetched_data:
+            module_objs = CourseModule.objects.filter(course_instance=instance).prefetch_related(
+                'requirements',
+                'requirements__threshold__passed_modules',
+                'requirements__threshold__passed_categories',
+                'requirements__threshold__passed_exercises',
+                'requirements__threshold__passed_exercises__parent',
+                'requirements__threshold__points',
+                'learning_objects',
+            )
+            lobjs = LearningObject.objects.filter(course_module__in=module_objs).prefetch_related("children", "category")
+        else:
+            module_objs = prefetched_data.filter_db_objects(CourseModule, course_instance_id=instance_id)
+            lobjs = prefetched_data.filter_db_objects(LearningObject, course_module__in=module_objs)
 
         exercise_index: Dict[int, ExerciseEntryBase] = {}
         module_index: Dict[int, ModuleEntryBase] = {}
@@ -146,7 +161,7 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
 
         def recursion(
                 module: ModuleEntryBase,
-                objects: List[LearningObject],
+                objects: Iterable[LearningObject],
                 parents: List[LearningObject],
                 container: List[ExerciseEntryBase],
                 ) -> None:
@@ -200,15 +215,7 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
 
         # Collect each module.
         i = 0
-        for module in instance.course_modules.prefetch_related(
-            'requirements',
-            'requirements__threshold__passed_modules',
-            'requirements__threshold__passed_categories',
-            'requirements__threshold__passed_exercises',
-            'requirements__threshold__passed_exercises__parent',
-            'requirements__threshold__points',
-            'learning_objects',
-        ):
+        for module in module_objs:
             entry = ModuleEntryBase(
                 id = module.id,
                 order = module.order,
@@ -230,8 +237,7 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
             modules.append(entry)
             module_index[module.id] = entry
             paths[module.id] = {}
-            all_children = list(module.learning_objects.all())
-            recursion(entry, all_children, [], entry.children)
+            recursion(entry, lobjs, [], entry.children)
             i += 1
 
         # Augment submittable exercise parameters.
@@ -243,29 +249,26 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
                 exercise.difficulty,
                 exercise.max_points
             )
-        for exercise in BaseExercise.objects\
-              .filter(course_module__course_instance=instance):
-            try:
+        for exercise in lobjs:
+            if isinstance(exercise, BaseExercise):
                 entry = exercise_index[exercise.id]
-            except KeyError:
-                continue
 
-            entry.submittable = True
-            entry.points_to_pass = exercise.points_to_pass
-            entry.difficulty = exercise.difficulty
-            entry.max_submissions = exercise.max_submissions
-            entry.max_points = exercise.max_points
-            entry.allow_assistant_viewing = exercise.allow_assistant_viewing
+                entry.submittable = True
+                entry.points_to_pass = exercise.points_to_pass
+                entry.difficulty = exercise.difficulty
+                entry.max_submissions = exercise.max_submissions
+                entry.max_points = exercise.max_points
+                entry.allow_assistant_viewing = exercise.allow_assistant_viewing
 
-            if not entry.confirm_the_level:
-                add_to(entry.module, exercise)
-                add_to(categories[exercise.category.id], exercise)
-                add_to(total, exercise)
+                if not entry.confirm_the_level:
+                    add_to(entry.module, exercise)
+                    add_to(categories[exercise.category.id], exercise)
+                    add_to(total, exercise)
 
-                if exercise.max_group_size > total.max_group_size:
-                    total.max_group_size = exercise.max_group_size
-                if exercise.max_group_size > 1 and exercise.min_group_size < total.min_group_size:
-                    total.min_group_size = exercise.min_group_size
+                    if exercise.max_group_size > total.max_group_size:
+                        total.max_group_size = exercise.max_group_size
+                    if exercise.max_group_size > 1 and exercise.min_group_size < total.min_group_size:
+                        total.min_group_size = exercise.min_group_size
 
         if total.min_group_size > total.max_group_size:
             total.min_group_size = 1
