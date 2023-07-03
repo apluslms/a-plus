@@ -10,6 +10,9 @@ $questionnaire-focus-bg: #bce8f1;
 	.question-area {
 		margin-top: 20px;
 		margin-bottom: 20px;
+		.control-label {
+			display: inline;
+		}
 	}
 
 	.question-description {
