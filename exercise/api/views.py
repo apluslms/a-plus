@@ -81,6 +81,11 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
     serializer_class = ExerciseSerializer
     queryset = BaseExercise.objects.all()
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'cached_content': self.content})
+        return context
+
     @action(
         detail=True,
         url_path='grader',
