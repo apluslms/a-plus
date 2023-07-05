@@ -1,3 +1,4 @@
+from typing import Tuple
 from django.http.response import Http404
 from course.models import CourseModule, LearningObjectCategory
 from ..models import LearningObject
@@ -171,6 +172,27 @@ class ContentMixin:
             self._previous(idx, tree),
             self._next(idx, tree),
         )
+
+    def get_absolute_order_number(self, learning_object_id: int) -> int:
+        """Get the absolute order number of the given learning object
+        (i.e. how manieth chapter or exercise it is in the material).
+        """
+        def inner(parent: dict, n: int) -> Tuple[bool, int]:
+            # parent is a cached dict representing a CourseModule or a LearningObject
+            for entry in parent['children']:
+                n += 1
+                if entry['id'] == learning_object_id:
+                    return True, n
+                found, n = inner(entry, n)
+                if found:
+                    return True, n
+            return False, n
+
+        n = 0
+        for module in self.modules():
+            found, n = inner(module, n)
+            if found:
+                return n
 
     def search_exercises(self, **kwargs):
         _, entries = self.search_entries(**kwargs)

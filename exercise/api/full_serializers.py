@@ -10,7 +10,10 @@ from lib.api.serializers import (
 from course.api.serializers import CourseBriefSerializer
 from userprofile.api.serializers import UserBriefSerializer
 
-from ..models import Submission
+from ..models import (
+    Submission,
+    BaseExercise
+)
 from .serializers import (
     ExerciseBriefSerializer,
     SubmissionBriefSerializer,
@@ -31,6 +34,8 @@ __all__ = [
 class ExerciseSerializer(ExerciseBriefSerializer):
     course = CourseBriefSerializer(source='course_instance')
     post_url = serializers.SerializerMethodField()
+    consecutive_order = serializers.SerializerMethodField()
+    parent_name = serializers.SerializerMethodField()
     exercise_info = serializers.JSONField()
     submissions = NestedHyperlinkedIdentityField(
         view_name='api:exercise-submissions-list',
@@ -60,18 +65,32 @@ class ExerciseSerializer(ExerciseBriefSerializer):
             return request.build_absolute_uri(url)
         return None
 
+    def get_consecutive_order(self, obj: BaseExercise) -> int:
+        content = self.context['cached_content']
+        order = content.get_absolute_order_number(obj.id)
+        return order
+
+    def get_parent_name(self, obj: BaseExercise) -> str:
+        parent = obj.parent
+        if parent is None:
+            return None
+        return str(parent)
+
     class Meta(ExerciseBriefSerializer.Meta):
         fields = (
             'name',
             'course',
             'is_submittable',
             'post_url',
+            'consecutive_order',
+            'parent_name',
             'exercise_info',
             'templates',
             'submissions',
             'my_submissions',
             'my_stats',
             'statistics',
+            'status',
         )
 
 
