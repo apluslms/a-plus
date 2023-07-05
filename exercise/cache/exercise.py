@@ -28,7 +28,7 @@ except ImportError:
 
 class ExerciseCache(CachedAbstract):
     """ Exercise HTML content """
-    KEY_PREFIX = "exercise"
+    KEY_PREFIX = "exercisepage"
 
     def __init__( # pylint: disable=too-many-arguments
             self,

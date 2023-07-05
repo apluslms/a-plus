@@ -48,6 +48,7 @@ Totals = TypeVar("Totals", bound="TotalsBase")
 @dataclass(eq=False, repr=False)
 class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     KEY_PREFIX: ClassVar[str] = 'exercise'
+    NUM_PARAMS: ClassVar[int] = 1
     type: ClassVar[Literal['exercise']] = 'exercise'
     # Disable repr for ancestors so there are no infinite loops
     module: ModuleEntry
@@ -83,7 +84,10 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     children: List[ExerciseEntry]
     submittable: bool
 
-    def post_get(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: PrecreatedProxies):
+        if not isinstance(self.module, tuple):
+            return
+
         self.module = get_or_create_proxy(precreated, ModuleEntryBase, *self.module)
 
         if self.parent:
@@ -165,6 +169,7 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
 @dataclass(eq=False, repr=False)
 class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     KEY_PREFIX: ClassVar[str] = 'module'
+    NUM_PARAMS: ClassVar[int] = 1
     type: ClassVar[Literal['module']] = 'module'
     id: int
     order: int
@@ -187,7 +192,10 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     max_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
     children: List[ExerciseEntry] = field(default_factory=list)
 
-    def post_get(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: PrecreatedProxies):
+        if self.children and not isinstance(self.children[0], tuple):
+            return
+
         for i, params in enumerate(self.children):
             self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params)
 
@@ -267,6 +275,7 @@ T = TypeVar("T", bound="CachedDataBase")
 @dataclass
 class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instance'
+    NUM_PARAMS: ClassVar[int] = 1
     instance_id: InitVar[int]
     created: datetime
     module_index: Dict[int, ModuleEntry]
@@ -280,7 +289,10 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         self._resolved = True
         self._params = (instance_id,)
 
-    def post_get(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: PrecreatedProxies):
+        if self.modules and not isinstance(self.modules[0], tuple):
+            return
+
         for i, module_params in enumerate(self.modules):
             proxy = get_or_create_proxy(precreated, ModuleEntryBase, *module_params)
             self.modules[i] = proxy
