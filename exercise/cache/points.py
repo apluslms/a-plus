@@ -250,7 +250,9 @@ CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
 @cache_fields
 @dataclass(eq=False)
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
+    PARENTS = ()
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
+    NUM_PARAMS: ClassVar[int] = 2
     user_id: InitVar[int]
     invalidate_time: Optional[datetime.datetime] = None
     points_created: datetime.datetime = field(default_factory=timezone.now)
@@ -259,7 +261,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         self._resolved = True
         self._params = (instance_id, user_id)
 
-    def post_get(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: PrecreatedProxies):
         pass
 
     @classmethod
@@ -300,8 +302,9 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             return cast(cls, data)
 
         data = upgrade(cls, data, kwargs)
+        data._keys_with_cls = cls._get_keys_with_cls(*data._params)
+        data._keys = [row[1:] for row in data._keys_with_cls]
         data._params = (*data._params, user_id)
-        data._cache_key = cls._key(*data._params)
 
         for module in data.modules:
             ModuleEntry.upgrade(module)
