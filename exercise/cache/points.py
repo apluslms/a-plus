@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import deepcopy
 from dataclasses import dataclass, field, Field, fields, InitVar, MISSING
 import datetime
 import itertools
@@ -8,6 +7,7 @@ from typing import (
     cast,
     ClassVar,
     Dict,
+    Generic,
     Iterable,
     List,
     Literal,
@@ -95,24 +95,70 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
     )
 
 
+RType = TypeVar("RType")
+class RevealableAttribute(Generic[RType]):
+    def __set_name__(self, owner, name):
+        self.true_name = "_true_" + name
+        self.name = "_" + name
+
+    def __get__(self, instance, owner=None) -> RType:
+        if instance.feedback_revealed:
+            return getattr(instance, self.true_name)
+        else:
+            return getattr(instance, self.name)
+
+
 @dataclass(repr=False)
 class CommonPointData:
+    _is_container: ClassVar[bool] = True
     submission_count: int = 0
-    points: int = 0
-    formatted_points: str = "0"
+    _true_passed: bool = field(default=False, repr=False) # Includes unrevealed data. Use .passed instead.
+    _passed: bool = field(default=False, repr=False) # Use .passed instead.
+    _true_points: int = field(default=0, repr=False) # Includes unrevealed data. Use .points instead.
+    _points: int = field(default=0, repr=False) # Use .points instead.
+    feedback_revealed: bool = True
+
+    passed = RevealableAttribute[bool]()
+    points = RevealableAttribute[int]()
+
+    @property
+    def formatted_points(self) -> str:
+        return format_points(self.points, self.feedback_revealed, self._is_container)
+
+    def reveal(self, show_unrevealed: bool = False):
+        if show_unrevealed:
+            self.feedback_revealed = True
 
 
 @dataclass(repr=False)
-class CommonStats:
-    points_by_difficulty: Dict[str, int] = field(default_factory=dict)
-    unconfirmed_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
-    feedback_revealed: bool = True
+class DifficultyStats(CommonPointData):
+    _true_points_by_difficulty: Dict[str, int] = field(default_factory=dict, repr=False)
+    _points_by_difficulty: Dict[str, int] = field(default_factory=dict, repr=False)
+    _true_unconfirmed_points_by_difficulty: Dict[str, int] = field(default_factory=dict, repr=False)
+    _unconfirmed_points_by_difficulty: Dict[str, int] = field(default_factory=dict, repr=False)
+
+    points_by_difficulty = RevealableAttribute[Dict[str, int]]()
+    unconfirmed_points_by_difficulty = RevealableAttribute[Dict[str, int]]()
 
 
 TotalsType = TypeVar("TotalsType", bound=TotalsBase)
 @cache_fields
 @dataclass
-class Totals(CommonPointData, CommonStats, TotalsBase):
+class Totals(DifficultyStats, TotalsBase):
+    def as_dict(self):
+        revealable = ("passed", "points", "points_by_difficulty", "unconfirmed_points_by_difficulty")
+        hide = tuple(k for key in revealable for k in ("_true_" + key, "_" + key))
+        out = {
+            k: v
+            for k,v in self.__dict__.items()
+            if k not in hide
+        }
+        out.update(
+            (k, getattr(self, k))
+            for k in revealable
+        )
+        return out
+
     @classmethod
     def upgrade(cls: Type[TotalsType], data: TotalsBase, **kwargs) -> TotalsType:
         if data.__class__ is cls:
@@ -124,9 +170,7 @@ class Totals(CommonPointData, CommonStats, TotalsBase):
 CategoryEntryType = TypeVar("CategoryEntryType", bound=CategoryEntryBase)
 @cache_fields
 @dataclass(eq=False)
-class CategoryEntry(CommonPointData, CommonStats, CategoryEntryBase):
-    passed: bool = False # TODO: no default
-
+class CategoryEntry(DifficultyStats, CategoryEntryBase):
     @classmethod
     def upgrade(cls: Type[CategoryEntryType], data: CategoryEntryBase, **kwargs) -> CategoryEntryType:
         if data.__class__ is cls:
@@ -138,9 +182,11 @@ class CategoryEntry(CommonPointData, CommonStats, CategoryEntryBase):
 ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
 @cache_fields
 @dataclass(eq=False)
-class ModuleEntry(CommonPointData, CommonStats, ModuleEntryBase["ExerciseEntry"]):
-    passed: bool = False # TODO: no default
-    unconfirmed: bool = False
+class ModuleEntry(DifficultyStats, ModuleEntryBase["ExerciseEntry"]):
+    _true_unconfirmed: bool = False
+    _unconfirmed: bool = False
+
+    unconfirmed = RevealableAttribute[bool]()
 
     def __getstate__(self):
         return self.__dict__
@@ -172,25 +218,28 @@ class SubmissionEntryBase(EqById):
     points_to_pass: int
     confirm_the_level: bool
     graded: bool
-    passed: bool
     submission_status: Union[str, bool]
     unofficial: bool
     date: datetime.datetime
     url: str
-    feedback_revealed: bool = True
     feedback_reveal_time: Optional[datetime.datetime] = None
 
 
 @dataclass(eq=False)
-class SubmissionEntry(CommonPointData, SubmissionEntryBase): ...
+class SubmissionEntry(CommonPointData, SubmissionEntryBase):
+    _is_container: ClassVar[bool] = False
 
 
 ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
 @cache_fields
 @dataclass(eq=False, repr=False)
 class ExerciseEntry(CommonPointData, ExerciseEntryBase[ModuleEntry, "ExerciseEntry"]):
-    unconfirmed: bool = False
+    _is_container: ClassVar[bool] = False
+    _true_unconfirmed: bool = False
+    _unconfirmed: bool = False
     is_revealed: bool = True
+
+    unconfirmed = RevealableAttribute[bool]()
 
     def __getstate__(self):
         return self.__dict__
@@ -227,8 +276,8 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase[ModuleEntry, "ExerciseEnt
 class SubmittableExerciseEntry(ExerciseEntry):
     submittable: Literal[True] = True
     submissions: List[SubmissionEntry] = field(default_factory=list)
-    best_submission: Optional[int] = None
-    passed: bool = False # TODO: no default
+    _true_best_submission: Optional[int] = None
+    _best_submission: Optional[int] = None
     graded: bool = False
     unofficial: bool = False # TODO: this should be True,
     # but we need to ensure nothing breaks when it's changed
@@ -239,8 +288,15 @@ class SubmittableExerciseEntry(ExerciseEntry):
     personal_deadline: Optional[datetime.datetime] = None
     personal_deadline_has_penalty: Optional[bool] = None
     personal_max_submissions: Optional[int] = None
-    feedback_revealed: bool = True
     feedback_reveal_time: Optional[datetime.datetime] = None
+
+    best_submission = RevealableAttribute[Optional[int]]()
+
+    def reveal(self, show_unrevealed: bool):
+        super().reveal(show_unrevealed)
+
+        for submission in self.submissions:
+            submission.reveal(show_unrevealed)
 
 
 EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
@@ -262,27 +318,39 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         self._params = (instance_id, user_id)
 
     def post_build(self, precreated: PrecreatedProxies):
-        pass
+        show_unrevealed = self._modifiers[0]
+
+        for exercise in self.exercise_index.values():
+            exercise.reveal(show_unrevealed)
+
+        for module in self.modules:
+            module.reveal(show_unrevealed)
+
+        self.total.reveal(show_unrevealed)
+        for category in self.categories.values():
+            category.reveal(show_unrevealed)
 
     @classmethod
     def get_for_models(
             cls: Type[CachedPointsDataType],
             instance: CourseInstance,
             user: User,
+            show_unrevealed: bool = False,
             prefetch_children: bool = True,
             prefetched_data: Optional[DBData] = None,
             ) -> CachedPointsDataType:
-        return cls.get(instance.id, user.id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+        return cls.get(instance.id, user.id, show_unrevealed, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
     @classmethod
     def get(
             cls: Type[CachedPointsDataType],
             instance_id: int,
             user_id: int,
+            show_unrevealed: bool = False,
             prefetch_children: bool = True,
             prefetched_data: Optional[DBData] = None,
             ) -> CachedPointsDataType:
-        return super(CachedDataBase, cls).get(instance_id, user_id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+        return super(CachedDataBase, cls).get(instance_id, user_id, modifiers=(show_unrevealed,), prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
     def __getstate__(self):
         return self.__dict__
@@ -292,9 +360,6 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return []
-
-    def unpack(self, show_unrevealed):
-        self._extract_tuples(self, 0 if show_unrevealed else 1)
 
     @classmethod
     def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, user_id: Optional[int], **kwargs: Any) -> CachedPointsDataType:
@@ -379,33 +444,36 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         # exercise_index values refer to the same object instances)
         base_points_data = CachedPointsData.upgrade(content, user_id)
 
-        # Generate the staff and student version of the cache, and merge them.
-        generate_args = (
-            user.is_authenticated, submissions, deadline_deviations, submission_deviations, module_instances
+        data = self._generate_data_internal(
+            base_points_data,
+            user is not None and user.is_authenticated,
+            submissions,
+            deadline_deviations,
+            submission_deviations,
+            module_instances,
         )
-        staff_data = self._generate_data_internal(deepcopy(base_points_data), True, *generate_args)
-        student_data = self._generate_data_internal(base_points_data, False, *generate_args)
-        staff_data._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
 
         # Pick the lowest invalidate_time if it is duplicated.
-        invalidate_time = staff_data.invalidate_time
+        invalidate_time = data.invalidate_time
         if isinstance(invalidate_time, tuple):
             if invalidate_time[0] is not None:
                 if invalidate_time[1] is not None:
-                    staff_data.invalidate_time = min(invalidate_time)
+                    data.invalidate_time = min(invalidate_time)
                 else:
-                    staff_data.invalidate_time = invalidate_time[0]
+                    data.invalidate_time = invalidate_time[0]
             else:
-                staff_data.invalidate_time = invalidate_time[1]
+                data.invalidate_time = invalidate_time[1]
 
-        staff_data.points_created = timezone.now()
-        self.__dict__.update(staff_data.__dict__)
+        data.points_created = timezone.now()
+
+        for base in reversed(CachedPointsData._parents):
+            for name in base._cached_fields:
+                self.__dict__[name] = data.__dict__[name]
 
     @classmethod
     def _generate_data_internal( # noqa: MC0001
             cls,
             data: CachedPointsData,
-            show_unrevealed: bool,
             is_authenticated: bool,
             all_submissions: Iterable[Submission],
             deadline_deviations: Iterable[DeadlineRuleDeviation],
@@ -470,19 +538,23 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                 is_revealed = reveal_rule.is_revealed(state)
                 reveal_time = reveal_rule.get_reveal_time(state)
 
-                if not is_revealed:
-                    entry.best_submission = last_submission.id
-                    entry.points = 0
-                    entry.formatted_points = format_points(entry.points, is_revealed, False)
-                    entry.passed = False
+                if is_revealed:
+                    entry._best_submission = entry._true_best_submission
+                    entry._points = entry._true_points
+                    entry._passed = entry._true_passed
+                else:
+                    entry._best_submission = last_submission.id
+                    entry._points = 0
+
                 entry.feedback_revealed = is_revealed
                 entry.feedback_reveal_time = reveal_time
 
                 for submission in entry.submissions:
-                    if not is_revealed:
-                        submission.points = 0
-                        submission.formatted_points = format_points(submission.points, is_revealed, False)
-                        submission.passed = False
+                    if is_revealed:
+                        submission._points = submission._true_points
+                        submission._passed = submission._true_passed
+                    else:
+                        submission._points = 0
                     submission.feedback_revealed = is_revealed
                     submission.feedback_reveal_time = reveal_time
 
@@ -520,10 +592,9 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                             points_to_pass = entry.points_to_pass,
                             confirm_the_level = entry.confirm_the_level,
                             submission_count = 1, # to fool points badge
-                            points = submission.grade,
-                            formatted_points = format_points(submission.grade, True, False),
+                            _true_passed = submission.grade >= entry.points_to_pass,
+                            _true_points = submission.grade,
                             graded = submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                            passed = (submission.grade >= entry.points_to_pass),
                             submission_status = submission.status if not submission.is_graded else False,
                             unofficial = unofficial,
                             date = submission.submission_time,
@@ -544,10 +615,9 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                     if submission.force_exercise_points:
                         # This submission is chosen as the final submission and no
                         # further submissions are considered.
-                        entry.best_submission = submission.id
-                        entry.points = submission.grade
-                        entry.formatted_points = format_points(submission.grade, True, False)
-                        entry.passed = (ready and submission.grade >= entry.points_to_pass)
+                        entry._true_best_submission = submission.id
+                        entry._true_passed = ready and submission.grade >= entry.points_to_pass
+                        entry._true_points = submission.grade
                         entry.graded = True
                         entry.unofficial = False
                         entry.forced_points = True
@@ -565,10 +635,9 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                             # but before any submissions entry.unofficial is False
                             is_better_than(submission, final_submission)
                         ):
-                            entry.best_submission = submission.id
-                            entry.points = submission.grade
-                            entry.formatted_points = format_points(submission.grade, True, False)
-                            entry.passed = (ready and submission.grade >= entry.points_to_pass)
+                            entry._true_best_submission = submission.id
+                            entry._true_passed = ready and submission.grade >= entry.points_to_pass
+                            entry._true_points = submission.grade
                             entry.graded = ready # != unofficial
                             entry.unofficial = unofficial
 
@@ -588,7 +657,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
                 # Check the reveal rule now that all submissions for the exercise have been iterated.
                 # last_submission is never None here but this appeases the typing system.
-                if not show_unrevealed and last_submission is not None:
+                if last_submission is not None:
                     reveal_rule = exercise.active_submission_feedback_reveal_rule
                     apply_reveal_rule(data, entry, reveal_rule, last_submission)
 
@@ -618,14 +687,26 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             if (
                 entry.submittable
                 and entry.confirm_the_level
-                and not entry.passed
+                and not entry._true_passed
             ):
                 parent = entry.parent
                 if parent is None:
                     parent = entry.module
-                parent.unconfirmed = True
+                parent._true_unconfirmed = True
                 for child in parent.children:
-                    child.unconfirmed = True
+                    child._true_unconfirmed = True
+
+            if (
+                entry.submittable
+                and entry.confirm_the_level
+                and not entry._passed
+            ):
+                parent = entry.parent
+                if parent is None:
+                    parent = entry.module
+                parent._unconfirmed = True
+                for child in parent.children:
+                    child._unconfirmed = True
 
         # Collect points and check limits.
         def add_to(target: Union[ModuleEntry, CategoryEntry, Totals], entry: SubmittableExerciseEntry) -> None:
@@ -637,36 +718,49 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             if entry.unofficial:
                 pass
             # thus, all points are now ready..
-            elif entry.unconfirmed:
-                add_by_difficulty(
-                    target.unconfirmed_points_by_difficulty,
-                    entry.difficulty,
-                    entry.points
-                )
-            # and finally, only remaining points are official (not unofficial & not unconfirmed)
             else:
-                target.points += entry.points
-                target.formatted_points = format_points(
-                    target.points,
-                    target.feedback_revealed,
-                    True,
-                )
-                add_by_difficulty(
-                    target.points_by_difficulty,
-                    entry.difficulty,
-                    entry.points
-                )
+                if entry._true_unconfirmed:
+                    add_by_difficulty(
+                        target._true_unconfirmed_points_by_difficulty,
+                        entry.difficulty,
+                        entry._true_points,
+                    )
+                # and finally, only remaining points are official (not unofficial & not unconfirmed)
+                else:
+                    target._true_points += entry._true_points
+                    add_by_difficulty(
+                        target._true_points_by_difficulty,
+                        entry.difficulty,
+                        entry._true_points,
+                    )
+
+                if entry._unconfirmed:
+                    add_by_difficulty(
+                        target._unconfirmed_points_by_difficulty,
+                        entry.difficulty,
+                        entry._points,
+                    )
+                # and finally, only remaining points are official (not unofficial & not unconfirmed)
+                else:
+                    target._points += entry._points
+                    add_by_difficulty(
+                        target._points_by_difficulty,
+                        entry.difficulty,
+                        entry._points,
+                    )
 
         def r_collect(
                 module: ModuleEntry,
                 parent: Optional[EitherExerciseEntry],
                 children: List[EitherExerciseEntry],
-                ) -> Tuple[bool, bool]:
-            passed = True
+                ) -> Tuple[bool, bool, bool]:
+            _true_passed = True
+            _passed = True
             is_revealed = True
             max_points = 0
             submissions = 0
-            points = 0
+            _true_points = 0
+            _points = 0
             confirm_entry: Optional[SubmittableExerciseEntry] = None
             for entry in children:
                 if isinstance(entry, SubmittableExerciseEntry):
@@ -675,104 +769,46 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
                     if entry.confirm_the_level:
                         confirm_entry = entry
                     else:
-                        passed = passed and entry.passed
+                        _true_passed = _true_passed and entry._true_passed
+                        _passed = _passed and entry._passed
                         is_revealed = is_revealed and entry.feedback_revealed
                         max_points += entry.max_points
                         submissions += entry.submission_count
                         if entry.graded:
-                            points += entry.points
+                            _true_points += entry._true_points
+                            _points += entry._points
                             add_to(module, entry)
                             add_to(categories[entry.category_id], entry)
                             add_to(total, entry)
-                r_passed, r_is_revealed = r_collect(module, entry, entry.children)
-                passed = r_passed and passed
+                r_passed, r_true_passed, r_is_revealed = r_collect(module, entry, entry.children)
+                _true_passed = r_true_passed and _true_passed
+                _passed = r_passed and _passed
                 is_revealed = r_is_revealed and is_revealed
             if confirm_entry and submissions > 0:
                 confirm_entry.confirmable_points = True
             if parent and not parent.submittable:
                 parent.max_points = max_points
                 parent.submission_count = submissions
-                parent.points = points
-                parent.formatted_points = format_points(points, is_revealed, True)
-            return passed, is_revealed
+                parent._true_passed = _true_passed
+                parent._passed = _passed
+                parent._true_points = _true_points
+                parent._points = _points
+            return _passed, _true_passed, is_revealed
         for module in modules:
-            passed, _ = r_collect(module, None, module.children)
-            module.passed = (
-                passed
-                and module.points >= module.points_to_pass
+            r_passed, r_true_passed, _ = r_collect(module, None, module.children)
+            module._true_passed = (
+                r_true_passed
+                and module._true_points >= module.points_to_pass
+            )
+            module._passed = (
+                r_passed
+                and module._points >= module.points_to_pass
             )
         for category in categories.values():
-            category.passed = (
-                category.points >= category.points_to_pass
-            )
+            category._true_passed = category._true_points >= category.points_to_pass
+            category._passed = category._points >= category.points_to_pass
 
         return data
-
-    def _pack_tuples(self, value1, value2):
-        """
-        Compare two data structures, and when conflicting values are found,
-        pack them into a tuple. `value1` is modified in this operation.
-
-        Example: when called with `value1={"key1": "a", "key2": "b"}` and
-        `value2={"key1": "a", "key2": "c"}`, `value1` will become
-        `{"key1": "a", "key2": ("b", "c")}`.
-        """
-        packing = set()
-        def pack_tuples(value1, value2, parent_container, parent_key):
-            if isinstance(value1, dict):
-                if id(value1) in packing:
-                    return
-                packing.add(id(value1))
-
-                for key, inner_value1 in value1.items():
-                    inner_value2 = value2[key]
-                    pack_tuples(inner_value1, inner_value2, value1, key)
-            elif isinstance(value1, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
-                if id(value1.__dict__) in packing:
-                    return
-                packing.add(id(value1.__dict__))
-
-                pack_tuples(value1.__dict__, value2.__dict__, value1, "__dict__")
-            elif isinstance(value1, list):
-                for index, inner_value1 in enumerate(value1):
-                    inner_value2 = value2[index]
-                    pack_tuples(inner_value1, inner_value2, value1, index)
-            else:
-                if value1 != value2:
-                    parent_container[parent_key] = (value1, value2)
-
-        pack_tuples(value1, value2, None, None)
-
-    def _extract_tuples(self, value, tuple_index):
-        """
-        Find tuples within a data structure, and replace them with the value
-        at `tuple_index` in the tuple. `value` is modified in this operation.
-
-        Example: when called with `value={"key1": "a", "key2": ("b", "c")}` and
-        `tuple_index=0`, `value` will become `{"key1": "a", "key2": "b"}`.
-        """
-        extracting = set()
-        def extract_tuples(value, tuple_index, parent_container, parent_key):
-            if isinstance(value, dict):
-                if id(value) in extracting:
-                    return
-                extracting.add(id(value))
-
-                for key, inner_value in value.items():
-                    extract_tuples(inner_value, tuple_index, value, key)
-            elif isinstance(value, (CachedPointsData, ExerciseEntry, CategoryEntry, ModuleEntry)):
-                if id(value.__dict__) in extracting:
-                    return
-                extracting.add(id(value.__dict__))
-
-                extract_tuples(value.__dict__, tuple_index, value, "__dict__")
-            elif isinstance(value, list):
-                for index, inner_value in enumerate(value):
-                    extract_tuples(inner_value, tuple_index, value, index)
-            elif isinstance(value, tuple):
-                parent_container[parent_key] = value[tuple_index]
-
-        extract_tuples(value, tuple_index, None, None)
 
 
 class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
@@ -797,8 +833,7 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
             ) -> None:
         self.instance = course_instance
         self.user = user
-        self.data = CachedPointsData.get_for_models(course_instance, user)
-        self.data.unpack(show_unrevealed)
+        self.data = CachedPointsData.get_for_models(course_instance, user, show_unrevealed)
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
         return self.data.points_created, super().created()

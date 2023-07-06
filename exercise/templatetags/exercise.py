@@ -63,7 +63,7 @@ def _get_toc(context, student=None):
     context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
-        'total': asdict(points.total()),
+        'total': points.total().as_dict(),
         'is_course_staff': context.get('is_course_staff', False),
     })
     return context
