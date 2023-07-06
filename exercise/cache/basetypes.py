@@ -88,13 +88,13 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
         if not isinstance(self.module, tuple):
             return
 
-        self.module = get_or_create_proxy(precreated, ModuleEntryBase, *self.module)
+        self.module = get_or_create_proxy(precreated, ModuleEntryBase, *self.module[0])
 
         if self.parent:
-            self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, *self.parent)
+            self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, *self.parent[0])
 
         for i, params in enumerate(self.children):
-            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params)
+            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params[0])
 
     def __post_init__(self):
         self._resolved = True
@@ -197,7 +197,7 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
             return
 
         for i, params in enumerate(self.children):
-            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params)
+            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params[0])
 
     def __post_init__(self):
         self._resolved = True
@@ -294,12 +294,12 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
             return
 
         for i, module_params in enumerate(self.modules):
-            proxy = get_or_create_proxy(precreated, ModuleEntryBase, *module_params)
+            proxy = get_or_create_proxy(precreated, ModuleEntryBase, *module_params[0])
             self.modules[i] = proxy
-            self.module_index[module_params[0]] = proxy
+            self.module_index[module_params[0][0]] = proxy
 
         for k, exercise_params in self.exercise_index.items():
-            self.exercise_index[k] = get_or_create_proxy(precreated, ExerciseEntryBase, *exercise_params)
+            self.exercise_index[k] = get_or_create_proxy(precreated, ExerciseEntryBase, *exercise_params[0])
 
     @classmethod
     def get_for_models(
