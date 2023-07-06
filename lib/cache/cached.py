@@ -89,25 +89,25 @@ class DBData:
         return bool(self.data)
 
 
-PrecreatedProxies = Dict[Tuple[str,Tuple[Any, ...]], "CacheBase"]
+PrecreatedProxies = Dict[Tuple[str, Tuple[Any, ...], Tuple[Any, ...]], "CacheBase"]
 
 
 CacheBaseT = TypeVar("CacheBaseT", bound="CacheBase")
-def get_or_create_proxy(precreated: Optional[PrecreatedProxies], cls: Type[CacheBaseT], *params: Any) -> CacheBaseT:
+def get_or_create_proxy(precreated: Optional[PrecreatedProxies], cls: Type[CacheBaseT], *params: Any, modifiers: Tuple[Any,...] = ()) -> CacheBaseT:
     """
     Return proxy object corresponding to cls and params from precreated or create a new proxy object if
     not found otherwise.
     """
     proxy: Optional[CacheBaseT] = None
     if precreated:
-        proxy = precreated.get((cls.KEY_PREFIX, params)) # type: ignore
+        proxy = precreated.get((cls.KEY_PREFIX, params, modifiers)) # type: ignore
     if proxy is None:
-        proxy = cls.proxy(*params)
+        proxy = cls.proxy(*params, modifiers=modifiers)
     return proxy
 
 
 def get_or_set_precreated(precreated: PrecreatedProxies, proxy: CacheBase) -> None:
-    precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params), proxy)
+    precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params, proxy._modifiers), proxy)
     proxy.__dict__ = precreated_proxy.__dict__
 
 
@@ -127,7 +127,7 @@ def resolve_proxies(
 
     precreated = {}
     for proxy in all_proxies:
-        precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params), proxy)
+        precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params, proxy._modifiers), proxy)
         proxy.__dict__ = precreated_proxy.__dict__
 
     proxies = [proxy for proxy in proxies if not proxy._resolved]
@@ -299,6 +299,7 @@ class CacheBase(metaclass=CacheMeta):
     _keys: NoCache[List[str]]
     _resolved: NoCache[bool]
     _params: NoCache[Tuple[Any, ...]]
+    _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
 
     def __deepcopy__(self, memo):
@@ -344,7 +345,7 @@ class CacheBase(metaclass=CacheMeta):
         return []
 
     def as_proxy(self: T) -> T:
-        return self.proxy(*self._params)
+        return self.proxy(*self._params, self._modifiers)
 
     def __getstate__(self):
         memo: Dict[int, tuple] = {}
@@ -352,7 +353,7 @@ class CacheBase(metaclass=CacheMeta):
             nonlocal memo
             proxy = memo.get(id(obj.__dict__))
             if proxy is None:
-                proxy = obj._params
+                proxy = (obj._params, obj._modifiers)
                 memo[id(obj.__dict__)] = proxy
 
             return proxy
@@ -405,13 +406,14 @@ class CacheBase(metaclass=CacheMeta):
             out += f"generated_on={self.__dict__.get('_generated_on')}"
         else:
             out += f"resolved={self.__dict__.get('_resolved')}"
-        return out + f", params={self.__dict__.get('_params')})"
+        return out + f", params={self.__dict__.get('_params')}, modifiers={self.__dict__.get('_modifiers')})"
 
     @classmethod
-    def proxy(cls: Type[T], *params) -> T:
+    def proxy(cls: Type[T], *params, modifiers=()) -> T:
         obj = cls.__new__(cls)
         obj._resolved = False
         obj._params = params
+        obj._modifiers = modifiers
         obj._keys_with_cls = cls._get_keys_with_cls(*params)
         obj._keys = [a for _, a in obj._keys_with_cls]
         return obj
@@ -422,8 +424,8 @@ class CacheBase(metaclass=CacheMeta):
         return cls.get(*params, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
     @classmethod
-    def get(cls: Type[T], *params, prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
-        obj = cls.proxy(*params)
+    def get(cls: Type[T], *params, modifiers=(), prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
+        obj = cls.proxy(*params, modifiers=modifiers)
 
         data = {k: v[1] for k,v in cache.get_many(obj._keys).items()}
 
