@@ -1,5 +1,4 @@
 from __future__ import annotations
-from copy import deepcopy
 from dataclasses import InitVar
 from datetime import datetime
 import itertools
@@ -154,22 +153,6 @@ def resolve_proxies(
         logger.warning(f"Failed to save the following in the cache: {'; '.join(failed)}")
 
 
-def _dc(obj, memo):
-    if id(obj) in memo:
-        return memo[id(obj)]
-    if isinstance(obj, dict):
-        return {
-            k: _dc(v, memo)
-            for k,v in obj.items()
-        }
-    elif isinstance(obj, list):
-        return [
-            _dc(v, memo) for v in obj
-        ]
-    else:
-        return deepcopy(obj, memo)
-
-
 if TYPE_CHECKING:
     # This makes NoCache[T] and Varies[T] look like T to type checkers
     NoCache = ClassVar
@@ -301,16 +284,6 @@ class CacheBase(metaclass=CacheMeta):
     _params: NoCache[Tuple[Any, ...]]
     _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
-
-    def __deepcopy__(self, memo):
-        obj = self.__class__.__new__(self.__class__)
-        memo[id(self)] = obj
-        proxy_keys = self.get_proxy_keys()
-        obj.__dict__ = {
-            k: _dc(v, memo) if k in proxy_keys else deepcopy(v, memo)
-            for k,v in self.__dict__.items()
-        }
-        return obj
 
     def post_get(self, precreated: PrecreatedProxies):
         """
