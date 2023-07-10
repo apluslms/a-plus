@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
-from lib.cache.cached import CacheBase, DBData, PrecreatedProxies
+from lib.cache.cached import CacheBase, DBData, ProxyManager
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
@@ -317,7 +317,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         self._resolved = True
         self._params = (instance_id, user_id)
 
-    def post_build(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: ProxyManager):
         show_unrevealed = self._modifiers[0]
 
         for exercise in self.exercise_index.values():
@@ -398,7 +398,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
     def _generate_data(
             self,
-            precreated: Optional[PrecreatedProxies] = None,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
         # Perform all database queries before generating the cache.
