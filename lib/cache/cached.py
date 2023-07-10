@@ -1,11 +1,11 @@
 from __future__ import annotations
 from dataclasses import InitVar
 from datetime import datetime
-import itertools
 import pickle
 from time import time
 from typing import (
     Any,
+    cast,
     ClassVar,
     Dict,
     get_args,
@@ -18,6 +18,7 @@ from typing import (
     Type,
     TYPE_CHECKING,
     TypeVar,
+    Union,
 )
 import logging
 import sys
@@ -88,69 +89,80 @@ class DBData:
         return bool(self.data)
 
 
-PrecreatedProxies = Dict[Tuple[str, Tuple[Any, ...], Tuple[Any, ...]], "CacheBase"]
-
-
+ProxyID = Tuple[str, Tuple[Any, ...], Tuple[Any, ...]]
 CacheBaseT = TypeVar("CacheBaseT", bound="CacheBase")
-def get_or_create_proxy(precreated: Optional[PrecreatedProxies], cls: Type[CacheBaseT], *params: Any, modifiers: Tuple[Any,...] = ()) -> CacheBaseT:
-    """
-    Return proxy object corresponding to cls and params from precreated or create a new proxy object if
-    not found otherwise.
-    """
-    proxy: Optional[CacheBaseT] = None
-    if precreated:
-        proxy = precreated.get((cls.KEY_PREFIX, params, modifiers)) # type: ignore
-    if proxy is None:
-        proxy = cls.proxy(*params, modifiers=modifiers)
-    return proxy
+class ProxyManager:
+    proxies: Dict[ProxyID, CacheBase]
+    fetched_data: Dict[str, Optional[bytes]]
+    new_keys: Set[str]
+    nstates: Dict[str, Tuple[float, bytes]]
+
+    def __init__(self, proxies: Iterable[CacheBase] = ()):
+        self.fetched_data = {}
+        self.proxies = {}
+        self.nstates = {}
+        self.new_keys = set()
+        self.update(proxies)
+
+    def fetch(self) -> None:
+        if self.new_keys:
+            items = cast(Dict[str, Tuple[float, Optional[bytes]]], cache.get_many(self.new_keys))
+            self.fetched_data.update((k, item[1]) for k,item in items.items())
+            self.new_keys.clear()
+
+    def update(self, proxies: Iterable[CacheBase] = ()) -> None:
+        self.proxies.update({
+            (proxy.KEY_PREFIX, proxy._params, proxy._modifiers): proxy
+            for proxy in proxies
+        })
+        self.new_keys.update(key for proxy in proxies for key in proxy._keys)
+
+    def resolve(self, proxies: Iterable[CacheBase], prefetched_data: Optional[DBData] = None) -> None:
+        self.fetch()
+
+        fetched = self.fetched_data
+        nstates = self.nstates
+        for proxy in proxies:
+            if not proxy._resolved:
+                proxy._build(fetched, nstates, self, prefetched_data)
+
+    def save(self) -> None:
+        stored_states = cache.get_many(self.nstates.keys())
+        save_states = {}
+        for k, nstate in self.nstates.items():
+            # stored_state is None or a (float (time), Optional[bytes])-tuple like values in self.nstates
+            stored_state = stored_states.get(k)
+            if (
+                stored_state is None
+                or stored_state[0] <= nstate[0]
+            ):
+                save_states[k] = nstate
+
+        failed = cache.set_many(save_states)
+        if failed:
+            logger.warning(f"Failed to save the following in the cache: {'; '.join(failed)}")
+
+        self.nstates = {}
+
+    def get_or_create_proxy(self, cls: Type[CacheBaseT], *params: Any, modifiers: Tuple[Any,...] = ()) -> CacheBaseT:
+        """
+        Return proxy object corresponding to cls and params from precreated or create a new proxy object if
+        not found otherwise.
+        """
+        proxy_id = (cls.KEY_PREFIX, params, modifiers)
+        proxy = self.proxies.get(proxy_id)
+        if proxy is None:
+            proxy = cls.proxy(*params, modifiers=modifiers)
+            self.proxies[proxy_id] = proxy
+            self.new_keys.update(proxy._keys)
+        return proxy # type: ignore
 
 
-def get_or_set_precreated(precreated: PrecreatedProxies, proxy: CacheBase) -> None:
-    precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params, proxy._modifiers), proxy)
-    proxy.__dict__ = precreated_proxy.__dict__
-
-
-def resolve_proxies(
-        proxies: Iterable[CacheBase],
-        precreated_proxies: Optional[Iterable[CacheBase]] = None,
-        prefetched_data: Optional[DBData] = None,
-        ) -> None:
-    """
-    Fetches the data from the cache and assigns it to the objects.
-    Generates data for those that are invalid.
-    """
-    if precreated_proxies:
-        all_proxies = itertools.chain(proxies, precreated_proxies)
-    else:
-        all_proxies = proxies
-
-    precreated = {}
-    for proxy in all_proxies:
-        precreated_proxy = precreated.setdefault((proxy.KEY_PREFIX, proxy._params, proxy._modifiers), proxy)
-        proxy.__dict__ = precreated_proxy.__dict__
-
-    proxies = [proxy for proxy in proxies if not proxy._resolved]
-
-    keys = {k for proxy in proxies for k in proxy._keys}
-    items = {k: v[1] for k,v in cache.get_many(keys).items()}
-
-    nstates: Dict[str, Tuple[float, bytes]] = {}
-    for proxy in proxies:
-        proxy._build(items, nstates, precreated, prefetched_data)
-
-    stored_states = cache.get_many(nstates.keys())
-    save_states = {}
-    for k, nstate in nstates.items():
-        stored_state = stored_states.get(k)
-        if (
-            stored_state is None
-            or stored_state[0] <= nstate[0]
-        ):
-            save_states[k] = nstate
-
-    failed = cache.set_many(save_states)
-    if failed:
-        logger.warning(f"Failed to save the following in the cache: {'; '.join(failed)}")
+def resolve_proxies(proxies: Iterable[CacheBase]) -> None:
+    """Resolve proxies and save any newly generated ones"""
+    manager = ProxyManager(proxies)
+    manager.resolve(proxies)
+    manager.save()
 
 
 if TYPE_CHECKING:
@@ -285,7 +297,7 @@ class CacheBase(metaclass=CacheMeta):
     _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
 
-    def post_get(self, precreated: PrecreatedProxies):
+    def post_get(self, precreated: ProxyManager):
         """
         Called after the object was loaded from cache. Child proxies of self
         are just the _params tuple instead of the actual objects, unless a
@@ -294,7 +306,7 @@ class CacheBase(metaclass=CacheMeta):
         This is just a useful hook, and does not have to be implemented.
         """
 
-    def post_build(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: ProxyManager):
         """
         Called after the whole object has been built (each object in the inheritance
         tree has been loaded from the cache or generated). This method
@@ -309,7 +321,8 @@ class CacheBase(metaclass=CacheMeta):
 
     def populate_children(self, prefetched_data: Optional[DBData] = None):
         children = self.get_child_proxies()
-        resolve_proxies(children, prefetched_data=prefetched_data)
+        precreated = ProxyManager([self, *children])
+        precreated.resolve(children, prefetched_data=prefetched_data)
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return []
@@ -398,27 +411,15 @@ class CacheBase(metaclass=CacheMeta):
 
     @classmethod
     def get(cls: Type[T], *params, modifiers=(), prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
-        obj = cls.proxy(*params, modifiers=modifiers)
-
-        data = {k: v[1] for k,v in cache.get_many(obj._keys).items()}
-
-        nstates: Dict[str, Tuple[float, bytes]] = {}
-        obj._build(data, nstates, {}, prefetched_data)
-        if nstates:
-            stored_states = cache.get_many(nstates.keys())
-            save_states = {}
-            for k, nstate in nstates.items():
-                stored_state = stored_states.get(k)
-                if (
-                    stored_state is None
-                    or stored_state[0] <= nstate[0]
-                ):
-                    save_states[k] = nstate
-
-            cache.set_many(save_states)
+        precreated = ProxyManager()
+        obj = precreated.get_or_create_proxy(cls, *params, modifiers=modifiers)
+        precreated.resolve([obj], prefetched_data=prefetched_data)
 
         if prefetch_children:
-            obj.populate_children(prefetched_data)
+            children = obj.get_child_proxies()
+            precreated.resolve(children, prefetched_data=prefetched_data)
+
+        precreated.save()
 
         return obj
 
@@ -445,7 +446,7 @@ class CacheBase(metaclass=CacheMeta):
             self,
             cache_data: Dict[str, Any],
             new_cache_data: Dict[str, Tuple[float, bytes]],
-            precreated: PrecreatedProxies,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData],
             ):
         ocls = self.__class__
@@ -482,7 +483,7 @@ class CacheBase(metaclass=CacheMeta):
 
     def _get_data(
             self,
-            precreated: Optional[PrecreatedProxies] = None,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
         if prefetched_data is None:
@@ -500,5 +501,5 @@ class CacheBase(metaclass=CacheMeta):
         """Turn the cache parameters used to generate the data into ids that can be used to identify the original objects"""
         return tuple(getattr(model, "id", model) for model in models)
 
-    def _generate_data(self, precreated: Optional[PrecreatedProxies] = None, prefetched_data: Optional[DBData] = None):
+    def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
         raise NotImplementedError(f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data")

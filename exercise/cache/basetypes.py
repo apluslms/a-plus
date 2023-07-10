@@ -7,7 +7,7 @@ from django.db.models import Prefetch
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
-from lib.cache.cached import CacheBase, DBData, get_or_create_proxy, PrecreatedProxies, resolve_proxies
+from lib.cache.cached import CacheBase, DBData, ProxyManager
 from threshold.models import CourseModuleRequirement
 from ..models import BaseExercise, LearningObject
 
@@ -84,17 +84,17 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     children: List[ExerciseEntry]
     submittable: bool
 
-    def post_build(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: ProxyManager):
         if not isinstance(self.module, tuple):
             return
 
-        self.module = get_or_create_proxy(precreated, ModuleEntryBase, *self.module[0])
+        self.module = precreated.get_or_create_proxy(ModuleEntryBase, *self.module[0])
 
         if self.parent:
-            self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, *self.parent[0])
+            self.parent = precreated.get_or_create_proxy(ExerciseEntryBase, *self.parent[0])
 
         for i, params in enumerate(self.children):
-            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params[0])
+            self.children[i] = precreated.get_or_create_proxy(ExerciseEntryBase, *params[0])
 
     def __post_init__(self):
         self._resolved = True
@@ -112,7 +112,7 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     # pylint: disable-next=arguments-differ too-many-locals
     def _generate_data(
             self,
-            precreated: Optional[PrecreatedProxies] = None,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
         """ Returns object that is cached into self.data """
@@ -122,8 +122,11 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
         module = DBData.get_db_object(prefetched_data, CourseModule, lobj.course_module_id)
         category = lobj.category
 
-        self.module = get_or_create_proxy(precreated, ModuleEntryBase, module.id)
-        self.parent = get_or_create_proxy(precreated, ExerciseEntryBase, lobj.parent_id) if lobj.parent_id is not None else None
+        self.module = precreated.get_or_create_proxy(ModuleEntryBase, module.id)
+        if lobj.parent_id is None:
+            self.parent = None
+        else:
+            self.parent = precreated.get_or_create_proxy(ExerciseEntryBase, lobj.parent_id)
         self.category = str(category)
         self.category_id = category.id
         self.category_status = category.status
@@ -147,7 +150,7 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
         self.late_percent = module.get_late_submission_point_worth()
         self.is_empty = lobj.is_empty()
         self.get_path = lobj.get_path()
-        self.children = [get_or_create_proxy(precreated, ExerciseEntryBase, o.id) for o in children]
+        self.children = [precreated.get_or_create_proxy(ExerciseEntryBase, o.id) for o in children]
 
         if isinstance(lobj, BaseExercise):
             self.submittable = True
@@ -192,12 +195,12 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     max_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
     children: List[ExerciseEntry] = field(default_factory=list)
 
-    def post_build(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: ProxyManager):
         if self.children and not isinstance(self.children[0], tuple):
             return
 
         for i, params in enumerate(self.children):
-            self.children[i] = get_or_create_proxy(precreated, ExerciseEntryBase, *params[0])
+            self.children[i] = precreated.get_or_create_proxy(ExerciseEntryBase, *params[0])
 
     def __post_init__(self):
         self._resolved = True
@@ -212,7 +215,7 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     # pylint: disable-next=arguments-differ too-many-locals
     def _generate_data(
             self,
-            precreated: Optional[PrecreatedProxies] = None,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
         """ Returns object that is cached into self.data """
@@ -239,7 +242,7 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
         self.late_time = module.late_submission_deadline
         self.late_percent = module.get_late_submission_point_worth()
         self.points_to_pass = module.points_to_pass
-        self.children = [get_or_create_proxy(precreated, ExerciseEntryBase, child.id) for child in children]
+        self.children = [precreated.get_or_create_proxy(ExerciseEntryBase, child.id) for child in children]
         self.exercise_count = 0
         self.max_points = 0
         self.max_points_by_difficulty = {}
@@ -289,17 +292,17 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         self._resolved = True
         self._params = (instance_id,)
 
-    def post_build(self, precreated: PrecreatedProxies):
+    def post_build(self, precreated: ProxyManager):
         if self.modules and not isinstance(self.modules[0], tuple):
             return
 
         for i, module_params in enumerate(self.modules):
-            proxy = get_or_create_proxy(precreated, ModuleEntryBase, *module_params[0])
+            proxy = precreated.get_or_create_proxy(ModuleEntryBase, *module_params[0])
             self.modules[i] = proxy
             self.module_index[module_params[0][0]] = proxy
 
         for k, exercise_params in self.exercise_index.items():
-            self.exercise_index[k] = get_or_create_proxy(precreated, ExerciseEntryBase, *exercise_params[0])
+            self.exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntryBase, *exercise_params[0])
 
     @classmethod
     def get_for_models(
@@ -327,7 +330,7 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
 
     def _generate_data(
             self,
-            precreated: Optional[PrecreatedProxies] = None,
+            precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
         """ Returns object that is cached into self.data """
@@ -375,7 +378,7 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
         self.total = total = TotalsBase()
 
         for lobj in lobjs:
-            exercise_index[lobj.id] = get_or_create_proxy(precreated, ExerciseEntryBase, lobj.id)
+            exercise_index[lobj.id] = precreated.get_or_create_proxy(ExerciseEntryBase, lobj.id)
             category = lobj.category
             if category.id not in categories:
                 categories[category.id] = CategoryEntryBase(
@@ -387,15 +390,12 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
 
         # Collect each module.
         for module in module_objs:
-            entry = get_or_create_proxy(precreated, ModuleEntryBase, module.id)
+            entry = precreated.get_or_create_proxy(ModuleEntryBase, module.id)
             modules.append(entry)
             module_index[module.id] = entry
             paths[module.id] = {}
 
-        resolve_proxies(
-            modules + list(exercise_index.values()),
-            prefetched_data=prefetched_data,
-        )
+        precreated.resolve(self.get_child_proxies(), prefetched_data=prefetched_data)
 
         for entry in exercise_index.values():
             paths[entry.module.id][entry.get_path] = entry.id
