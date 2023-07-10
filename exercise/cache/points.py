@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, Field, fields, InitVar, MISSING
 import datetime
-import itertools
+from time import time
 from typing import (
     Any,
     cast,
@@ -10,7 +10,6 @@ from typing import (
     Generic,
     Iterable,
     List,
-    Literal,
     Optional,
     overload,
     Type,
@@ -20,6 +19,7 @@ from typing import (
 )
 
 from django.contrib.auth.models import User
+from django.db.models import prefetch_related_objects, Prefetch
 from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
@@ -39,9 +39,8 @@ from .basetypes import (
     ModuleEntryBase,
     TotalsBase,
 )
-from .content import CachedContentData
 from .hierarchy import ContentMixin
-from ..exercise_models import LearningObject
+from ..exercise_models import CourseChapter, LearningObject
 from ..models import BaseExercise, Submission, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
 
@@ -80,6 +79,59 @@ def cache_fields(cls):
     return cls
 
 
+def none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    if a and b:
+        return min(a,b)
+    return a or b
+
+
+def _add_to(target: Union[ModuleEntry, CategoryEntry, Totals], entry: SubmittableExerciseEntry) -> None:
+    target._true_passed = target._true_passed and entry._true_passed
+    target._passed = target._passed and entry._passed
+    target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
+
+    if not entry.graded:
+        return
+
+    target.submission_count += entry.submission_count
+    # NOTE: entry can be only ready or unofficial (exercise level
+    # points are only copied, only if submission is in ready or
+    # unofficial state)
+    if entry.unofficial:
+        pass
+    # thus, all points are now ready..
+    else:
+        if entry._true_unconfirmed:
+            add_by_difficulty(
+                target._true_unconfirmed_points_by_difficulty,
+                entry.difficulty,
+                entry._true_points,
+            )
+        # and finally, only remaining points are official (not unofficial & not unconfirmed)
+        else:
+            target._true_points += entry._true_points
+            add_by_difficulty(
+                target._true_points_by_difficulty,
+                entry.difficulty,
+                entry._true_points,
+            )
+
+        if entry._unconfirmed:
+            add_by_difficulty(
+                target._unconfirmed_points_by_difficulty,
+                entry.difficulty,
+                entry._points,
+            )
+        # and finally, only remaining points are official (not unofficial & not unconfirmed)
+        else:
+            target._points += entry._points
+            add_by_difficulty(
+                target._points_by_difficulty,
+                entry.difficulty,
+                entry._points,
+            )
+
+
 def has_more_points(submission: Submission, current_best_submission: Optional[Submission]) -> bool:
     if current_best_submission is None:
         return True
@@ -92,6 +144,47 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
     return (
         current_best_submission is None
         or submission.submission_time >= current_best_submission.submission_time
+    )
+
+
+def prefetch_exercise_data(
+        prefetched_data: DBData,
+        user: Optional[User],
+        lobjs: Iterable[LearningObject],
+        ) -> None:
+    exercise_objs = [lobj for lobj in lobjs if isinstance(lobj, BaseExercise)]
+    prefetch_related_objects(exercise_objs, "submission_feedback_reveal_rule")
+
+    if user is not None:
+        submission_queryset = (
+            user.userprofile.submissions
+            .prefetch_related("notifications")
+            .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points', 'grader_id', 'meta_data', 'late_penalty_applied')
+            .order_by('-submission_time')
+        )
+
+        # SubmittableExerciseEntry relies on these only containing the max deviations
+        # for the user for whom cache is being generated
+        deadline_deviations = (
+            DeadlineRuleDeviation.objects
+            .get_max_deviations(user.userprofile, exercise_objs)
+        )
+        submission_deviations = (
+            MaxSubmissionsRuleDeviation.objects
+            .get_max_deviations(user.userprofile, exercise_objs)
+        )
+
+        prefetched_data.add(user)
+        prefetched_data.extend(DeadlineRuleDeviation, deadline_deviations)
+        prefetched_data.extend(MaxSubmissionsRuleDeviation, submission_deviations)
+    else:
+        submission_queryset = Submission.objects.none()
+        deadline_deviations = []
+        submission_deviations = []
+
+    prefetch_related_objects(
+        exercise_objs,
+        Prefetch("submissions", submission_queryset)
     )
 
 
@@ -112,9 +205,9 @@ class RevealableAttribute(Generic[RType]):
 class CommonPointData:
     _is_container: ClassVar[bool] = True
     submission_count: int = 0
-    _true_passed: bool = field(default=False, repr=False) # Includes unrevealed data. Use .passed instead.
+    _true_passed: bool = field(default=False, repr=False) # Includes unrevealed info. Use .passed instead.
     _passed: bool = field(default=False, repr=False) # Use .passed instead.
-    _true_points: int = field(default=0, repr=False) # Includes unrevealed data. Use .points instead.
+    _true_points: int = field(default=0, repr=False) # Includes unrevealed info. Use .points instead.
     _points: int = field(default=0, repr=False) # Use .points instead.
     feedback_revealed: bool = True
 
@@ -129,6 +222,14 @@ class CommonPointData:
         if show_unrevealed:
             self.feedback_revealed = True
 
+    def reset_points(self):
+        self.submission_count = 0
+        self._true_passed = False
+        self._passed = False
+        self._true_points = 0
+        self._points = 0
+        self.feedback_revealed = True
+
 
 @dataclass(repr=False)
 class DifficultyStats(CommonPointData):
@@ -139,6 +240,13 @@ class DifficultyStats(CommonPointData):
 
     points_by_difficulty = RevealableAttribute[Dict[str, int]]()
     unconfirmed_points_by_difficulty = RevealableAttribute[Dict[str, int]]()
+
+    def reset_points(self):
+        super().reset_points()
+        self._true_points_by_difficulty = {}
+        self._points_by_difficulty = {}
+        self._true_unconfirmed_points_by_difficulty = {}
+        self._unconfirmed_points_by_difficulty = {}
 
 
 TotalsType = TypeVar("TotalsType", bound=TotalsBase)
@@ -179,37 +287,6 @@ class CategoryEntry(DifficultyStats, CategoryEntryBase):
         return upgrade(cls, data, kwargs)
 
 
-ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
-@cache_fields
-@dataclass(eq=False)
-class ModuleEntry(DifficultyStats, ModuleEntryBase["ExerciseEntry"]):
-    _true_unconfirmed: bool = False
-    _unconfirmed: bool = False
-
-    unconfirmed = RevealableAttribute[bool]()
-
-    def __getstate__(self):
-        return self.__dict__
-
-    def __setstate__(self, data):
-        self.__dict__.update(data)
-
-    @classmethod
-    def upgrade(cls: Type[ModuleEntryType], data: ModuleEntryBase, **kwargs) -> ModuleEntryType:
-        if data.__class__ is cls:
-            return cast(cls, data)
-
-        data = upgrade(cls, data, kwargs)
-
-        for child in data.children:
-            if child.submittable:
-                SubmittableExerciseEntry.upgrade(child)
-            else:
-                ExerciseEntry.upgrade(child)
-
-        return cast(cls, data)
-
-
 @dataclass(eq=False)
 class SubmissionEntryBase(EqById):
     type: ClassVar[str] = 'submission'
@@ -231,104 +308,533 @@ class SubmissionEntry(CommonPointData, SubmissionEntryBase):
 
 
 ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
-@cache_fields
-@dataclass(eq=False, repr=False)
-class ExerciseEntry(CommonPointData, ExerciseEntryBase[ModuleEntry, "ExerciseEntry"]):
+class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]):
+    KEY_PREFIX = "exercisepoints"
+    NUM_PARAMS = 2
     _is_container: ClassVar[bool] = False
-    _true_unconfirmed: bool = False
-    _unconfirmed: bool = False
-    is_revealed: bool = True
+    _true_children_unconfirmed: bool
+    _children_unconfirmed: bool
+    model_answer_modules: List["ModuleEntry"]
+    invalidate_time: Optional[float]
+    # This is different in ExerciseEntry compared to ExerciseEntryBase, so we need
+    # to save it separately for ExerciseEntry
+    max_points: int
 
-    unconfirmed = RevealableAttribute[bool]()
+    children_unconfirmed = RevealableAttribute[bool]()
 
-    def __getstate__(self):
-        return self.__dict__
+    @property
+    def unconfirmed(self) -> bool:
+        if self.parent:
+            return self.parent.children_unconfirmed
+        else:
+            return self.module.children_unconfirmed
 
-    def __setstate__(self, data):
-        self.__dict__.update(data)
+    @property
+    def is_revealed(self) -> bool:
+        if self.parent is not None and not self.parent.is_revealed:
+            return False
 
-    @classmethod
-    def upgrade(cls: Type[ExerciseEntryType], data: ExerciseEntryBase, **kwargs) -> ExerciseEntryType:
-        if data.__class__ is cls:
-            return cast(cls, data)
+        return all(entry.is_model_answer_revealed for entry in self.model_answer_modules)
 
-        data = upgrade(cls, data, kwargs)
+    @property
+    def _true_unconfirmed(self) -> bool:
+        if self.parent:
+            return self.parent._true_children_unconfirmed
+        else:
+            return self.module._true_children_unconfirmed
 
-        ModuleEntry.upgrade(data.module)
+    @property
+    def _unconfirmed(self) -> bool:
+        if self.parent:
+            return self.parent._children_unconfirmed
+        else:
+            return self.module._children_unconfirmed
 
-        if data.parent is not None:
-            if data.parent.submittable:
-                SubmittableExerciseEntry.upgrade(data.parent)
+    def post_build(self, precreated: ProxyManager):
+        self.reveal(self._modifiers[0])
+
+        if not isinstance(self.module, tuple):
+            return
+
+        user_id = self._params[1]
+        modifiers = self._modifiers
+
+        self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module[0], user_id, modifiers=modifiers)
+
+        self.model_answer_modules = [
+            precreated.get_or_create_proxy(ModuleEntry, *params[0], user_id, modifiers=modifiers)
+            for params in self.model_answer_modules
+        ]
+
+        if self.parent:
+            self.parent = precreated.get_or_create_proxy(ExerciseEntry, *self.parent[0], user_id, modifiers=modifiers)
+
+        children = self.children
+        for i, params in enumerate(children):
+            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params[0], user_id, modifiers=modifiers)
+
+    def get_proxy_keys(self) -> Iterable[str]:
+        return super().get_proxy_keys() + ["model_answer_modules"]
+
+    def is_valid(self) -> bool:
+        return (
+            self.invalidate_time is None
+            or time() >= self.invalidate_time
+        )
+
+    def _prefetch_data(self, prefetched_data: Optional[DBData]) -> Tuple[DBData, LearningObject, Optional[User], Iterable[LearningObject], Iterable[LearningObject]]:
+        lobj_id, user_id = self._params[:2]
+        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
+        if user_id is None:
+            user = None
+        else:
+            user = DBData.get_db_object(prefetched_data, User, user_id)
+
+        if not prefetched_data:
+            prefetched_data = DBData()
+
+            module = lobj.course_module
+            module_lobjs = module.learning_objects.all()
+
+            prefetched_data.add(module)
+            prefetched_data.extend(LearningObject, module_lobjs)
+
+            prefetch_exercise_data(prefetched_data, user, module_lobjs)
+
+            # This is needed so that prefetch_exercise_data affects lobj
+            lobj = prefetched_data.get_db_object(LearningObject, lobj_id)
+        else:
+            module_lobjs = prefetched_data.filter_db_objects(LearningObject, course_module_id=lobj.course_module_id)
+
+        child_lobjs = prefetched_data.filter_db_objects(LearningObject, parent_id=lobj.id)
+
+        return prefetched_data, lobj, user, module_lobjs, child_lobjs
+
+    def _generate_common(self, precreated: ProxyManager, prefetched_data: DBData, lobj, module_lobjs, child_lobjs):
+        user_id = self._params[1]
+
+        self.module = precreated.get_or_create_proxy(ModuleEntry, lobj.course_module_id, user_id, modifiers=self._modifiers)
+        if lobj.parent:
+            self.parent = precreated.get_or_create_proxy(ExerciseEntry, lobj.parent_id, user_id, modifiers=self._modifiers)
+        else:
+            self.parent = None
+        self.children = [precreated.get_or_create_proxy(ExerciseEntry, o.id, user_id, modifiers=self._modifiers) for o in child_lobjs]
+        if isinstance(lobj, CourseChapter):
+            self.model_answer_modules = [
+                precreated.get_or_create_proxy(ModuleEntry, module.id, user_id, modifiers=self._modifiers)
+                for module in lobj.model_answer_modules.all()
+            ]
+        else:
+            self.model_answer_modules = []
+
+        if any(not s._resolved for s in self.children):
+            # Create proxies for all the module learning objects, so that there is
+            # no need to fetch them from the cache recursively through .resolve() below
+            for lobj in module_lobjs:
+                precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
+
+            precreated.resolve(self.children, prefetched_data=prefetched_data)
+
+        must_confirm = any(entry.confirm_the_level for entry in self.children)
+
+        self._true_children_unconfirmed = must_confirm
+        self._children_unconfirmed = must_confirm
+
+    def _generate_data(
+            self,
+            precreated: ProxyManager,
+            prefetched_data: Optional[DBData] = None,
+            ):
+        lobj_id, user_id = self._params[:2]
+        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
+        if isinstance(lobj, BaseExercise):
+            self.__class__ = SubmittableExerciseEntry
+            self._generate_data(precreated, prefetched_data)
+            return
+
+        prefetched_data, lobj, _, module_lobjs, child_objs = self._prefetch_data(prefetched_data)
+
+        self._generate_common(precreated, prefetched_data, lobj, module_lobjs, child_objs)
+
+        self._true_passed = True
+        self._passed = True
+        self.submission_count = 0
+        self.feedback_revealed = True
+        self.max_points = 0
+        self._true_points = 0
+        self._points = 0
+        self.invalidate_time = None
+        for entry in self.children:
+            if entry.confirm_the_level:
+                self._true_children_unconfirmed = self._true_children_unconfirmed and not entry._true_passed
+                self._children_unconfirmed = self._children_unconfirmed and not entry._passed
             else:
-                ExerciseEntry.upgrade(data.parent)
+                self.feedback_revealed = self.feedback_revealed and entry.feedback_revealed
+                self.max_points += entry.max_points
+                self.submission_count += entry.submission_count
+                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                self._true_passed = self._true_passed and entry._true_passed
+                self._passed = self._passed and entry._passed
+                if type(entry) is ExerciseEntry or (isinstance(entry, SubmittableExerciseEntry) and entry.graded):
+                    self._true_points += entry._true_points
+                    self._points += entry._points
 
-        for child in data.children:
-            if child.submittable:
-                SubmittableExerciseEntry.upgrade(child)
-            else:
-                ExerciseEntry.upgrade(child)
 
-        return cast(cls, data)
-
-
-@cache_fields
-@dataclass(eq=False, repr=False)
 class SubmittableExerciseEntry(ExerciseEntry):
-    submittable: Literal[True] = True
+    # Remove ExerciseEntry from the parents. SubmittableExerciseEntry isn't buil
+    # on top of ExerciseEntry but has its fields. Inheriting directly from ExerciseEntry
+    # allows isinstance(..., ExerciseEntry) to work
+    PARENTS = ExerciseEntry._parents[:-1]
+    KEY_PREFIX = ExerciseEntry.KEY_PREFIX
+    NUM_PARAMS = ExerciseEntry.NUM_PARAMS
     submissions: List[SubmissionEntry] = field(default_factory=list)
-    _true_best_submission: Optional[int] = None
-    _best_submission: Optional[int] = None
-    graded: bool = False
-    unofficial: bool = False # TODO: this should be True,
-    # but we need to ensure nothing breaks when it's changed
-    confirmable_points: bool = False
-    forced_points: bool = False
-    notified: bool = False
-    unseen: bool = False
-    personal_deadline: Optional[datetime.datetime] = None
-    personal_deadline_has_penalty: Optional[bool] = None
-    personal_max_submissions: Optional[int] = None
-    feedback_reveal_time: Optional[datetime.datetime] = None
+    _true_best_submission: Optional[int]
+    _best_submission: Optional[int]
+    graded: bool
+    unofficial: bool
+    confirmable_points: bool
+    forced_points: bool
+    notified: bool
+    unseen: bool
+    personal_deadline: Optional[datetime.datetime]
+    personal_deadline_has_penalty: Optional[bool]
+    personal_max_submissions: Optional[int]
+    feedback_reveal_time: Optional[datetime.datetime]
 
     best_submission = RevealableAttribute[Optional[int]]()
 
-    def reveal(self, show_unrevealed: bool):
-        super().reveal(show_unrevealed)
+    def post_build(self, precreated: ProxyManager):
+        super().post_build(precreated)
 
         for submission in self.submissions:
-            submission.reveal(show_unrevealed)
+            submission.reveal(self._modifiers[0])
+
+    def _generate_data(
+            self,
+            precreated: ProxyManager,
+            prefetched_data: Optional[DBData] = None,
+            ):
+        lobj_id, user_id = self._params[:2]
+        prefetched_data, lobj, user, module_lobjs, child_lobjs = self._prefetch_data(prefetched_data)
+        if not isinstance(lobj, BaseExercise):
+            self.__class__ = ExerciseEntry
+            self._generate_data(precreated, prefetched_data)
+            return
+
+        self._generate_common(precreated, prefetched_data, lobj, module_lobjs, child_lobjs)
+
+        submissions = lobj.submissions.all()
+        if user is not None:
+            # We rely on these only containing the max deviations for user
+            deadline_deviations = DBData.filter_db_objects(prefetched_data, DeadlineRuleDeviation, exercise_id=lobj_id)
+            submission_deviations = DBData.filter_db_objects(prefetched_data, MaxSubmissionsRuleDeviation, exercise_id=lobj_id)
+            sibling_lobjs = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj.parent_id, course_module_id=lobj.course_module_id)
+        else:
+            deadline_deviations = []
+            submission_deviations = []
+            sibling_lobjs = []
+
+        self.confirmable_points = False
+        if self.confirm_the_level:
+            # Only resolve siblings with confirm_the_level=False so there are not cyclical dependencies
+            siblings = [precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers) for lobj in sibling_lobjs if not lobj.category.confirm_the_level]
+            if any(not s._resolved for s in siblings):
+                precreated.resolve(siblings, prefetched_data=prefetched_data)
+
+            for sibling in siblings:
+                if sibling.submission_count > 0:
+                    self.confirmable_points = True
+                    break
+
+        self.personal_deadline = None
+        self.personal_deadline_has_penalty = None
+        for deviation in deadline_deviations:
+            self.personal_deadline = (
+                self.closing_time + datetime.timedelta(minutes=deviation.extra_minutes)
+            )
+            self.personal_deadline_has_penalty = not deviation.without_late_penalty
+
+        self.personal_max_submissions = None
+        for deviation in submission_deviations:
+            self.personal_max_submissions = (
+                self.max_submissions + deviation.extra_submissions
+            )
+
+        self.submission_count = 0
+        self._true_passed = False
+        self._passed = False
+        self._true_points = 0
+        self.submittable = True
+        self.submissions = []
+        self._true_best_submission = None
+        self._best_submission = None
+        self.graded = False
+        self.unofficial = False # TODO: this should be True,
+        # but we need to ensure nothing breaks when it's changed
+        self.forced_points = False
+        self.notified = False
+        self.unseen = False
+        self.model_answer_modules = []
+
+        # Augment submission data.
+        final_submission = None
+        last_submission = None
+
+        if lobj.grading_mode == BaseExercise.GRADING_MODE.BEST:
+            is_better_than = has_more_points
+        elif lobj.grading_mode == BaseExercise.GRADING_MODE.LAST:
+            is_better_than = is_newer
+        else:
+            is_better_than = has_more_points
+
+        for submission in submissions:
+            ready = submission.status == Submission.STATUS.READY
+            unofficial = submission.status == Submission.STATUS.UNOFFICIAL
+            if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
+                self.submission_count += 1
+            self.submissions.append(
+                SubmissionEntry(
+                    id = submission.id,
+                    max_points = self.max_points,
+                    points_to_pass = self.points_to_pass,
+                    confirm_the_level = self.confirm_the_level,
+                    submission_count = 1, # to fool points badge
+                    _true_passed = submission.grade >= lobj.points_to_pass,
+                    _true_points = submission.grade,
+                    graded = submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
+                    submission_status = submission.status if not submission.is_graded else False,
+                    unofficial = unofficial,
+                    date = submission.submission_time,
+                    url = submission.get_url('submission-plain'),
+                    feedback_revealed = True,
+                    feedback_reveal_time = None,
+                )
+            )
+            # Update best submission if exercise points are not forced, and
+            # one of these is true:
+            # 1) current submission in ready (thus is not unofficial) AND
+            #    a) current best is an unofficial OR
+            #    b) current submission is better depending on grading mode
+            # 2) All of:
+            #    - current submission is unofficial AND
+            #    - current best is unofficial
+            #    - current submission is better depending on grading mode
+            if submission.force_exercise_points:
+                # This submission is chosen as the final submission and no
+                # further submissions are considered.
+                self._true_best_submission = submission.id
+                self._true_passed = ready and submission.grade >= self.points_to_pass
+                self._true_points = submission.grade
+                self.graded = True
+                self.unofficial = False
+                self.forced_points = True
+
+                final_submission = submission
+            if not self.forced_points:
+                if ( # pylint: disable=too-many-boolean-expressions
+                    ready and (
+                        self.unofficial or
+                        is_better_than(submission, final_submission)
+                    )
+                ) or (
+                    unofficial and
+                    not self.graded and # NOTE: == entry.unofficial,
+                    # but before any submissions entry.unofficial is False
+                    is_better_than(submission, final_submission)
+                ):
+                    self._true_best_submission = submission.id
+                    self._true_passed = ready and submission.grade >= self.points_to_pass
+                    self._true_points = submission.grade
+                    self.graded = ready # != unofficial
+                    self.unofficial = unofficial
+
+                    final_submission = submission
+            # Update last_submission to be the last submission, or the last
+            # official submission if there are any official submissions.
+            # Note that the submissions are ordered by descendng time.
+            if last_submission is None or (
+                last_submission.status == Submission.STATUS.UNOFFICIAL
+                and not unofficial
+            ):
+                last_submission = submission
+            if submission.notifications.exists():
+                self.notified = True
+                if submission.notifications.filter(seen=False).exists():
+                    self.unseen = True
+
+        # These need to be set here to make sure that ExerciseRevealState below works correctly
+        self._best_submission = self._true_best_submission
+        self._points = self._true_points
+        self._passed = self._true_passed
+
+        if self.submissions:
+            # Check the reveal rule now that all submissions for the exercise have been iterated.
+            reveal_rule = lobj.active_submission_feedback_reveal_rule
+            state = ExerciseRevealState(self)
+            is_revealed = reveal_rule.is_revealed(state)
+            reveal_time = reveal_rule.get_reveal_time(state)
+        else:
+            # Do not hide points if no submissions have been made
+            is_revealed = True
+            reveal_time = None
+
+        timestamp = reveal_time and reveal_time.timestamp()
+
+        if not is_revealed:
+            self._best_submission = last_submission and last_submission.id
+            self._points = 0
+            self._passed = False
+
+        self.feedback_revealed = is_revealed
+        self.feedback_reveal_time = reveal_time
+        self.invalidate_time = timestamp
+
+        for submission in self.submissions:
+            if is_revealed:
+                submission._points = submission._true_points
+                self._passed = self._true_passed
+            else:
+                submission._points = 0
+                self._passed = False
+            submission.feedback_revealed = is_revealed
+            submission.feedback_reveal_time = reveal_time
 
 
 EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
 
 
+ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
+class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
+    KEY_PREFIX = "modulepoints"
+    NUM_PARAMS = 2
+    _true_children_unconfirmed: bool
+    _children_unconfirmed: bool
+    invalidate_time: Optional[float]
+    is_model_answer_revealed: bool
+
+    children_unconfirmed = RevealableAttribute[bool]()
+
+    def post_build(self, precreated: ProxyManager):
+        self.reveal(self._modifiers[0])
+
+        children = self.children
+        if children and not isinstance(children[0], tuple):
+            return
+
+        user_id = self._params[1]
+        modifiers = self._modifiers
+        for i, params in enumerate(children):
+            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params[0], user_id, modifiers=modifiers)
+
+    def is_valid(self) -> bool:
+        return (
+            self.invalidate_time is None
+            or time() >= self.invalidate_time
+        )
+
+    def _generate_data(
+            self,
+            precreated: ProxyManager,
+            prefetched_data: Optional[DBData] = None,
+            ):
+        module_id, user_id = self._params[:2]
+        if not prefetched_data:
+            prefetched_data = DBData()
+
+            if user_id is not None:
+                user = User.objects.get(id=user_id)
+            else:
+                user = None
+
+            module = CourseModule.objects.get(id=module_id)
+            lobjs = module.learning_objects.all()
+
+            prefetched_data.add(module)
+            prefetched_data.extend(LearningObject, lobjs)
+
+            prefetch_exercise_data(prefetched_data, user, lobjs)
+        else:
+            module = prefetched_data.get_db_object(CourseModule, module_id)
+            lobjs = prefetched_data.filter_db_objects(LearningObject, course_module_id=module_id)
+
+        exercises = [precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers) for lobj in lobjs]
+        if any(not s._resolved for s in exercises):
+            precreated.resolve(exercises, prefetched_data=prefetched_data)
+
+        self.submissions = 0
+        self.submission_count = 0
+        self._true_passed = True
+        self._passed = True
+        self._true_points = 0
+        self._points = 0
+        self.feedback_revealed = True
+        self.invalidate_time = None
+        self._true_points_by_difficulty = {}
+        self._points_by_difficulty = {}
+        self._true_unconfirmed_points_by_difficulty = {}
+        self._unconfirmed_points_by_difficulty = {}
+
+        self.children = [ex for ex in exercises if ex.parent is None]
+
+        must_confirm = any(entry.confirm_the_level for entry in self.children)
+        self._true_children_unconfirmed = must_confirm
+        self._children_unconfirmed = must_confirm
+        for entry in self.children:
+            if entry.confirm_the_level:
+                self._true_children_unconfirmed = self._true_children_unconfirmed and not entry._true_passed
+                self._children_unconfirmed = self._children_unconfirmed and not entry._passed
+
+        for entry in exercises:
+            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry):
+                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                _add_to(self, entry)
+
+        self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
+        self._passed = self._passed and self._points >= self.points_to_pass
+
+        self.is_model_answer_revealed = True
+        model_chapter = module.model_answer
+        if model_chapter is not None:
+            reveal_rule = module.active_model_solution_reveal_rule
+            state = ModuleRevealState(self)
+            self.is_model_answer_revealed = reveal_rule.is_revealed(state)
+            reveal_time = reveal_rule.get_reveal_time(state)
+            timestamp = reveal_time and reveal_time.timestamp()
+            self.invalidate_time = none_min(self.invalidate_time, timestamp)
+
+
 CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
-@cache_fields
-@dataclass(eq=False)
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
-    PARENTS = ()
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
     NUM_PARAMS: ClassVar[int] = 2
     user_id: InitVar[int]
-    invalidate_time: Optional[datetime.datetime] = None
-    points_created: datetime.datetime = field(default_factory=timezone.now)
-
-    def __post_init__(self, instance_id: int, user_id: int):
-        self._resolved = True
-        self._params = (instance_id, user_id)
+    invalidate_time: Optional[float]
+    points_created: datetime.datetime
+    categories: Dict[int, CategoryEntry]
+    total: Totals
 
     def post_build(self, precreated: ProxyManager):
         show_unrevealed = self._modifiers[0]
-
-        for exercise in self.exercise_index.values():
-            exercise.reveal(show_unrevealed)
-
-        for module in self.modules:
-            module.reveal(show_unrevealed)
-
         self.total.reveal(show_unrevealed)
         for category in self.categories.values():
             category.reveal(show_unrevealed)
+
+        if self.modules and not isinstance(self.modules[0], tuple):
+            return
+
+        user_id = self._params[1]
+        modifiers = self._modifiers
+
+        modules = self.modules
+        module_index = self.module_index
+        for i, module_params in enumerate(modules):
+            proxy = precreated.get_or_create_proxy(ModuleEntry, *module_params[0], user_id, modifiers=modifiers)
+            modules[i] = proxy
+            module_index[module_params[0][0]] = proxy
+
+        exercise_index = self.exercise_index
+        for k, exercise_params in exercise_index.items():
+            exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntry, *exercise_params[0], user_id, modifiers=modifiers)
 
     @classmethod
     def get_for_models(
@@ -352,47 +858,12 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             ) -> CachedPointsDataType:
         return super(CachedDataBase, cls).get(instance_id, user_id, modifiers=(show_unrevealed,), prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
-    def __getstate__(self):
-        return self.__dict__
-
-    def __setstate__(self, data):
-        self.__dict__.update(data)
-
-    def get_child_proxies(self) -> Iterable[CacheBase]:
-        return []
-
-    @classmethod
-    def upgrade(cls: Type[CachedPointsDataType], data: CachedDataBase, user_id: Optional[int], **kwargs: Any) -> CachedPointsDataType:
-        if data.__class__ is cls:
-            return cast(cls, data)
-
-        data = upgrade(cls, data, kwargs)
-        data._keys_with_cls = cls._get_keys_with_cls(*data._params)
-        data._keys = [row[1:] for row in data._keys_with_cls]
-        data._params = (*data._params, user_id)
-
-        for module in data.modules:
-            ModuleEntry.upgrade(module)
-
-        for entry in data.exercise_index.values():
-            if entry.submittable:
-                SubmittableExerciseEntry.upgrade(entry)
-            else:
-                ExerciseEntry.upgrade(entry)
-
-        for entry in data.categories.values():
-            CategoryEntry.upgrade(entry)
-
-        Totals.upgrade(data.total)
-
-        return cast(CachedPointsDataType, data)
-
     def is_valid(self) -> bool:
         return (
             self.points_created >= self.created
             and (
                 self.invalidate_time is None
-                or timezone.now() < self.invalidate_time
+                or time() < self.invalidate_time
             )
         )
 
@@ -401,414 +872,65 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
             ):
-        # Perform all database queries before generating the cache.
         instance_id, user_id = self._params
-        instance = DBData.get_db_object(prefetched_data, CourseInstance, instance_id)
+        if not prefetched_data:
+            prefetched_data = DBData()
 
-        if user_id is not None:
-            user = DBData.get_db_object(prefetched_data, User, user_id)
-        else:
-            user = None
+            modules = CourseModule.objects.filter(course_instance_id=instance_id)
+            lobjs = LearningObject.objects.filter(course_module__in=modules)
 
-        if user and user.is_authenticated:
-            submissions = list(
-                user.userprofile.submissions
-                .filter(exercise__course_module__course_instance=instance)
-                .select_related()
-                .prefetch_related('exercise__parent', 'exercise__submission_feedback_reveal_rule', 'notifications')
-                .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points')
-                .order_by('exercise', '-submission_time')
-            )
-            exercises = BaseExercise.objects.filter(course_module__course_instance=instance)
-            deadline_deviations = list(
-                DeadlineRuleDeviation.objects
-                .get_max_deviations(user.userprofile, exercises)
-            )
-            submission_deviations = list(
-                MaxSubmissionsRuleDeviation.objects
-                .get_max_deviations(user.userprofile, exercises)
-            )
-            module_instances = list(
-                instance.course_modules.all()
-            )
-        else:
-            submissions = []
-            deadline_deviations = []
-            submission_deviations = []
-            module_instances = []
+            prefetched_data.extend(CourseModule, modules)
+            prefetched_data.extend(LearningObject, lobjs)
 
-        content = CachedContentData.get(instance_id)
-        # "upgrade" the type of content to CachedPointsData.
-        # This replaces each object in the data with the CachedPointsData version
-        # while retaining any common object references (e.g. module.children and
-        # exercise_index values refer to the same object instances)
-        base_points_data = CachedPointsData.upgrade(content, user_id)
-
-        data = self._generate_data_internal(
-            base_points_data,
-            user is not None and user.is_authenticated,
-            submissions,
-            deadline_deviations,
-            submission_deviations,
-            module_instances,
-        )
-
-        # Pick the lowest invalidate_time if it is duplicated.
-        invalidate_time = data.invalidate_time
-        if isinstance(invalidate_time, tuple):
-            if invalidate_time[0] is not None:
-                if invalidate_time[1] is not None:
-                    data.invalidate_time = min(invalidate_time)
-                else:
-                    data.invalidate_time = invalidate_time[0]
+            if user_id is not None:
+                user = User.objects.get(id=user_id)
             else:
-                data.invalidate_time = invalidate_time[1]
+                user = None
 
-        data.points_created = timezone.now()
+            prefetch_exercise_data(prefetched_data, user, lobjs)
 
-        for base in reversed(CachedPointsData._parents):
-            for name in base._cached_fields:
-                self.__dict__[name] = data.__dict__[name]
+        for category in self.categories.values():
+            CategoryEntry.upgrade(category)
+        Totals.upgrade(self.total)
 
-    @classmethod
-    def _generate_data_internal( # noqa: MC0001
-            cls,
-            data: CachedPointsData,
-            is_authenticated: bool,
-            all_submissions: Iterable[Submission],
-            deadline_deviations: Iterable[DeadlineRuleDeviation],
-            submission_deviations: Iterable[MaxSubmissionsRuleDeviation],
-            module_instances: Iterable[CourseModule],
-            ) -> CachedPointsData:
-        """
-        Handles the generation of one version of the cache (staff or student).
-        All source data is prefetched by `_generate_data` and provided as
-        arguments to this method.
-        """
-        exercise_index = data.exercise_index
-        modules = data.modules
-        categories = data.categories
-        total = data.total
+        self.exercise_index = {
+            id: precreated.get_or_create_proxy(ExerciseEntry, id, user_id, modifiers=self._modifiers)
+            for id in self.exercise_index
+        }
+        if self.modules and isinstance(self.modules[0], tuple):
+            self.modules = [
+                precreated.get_or_create_proxy(ModuleEntry, module[0][0], user_id, modifiers=self._modifiers)
+                for module in self.modules
+            ]
+        else:
+            self.modules = [
+                precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=self._modifiers)
+                for module in self.modules
+            ]
 
-        if is_authenticated:
-            # Augment deviation data.
-            for deviation in deadline_deviations:
-                try:
-                    # deviation.exercise is a BaseExercise (i.e. submittable)
-                    entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
-                except KeyError:
-                    continue
-                entry.personal_deadline = (
-                    entry.closing_time + datetime.timedelta(minutes=deviation.extra_minutes)
-                )
-                entry.personal_deadline_has_penalty = not deviation.without_late_penalty
+        self.module_index = {
+            module._params[0]: module
+            for module in self.modules
+        }
 
-            for deviation in submission_deviations:
-                try:
-                    # deviation.exercise is a BaseExercise (i.e. submittable)
-                    entry = cast(SubmittableExerciseEntry, exercise_index[deviation.exercise.id])
-                except KeyError:
-                    continue
-                entry.personal_max_submissions = (
-                    entry.max_submissions + deviation.extra_submissions
-                )
+        precreated.resolve(self.get_child_proxies(), prefetched_data=prefetched_data)
 
-            def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
-                if (
-                    invalidate_time is not None
-                    and invalidate_time > timezone.now()
-                    and (
-                        data.invalidate_time is None
-                        or invalidate_time < data.invalidate_time
-                    )
-                ):
-                    data.invalidate_time = invalidate_time
+        self.total.reset_points()
+        for category in self.categories.values():
+            category.reset_points()
 
-            def apply_reveal_rule(
-                    data: CachedPointsData,
-                    entry: SubmittableExerciseEntry,
-                    reveal_rule: RevealRule,
-                    last_submission: Submission
-                    ) -> None:
-                """
-                Evaluate the reveal rule of the current exercise and ensure
-                that feedback is hidden appropriately.
-                """
-                state = ExerciseRevealState(entry)
-                is_revealed = reveal_rule.is_revealed(state)
-                reveal_time = reveal_rule.get_reveal_time(state)
+        self.invalidate_time = None
+        for entry in self.exercise_index.values():
+            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry):
+                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                _add_to(self.categories[entry.category_id], entry)
+                _add_to(self.total, entry)
 
-                if is_revealed:
-                    entry._best_submission = entry._true_best_submission
-                    entry._points = entry._true_points
-                    entry._passed = entry._true_passed
-                else:
-                    entry._best_submission = last_submission.id
-                    entry._points = 0
-
-                entry.feedback_revealed = is_revealed
-                entry.feedback_reveal_time = reveal_time
-
-                for submission in entry.submissions:
-                    if is_revealed:
-                        submission._points = submission._true_points
-                        submission._passed = submission._true_passed
-                    else:
-                        submission._points = 0
-                    submission.feedback_revealed = is_revealed
-                    submission.feedback_reveal_time = reveal_time
-
-                # If the reveal rule depends on time, update the cache's
-                # invalidation time.
-                update_invalidation_time(reveal_time)
-
-            # Augment submission data.
-            # The submissions are ordered by exercise, so we can use groupby
-            for (exercise, submissions) in itertools.groupby(all_submissions, key=lambda o: o.exercise):
-                final_submission = None
-                last_submission = None
-
-                try:
-                    entry = cast(SubmittableExerciseEntry, exercise_index[exercise.id])
-                except KeyError:
-                    continue
-
-                if exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
-                    is_better_than = has_more_points
-                elif exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
-                    is_better_than = is_newer
-                else:
-                    is_better_than = has_more_points
-
-                for submission in submissions:
-                    ready = submission.status == Submission.STATUS.READY
-                    unofficial = submission.status == Submission.STATUS.UNOFFICIAL
-                    if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
-                        entry.submission_count += 1
-                    entry.submissions.append(
-                        SubmissionEntry(
-                            id = submission.id,
-                            max_points = entry.max_points,
-                            points_to_pass = entry.points_to_pass,
-                            confirm_the_level = entry.confirm_the_level,
-                            submission_count = 1, # to fool points badge
-                            _true_passed = submission.grade >= entry.points_to_pass,
-                            _true_points = submission.grade,
-                            graded = submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                            submission_status = submission.status if not submission.is_graded else False,
-                            unofficial = unofficial,
-                            date = submission.submission_time,
-                            url = submission.get_url('submission-plain'),
-                            feedback_revealed = True,
-                            feedback_reveal_time = None,
-                        )
-                    )
-                    # Update best submission if exercise points are not forced, and
-                    # one of these is true:
-                    # 1) current submission in ready (thus is not unofficial) AND
-                    #    a) current best is an unofficial OR
-                    #    b) current submission is better depending on grading mode
-                    # 2) All of:
-                    #    - current submission is unofficial AND
-                    #    - current best is unofficial
-                    #    - current submission is better depending on grading mode
-                    if submission.force_exercise_points:
-                        # This submission is chosen as the final submission and no
-                        # further submissions are considered.
-                        entry._true_best_submission = submission.id
-                        entry._true_passed = ready and submission.grade >= entry.points_to_pass
-                        entry._true_points = submission.grade
-                        entry.graded = True
-                        entry.unofficial = False
-                        entry.forced_points = True
-
-                        final_submission = submission
-                    if not entry.forced_points:
-                        if ( # pylint: disable=too-many-boolean-expressions
-                            ready and (
-                                entry.unofficial or
-                                is_better_than(submission, final_submission)
-                            )
-                        ) or (
-                            unofficial and
-                            not entry.graded and # NOTE: == entry.unofficial,
-                            # but before any submissions entry.unofficial is False
-                            is_better_than(submission, final_submission)
-                        ):
-                            entry._true_best_submission = submission.id
-                            entry._true_passed = ready and submission.grade >= entry.points_to_pass
-                            entry._true_points = submission.grade
-                            entry.graded = ready # != unofficial
-                            entry.unofficial = unofficial
-
-                            final_submission = submission
-                    # Update last_submission to be the last submission, or the last
-                    # official submission if there are any official submissions.
-                    # Note that the submissions are ordered by descendng time.
-                    if last_submission is None or (
-                        last_submission.status == Submission.STATUS.UNOFFICIAL
-                        and not unofficial
-                    ):
-                        last_submission = submission
-                    if submission.notifications.exists():
-                        entry.notified = True
-                        if submission.notifications.filter(seen=False).exists():
-                            entry.unseen = True
-
-                # Check the reveal rule now that all submissions for the exercise have been iterated.
-                # last_submission is never None here but this appeases the typing system.
-                if last_submission is not None:
-                    reveal_rule = exercise.active_submission_feedback_reveal_rule
-                    apply_reveal_rule(data, entry, reveal_rule, last_submission)
-
-        if not show_unrevealed:
-            def update_is_revealed_recursive(entry: Dict[str, Any], is_revealed: bool) -> None:
-                if is_revealed:
-                    return
-                entry.is_revealed = is_revealed
-                for child in entry.children:
-                    update_is_revealed_recursive(child, is_revealed)
-
-            for module in module_instances:
-                model_chapter = module.model_answer
-                if model_chapter is None:
-                    continue
-                reveal_rule = module.active_model_solution_reveal_rule
-                entry = exercise_index[model_chapter.id]
-                cached_module = module_index[module.id]
-                state = ModuleRevealState(cached_module)
-                is_revealed = reveal_rule.is_revealed(state)
-                reveal_time = reveal_rule.get_reveal_time(state)
-                update_is_revealed_recursive(entry, is_revealed)
-                update_invalidation_time(reveal_time)
-
-        # Unconfirm points.
-        for entry in exercise_index.values():
-            if (
-                entry.submittable
-                and entry.confirm_the_level
-                and not entry._true_passed
-            ):
-                parent = entry.parent
-                if parent is None:
-                    parent = entry.module
-                parent._true_unconfirmed = True
-                for child in parent.children:
-                    child._true_unconfirmed = True
-
-            if (
-                entry.submittable
-                and entry.confirm_the_level
-                and not entry._passed
-            ):
-                parent = entry.parent
-                if parent is None:
-                    parent = entry.module
-                parent._unconfirmed = True
-                for child in parent.children:
-                    child._unconfirmed = True
-
-        # Collect points and check limits.
-        def add_to(target: Union[ModuleEntry, CategoryEntry, Totals], entry: SubmittableExerciseEntry) -> None:
-            target.submission_count += entry.submission_count
-            target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
-            # NOTE: entry can be only ready or unofficial (exercise level
-            # points are only copied, only if submission is in ready or
-            # unofficial state)
-            if entry.unofficial:
-                pass
-            # thus, all points are now ready..
-            else:
-                if entry._true_unconfirmed:
-                    add_by_difficulty(
-                        target._true_unconfirmed_points_by_difficulty,
-                        entry.difficulty,
-                        entry._true_points,
-                    )
-                # and finally, only remaining points are official (not unofficial & not unconfirmed)
-                else:
-                    target._true_points += entry._true_points
-                    add_by_difficulty(
-                        target._true_points_by_difficulty,
-                        entry.difficulty,
-                        entry._true_points,
-                    )
-
-                if entry._unconfirmed:
-                    add_by_difficulty(
-                        target._unconfirmed_points_by_difficulty,
-                        entry.difficulty,
-                        entry._points,
-                    )
-                # and finally, only remaining points are official (not unofficial & not unconfirmed)
-                else:
-                    target._points += entry._points
-                    add_by_difficulty(
-                        target._points_by_difficulty,
-                        entry.difficulty,
-                        entry._points,
-                    )
-
-        def r_collect(
-                module: ModuleEntry,
-                parent: Optional[EitherExerciseEntry],
-                children: List[EitherExerciseEntry],
-                ) -> Tuple[bool, bool, bool]:
-            _true_passed = True
-            _passed = True
-            is_revealed = True
-            max_points = 0
-            submissions = 0
-            _true_points = 0
-            _points = 0
-            confirm_entry: Optional[SubmittableExerciseEntry] = None
-            for entry in children:
-                if isinstance(entry, SubmittableExerciseEntry):
-                    # TODO: this seems to skip counting points and submission for
-                    # exercises with confirm_the_level = True
-                    if entry.confirm_the_level:
-                        confirm_entry = entry
-                    else:
-                        _true_passed = _true_passed and entry._true_passed
-                        _passed = _passed and entry._passed
-                        is_revealed = is_revealed and entry.feedback_revealed
-                        max_points += entry.max_points
-                        submissions += entry.submission_count
-                        if entry.graded:
-                            _true_points += entry._true_points
-                            _points += entry._points
-                            add_to(module, entry)
-                            add_to(categories[entry.category_id], entry)
-                            add_to(total, entry)
-                r_passed, r_true_passed, r_is_revealed = r_collect(module, entry, entry.children)
-                _true_passed = r_true_passed and _true_passed
-                _passed = r_passed and _passed
-                is_revealed = r_is_revealed and is_revealed
-            if confirm_entry and submissions > 0:
-                confirm_entry.confirmable_points = True
-            if parent and not parent.submittable:
-                parent.max_points = max_points
-                parent.submission_count = submissions
-                parent._true_passed = _true_passed
-                parent._passed = _passed
-                parent._true_points = _true_points
-                parent._points = _points
-            return _passed, _true_passed, is_revealed
-        for module in modules:
-            r_passed, r_true_passed, _ = r_collect(module, None, module.children)
-            module._true_passed = (
-                r_true_passed
-                and module._true_points >= module.points_to_pass
-            )
-            module._passed = (
-                r_passed
-                and module._points >= module.points_to_pass
-            )
-        for category in categories.values():
+        for category in self.categories.values():
             category._true_passed = category._true_points >= category.points_to_pass
             category._passed = category._points >= category.points_to_pass
 
-        return data
+        self.points_created = timezone.now()
 
 
 class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
@@ -885,8 +1007,12 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
         return super().entry_for_exercise(model)
 
     @classmethod
-    def invalidate(cls, *models):
-        CachedPointsData.invalidate(*models)
+    def invalidate(cls, instance: CourseInstance, user: User):
+        CachedPointsData.invalidate(instance, user)
+        for module in instance.course_modules.prefetch_related("learning_objects").all():
+            ModuleEntryBase.invalidate(module, user)
+            for exercise in module.learning_objects.all():
+                ExerciseEntryBase.invalidate(exercise, user)
 
 
 # pylint: disable-next=unused-argument
