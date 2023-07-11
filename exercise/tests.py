@@ -485,7 +485,11 @@ class ExerciseTest(TestCase):
 
     def test_static_exercise_grade(self):
         request = RequestFactory().request(SERVER_NAME='localhost', SERVER_PORT='8001')
-        SessionMiddleware().process_request(request)
+
+        def dummy_get_response(request):
+            return None
+
+        SessionMiddleware(dummy_get_response).process_request(request)
         request.session.save()
         sub = Submission.objects.create_from_post(self.static_exercise, [self.user.userprofile], request)
         static_exercise_page = self.static_exercise.grade(request, sub)

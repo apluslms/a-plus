@@ -6,11 +6,12 @@ from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django import forms
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from course.models import CourseModule, UserTag
 from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
 from deviations.models import SubmissionRuleDeviation
+from lib.helpers import is_ajax
 from lib.viewbase import BaseFormView, BaseRedirectView
 from authorization.permissions import ACCESS
 from exercise.models import BaseExercise
@@ -166,7 +167,7 @@ class RemoveDeviationsByIDView(CourseInstanceMixin, BaseRedirectView):
         )
         for deviation in deviations:
             deviation.delete()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(status=204)
         return self.redirect(self.deviation_model.get_list_url(self.instance))
 

@@ -1,5 +1,4 @@
-from django.conf.urls import url
-from django.urls import path
+from django.urls import path, re_path
 
 from course.urls import INSTANCE_URL_PREFIX, EDIT_URL_PREFIX
 from . import views
@@ -8,22 +7,22 @@ from . import views
 LTI_PREFIX = 'lti/'
 
 urlpatterns = [
-    url(INSTANCE_URL_PREFIX + r'external-link/(?P<menu_id>\d+)/$',
+    re_path(INSTANCE_URL_PREFIX + r'external-link/(?P<menu_id>\d+)/$',
         views.ExternalLinkView.as_view(),
         name="external-service-link"),
-    url(INSTANCE_URL_PREFIX + r'lti-login/(?P<menu_id>\d+)/$',
+    re_path(INSTANCE_URL_PREFIX + r'lti-login/(?P<menu_id>\d+)/$',
         views.LTILoginView.as_view(),
         name="lti-login"),
-    url(EDIT_URL_PREFIX + r'menu/$',
+    re_path(EDIT_URL_PREFIX + r'menu/$',
         views.ListMenuItemsView.as_view(),
         name="external-services-list-menu"),
-    url(EDIT_URL_PREFIX + r'menu/add/$',
+    re_path(EDIT_URL_PREFIX + r'menu/add/$',
         views.EditMenuItemView.as_view(),
         name="external-services-add-menu"),
-    url(EDIT_URL_PREFIX + r'menu/(?P<menu_id>\d+)/edit/$',
+    re_path(EDIT_URL_PREFIX + r'menu/(?P<menu_id>\d+)/edit/$',
         views.EditMenuItemView.as_view(),
         name="external-services-edit-menu"),
-    url(EDIT_URL_PREFIX + r'menu/(?P<menu_id>\d+)/remove/$',
+    re_path(EDIT_URL_PREFIX + r'menu/(?P<menu_id>\d+)/remove/$',
         views.RemoveMenuItemView.as_view(),
         name="external-services-remove-menu"),
 

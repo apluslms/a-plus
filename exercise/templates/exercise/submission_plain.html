@@ -29,7 +29,8 @@
 		</p>
 		<table class="submission-info table table-bordered table-condensed">
 			<tr>
-				{% if not request.is_ajax %}
+				{% is_ajax as is_ajax_result %}
+				{% if not is_ajax_result %}
 				<th rowspan="2">
 					<a href="{{ submission.exercise|url:'exercise-plain' }}" class="aplus-button--secondary aplus-button--md" role="button">
 						{% translate "RETURN_TO_EXERCISE" %}

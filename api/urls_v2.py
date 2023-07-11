@@ -1,8 +1,8 @@
 import copy
 
 from django.conf import settings
-from django.conf.urls import url, include
-from django.urls import path
+from django.conf.urls import include
+from django.urls import path, re_path
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
 import userprofile.api.views
@@ -107,11 +107,11 @@ with api.register(r'submissions',
                          basename='submission-files')
 
 urlpatterns = [
-    url(r'^', include((api.urls, 'api'), namespace='api')),
+    re_path(r'^', include((api.urls, 'api'), namespace='api')),
 
-    url(r"^get-token", authorization.api.views.RemoteAuthenticationView.as_view(), name="get-token"),
-    url(r'^me', userprofile.api.views.MeDetail.as_view()),
-    url(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),
+    re_path(r"^get-token", authorization.api.views.RemoteAuthenticationView.as_view(), name="get-token"),
+    re_path(r'^me', userprofile.api.views.MeDetail.as_view()),
+    re_path(r'^lti-outcomes', external_services.api.views.LTIExerciseBasicOutcomesView.as_view(), name='lti-outcomes'),
     path('statistics/', lib.api.statistics.BaseStatisticsView.as_view(), name='statistics'),
     path(
         'courses/<int:course_id>/statistics/',

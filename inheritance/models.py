@@ -25,7 +25,7 @@ class ModelWithInheritance(models.Model):
     class Meta:
         abstract = False
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
         """
         Overrides the default save method from Django. If the method is called for
         a new model, its content type will be saved in the database as well. This way
@@ -36,7 +36,10 @@ class ModelWithInheritance(models.Model):
         if not self.content_type:
             self.content_type = ContentType.objects.get_for_model(self.__class__)
 
-        super().save(*args, **kwargs)
+        if update_fields is not None:
+            update_fields = tuple(set(update_fields) | {"content_type"})
+
+        return super().save(*args, update_fields=update_fields, **kwargs)
 
     def as_leaf_class(self):
         """

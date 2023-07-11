@@ -395,8 +395,15 @@ LOCALE_PATHS = (
 )
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
-STATICFILES_STORAGE = 'lib.storage.BumpStaticFilesStorage'
+# https://docs.djangoproject.com/en/4.2/ref/settings/#static-files
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'lib.storage.BumpStaticFilesStorage',
+    },
+}
 STATICFILES_DIRS = (
     join(BASE_DIR, 'assets'),
 )

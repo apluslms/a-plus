@@ -3,12 +3,13 @@ Defines base views for extending and mixing to higher level views.
 The structure was created for handling nested models.
 """
 from django.http.response import HttpResponseRedirect
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic.base import TemplateResponseMixin, TemplateView, View
 from django.views.generic.edit import FormMixin, FormView
 
 from authorization.views import AuthorizedResourceMixin
 from authorization.permissions import AccessModePermission
+from lib.helpers import is_ajax
 
 
 class BaseMixin:
@@ -56,7 +57,7 @@ class BaseTemplateMixin(BaseMixin, TemplateResponseMixin):
     force_ajax_template = False
 
     def get_template_names(self):
-        if self.force_ajax_template or self.request.is_ajax() or not self.template_name:
+        if self.force_ajax_template or is_ajax(self.request) or not self.template_name:
             if self.ajax_template_name:
                 return [self.ajax_template_name]
         return super().get_template_names()
@@ -73,7 +74,7 @@ class BaseRedirectMixin(BaseMixin):
         return self.redirect(to, backup)
 
     def redirect(self, to, backup=None):
-        if not is_safe_url(url=to, allowed_hosts={self.request.get_host()}):
+        if not url_has_allowed_host_and_scheme(url=to, allowed_hosts={self.request.get_host()}):
             if backup:
                 to = backup.get_absolute_url()
             else:

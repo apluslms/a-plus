@@ -14,6 +14,14 @@ from django.utils.deprecation import RemovedInNextVersionWarning
 from django.utils.translation import get_language
 
 
+def is_ajax(request):
+    """
+    Detect AJAX requests.
+    Request object method is_ajax() was removed in Django 4.0, this can be used instead.
+    """
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+
 def deprecated(message):
     '''
     This is a decorator which can be used to mark functions
