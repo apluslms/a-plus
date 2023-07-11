@@ -430,9 +430,7 @@ class UserTagging(models.Model):
         verbose_name = _('MODEL_NAME_USER_TAGGING')
         verbose_name_plural = _('MODEL_NAME_USER_TAGGING_PLURAL')
         unique_together = ('tag', 'user', 'course_instance')
-        index_together = (
-            ('user', 'course_instance'),
-        )
+        indexes = [models.Index(fields=['user', 'course_instance'])]
         ordering = ['tag']
 
 

@@ -11,9 +11,8 @@ from django.core.cache.utils import make_template_fragment_key
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.template.loader import TemplateDoesNotExist, get_template
 from django.urls import reverse, translate_url
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import (
-    LANGUAGE_SESSION_KEY,
     check_for_language,
     get_language
 )
@@ -23,7 +22,7 @@ from django.views.decorators.http import require_POST
 
 from authorization.permissions import ACCESS
 from course.models import CourseInstance
-from lib.helpers import settings_text, remove_query_param_from_url
+from lib.helpers import settings_text, remove_query_param_from_url, is_ajax
 from userprofile.models import UserProfile
 from .viewbase import UserProfileView
 
@@ -79,13 +78,13 @@ def set_user_language(request):
     LANGUAGE_PARAMETER = 'language'
     # pylint: disable-next=redefined-builtin
     next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
-    if ((next or not request.is_ajax()) and
-            not is_safe_url(url=next,
+    if ((next or not is_ajax(request)) and
+            not url_has_allowed_host_and_scheme(url=next,
                             allowed_hosts={request.get_host()},
                             require_https=request.is_secure())):
         next = remove_query_param_from_url(request.META.get('HTTP_REFERER'), 'hl')
         next = next and unquote(next)  # HTTP_REFERER may be encoded.
-        if not is_safe_url(url=next,
+        if not url_has_allowed_host_and_scheme(url=next,
                             allowed_hosts={request.get_host()},
                             require_https=request.is_secure()):
             next = '/'
@@ -102,8 +101,6 @@ def set_user_language(request):
                 userprofile.language = lang_code
                 userprofile.save()
             else:
-                if hasattr(request, 'session'):
-                    request.session[LANGUAGE_SESSION_KEY] = lang_code
                 response.set_cookie(
                     settings.LANGUAGE_COOKIE_NAME, lang_code,
                     max_age=settings.LANGUAGE_COOKIE_AGE,

@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from exercises import views
 
 urlpatterns = [
-    url(r'^first_exercise/$', views.first),
-    url(r'^file_exercise/$', views.file),
-    url(r'^ajax_exercise/$', views.ajax, name="ajax"),
+    re_path(r'^first_exercise/$', views.first),
+    re_path(r'^file_exercise/$', views.file),
+    re_path(r'^ajax_exercise/$', views.ajax, name="ajax"),
 ]

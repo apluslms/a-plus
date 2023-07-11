@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 from course.models import CourseModule
 from lib.errors import TagUsageError
-from lib.helpers import format_points as _format_points
+from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from ..cache.content import CachedContent
 from ..cache.points import CachedPoints
 from ..exercise_summary import UserExerciseSummary
@@ -390,3 +390,8 @@ def get_regrade_info(index):
 @register.simple_tag
 def get_regrade_info_list(options):
     return [get_regrade_info(index) for index in options.split()]
+
+
+@register.simple_tag(takes_context=True)
+def is_ajax(context: Context) -> bool:
+    return _is_ajax(context['request'])

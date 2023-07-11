@@ -13,7 +13,7 @@ at Aalto University, Finland.
 Requirements
 ------------
 
-A+ is a Django 3.2 and Python 3.8+ application which has been run in production using Postgresql database, Apache 2 (or Nginx) and uwsgi.
+A+ is a Django 4.2 and Python 3.8+ application which has been run in production using Postgresql database, Apache 2 (or Nginx) and uwsgi.
 See [doc/DEPLOYMENT.md](doc/DEPLOYMENT.md) for further deployment instructions.
 Consider using `virtualenv` and `pip3 install -r requirements.txt`.
 Create `local_settings.py` and override necessary Django settings from `aplus/settings.py`.

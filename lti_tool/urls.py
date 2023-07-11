@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 from course.urls import INSTANCE_URL_PREFIX, MODULE_URL_PREFIX
@@ -20,33 +20,33 @@ LTI_EXERCISE_URL_PREFIX = LTI_PREFIX + EXERCISE_URL_FILL
 LTI_SUBMISSION_URL_PREFIX = LTI_PREFIX + SUBMISSION_URL_FILL
 
 urlpatterns = [
-    url(LTI_PREFIX + r'login/$',
+    re_path(LTI_PREFIX + r'login/$',
         views.lti_login),
-    url(LTI_SELECT_CONTENT_PREFIX + '$',
+    re_path(LTI_SELECT_CONTENT_PREFIX + '$',
         views.LtiSelectContentView.as_view(),
         name="lti-select-content"),
-    url(LTI_SELECT_CONTENT_PREFIX + INSTANCE_URL_FILL +  '$',
+    re_path(LTI_SELECT_CONTENT_PREFIX + INSTANCE_URL_FILL +  '$',
         views.LtiSelectCourseView.as_view(),
         name="lti-select-course"),
-    url(LTI_SELECT_CONTENT_PREFIX + MODULE_URL_FILL  + '$',
+    re_path(LTI_SELECT_CONTENT_PREFIX + MODULE_URL_FILL  + '$',
         views.LtiSelectModuleView.as_view(),
         name="lti-select-module"),
-    url(LTI_SELECT_CONTENT_PREFIX + EXERCISE_URL_FILL + '$',
+    re_path(LTI_SELECT_CONTENT_PREFIX + EXERCISE_URL_FILL + '$',
         views.LtiSelectExerciseView.as_view(),
         name="lti-select-exercise"),
-    url(LTI_PREFIX + r'launch/$',
+    re_path(LTI_PREFIX + r'launch/$',
         views.LtiLaunchView.as_view(),
         name="lti-launch"),
-    url(LTI_SUBMISSION_URL_PREFIX + r'$',
+    re_path(LTI_SUBMISSION_URL_PREFIX + r'$',
         views.LtiSubmissionView.as_view(),
         name="lti-submission"),
-    url(LTI_EXERCISE_URL_PREFIX + r'$',
+    re_path(LTI_EXERCISE_URL_PREFIX + r'$',
         views.LtiExerciseView.as_view(),
         name="lti-exercise"),
-    url(LTI_MODULE_URL_PREFIX + r'$',
+    re_path(LTI_MODULE_URL_PREFIX + r'$',
         views.LtiModuleView.as_view(),
         name="lti-module"),
-    url(LTI_INSTANCE_URL_PREFIX + r'$',
+    re_path(LTI_INSTANCE_URL_PREFIX + r'$',
         views.LtiInstanceView.as_view(),
         name="lti-course"),
 ]

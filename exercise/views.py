@@ -15,7 +15,7 @@ from django.db import DatabaseError
 from authorization.permissions import ACCESS
 from course.models import CourseModule
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
-from lib.helpers import query_dict_to_list_of_tuples, safe_file_name
+from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
@@ -194,7 +194,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     messages.success(request, message)
 
                 # Redirect non AJAX normally to submission page.
-                if not request.is_ajax() and "__r" not in request.GET:
+                if not is_ajax(request) and "__r" not in request.GET:
                     # LTI based views require redirection to LTI specific views
                     redirect_view = kwargs.get('redirect_view')
                     return self.redirect(new_submission.get_absolute_url(view_override=redirect_view) +
@@ -211,7 +211,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     page = new_submission.load(request, feedback_revealed=False)
 
             # Redirect non AJAX content page request back.
-            if not request.is_ajax() and "__r" in request.GET:
+            if not is_ajax(request) and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
         self.get_summary_submissions()
@@ -445,7 +445,6 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
-        #if not self.request.is_ajax():
         self.get_summary_submissions()
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:

@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.conf.urls import url, include
+from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
-from django.urls import path
+from django.urls import path, re_path
 
 import shibboleth_login.urls
 import social_django.urls
@@ -35,30 +35,30 @@ all_sitemaps = {
 
 #  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^', include(shibboleth_login.urls)),
-    url('', include(social_django.urls, namespace='social')),
-    url(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
-    url(r'^accounts/', include(userprofile.urls)),
-    url(r'^diploma/', include(diploma.urls)),
-    url(r'^', include(redirect_old_urls.urls)),
-    url(r'^', include(apps.urls)),
-    url(r'^', include(news.urls)),
-    url(r'^', include(external_services.urls)),
-    url(r'^', include(course.long_urls)),
-    url(r'^', include(deviations.urls)),
-    url(r'^', include(edit_course.urls)),
-    url(r'^', include(notification.urls)),
-    url(r'^', include(lti_tool.urls)),
-    url(r'^', include(exercise.urls)),
-    url(r'^', include(course.urls)),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^', include(shibboleth_login.urls)),
+    re_path('', include(social_django.urls, namespace='social')),
+    re_path(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
+    re_path(r'^accounts/', include(userprofile.urls)),
+    re_path(r'^diploma/', include(diploma.urls)),
+    re_path(r'^', include(redirect_old_urls.urls)),
+    re_path(r'^', include(apps.urls)),
+    re_path(r'^', include(news.urls)),
+    re_path(r'^', include(external_services.urls)),
+    re_path(r'^', include(course.long_urls)),
+    re_path(r'^', include(deviations.urls)),
+    re_path(r'^', include(edit_course.urls)),
+    re_path(r'^', include(notification.urls)),
+    re_path(r'^', include(lti_tool.urls)),
+    re_path(r'^', include(exercise.urls)),
+    re_path(r'^', include(course.urls)),
     path('sitemap.xml', sitemap, { 'sitemaps': all_sitemaps },
         name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 if settings.DEBUG:
     import django.views.static
-    urlpatterns.insert(0, url(r'^media/(?P<path>.*)$', django.views.static.serve,
+    urlpatterns.insert(0, re_path(r'^media/(?P<path>.*)$', django.views.static.serve,
         { 'document_root': settings.MEDIA_ROOT }))
 
 

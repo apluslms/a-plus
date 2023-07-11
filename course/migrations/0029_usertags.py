@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import lib.models
-import colorfield.fields
+from colorfield import ColorField
 
 
 class Migration(migrations.Migration):
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=200)),
                 ('description', models.CharField(blank=True, max_length=164, help_text='Describe the usage or meaning of this usertag')),
                 ('visible_to_students', models.BooleanField(default=False)),
-                ('color', colorfield.fields.ColorField(default='#CD0000', help_text='Color that is used for this tag.', max_length=10)),
+                ('color', ColorField(default='#CD0000', help_text='Color that is used for this tag.', max_length=10)),
                 ('course_instance', models.ForeignKey(related_name='usertags', to='course.CourseInstance', on_delete=models.CASCADE)),
             ],
             options={

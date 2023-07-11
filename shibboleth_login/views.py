@@ -9,7 +9,7 @@ from django.contrib.auth import (
 from django.http import HttpResponseRedirect
 from django.http.response import HttpResponse
 from django.shortcuts import render, resolve_url
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 
 from .apps import env_settings
@@ -59,7 +59,7 @@ def login(request):
         logger.debug("Shibboleth login: {}".format(user.username)) # pylint: disable=logging-format-interpolation
 
         redirect_to = request.GET.get(REDIRECT_FIELD_NAME, '')
-        if not is_safe_url(url=redirect_to,
+        if not url_has_allowed_host_and_scheme(url=redirect_to,
                            allowed_hosts={request.get_host()},
                            require_https=request.is_secure(),
                            ):

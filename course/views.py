@@ -11,18 +11,15 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, translate_url
 from django.utils import html, timezone
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import format_lazy
-from django.utils.translation import (
-    LANGUAGE_SESSION_KEY,
-    check_for_language,
-)
+from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
 
 from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
-from lib.helpers import settings_text, remove_query_param_from_url
+from lib.helpers import settings_text, remove_query_param_from_url, is_ajax
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
@@ -323,7 +320,7 @@ class GroupSelect(CourseInstanceMixin, BaseFormView):
 
     def form_valid(self, form):
         enrollment = form.save()
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return self.render_to_response(self.get_context_data(
                 **group_info_context(enrollment.selected_group, self.profile)))
         return super().form_valid(form)
@@ -335,15 +332,15 @@ class LanguageView(CourseInstanceMixin, BaseView):
         LANGUAGE_PARAMETER = 'language'
         # pylint: disable-next=redefined-builtin
         next = remove_query_param_from_url(request.POST.get('next', request.GET.get('next')), 'hl')
-        if ((next or not request.is_ajax()) and
-                not is_safe_url(url=next,
+        if ((next or not is_ajax(request)) and
+                not url_has_allowed_host_and_scheme(url=next,
                                 allowed_hosts={request.get_host()},
                                 require_https=request.is_secure())):
             next = remove_query_param_from_url(request.META.get('HTTP_REFERER'), 'hl')
             next = next and unquote(next)  # HTTP_REFERER may be encoded.
-            if not is_safe_url(url=next,
-                               allowed_hosts={request.get_host()},
-                               require_https=request.is_secure()):
+            if not url_has_allowed_host_and_scheme(url=next,
+                                allowed_hosts={request.get_host()},
+                                require_https=request.is_secure()):
                 next = '/'
         response = HttpResponseRedirect(next) if next else HttpResponse(status=204)
         if request.method == 'POST':
@@ -363,8 +360,6 @@ class LanguageView(CourseInstanceMixin, BaseView):
                         userprofile.language = lang_code
                         userprofile.save()
                 else:
-                    if hasattr(request, 'session'):
-                        request.session[LANGUAGE_SESSION_KEY] = lang_code
                     response.set_cookie(
                         settings.LANGUAGE_COOKIE_NAME, lang_code,
                         max_age=settings.LANGUAGE_COOKIE_AGE,
