@@ -5,12 +5,15 @@ import pickle
 from time import time
 from typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
+    Collection,
     Dict,
     get_args,
     get_origin,
     Iterable,
+    Iterator,
     List,
     Optional,
     Set,
@@ -25,6 +28,7 @@ import sys
 
 from django.core.cache import cache
 from django.db.models import Model
+from django.db.models.signals import ModelSignal
 
 logger = logging.getLogger('aplus.cached2')
 
@@ -236,11 +240,52 @@ def get_cache_fields(cls) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
     return tuple(sorted(cached_fields)), tuple(varying_fields)
 
 
+ParamGenerator = Callable[[Model], Iterator[Tuple[Any, ...]]]
+ParamGeneratorWithKwargs = Tuple[ParamGenerator, Tuple[str,...]]
+def _invalidator(cls: CacheMeta, attrs_or_generator: Union[Tuple[str,...], ParamGenerator, ParamGeneratorWithKwargs]):
+    def attr_getter(instance, attr):
+        if isinstance(attr, list):
+            if attr:
+                return attr_getter(getattr(instance, attr[0]), attr[1:])
+            return instance
+        return getattr(instance, attr)
+
+    if isinstance(attrs_or_generator, tuple) and not callable(attrs_or_generator[0]): # attrs
+        # pylint: disable-next=unused-argument
+        def inner(sender, instance, **kwargs):
+            params = (attr_getter(instance, attr) for attr in attrs_or_generator) # type: ignore
+            cls.invalidate(*params)
+    elif isinstance(attrs_or_generator, tuple): # generator with kwargs
+        generator, input_kwargs = attrs_or_generator
+
+        # pylint: disable-next=unused-argument
+        def inner(sender, instance, **kwargs):
+            kwargs = {k: kwargs[k] for k in input_kwargs if k in kwargs}
+            param_list = []
+            for params in generator(instance, **kwargs): # type: ignore
+                if not isinstance(params, tuple):
+                    params = (params,)
+                param_list.append(params)
+            cls.invalidate_many(param_list)
+    else: # generator
+        # pylint: disable-next=unused-argument
+        def inner(sender, instance, **kwargs):
+            param_list = []
+            for params in attrs_or_generator(instance):
+                if not isinstance(params, tuple):
+                    params = (params,)
+                param_list.append(params)
+            cls.invalidate_many(param_list)
+
+    return inner
+
+
 class CacheMeta(type):
     """A metaclass for CacheBase to set the _cached_fields attribute automatically for each subclass"""
     # Use PARENTS: Tuple[CacheMeta, ...] to manually determine the parent classes
     KEY_PREFIX: str
     NUM_PARAMS: int
+    INVALIDATORS: List[Tuple[Type[Model], List[ModelSignal], Union[Tuple[str,...], ParamGenerator, ParamGeneratorWithKwargs]]]
     _cached_fields: Tuple[str, ...]
     _varying_fields: Tuple[str, ...]
     _all_cached_fields: Set[str]
@@ -249,15 +294,14 @@ class CacheMeta(type):
     def __new__(cls, name, bases, namespace, **kwargs):
         ncls = super().__new__(cls, name, bases, namespace, **kwargs)
 
-        if "KEY_PREFIX" in ncls.__dict__ and "NUM_PARAMS" not in ncls.__dict__:
+        cacheable_classvars = ("KEY_PREFIX", "NUM_PARAMS", "INVALIDATORS")
+        missing_classvars = [k for k in cacheable_classvars if k not in ncls.__dict__]
+        is_cacheable = len(missing_classvars) != len(cacheable_classvars)
+
+        if is_cacheable and missing_classvars:
             raise ValueError(
-                f"Instances (classes) of CacheMeta must have both KEY_PREFIX"
-                " and NUM_PARAMS or neither. {name} is missing NUM_PARAMS."
-            )
-        elif "KEY_PREFIX" not in ncls.__dict__ and "NUM_PARAMS" in ncls.__dict__:
-            raise ValueError(
-                f"Instances (classes) of CacheMeta must have both KEY_PREFIX"
-                " and NUM_PARAMS or neither. {name} is missing KEY_PREFIX"
+                f"Instances (classes) of CacheMeta must have all of {', '.join(cacheable_classvars)}"
+                f" or none of them. {name} is missing {', '.join(missing_classvars)}."
             )
 
         cache_meta_mro: List[CacheMeta] = [base for base in ncls.__mro__ if isinstance(base, CacheMeta)]
@@ -285,7 +329,44 @@ class CacheMeta(type):
         ncls._cached_fields, ncls._varying_fields = get_cache_fields(ncls)
         ncls._all_cached_fields = {f for c in ncls._parents for f in c._cached_fields}
 
+        if "INVALIDATORS" in ncls.__dict__:
+            for model, signals, attrs in ncls.INVALIDATORS:
+                invalidator = _invalidator(ncls, attrs)
+                for signal in signals:
+                    signal.connect(invalidator, sender=model, weak=False)
+
         return ncls
+
+    def _get_keys_with_cls(cls, *params) -> List[Tuple[Type[CacheBase], str]]:
+        keys = []
+        for p in cls._parents:
+            id_str = ','.join(str(p) for p in params[:p.NUM_PARAMS])
+            cache_key = f"{p.KEY_PREFIX}:{id_str}"
+            keys.append((p, cache_key))
+        return keys
+
+    def parameter_ids(cls, *models: Any) -> Tuple[Any, ...]:
+        """Turn the cache parameters used to generate the data into ids that can be used
+        to identify the original objects"""
+        return tuple(getattr(model, "id", model) for model in models)
+
+    def invalidate(cls, *models: Any) -> None:
+        _, cache_key = cls._get_keys_with_cls(*cls.parameter_ids(*models))[-1]
+        logger.debug(f"Invalidating cached data for {cls.__name__}[{cache_key}]")
+        # The cache is invalid, if the invalidate time is greater than the generation time
+        # The time is needed in case the cache is being generated at the same time:
+        # otherwise the cache could be generated using old data and then saved, even though
+        # that data was invalidated
+        cache.set(cache_key, (time(), None))
+
+    def invalidate_many(cls, models_iterable: Collection[Tuple[Any,...]]) -> None:
+        if len(models_iterable) == 0:
+            return
+        params_iterable = (cls.parameter_ids(*models) for models in models_iterable)
+        cache_keys = [cls._get_keys_with_cls(*params)[-1][1] for params in params_iterable]
+        logger.debug(f"Invalidating cached data for {cls.__name__}[{', '.join(cache_keys)}]")
+        t = (time(), None)
+        cache.set_many({ key: t for key in cache_keys })
 
 
 T = TypeVar("T", bound="CacheBase")
@@ -423,25 +504,6 @@ class CacheBase(metaclass=CacheMeta):
 
         return obj
 
-    @classmethod
-    def _get_keys_with_cls(cls, *params) -> List[Tuple[Type[CacheBase], str]]:
-        keys = []
-        for p in cls._parents:
-            id_str = ','.join(str(p) for p in params[:p.NUM_PARAMS])
-            cache_key = f"{p.KEY_PREFIX}:{id_str}"
-            keys.append((p, cache_key))
-        return keys
-
-    @classmethod
-    def invalidate(cls, *models):
-        _, cache_key = cls._get_keys_with_cls(*cls.parameter_ids(*models))[-1]
-        logger.debug(f"Invalidating cached data for {cls.__name__}[{cache_key}]")
-        # The cache is invalid, if the time field is None
-        # The invalidation time is stored in the data field for debug messages
-        # Keep this value in the cache for an hour, so it will be removed from
-        # the memory at some point, but not before all generations have finished.
-        cache.set(cache_key, (time(), None))
-
     def _build(
             self,
             cache_data: Dict[str, Any],
@@ -495,11 +557,6 @@ class CacheBase(metaclass=CacheMeta):
         logger.debug("Generating cached data for %s with ts %s", cache_name, gen_start_dt)
         self._generate_data(precreated=precreated, prefetched_data=prefetched_data)
         self._generated_on = gen_start
-
-    @classmethod
-    def parameter_ids(cls, *models: Any) -> Tuple[Any, ...]:
-        """Turn the cache parameters used to generate the data into ids that can be used to identify the original objects"""
-        return tuple(getattr(model, "id", model) for model in models)
 
     def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
         raise NotImplementedError(f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data")
