@@ -20,16 +20,14 @@ from typing import (
 
 from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects, Prefetch
-from django.db.models.base import Model
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
-from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
+from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
 from lib.cache.cached import CacheBase, DBData, ProxyManager
 from lib.helpers import format_points
 from notification.models import Notification
-from userprofile.models import UserProfile
 from .basetypes import (
     add_by_difficulty,
     CachedDataBase,
@@ -40,6 +38,15 @@ from .basetypes import (
     TotalsBase,
 )
 from .hierarchy import ContentMixin
+from .invalidate_util import (
+    m2m_submission_userprofile,
+    model_exercise_module_id,
+    model_instance_id,
+    model_exercise_ancestors,
+    model_exercise_siblings_confirms_the_level,
+    model_module_id,
+    with_user_ids,
+)
 from ..exercise_models import CourseChapter, LearningObject
 from ..models import BaseExercise, Submission, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
@@ -311,6 +318,13 @@ ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
 class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]):
     KEY_PREFIX = "exercisepoints"
     NUM_PARAMS = 2
+    INVALIDATORS = [
+        (Submission, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_ancestors))
+    ]
     _is_container: ClassVar[bool] = False
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
@@ -487,6 +501,17 @@ class SubmittableExerciseEntry(ExerciseEntry):
     PARENTS = ExerciseEntry._parents[:-1]
     KEY_PREFIX = ExerciseEntry.KEY_PREFIX
     NUM_PARAMS = ExerciseEntry.NUM_PARAMS
+    INVALIDATORS = [
+        # ExerciseEntry handles the general learning object invalidation. Here we invalidate for reasons
+        # specific to submittable exercises.
+        # These invalidate exercises with confirm_the_level = True whenever any of its sibling exercises change
+        (Submission, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+        (Notification, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+    ]
     submissions: List[SubmissionEntry] = field(default_factory=list)
     _true_best_submission: Optional[int]
     _best_submission: Optional[int]
@@ -707,6 +732,14 @@ ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
 class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     KEY_PREFIX = "modulepoints"
     NUM_PARAMS = 2
+    INVALIDATORS = [
+        (Submission, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
+        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
+        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_module_id)),
+        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_module_id)),
+    ]
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
     invalidate_time: Optional[float]
@@ -807,6 +840,16 @@ CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
     NUM_PARAMS: ClassVar[int] = 2
+    INVALIDATORS = [
+        (Submission, [post_delete, post_save], with_user_ids(model_instance_id)),
+        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_instance_id)),
+        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_instance_id)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_instance_id)),
+        # listen to the m2m_changed signal since submission.submitters is a many-to-many
+        # field and instances must be saved before the many-to-many fields may be modified,
+        # that is to say, the submission post save hook may see an empty submitters list
+        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_instance_id)),
+    ]
     user_id: InitVar[int]
     invalidate_time: Optional[float]
     points_created: datetime.datetime
@@ -1015,87 +1058,27 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
                 ExerciseEntryBase.invalidate(exercise, user)
 
 
-# pylint: disable-next=unused-argument
-def invalidate_content(sender: Type[Model], instance: Submission, **kwargs: Any) -> None:
-    course = instance.exercise.course_instance
-    for profile in instance.submitters.all():
-        CachedPoints.invalidate(course, profile.user)
+# Required so that Submission post_delete receivers can access submitters
+def prefetch_submitters(sender: Type[Submission], instance: Submission, **kwargs: Any) -> None:
+    prefetch_related_objects([instance], "submitters")
 
-def invalidate_content_m2m( # pylint: disable=too-many-arguments
-        sender: Type[Model], # pylint: disable=unused-argument
-        instance: Union[Submission, UserProfile],
-        action: str,
-        reverse: bool,
-        model: Type[Model],
-        pk_set: Iterable[int],
-        **kwargs: Any,
-        ) -> None:
-    # many-to-many field Submission.submitters may be modified without
-    # triggering the Submission post save hook
-    if action not in ('post_add', 'pre_remove'):
-        return
-    if reverse:
-        # instance is a UserProfile
-        if model == Submission:
-            seen_courses = set()
-            for submission_pk in pk_set:
-                try:
-                    submission = Submission.objects.get(pk=submission_pk)
-                    course_instance = submission.exercise.course_instance
-                    if course_instance.pk not in seen_courses:
-                        CachedPoints.invalidate(course_instance, instance.user)
-                    else:
-                        seen_courses.add(course_instance.pk)
-                except Submission.DoesNotExist:
-                    pass
-    else:
-        # instance is a Submission
-        invalidate_content(Submission, instance)
-# pylint: disable-next=unused-argument
-def invalidate_notification(sender: Type[Model], instance: Notification, **kwargs: Any) -> None:
-    course = instance.course_instance
-    if not course and instance.submission:
-        course = instance.submission.exercise.course_instance
-    CachedPoints.invalidate(course, instance.recipient.user)
-# pylint: disable-next=unused-argument
-def invalidate_deviation(sender: Type[Model], instance: SubmissionRuleDeviation, **kwargs: Any) -> None:
-    # Invalidate for the student who received the deviation as well as all
-    # students who have submitted this exercise with them.
-    course = instance.exercise.course_instance
-    CachedPoints.invalidate(course, instance.submitter.user)
-    submitters = UserProfile.objects.filter(
-        submissions__exercise=instance.exercise,
-        submissions__submitters=instance.submitter
-    ).distinct()
-    for profile in submitters:
-        if profile != instance.submitter:
-            CachedPoints.invalidate(course, profile.user)
-# pylint: disable-next=unused-argument
-def invalidate_submission_reveal(sender: Type[Model], instance: RevealRule, **kwargs: Any) -> None:
-    # Invalidate for all students who have submitted the exercise whose
-    # submission feedback reveal rule changed.
+
+# Required so that RevealRule post_delete receivers can access exercise
+def prefetch_exercise(sender: Type[RevealRule], instance: RevealRule, **kwargs: Any) -> None:
     try:
-        exercise = BaseExercise.objects.get(submission_feedback_reveal_rule=instance)
+        instance.exercise = BaseExercise.objects.get(submission_feedback_reveal_rule=instance)
     except BaseExercise.DoesNotExist:
-        return
-    course = exercise.course_instance
-    submitters = UserProfile.objects.filter(submissions__exercise=exercise).distinct()
-    for profile in submitters:
-        CachedPoints.invalidate(course, profile.user)
+        instance.exercise = None
 
 
-# Automatically invalidate cached points when submissions change.
-post_save.connect(invalidate_content, sender=Submission)
-post_delete.connect(invalidate_content, sender=Submission)
-post_save.connect(invalidate_notification, sender=Notification)
-post_delete.connect(invalidate_notification, sender=Notification)
-post_save.connect(invalidate_deviation, sender=DeadlineRuleDeviation)
-post_delete.connect(invalidate_deviation, sender=DeadlineRuleDeviation)
-post_save.connect(invalidate_deviation, sender=MaxSubmissionsRuleDeviation)
-post_delete.connect(invalidate_deviation, sender=MaxSubmissionsRuleDeviation)
-post_save.connect(invalidate_submission_reveal, sender=RevealRule)
-post_delete.connect(invalidate_submission_reveal, sender=RevealRule)
-# listen to the m2m_changed signal since submission.submitters is a many-to-many
-# field and instances must be saved before the many-to-many fields may be modified,
-# that is to say, the submission post save hook may see an empty submitters list
-m2m_changed.connect(invalidate_content_m2m, sender=Submission.submitters.through)
+# Required so that RevealRule post_delete receivers can access module
+def prefetch_module(sender: Type[RevealRule], instance: RevealRule, **kwargs: Any) -> None:
+    try:
+        instance.module = CourseModule.objects.get(model_solution_reveal_rule=instance)
+    except CourseModule.DoesNotExist:
+        instance.module = None
+
+
+pre_delete.connect(prefetch_submitters, Submission)
+pre_delete.connect(prefetch_exercise, RevealRule)
+pre_delete.connect(prefetch_module, RevealRule)
