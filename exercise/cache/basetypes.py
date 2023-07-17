@@ -4,12 +4,14 @@ from datetime import datetime
 from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Type, TypeVar, Union
 
 from django.db.models import Prefetch
+from django.db.models.signals import post_delete, post_save
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from lib.cache.cached import CacheBase, DBData, ProxyManager
 from threshold.models import CourseModuleRequirement
-from ..models import BaseExercise, LearningObject
+from .invalidate_util import category_learning_objects, learning_object_ancestors, module_learning_objects
+from ..models import BaseExercise, LearningObject, LearningObjectCategory
 
 
 def add_by_difficulty(to: Dict[str, int], difficulty: str, points: int):
@@ -45,10 +47,14 @@ CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
 Totals = TypeVar("Totals", bound="TotalsBase")
 
 
-
 class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     KEY_PREFIX: ClassVar[str] = 'exercise'
     NUM_PARAMS: ClassVar[int] = 1
+    INVALIDATORS = [
+        (LearningObject, [post_delete, post_save], learning_object_ancestors),
+        (LearningObjectCategory, [post_delete, post_save], category_learning_objects(learning_object_ancestors)),
+        (CourseModule, [post_delete, post_save], module_learning_objects),
+    ]
     type: ClassVar[Literal['exercise']] = 'exercise'
     # Disable repr for ancestors so there are no infinite loops
     module: ModuleEntry
@@ -167,6 +173,15 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
 class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     KEY_PREFIX: ClassVar[str] = 'module'
     NUM_PARAMS: ClassVar[int] = 1
+    INVALIDATORS = [
+        (CourseModule, [post_delete, post_save], ("id",)),
+        (LearningObject, [post_delete, post_save], ("course_module_id",)),
+        (
+            LearningObjectCategory,
+            [post_delete, post_save],
+            category_learning_objects(lambda lobj: [lobj.course_module_id]),
+        ),
+    ]
     type: ClassVar[Literal['module']] = 'module'
     id: int
     order: int
@@ -268,6 +283,18 @@ T = TypeVar("T", bound="CachedDataBase")
 class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instance'
     NUM_PARAMS: ClassVar[int] = 1
+    INVALIDATORS = [
+        # This technically doesn't invalidate correctly if the instance of
+        # a module, exercise or category changes but that should never happen.
+        (CourseInstance, [post_delete, post_save], ("id",)),
+        (CourseModule, [post_delete, post_save], ("course_instance_id",)),
+        (LearningObject, [post_delete, post_save], (["course_module", "course_instance_id"],)),
+        (
+            LearningObjectCategory,
+            [post_delete, post_save],
+            category_learning_objects(lambda lobj: [lobj.course_module.course_instance_id]),
+        ),
+    ]
     instance_id: InitVar[int]
     created: datetime
     module_index: Dict[int, ModuleEntry]
