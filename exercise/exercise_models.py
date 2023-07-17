@@ -179,6 +179,8 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     )
 
     objects = LearningObjectManager()
+    # Manager without prefetch/select_related or select_subclasses
+    bare_objects = models.Manager()
 
     if TYPE_CHECKING:
         id: int
