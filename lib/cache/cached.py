@@ -517,6 +517,7 @@ class CacheBase(metaclass=CacheMeta):
         # Set _resolved to true to make sure that _get_data doesn't accidentally trigger lazy resolving
         # or recursively try to resolve self again
         self._resolved = True
+        parent_generated_on: Dict[type, float] = {}
         for base_cls, cache_key in self._keys_with_cls:
             # Trick python to use the base_cls' versions of methods instead of the original class'.
             # This should ensure that _get_data (and _generate_data) work correctly even if self
@@ -533,9 +534,18 @@ class CacheBase(metaclass=CacheMeta):
                 else:
                     self.post_get(precreated)
 
+                    # Regenerate if any of the parents are newer than the loaded data
+                    for b in base_cls._parents:
+                        genedon = parent_generated_on.get(b)
+                        if genedon and genedon > self._generated_on:
+                            attrs = None # Generate new cache data
+                            break
+
             if attrs is None or not self.is_valid():
                 self._get_data(precreated, prefetched_data)
                 new_cache_data[cache_key] = (self._generated_on, pickle.dumps(self.__getstate__()))
+
+            parent_generated_on[base_cls] = self._generated_on
 
         # Do not reset the class back if _get_data/unpickler changed the type
         if self.__class__ is base_cls:
