@@ -903,11 +903,8 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
     def is_valid(self) -> bool:
         return (
-            self.points_created >= self.created
-            and (
-                self.invalidate_time is None
-                or time() < self.invalidate_time
-            )
+            self.invalidate_time is None
+            or time() < self.invalidate_time
         )
 
     def _generate_data(
