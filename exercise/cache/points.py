@@ -367,25 +367,20 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def post_build(self, precreated: ProxyManager):
         self.reveal(self._modifiers[0])
 
-        if not isinstance(self.module, tuple):
+        if isinstance(self.module, ModuleEntry):
             return
 
         user_id = self._params[1]
         modifiers = self._modifiers
 
-        self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module[0], user_id, modifiers=modifiers)
-
-        self.model_answer_modules = [
-            precreated.get_or_create_proxy(ModuleEntry, *params[0], user_id, modifiers=modifiers)
-            for params in self.model_answer_modules
-        ]
+        self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module._params, user_id, modifiers=modifiers)
 
         if self.parent:
-            self.parent = precreated.get_or_create_proxy(ExerciseEntry, *self.parent[0], user_id, modifiers=modifiers)
+            self.parent = precreated.get_or_create_proxy(ExerciseEntry, *self.parent._params, user_id, modifiers=modifiers)
 
         children = self.children
         for i, params in enumerate(children):
-            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params[0], user_id, modifiers=modifiers)
+            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
 
     def get_proxy_keys(self) -> Iterable[str]:
         return super().get_proxy_keys() + ["model_answer_modules"]
@@ -751,13 +746,13 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         self.reveal(self._modifiers[0])
 
         children = self.children
-        if children and not isinstance(children[0], tuple):
+        if children and isinstance(children[0], ExerciseEntry):
             return
 
         user_id = self._params[1]
         modifiers = self._modifiers
         for i, params in enumerate(children):
-            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params[0], user_id, modifiers=modifiers)
+            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
 
     def is_valid(self) -> bool:
         return (
@@ -862,7 +857,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         for category in self.categories.values():
             category.reveal(show_unrevealed)
 
-        if self.modules and not isinstance(self.modules[0], tuple):
+        if not self.modules or isinstance(self.modules[0], ModuleEntry):
             return
 
         user_id = self._params[1]
@@ -870,14 +865,14 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
         modules = self.modules
         module_index = self.module_index
-        for i, module_params in enumerate(modules):
-            proxy = precreated.get_or_create_proxy(ModuleEntry, *module_params[0], user_id, modifiers=modifiers)
+        for i, entry in enumerate(modules):
+            proxy = precreated.get_or_create_proxy(ModuleEntry, *entry._params, user_id, modifiers=modifiers)
             modules[i] = proxy
-            module_index[module_params[0][0]] = proxy
+            module_index[entry._params[0]] = proxy
 
         exercise_index = self.exercise_index
-        for k, exercise_params in exercise_index.items():
-            exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntry, *exercise_params[0], user_id, modifiers=modifiers)
+        for k, entry in exercise_index.items():
+            exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=modifiers)
 
     @classmethod
     def get_for_models(
@@ -937,16 +932,11 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             id: precreated.get_or_create_proxy(ExerciseEntry, id, user_id, modifiers=self._modifiers)
             for id in self.exercise_index
         }
-        if self.modules and isinstance(self.modules[0], tuple):
-            self.modules = [
-                precreated.get_or_create_proxy(ModuleEntry, module[0][0], user_id, modifiers=self._modifiers)
-                for module in self.modules
-            ]
-        else:
-            self.modules = [
-                precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=self._modifiers)
-                for module in self.modules
-            ]
+
+        self.modules = [
+            precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=self._modifiers)
+            for module in self.modules
+        ]
 
         self.module_index = {
             module._params[0]: module

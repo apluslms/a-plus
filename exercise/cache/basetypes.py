@@ -90,21 +90,6 @@ class ExerciseEntryBase(CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     children: List[ExerciseEntry]
     submittable: bool
 
-    def post_build(self, precreated: ProxyManager):
-        if not isinstance(self.module, tuple):
-            return
-
-        self.module = precreated.get_or_create_proxy(ModuleEntryBase, *self.module[0])
-
-        if self.parent:
-            self.parent = precreated.get_or_create_proxy(ExerciseEntryBase, *self.parent[0])
-
-        for i, params in enumerate(self.children):
-            self.children[i] = precreated.get_or_create_proxy(ExerciseEntryBase, *params[0])
-
-    def get_proxy_keys(self) -> Iterable[str]:
-        return ["module", "parent", "children"]
-
     def get_child_proxies(self) -> List[CacheBase]:
         children = [self.module, *self.children]
         if self.parent is not None:
@@ -204,16 +189,6 @@ class ModuleEntryBase(CacheBase, EqById, Generic[ExerciseEntry]):
     max_points_by_difficulty: Dict[str, int]
     children: List[ExerciseEntry]
 
-    def post_build(self, precreated: ProxyManager):
-        if self.children and not isinstance(self.children[0], tuple):
-            return
-
-        for i, params in enumerate(self.children):
-            self.children[i] = precreated.get_or_create_proxy(ExerciseEntryBase, *params[0])
-
-    def get_proxy_keys(self) -> Iterable[str]:
-        return ["children"]
-
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.children
 
@@ -304,18 +279,6 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
     categories: Dict[int, CategoryEntry]
     total: Totals
 
-    def post_build(self, precreated: ProxyManager):
-        if self.modules and not isinstance(self.modules[0], tuple):
-            return
-
-        for i, module_params in enumerate(self.modules):
-            proxy = precreated.get_or_create_proxy(ModuleEntryBase, *module_params[0])
-            self.modules[i] = proxy
-            self.module_index[module_params[0][0]] = proxy
-
-        for k, exercise_params in self.exercise_index.items():
-            self.exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntryBase, *exercise_params[0])
-
     @classmethod
     def get_for_models(
             cls: Type[T],
@@ -333,9 +296,6 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
             prefetched_data: Optional[DBData] = None,
             ) -> T:
         return super().get(instance_id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
-
-    def get_proxy_keys(self) -> Iterable[str]:
-        return ["module_index", "exercise_index", "modules"]
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.modules + list(self.exercise_index.values())

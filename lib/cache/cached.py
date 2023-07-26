@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import InitVar
 from datetime import datetime
+from io import BytesIO
 import pickle
 from time import time
 from typing import (
@@ -167,6 +168,32 @@ def resolve_proxies(proxies: Iterable[CacheBase]) -> None:
     manager = ProxyManager(proxies)
     manager.resolve(proxies)
     manager.save()
+
+
+class Pickler(pickle.Pickler):
+    def __init__(self):
+        self.buf = BytesIO()
+        super().__init__(self.buf)
+
+    def persistent_id(self, obj: Any) -> Any:
+        if isinstance(obj, CacheBase):
+            return (obj.__class__, obj._params, obj._modifiers)
+        return None
+
+    def getvalue(self) -> bytes:
+        return self.buf.getvalue()
+
+
+class Unpickler(pickle.Unpickler):
+    precreated: ProxyManager
+
+    def __init__(self, precreated, data):
+        self.buf = BytesIO(data)
+        super().__init__(self.buf)
+        self.precreated = precreated
+
+    def persistent_load(self, pid: Any) -> Any:
+        return self.precreated.get_or_create_proxy(pid[0], *pid[1], modifiers=pid[2])
 
 
 if TYPE_CHECKING:
@@ -380,9 +407,8 @@ class CacheBase(metaclass=CacheMeta):
 
     def post_get(self, precreated: ProxyManager):
         """
-        Called after the object was loaded from cache. Child proxies of self
-        are just the _params tuple instead of the actual objects, unless a
-        parent class' _generate_data or post_get has changed them.
+        Called after the object was loaded from cache. This is called for each
+        separately cached object in the inheritance tree.
 
         This is just a useful hook, and does not have to be implemented.
         """
@@ -390,11 +416,9 @@ class CacheBase(metaclass=CacheMeta):
     def post_build(self, precreated: ProxyManager):
         """
         Called after the whole object has been built (each object in the inheritance
-        tree has been loaded from the cache or generated). This method
-        must replace the child proxy tuples with actual objects (if not done
-        previously by _generate_data or post_get). Get the object from precreated
-        or create a new proxy if not found inside it (see the get_or_create_proxy
-        function).
+        tree has been loaded from the cache or generated).
+
+        This is just a useful hook, and does not have to be implemented.
         """
 
     def is_valid(self) -> bool:
@@ -408,50 +432,22 @@ class CacheBase(metaclass=CacheMeta):
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return []
 
-    def get_proxy_keys(self) -> Iterable[str]:
-        return []
-
     def as_proxy(self: T) -> T:
         return self.proxy(*self._params, self._modifiers)
 
     def __getstate__(self):
-        memo: Dict[int, tuple] = {}
-        def as_proxy(obj: CacheBase) -> tuple:
-            nonlocal memo
-            proxy = memo.get(id(obj.__dict__))
-            if proxy is None:
-                proxy = (obj._params, obj._modifiers)
-                memo[id(obj.__dict__)] = proxy
-
-            return proxy
-
-        proxy_keys = self.get_proxy_keys()
-        state = self.__dict__
-        values = []
-        for key in self.__class__._cached_fields:
-            if key not in proxy_keys:
-                values.append(state[key])
-                continue
-
-            obj = state[key]
-            if isinstance(obj, dict):
-                nobj = obj.copy()
-                for k,v in nobj.items():
-                    if isinstance(v, CacheBase):
-                        nobj[k] = as_proxy(v)
-                values.append(nobj)
-            elif isinstance(obj, list):
-                values.append([as_proxy(v) if isinstance(v, CacheBase) else v for v in obj])
-            elif isinstance(obj, tuple):
-                values.append(tuple(as_proxy(v) if isinstance(v, CacheBase) else v for v in obj))
-            elif isinstance(obj, CacheBase):
-                values.append(as_proxy(obj))
-            else:
-                values.append(obj)
-
-        return tuple([*values, self.__class__])
+        return (self._params, self._modifiers)
 
     def __setstate__(self, data: Any):
+        self._setproxy(*data)
+
+    def _getstate(self):
+        state = self.__dict__
+        values = [state[k] for k in self.__class__._cached_fields]
+        values.append(self.__class__)
+        return tuple(values)
+
+    def _setstate(self, data: Any):
         cls = data[-1]
         self.__class__ = cls
         objdict = self.__dict__
@@ -477,14 +473,17 @@ class CacheBase(metaclass=CacheMeta):
             out += f"resolved={self.__dict__.get('_resolved')}"
         return out + f", params={self.__dict__.get('_params')}, modifiers={self.__dict__.get('_modifiers')})"
 
+    def _setproxy(self, params, modifiers):
+        self._resolved = False
+        self._params = params
+        self._modifiers = modifiers
+        self._keys_with_cls = self.__class__._get_keys_with_cls(*params)
+        self._keys = [a for _, a in self._keys_with_cls]
+
     @classmethod
     def proxy(cls: Type[T], *params, modifiers=()) -> T:
         obj = cls.__new__(cls)
-        obj._resolved = False
-        obj._params = params
-        obj._modifiers = modifiers
-        obj._keys_with_cls = cls._get_keys_with_cls(*params)
-        obj._keys = [a for _, a in obj._keys_with_cls]
+        obj._setproxy(params, modifiers)
         return obj
 
     @classmethod
@@ -529,9 +528,10 @@ class CacheBase(metaclass=CacheMeta):
             attrs = cache_data.get(cache_key)
             if attrs is not None:
                 try:
-                    self.__setstate__(pickle.loads(attrs))
+                    unpickler = Unpickler(precreated, attrs)
+                    self._setstate(unpickler.load())
                 except TypeError as e:
-                    logger.warning(f"__setstate__ TypeError with {base_cls}[{cache_key}]: {e}")
+                    logger.warning(f"_setstate TypeError with {base_cls}[{cache_key}]: {e}")
                     attrs = None # Generate new cache data
                 else:
                     self.post_get(precreated)
@@ -545,7 +545,9 @@ class CacheBase(metaclass=CacheMeta):
 
             if attrs is None or not self.is_valid():
                 self._get_data(precreated, prefetched_data)
-                new_cache_data[cache_key] = (self._generated_on, pickle.dumps(self.__getstate__()))
+                pickler = Pickler()
+                pickler.dump(self._getstate())
+                new_cache_data[cache_key] = (self._generated_on, pickler.getvalue())
 
             parent_generated_on[base_cls] = self._generated_on
 
