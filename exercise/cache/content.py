@@ -20,7 +20,7 @@ class CachedContent(ContentMixin[ModuleEntry, ExerciseEntry, CategoryEntry, Tota
 
     def __init__(self, instance: CourseInstance):
         self.instance = instance
-        self.data = CachedContentData.get_for_models(instance)
+        self.data = CachedContentData.get(instance)
 
     @classmethod
     def invalidate(cls, instance: CourseInstance):

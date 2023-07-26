@@ -254,7 +254,7 @@ class TotalsBase:
     max_group_size: int = 1
 
 
-T = TypeVar("T", bound="CachedDataBase")
+CachedDataBaseType = TypeVar("CachedDataBaseType", bound="CachedDataBase")
 class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instance'
     NUM_PARAMS: ClassVar[int] = 1
@@ -280,22 +280,17 @@ class CachedDataBase(CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntr
     total: Totals
 
     @classmethod
-    def get_for_models(
-            cls: Type[T],
-            instance: CourseInstance,
-            prefetch_children: bool = True,
-            prefetched_data: Optional[DBData] = None,
-            ) -> T:
-        return cls.get(instance.id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
-
-    @classmethod
     def get(
-            cls: Type[T],
-            instance_id: int,
+            cls: Type[CachedDataBaseType],
+            instance: Union[CourseInstance, int],
             prefetch_children: bool = True,
             prefetched_data: Optional[DBData] = None,
-            ) -> T:
-        return super().get(instance_id, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+            ) -> CachedDataBaseType:
+        return super()._get(
+            params=cls.parameter_ids(instance),
+            prefetch_children=prefetch_children,
+            prefetched_data=prefetched_data,
+        )
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.modules + list(self.exercise_index.values())
