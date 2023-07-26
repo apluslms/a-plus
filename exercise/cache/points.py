@@ -25,7 +25,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
-from lib.cache.cached import CacheBase, DBData, ProxyManager
+from lib.cache.cached import CacheBase, DBData, ProxyManager, resolve_proxies
 from lib.helpers import format_points
 from notification.models import Notification
 from .basetypes import (
@@ -314,7 +314,7 @@ class SubmissionEntry(CommonPointData, SubmissionEntryBase):
     _is_container: ClassVar[bool] = False
 
 
-ExerciseEntryType = TypeVar("ExerciseEntryType", bound=ExerciseEntryBase)
+ExerciseEntryType = TypeVar("ExerciseEntryType", bound="ExerciseEntry")
 class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]):
     KEY_PREFIX = "exercisepoints"
     NUM_PARAMS = 2
@@ -363,6 +363,36 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
             return self.parent._children_unconfirmed
         else:
             return self.module._children_unconfirmed
+
+    @classmethod
+    def get(
+            cls: Type[ExerciseEntryType],
+            lobj: Union[LearningObject, int],
+            user: Union[User, int, None],
+            show_unrevealed: bool = False,
+            prefetch_children: bool = False,
+            prefetched_data: Optional[DBData] = None
+            ) -> ExerciseEntryType:
+        return super()._get(
+            params=cls.parameter_ids(lobj, user),
+            modifiers=(show_unrevealed,),
+            prefetch_children=prefetch_children,
+            prefetched_data=prefetched_data
+        )
+
+    @classmethod
+    def get_many(
+            cls: Type[ExerciseEntryType],
+            exercises: Iterable[Union[LearningObject, int]],
+            user: Union[User, int, None],
+            show_unrevealed: bool = False,
+            ) -> Iterable[ExerciseEntryType]:
+        if not isinstance(user, int):
+            user = user.id
+        exercises = [ex if isinstance(ex, int) else ex.id for ex in exercises]
+        proxies = [cls.proxy(ex, user, modifiers=(show_unrevealed,)) for ex in exercises]
+        resolve_proxies(proxies)
+        return proxies
 
     def post_build(self, precreated: ProxyManager):
         self.reveal(self._modifiers[0])
@@ -522,6 +552,21 @@ class SubmittableExerciseEntry(ExerciseEntry):
     feedback_reveal_time: Optional[datetime.datetime]
 
     best_submission = RevealableAttribute[Optional[int]]()
+
+    @classmethod
+    def get(cls,
+            exercise: Union[BaseExercise, int],
+            user: Union[User, int, None],
+            show_unrevealed: bool = False,
+            prefetch_children: bool = False,
+            prefetched_data: Optional[DBData] = None,
+            ) -> SubmittableExerciseEntry:
+        return super()._get(
+            params=cls.parameter_ids(exercise, user),
+            modifiers=(show_unrevealed,),
+            prefetch_children=prefetch_children,
+            prefetched_data=prefetched_data,
+        )
 
     def post_build(self, precreated: ProxyManager):
         super().post_build(precreated)
@@ -723,7 +768,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
 EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
 
 
-ModuleEntryType = TypeVar("ModuleEntryType", bound=ModuleEntryBase)
+ModuleEntryType = TypeVar("ModuleEntryType", bound="ModuleEntry")
 class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     KEY_PREFIX = "modulepoints"
     NUM_PARAMS = 2
@@ -741,6 +786,22 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     is_model_answer_revealed: bool
 
     children_unconfirmed = RevealableAttribute[bool]()
+
+    @classmethod
+    def get(
+            cls: Type[ModuleEntryType],
+            module: Union[CourseModule, int],
+            user: Union[User, int, None],
+            show_unrevealed: bool = False,
+            prefetch_children: bool = False,
+            prefetched_data: Optional[DBData] = None
+            ) -> ModuleEntryType:
+        return super()._get(
+            params=cls.parameter_ids(module, user),
+            modifiers=(show_unrevealed,),
+            prefetch_children=prefetch_children,
+            prefetched_data=prefetched_data
+        )
 
     def post_build(self, precreated: ProxyManager):
         self.reveal(self._modifiers[0])
@@ -875,26 +936,20 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=modifiers)
 
     @classmethod
-    def get_for_models(
-            cls: Type[CachedPointsDataType],
-            instance: CourseInstance,
-            user: User,
-            show_unrevealed: bool = False,
-            prefetch_children: bool = True,
-            prefetched_data: Optional[DBData] = None,
-            ) -> CachedPointsDataType:
-        return cls.get(instance.id, user.id, show_unrevealed, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
-
-    @classmethod
     def get(
             cls: Type[CachedPointsDataType],
-            instance_id: int,
-            user_id: int,
+            instance: Union[CourseInstance, int],
+            user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = True,
             prefetched_data: Optional[DBData] = None,
             ) -> CachedPointsDataType:
-        return super(CachedDataBase, cls).get(instance_id, user_id, modifiers=(show_unrevealed,), prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+        return super()._get(
+            params=cls.parameter_ids(instance, user),
+            modifiers=(show_unrevealed,),
+            prefetch_children=prefetch_children,
+            prefetched_data=prefetched_data,
+        )
 
     def is_valid(self) -> bool:
         return (
@@ -985,7 +1040,7 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
             ) -> None:
         self.instance = course_instance
         self.user = user
-        self.data = CachedPointsData.get_for_models(course_instance, user, show_unrevealed)
+        self.data = CachedPointsData.get(course_instance, user, show_unrevealed)
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
         return self.data.points_created, super().created()
