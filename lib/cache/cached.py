@@ -464,6 +464,8 @@ class CacheBase(metaclass=CacheMeta):
             logger.debug(f"Lazy resolving {self!r} due to missing {name}")
             resolve_proxies([self])
             return getattr(self, name)
+        elif name in self.__class__._all_cached_fields:
+            logger.error(f"Lazy resolving loop for {self!r} due to missing {name}")
 
         raise AttributeError(f"{name} not found in {self!r}")
 
@@ -514,7 +516,7 @@ class CacheBase(metaclass=CacheMeta):
         ocls = self.__class__
         base_cls = None
 
-        # Set _resolved to true to make sure that _get_data doesn't accidentally trigger lazy resolving
+        # Set _resolved to true here to make sure that _get_data doesn't accidentally trigger lazy resolving
         # or recursively try to resolve self again
         self._resolved = True
         parent_generated_on: Dict[type, float] = {}
