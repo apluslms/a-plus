@@ -405,6 +405,9 @@ class CacheBase(metaclass=CacheMeta):
     _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
 
+    def __init__(self, *args, **kwargs):
+        raise TypeError("CacheBase classes cannot be instantiated normally. Use .get(...) or .proxy(...) instead.")
+
     def post_get(self, precreated: ProxyManager):
         """
         Called after the object was loaded from cache. This is called for each
@@ -487,12 +490,13 @@ class CacheBase(metaclass=CacheMeta):
         return obj
 
     @classmethod
-    def get_for_models(cls: Type[T], *models, prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
-        params = cls.parameter_ids(*models)
-        return cls.get(*params, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+    def get(cls: Type[T], *all_params, prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
+        params, modifiers = all_params[:cls.NUM_PARAMS], all_params[cls.NUM_PARAMS:]
+        params = cls.parameter_ids(*params)
+        return cls._get(params, modifiers, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
     @classmethod
-    def get(cls: Type[T], *params, modifiers=(), prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
+    def _get(cls: Type[T], params: Tuple[Any,...], modifiers: Tuple[Any,...] = (), prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
         precreated = ProxyManager()
         obj = precreated.get_or_create_proxy(cls, *params, modifiers=modifiers)
         precreated.resolve([obj], prefetched_data=prefetched_data)
