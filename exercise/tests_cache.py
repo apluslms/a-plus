@@ -1,8 +1,9 @@
 from lib.testdata import CourseTestCase
 from course.models import CourseModule, LearningObjectCategory
+from exercise.tests import ExerciseTestBase
 from .cache.content import CachedContent
 from .cache.hierarchy import previous_iterator
-from .cache.points import CachedPoints
+from .cache.points import CachedPoints, SubmittableExerciseEntry
 from .models import BaseExercise, StaticExercise, Submission, CourseChapter, RevealRule
 from deviations.models import DeadlineRuleDeviation
 
@@ -270,3 +271,57 @@ class CachedPointsTest(CourseTestCase):
         self.assertFalse(entry.is_revealed)
         self.assertTrue(entry2.is_revealed)
         self.assertFalse(chapter_entry.is_revealed)
+
+class SubmittableExerciseTest(ExerciseTestBase):
+    def test_forced_points(self) -> None:
+        self.submission.set_points(5, 10)
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 50)
+        self.assertEqual(entry.points, 50)
+
+        forced_points_submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile,
+        )
+        forced_points_submission.submitters.add(self.user.userprofile)
+        forced_points_submission.set_points(1, 10)
+        forced_points_submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 50)
+        self.assertEqual(entry.points, 50)
+
+        self.submission.status = Submission.STATUS.UNOFFICIAL
+        self.submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 0)
+        self.assertEqual(entry.points, 50)
+
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        forced_points_submission.force_exercise_points = True
+        forced_points_submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 10)
+        self.assertEqual(entry.points, 10)
+
+        forced_points_submission.status = Submission.STATUS.READY
+        forced_points_submission.force_exercise_points = False
+        forced_points_submission.save()
+        self.submission.status = Submission.STATUS.UNOFFICIAL
+        self.submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 10)
+        self.assertEqual(entry.points, 10)
+
+        forced_points_submission.delete()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 0)
+        self.assertEqual(entry.points, 50)
+
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        self.assertEqual(entry.official_points, 50)
+        self.assertEqual(entry.points, 50)

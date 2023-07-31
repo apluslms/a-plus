@@ -7,12 +7,10 @@ from django.utils.translation import gettext_lazy as _
 
 from django.core.exceptions import ValidationError
 
-from exercise.exercise_summary import UserExerciseSummary
+from .cache.points import SubmittableExerciseEntry
 from .exercise_models import BaseExercise
 from .submission_models import Submission
 from course.models import LearningObjectCategory
-
-
 
 
 class ExerciseCollection(BaseExercise):
@@ -80,11 +78,9 @@ class ExerciseCollection(BaseExercise):
         ):
             return None
 
-        for exercise in self.exercises:
-            summary = UserExerciseSummary(exercise, user)
-            if summary.best_submission is not None:
-                total_points += summary.best_submission.grade
-
+        for entry in SubmittableExerciseEntry.get_many(self.exercises, user):
+            if entry.best_submission is not None:
+                total_points += entry.best_submission.points
 
         if timing == self.TIMING.LATE:
             total_points = round(total_points * (1 - self.course_module.late_submission_penalty))
@@ -183,13 +179,12 @@ class ExerciseCollection(BaseExercise):
         grading_data = ""
 
         exercise_counter = 1
-        for exercise in self.exercises:
-
-            submission = UserExerciseSummary(exercise, profile.user).best_submission
-            if submission is None:
+        exercise_entries = SubmittableExerciseEntry.get_many(self.exercises, profile.user)
+        for exercise, entry in zip(self.exercises, exercise_entries):
+            if entry.best_submission is None:
                 grade = 0
             else:
-                grade = submission.grade
+                grade = entry.best_submission.points
 
             feedback += "Exercise {}: {}/{}\n  Course: {} - {}\n  Exercise: {}\n".format(
                 exercise_counter,
