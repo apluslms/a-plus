@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import string
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, TYPE_CHECKING
 import urllib.request
 import urllib.parse
 from random import choice
@@ -144,14 +144,29 @@ class StudentGroup(models.Model):
         ordering = ['course_instance','timestamp']
 
     @classmethod
-    def get_exact(cls, course_instance, member_profiles):
-        for group in cls.objects.filter(
-            course_instance=course_instance,
-            members=member_profiles[0]
-        ):
+    def get_exact_from(
+            cls,
+            search_from: Iterable['StudentGroup'],
+            member_profiles: Sequence[UserProfile],
+            ) -> Optional['StudentGroup']:
+        for group in search_from:
             if group.equals(member_profiles):
                 return group
         return None
+
+    @classmethod
+    def get_exact(
+            cls,
+            course_instance: Optional['CourseInstance'],
+            member_profiles: Sequence[UserProfile],
+            ) -> Optional['StudentGroup']:
+        return cls.get_exact_from(
+            cls.objects.filter(
+                course_instance=course_instance,
+                members=member_profiles[0],
+            ),
+            member_profiles,
+        )
 
     @classmethod
     def filter_collaborators_of(cls, members, profile):

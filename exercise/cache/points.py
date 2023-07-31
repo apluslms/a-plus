@@ -6,6 +6,7 @@ from typing import (
     Any,
     cast,
     ClassVar,
+    Collection,
     Dict,
     Generic,
     Iterable,
@@ -23,7 +24,7 @@ from django.db.models import prefetch_related_objects, Prefetch
 from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
 from django.utils import timezone
 
-from course.models import CourseInstance, CourseModule
+from course.models import CourseInstance, CourseModule, StudentGroup
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
 from lib.cache.cached import CacheBase, DBData, ProxyManager, resolve_proxies
 from lib.helpers import format_points
@@ -157,15 +158,26 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
 def prefetch_exercise_data(
         prefetched_data: DBData,
         user: Optional[User],
-        lobjs: Iterable[LearningObject],
+        lobjs: Collection[LearningObject],
+        instance: Optional[CourseInstance] = None,
         ) -> None:
     exercise_objs = [lobj for lobj in lobjs if isinstance(lobj, BaseExercise)]
     prefetch_related_objects(exercise_objs, "submission_feedback_reveal_rule")
 
     if user is not None:
+        if instance is None:
+            lobj = next(iter(lobjs), None)
+            if lobj is not None:
+                instance = lobj.course_instance
+
+        if instance is not None:
+            groups = StudentGroup.objects.filter(course_instance=instance, members=user.userprofile).prefetch_related("members")
+        else:
+            groups = []
+
         submission_queryset = (
             user.userprofile.submissions
-            .prefetch_related("notifications")
+            .prefetch_related("notifications", "submitters")
             .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points', 'grader_id', 'meta_data', 'late_penalty_applied')
             .order_by('-submission_time')
         )
@@ -182,6 +194,7 @@ def prefetch_exercise_data(
         )
 
         prefetched_data.add(user)
+        prefetched_data.extend(StudentGroup, groups)
         prefetched_data.extend(DeadlineRuleDeviation, deadline_deviations)
         prefetched_data.extend(MaxSubmissionsRuleDeviation, submission_deviations)
     else:
@@ -306,7 +319,9 @@ class SubmissionEntryBase(EqById):
     unofficial: bool
     date: datetime.datetime
     url: str
-    feedback_reveal_time: Optional[datetime.datetime] = None
+    late_penalty_applied: Optional[float]
+    group_id: int
+    feedback_reveal_time: Optional[datetime.datetime]
 
 
 @dataclass(eq=False)
@@ -538,8 +553,8 @@ class SubmittableExerciseEntry(ExerciseEntry):
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
     ]
     submissions: List[SubmissionEntry] = field(default_factory=list)
-    _true_best_submission: Optional[int]
-    _best_submission: Optional[int]
+    _true_best_submission: Optional[SubmissionEntry]
+    _best_submission: Optional[SubmissionEntry]
     graded: bool
     unofficial: bool
     confirmable_points: bool
@@ -551,7 +566,20 @@ class SubmittableExerciseEntry(ExerciseEntry):
     personal_max_submissions: Optional[int]
     feedback_reveal_time: Optional[datetime.datetime]
 
-    best_submission = RevealableAttribute[Optional[int]]()
+    best_submission = RevealableAttribute[Optional[SubmissionEntry]]()
+
+    @property
+    def official_points(self) -> int:
+        return self.best_submission.points if self.best_submission and not self.unofficial else 0
+
+    def get_penalty(self) -> Optional[float]:
+        return self.best_submission.late_penalty_applied if self.best_submission else None
+
+    def get_group_id(self) -> Optional[int]:
+        if self.submission_count > 0:
+            s = self.submissions[0]
+            return s.group_id
+        return None
 
     @classmethod
     def get(cls,
@@ -594,10 +622,13 @@ class SubmittableExerciseEntry(ExerciseEntry):
             deadline_deviations = DBData.filter_db_objects(prefetched_data, DeadlineRuleDeviation, exercise_id=lobj_id)
             submission_deviations = DBData.filter_db_objects(prefetched_data, MaxSubmissionsRuleDeviation, exercise_id=lobj_id)
             sibling_lobjs = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj.parent_id, course_module_id=lobj.course_module_id)
+            instance_id = lobj.course_module.course_instance_id
+            groups = DBData.filter_db_objects(prefetched_data, StudentGroup, course_instance_id=instance_id)
         else:
             deadline_deviations = []
             submission_deviations = []
             sibling_lobjs = []
+            groups = []
 
         self.confirmable_points = False
         if self.confirm_the_level:
@@ -657,24 +688,38 @@ class SubmittableExerciseEntry(ExerciseEntry):
             unofficial = submission.status == Submission.STATUS.UNOFFICIAL
             if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
                 self.submission_count += 1
-            self.submissions.append(
-                SubmissionEntry(
-                    id = submission.id,
-                    max_points = self.max_points,
-                    points_to_pass = self.points_to_pass,
-                    confirm_the_level = self.confirm_the_level,
-                    submission_count = 1, # to fool points badge
-                    _true_passed = submission.grade >= lobj.points_to_pass,
-                    _true_points = submission.grade,
-                    graded = submission.is_graded, # TODO: should this be official (is_graded = ready or unofficial)
-                    submission_status = submission.status if not submission.is_graded else False,
-                    unofficial = unofficial,
-                    date = submission.submission_time,
-                    url = submission.get_url('submission-plain'),
-                    feedback_revealed = True,
-                    feedback_reveal_time = None,
+
+            group = None
+            if submission.submitters.exists():
+                group = StudentGroup.get_exact_from(
+                    groups,
+                    submission.submitters.all(),
                 )
+
+            if group is not None:
+                group_id = group.id
+            else:
+                group_id = 0
+
+            submission_entry = SubmissionEntry(
+                id = submission.id,
+                max_points = self.max_points,
+                points_to_pass = self.points_to_pass,
+                confirm_the_level = self.confirm_the_level,
+                submission_count = 1, # to fool points badge
+                _true_passed = submission.grade >= lobj.points_to_pass,
+                _true_points = submission.grade,
+                graded = submission.is_graded,
+                submission_status = submission.status if not submission.is_graded else False,
+                unofficial = unofficial,
+                date = submission.submission_time,
+                url = submission.get_url('submission-plain'),
+                feedback_revealed = True,
+                feedback_reveal_time = None,
+                late_penalty_applied = submission.late_penalty_applied,
+                group_id = group_id,
             )
+            self.submissions.append(submission_entry)
             # Update best submission if exercise points are not forced, and
             # one of these is true:
             # 1) current submission in ready (thus is not unofficial) AND
@@ -687,7 +732,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
             if submission.force_exercise_points:
                 # This submission is chosen as the final submission and no
                 # further submissions are considered.
-                self._true_best_submission = submission.id
+                self._true_best_submission = submission_entry
                 self._true_passed = ready and submission.grade >= self.points_to_pass
                 self._true_points = submission.grade
                 self.graded = True
@@ -707,7 +752,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
                     # but before any submissions entry.unofficial is False
                     is_better_than(submission, final_submission)
                 ):
-                    self._true_best_submission = submission.id
+                    self._true_best_submission = submission_entry
                     self._true_passed = ready and submission.grade >= self.points_to_pass
                     self._true_points = submission.grade
                     self.graded = ready # != unofficial
@@ -718,10 +763,10 @@ class SubmittableExerciseEntry(ExerciseEntry):
             # official submission if there are any official submissions.
             # Note that the submissions are ordered by descendng time.
             if last_submission is None or (
-                last_submission.status == Submission.STATUS.UNOFFICIAL
+                last_submission.unofficial
                 and not unofficial
             ):
-                last_submission = submission
+                last_submission = submission_entry
             if submission.notifications.exists():
                 self.notified = True
                 if submission.notifications.filter(seen=False).exists():
@@ -746,7 +791,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
         timestamp = reveal_time and reveal_time.timestamp()
 
         if not is_revealed:
-            self._best_submission = last_submission and last_submission.id
+            self._best_submission = last_submission
             self._points = 0
             self._passed = False
 
@@ -1071,7 +1116,7 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
                     continue
 
                 if entry.best_submission is not None:
-                    submissions.append(entry.best_submission)
+                    submissions.append(entry.best_submission.id)
                 elif fallback_to_last:
                     entry_submissions = entry.submissions
                     if entry_submissions:
