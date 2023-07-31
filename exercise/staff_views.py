@@ -92,7 +92,7 @@ class ListSubmittersView(ExerciseListBaseView):
         self.submitters = []
 
         # The points, submission counts and submission times are retrieved
-        # using a QuerySet instead of CachedPoints or UserExerciseSummary,
+        # using a QuerySet instead of CachedPoints,
         # because those are specific to a single student, and this page is
         # supposed to list all students.
         submitter_summaries = (
@@ -176,11 +176,11 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                     self.not_final = True
                     # When not_final is True, the other variables are not needed. Stop the loop early.
                     break
-                if ((submission.grade > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
+                if ((submission.points > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
                         or (self.submission.status == Submission.STATUS.UNOFFICIAL
                             and submission.status != Submission.STATUS.UNOFFICIAL)):
                     self.not_best = True
-                if (submission.submission_time > self.submission.submission_time
+                if (submission.date > self.submission.submission_time
                         and submission.status != Submission.STATUS.UNOFFICIAL):
                     self.not_last = True
 

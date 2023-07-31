@@ -19,6 +19,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
+from .cache.points import SubmittableExerciseEntry
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -32,7 +33,6 @@ from .viewbase import (
 )
 
 from .exercisecollection_models import ExerciseCollection
-from .exercise_summary import UserExerciseSummary
 from django.urls import reverse
 
 
@@ -320,7 +320,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     }),
                     "title": ex_name,
                     "max_points": t_exercise.max_points,
-                    "user_points": UserExerciseSummary(t_exercise, request.user).get_points(),
+                    "user_points": SubmittableExerciseEntry.get(t_exercise, request.user).official_points(),
                     }
             target_exercises.append(data)
             target_mp += data['max_points']
@@ -336,7 +336,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             'target_max_points': target_mp,
             'user_total_points': user_tp,
             'ec_max_points': self.exercise.max_points,
-            'ec_points': UserExerciseSummary(self.exercise, request.user).best_submission.grade,
+            'ec_points': SubmittableExerciseEntry.get(self.exercise, request.user).points,
             }
 
         return loaded_content

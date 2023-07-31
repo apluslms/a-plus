@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from rest_framework import serializers
 
-from exercise.exercise_summary import UserExerciseSummary
+from exercise.cache.points import SubmittableExerciseEntry
 from exercise.models import Submission
 from .parsers import parse_sourced_id, LTIOutcomeXMLParser
 from .renderers import LTIOutcomeResponseRenderer
@@ -57,12 +57,12 @@ class LTIOutcomeSerializer(serializers.Serializer):
         if ret['req_type'] == LTIOutcomeXMLParser.TYPE_READ:
             exercise = ret['exercise']
             submitter = ret['submitter']
-            summary = UserExerciseSummary(exercise, submitter.user)
-            best_submission = summary.get_best_submission()
+            entry = SubmittableExerciseEntry.get(exercise, submitter.user)
+            best_submission = entry.best_submission
             if best_submission:
                 # LTI score is a decimal value in the range 0.0 - 1.0. The decimal point must be a period.
                 if exercise.max_points:
-                    ret['score'] = "{:f}".format(min(1, abs(best_submission.grade / exercise.max_points)))
+                    ret['score'] = "{:f}".format(min(1, abs(best_submission.points / exercise.max_points)))
                 else:
                     ret['score'] = '1.0'
             else:
