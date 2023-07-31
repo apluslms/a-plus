@@ -32,7 +32,7 @@ from lti_tool.utils import has_lti_access_to_course
 from userprofile.models import UserProfile
 from aplus.celery import retry_submissions
 from . import exercise_models
-
+from .exercise_models import LearningObjectProto
 
 logger = logging.getLogger('aplus.exercise')
 
@@ -326,9 +326,20 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
                 pass
         return enrollment_data
 
+class SubmissionProto(UrlMixin):
+    ABSOLUTE_URL_NAME = "submission"
+    id: int
+    exercise: LearningObjectProto
+
+    def get_url_kwargs(self):
+        return {"submission_id": self.id, **self.exercise.get_url_kwargs()}
+
+    def get_inspect_url(self):
+        return self.get_url("submission-inspect")
+
 
 @register_jwt_accessible_class("submission")
-class Submission(UrlMixin, models.Model):
+class Submission(SubmissionProto, models.Model):
     """
     A submission to some course exercise from one or more submitters.
     """
@@ -352,7 +363,7 @@ class Submission(UrlMixin, models.Model):
     )
 
     # Relations
-    exercise = DefaultForeignKey(exercise_models.BaseExercise,
+    exercise: exercise_models.BaseExercise = DefaultForeignKey(exercise_models.BaseExercise, # type: ignore
         verbose_name=_('LABEL_EXERCISE'),
         on_delete=models.CASCADE,
         related_name="submissions")
@@ -630,6 +641,11 @@ class Submission(UrlMixin, models.Model):
         self.clear_pending()
 
     @property
+    def is_assessed(self) -> bool:
+        """Return whether the submission has been manually assessed"""
+        return self.grader is not None
+
+    @property
     def is_graded(self):
         return self.status in (self.STATUS.READY, self.STATUS.UNOFFICIAL)
 
@@ -653,14 +669,6 @@ class Submission(UrlMixin, models.Model):
             return self.meta_data.get('lti-launch-id')
         except AttributeError:
             return None
-
-    ABSOLUTE_URL_NAME = "submission"
-
-    def get_url_kwargs(self):
-        return dict(submission_id=self.id, **self.exercise.get_url_kwargs()) # pylint: disable=use-dict-literal
-
-    def get_inspect_url(self):
-        return self.get_url("submission-inspect")
 
     def mark_pending(self):
         grading_host = urlparse(self.exercise.service_url).netloc

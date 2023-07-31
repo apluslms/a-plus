@@ -239,13 +239,14 @@ def _points_data( # pylint: disable=too-many-locals
             'full_score': points >= max_points,
             'submitted': getattr(obj, 'submission_count',  0) > 0,
             'graded': getattr(obj, 'graded',  True),
-            'status': getattr(obj, 'submission_status',  False),
             'unconfirmed': getattr(obj, 'unconfirmed',  False),
             'official': not getattr(obj, 'unofficial',  False),
             'confirmable_points': getattr(obj, 'confirmable_points',  False),
             'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
         }
         reveal_time = getattr(obj, 'feedback_reveal_time', None)
+        if isinstance(obj, SubmissionEntry) and obj.graded:
+            data["status"] = obj.status
     percentage = 0
     required_percentage = None
     if data['max'] > 0:
