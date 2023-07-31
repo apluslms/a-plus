@@ -79,11 +79,10 @@ class ExerciseRevealState(BaseRevealState):
         # CachedPoints exercise entry. If a BaseExercise is provided, the
         # cache entry is fetched here.
         if isinstance(exercise, BaseExercise):
-            from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
+            from .cache.points import SubmittableExerciseEntry # pylint: disable=import-outside-toplevel
             # 'True' is always passed to CachedPoints as the show_unrevealed argument
             # because we need to know the actual points.
-            cached_points = CachedPoints(exercise.course_instance, student, True)
-            entry = cached_points.get_exercise(exercise.id)
+            entry = SubmittableExerciseEntry.get(exercise, student, True)
             self.cache = entry
         else:
             self.cache = exercise
