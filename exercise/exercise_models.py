@@ -1,6 +1,7 @@
+from __future__ import annotations
 import json
 import os
-from typing import Any, TYPE_CHECKING, List, Optional, Tuple
+from typing import Any, TYPE_CHECKING, List, Optional, Tuple, TypeVar
 from urllib.parse import urlsplit
 
 from django.conf import settings
@@ -22,7 +23,14 @@ from django.utils.translation import get_language, gettext_lazy as _
 from aplus.api import api_reverse
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
+from course.models import (
+    Enrollment,
+    StudentGroup,
+    CourseInstance,
+    CourseModule,
+    CourseModuleProto,
+    LearningObjectCategory,
+)
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService, LTI1p3Service
 from inheritance.models import ModelWithInheritance, ModelWithInheritanceManager
@@ -82,7 +90,34 @@ class LearningObjectManager(ModelWithInheritanceManager):
         ).first()
 
 
-class LearningObject(UrlMixin, ModelWithInheritance):
+LObjProto = TypeVar("LObjProto", bound="LearningObjectProto")
+class LearningObjectProto(UrlMixin):
+    ABSOLUTE_URL_NAME = "exercise"
+    url: str
+    course_module: CourseModuleProto
+    parent: Optional[LearningObjectProto]
+    status: str
+    order: int
+
+    def get_path(self) -> str:
+        return "/".join([o.url for o in self.parent_list()])
+
+    def parent_list(self: LObjProto) -> List[LObjProto]:
+        raise NotImplementedError(f"{self.__class__} must implement parent_list")
+
+    def get_url_kwargs(self):
+        return {"exercise_path": self.get_path(), **self.course_module.get_url_kwargs()}
+
+    def get_display_url(self):
+        if self.status == LearningObject.STATUS.UNLISTED and self.parent:
+            return "{}#chapter-exercise-{:d}".format(
+                self.parent.get_absolute_url(),
+                self.order,
+            )
+        return self.get_absolute_url()
+
+
+class LearningObject(LearningObjectProto, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
@@ -100,7 +135,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         ('EXTERNAL_USERS', 2, _('AUDIENCE_EXTERNAL_USERS')),
         ('REGISTERED_USERS', 3, _('AUDIENCE_REGISTERED_USERS')),
     ])
-    status = models.CharField(
+    status = models.CharField( # type: ignore
         verbose_name=_('LABEL_STATUS'),
         max_length=32,
         choices=STATUS.choices, default=STATUS.READY,
@@ -115,18 +150,18 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    course_module = models.ForeignKey(CourseModule,
+    course_module: CourseModule = models.ForeignKey(CourseModule, # type: ignore
         verbose_name=_('LABEL_COURSE_MODULE'),
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    parent = DefaultForeignKey('self',
+    parent: Optional[LearningObject] = DefaultForeignKey('self', # type: ignore
         verbose_name=_('LABEL_PARENT'),
         on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='children',
     )
-    order = models.IntegerField(
+    order = models.IntegerField( # type: ignore
         verbose_name=_('LABEL_ORDER'),
         default=1,
     )
@@ -280,7 +315,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return self._parents
 
     @property
-    def course_instance(self):
+    def course_instance(self) -> CourseInstance:
         return self.course_module.course_instance
 
     @property
@@ -309,20 +344,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
-    def get_path(self):
-        return "/".join([o.url for o in self.parent_list()])
-
-    ABSOLUTE_URL_NAME = "exercise"
-
-    def get_url_kwargs(self):
-        # pylint: disable-next=use-dict-literal
-        return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
-
     def get_display_url(self):
         if self.status == self.STATUS.UNLISTED and self.parent:
             return "{}#chapter-exercise-{:d}".format(
-                self.parent_list()[-2].get_absolute_url(),
-                self.order
+                self.parent.get_absolute_url(),
+                self.order,
             )
         return self.get_absolute_url()
 
