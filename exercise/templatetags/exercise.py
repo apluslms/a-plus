@@ -26,7 +26,6 @@ from ..cache.points import (
     SubmissionEntry,
     SubmittableExerciseEntry,
 )
-from ..exercise_summary import UserExerciseSummary
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 from ..reveal_states import ExerciseRevealState
 
@@ -150,13 +149,6 @@ def submission_status(status):
     return Submission.STATUS[status]
 
 
-def _reveal_rule(exercise: BaseExercise, user: User) -> Tuple[bool, Optional[datetime.datetime]]:
-    rule = exercise.active_submission_feedback_reveal_rule
-    state = ExerciseRevealState(exercise, user)
-    is_revealed = rule.is_revealed(state)
-    reveal_time = rule.get_reveal_time(state)
-    return is_revealed, reveal_time
-
 AnyPointsEntry = Union[
     CachedPointsData,
     ModuleEntry,
@@ -167,86 +159,43 @@ AnyPointsEntry = Union[
 ]
 
 def _points_data( # pylint: disable=too-many-locals
-        obj: Union[UserExerciseSummary, Submission, AnyPointsEntry],
-        user: User,
+        obj: AnyPointsEntry,
         classes: Optional[str] = None,
-        is_staff: bool = False,
-        known_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
     reveal_time = None
-    is_revealed = None
-    if known_revealed is not None:
-        is_revealed = known_revealed
-    elif is_staff:
-        is_revealed = True
-    if isinstance(obj, UserExerciseSummary):
-        exercise = obj.exercise
-        if is_revealed is None:
-            is_revealed, reveal_time = _reveal_rule(exercise, user)
-        data = {
-            'points': obj.get_points() if is_revealed else 0,
-            'formatted_points': _format_points(obj.get_points(), is_revealed, False),
-            'max': exercise.max_points,
-            'difficulty': exercise.difficulty,
-            'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.category.confirm_the_level,
-            'missing_points': obj.is_missing_points() if is_revealed else False,
-            'passed': obj.is_passed() if is_revealed else False,
-            'full_score': obj.is_full_points() if is_revealed else False,
-            'submitted': obj.is_submitted(),
-            'graded': obj.is_graded(),
-            'official': not obj.is_unofficial(),
-            'exercise_page': True,
-            'feedback_revealed': is_revealed,
-        }
-    elif isinstance(obj, Submission):
-        exercise = obj.exercise
-        if is_revealed is None:
-            is_revealed, reveal_time = _reveal_rule(exercise, user)
-        data = {
-            'points': obj.grade if is_revealed else 0,
-            'formatted_points': _format_points(obj.grade, is_revealed, False),
-            'max': exercise.max_points,
-            'difficulty': exercise.difficulty,
-            'required': exercise.points_to_pass,
-            'confirm_the_level': exercise.category.confirm_the_level,
-            'missing_points': (obj.grade < exercise.points_to_pass) if is_revealed else False,
-            'passed': (obj.grade >= exercise.points_to_pass) if is_revealed else False,
-            'full_score': (obj.grade >= exercise.max_points) if is_revealed else False,
-            'submitted': True,
-            'graded': obj.is_graded,
-            'official': obj.status != Submission.STATUS.UNOFFICIAL,
-            'feedback_revealed': is_revealed,
-        }
-        if not obj.is_graded and (
-                    not exercise.category.confirm_the_level
-                    or obj.status != Submission.STATUS.WAITING
-                ):
-            data['status'] = obj.status
-    else: # All the different cached points entries
-        points = getattr(obj, 'points',  0)
-        max_points = getattr(obj, 'max_points',  0)
-        required = getattr(obj, 'points_to_pass',  0)
-        data = {
-            'points': points,
-            'formatted_points': getattr(obj, 'formatted_points',  '0'),
-            'max': max_points,
-            'difficulty': getattr(obj, 'difficulty',  ''),
-            'required': required,
-            'confirm_the_level': getattr(obj, 'confirm_the_level',  False),
-            'missing_points': points < required,
-            'passed': getattr(obj, 'passed',  True),
-            'full_score': points >= max_points,
-            'submitted': getattr(obj, 'submission_count',  0) > 0,
-            'graded': getattr(obj, 'graded',  True),
-            'unconfirmed': getattr(obj, 'unconfirmed',  False),
-            'official': not getattr(obj, 'unofficial',  False),
-            'confirmable_points': getattr(obj, 'confirmable_points',  False),
-            'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
-        }
-        reveal_time = getattr(obj, 'feedback_reveal_time', None)
-        if isinstance(obj, SubmissionEntry) and obj.graded:
-            data["status"] = obj.status
+
+    # All the different cached points entries
+    if isinstance(obj, SubmittableExerciseEntry):
+        points = obj.official_points
+    else:
+        points = obj.points
+
+    max_points = getattr(obj, 'max_points',  0)
+    required = getattr(obj, 'points_to_pass',  0)
+    data = {
+        'points': points,
+        'formatted_points': getattr(obj, 'formatted_points',  '0'),
+        'max': max_points,
+        'difficulty': getattr(obj, 'difficulty',  ''),
+        'required': required,
+        'confirm_the_level': getattr(obj, 'confirm_the_level',  False),
+        'missing_points': points < required,
+        'passed': getattr(obj, 'passed',  True),
+        'full_score': points >= max_points,
+        'submitted': getattr(obj, 'submission_count',  0) > 0,
+        'graded': getattr(obj, 'graded',  True),
+        'unconfirmed': getattr(obj, 'unconfirmed',  False),
+        'official': not getattr(obj, 'unofficial',  False),
+        'confirmable_points': getattr(obj, 'confirmable_points',  False),
+        'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
+    }
+    reveal_time = getattr(obj, 'feedback_reveal_time', None)
+
+    if isinstance(obj, SubmissionEntry) and not data['graded']:
+        data['submission_status'] = obj.status
+    elif isinstance(obj, ExerciseEntry):
+        data['exercise_page'] = True
+
     percentage = 0
     required_percentage = None
     if data['max'] > 0:
@@ -274,23 +223,19 @@ def _points_data( # pylint: disable=too-many-locals
     return data
 
 
-@register.inclusion_tag("exercise/_points_progress.html", takes_context=True)
+@register.inclusion_tag("exercise/_points_progress.html")
 def points_progress(
-        context: Context,
-        obj: Union[UserExerciseSummary, Submission, CachedPointsData, ModuleEntry, CategoryEntry],
-        is_revealed: Optional[bool] = None,
+        obj: Union[CachedPointsData, ModuleEntry, CategoryEntry],
         ) -> Dict[str, Any]:
-    return _points_data(obj, context['request'].user, None, context['is_course_staff'], is_revealed)
+    return _points_data(obj, None)
 
 
-@register.inclusion_tag("exercise/_points_badge.html", takes_context=True)
+@register.inclusion_tag("exercise/_points_badge.html")
 def points_badge(
-        context: Context,
-        obj: Union[UserExerciseSummary, Submission, ModuleEntry, ExerciseEntry, SubmittableExerciseEntry, SubmissionEntry],
+        obj: Union[ModuleEntry, ExerciseEntry, SubmittableExerciseEntry, SubmissionEntry],
         classes: Optional[str] = None,
-        is_revealed: Optional[bool] = None,
         ) -> Dict[str, Any]:
-    return _points_data(obj, context['request'].user, classes, context['is_course_staff'], is_revealed)
+    return _points_data(obj, classes)
 
 
 @register.simple_tag

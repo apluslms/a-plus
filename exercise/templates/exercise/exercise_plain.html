@@ -68,7 +68,7 @@
 					<nav class="exercise-summary navbar navbar-default" aria-label="{{ exercise|parse_localization }}">
 						<ul class="nav navbar-nav exercise-nav">
 							<li>
-								<a href="{% if feedback_revealed and summary.get_best_submission %}{{ summary.get_best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
+								<a href="{% if feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
 									class="exercise-nav-points"
 									role="button"
 								>
@@ -76,7 +76,7 @@
 										{% if not exercise.category.confirm_the_level %}
 											{% translate "POINTS" %}
 										{% endif %}
-										{% points_badge summary is_revealed=feedback_revealed %}
+										{% points_badge summary%}
 									</span>
 								</a>
 							</li>
@@ -85,7 +85,7 @@
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
 										<span class="badge">
-											{{ summary.get_submission_count }}
+											{{ summary.submission_count }}
 											{% if exercise.max_submissions %}
 												/ {{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}
 											{% endif %}
@@ -96,10 +96,10 @@
 								<ul class="dropdown-menu">
 									{% for submission in submissions %}
 										<li>
-											<a href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.meta_data.hash }}">
+											<a href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
 												{{ forloop.revcounter }}.
-												{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-												{% points_badge submission is_revealed=feedback_revealed %}
+												{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
+												{% points_badge submission%}
 											</a>
 										</li>
 									{% empty %}
@@ -193,7 +193,7 @@
 				<div
 					class="exercise-response"
 					data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
-					{% if summary.get_submission_count > 0 %}
+					{% if summary.get_group_id is not None %}
 						data-aplus-group-fixed="{{ summary.get_group_id }}"
 					{% endif %}
 					{% if disable_submit %}

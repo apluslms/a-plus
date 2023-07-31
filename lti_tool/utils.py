@@ -26,7 +26,7 @@ def get_launch_data_storage():
     return DjangoCacheDataStorage()
 
 def send_lti_points(request, submission):
-    from exercise.exercise_summary import UserExerciseSummary # pylint: disable=import-outside-toplevel
+    from exercise.cache.points import SubmittableExerciseEntry # pylint: disable=import-outside-toplevel
     exercise = submission.exercise
     request.COOKIES['lti1p3-session-id'] = submission.meta_data.get('lti-session-id')
     try:
@@ -60,12 +60,14 @@ def send_lti_points(request, submission):
     # Moodle does not have gradebook entries for teachers - don't send result if submitter is a teacher
     is_course_teacher = exercise.course_instance.is_teacher(user)
     if not is_course_teacher:
-        summary = UserExerciseSummary(exercise, user)
-        best_submission = summary.best_submission
+        entry = SubmittableExerciseEntry.get(exercise, user)
+        best_submission = entry.best_submission
+        if best_submission is None:
+            return
         ags = launch.get_ags()
         grade = Grade()
-        (grade.set_score_given(best_submission.grade)
-            .set_timestamp(best_submission.submission_time.strftime('%Y-%m-%dT%H:%M:%S+0000'))
+        (grade.set_score_given(best_submission.points)
+            .set_timestamp(best_submission.date.strftime('%Y-%m-%dT%H:%M:%S+0000'))
             .set_score_maximum(exercise.max_points)
             .set_activity_progress('Completed')
             .set_grading_progress('FullyGraded')

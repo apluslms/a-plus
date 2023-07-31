@@ -50,16 +50,16 @@
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button"
 							aria-haspopup="true" aria-expanded="false">
 							{% translate "MY_SUBMISSIONS" %}
-							({{ summary.get_submission_count }}{% if exercise.max_submissions %}/{{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}{% endif %})
+							({{ summary.submission_count }}{% if exercise.max_submissions %}/{{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}{% endif %})
 							<span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu">
 							{% for submission in submissions %}
 							<li>
-									<a href="{{ submission|url:submission_url_name }}" data-hash="{{ submission.meta_data.hash }}">
+									<a href="{{ submission|url:submission_url_name }}" data-hash="{{ submission.hash }}">
 											{{ forloop.revcounter }}.
-											{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-											{% points_badge submission is_revealed=feedback_revealed %}
+											{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
+											{% points_badge submission %}
 									</a>
 							</li>
 							{% empty %}

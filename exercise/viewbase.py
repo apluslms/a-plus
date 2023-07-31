@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import models
@@ -14,8 +14,7 @@ from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
 
 from .cache.hierarchy import NoSuchContent
-from .cache.points import CachedPoints
-from .exercise_summary import UserExerciseSummary
+from .cache.points import CachedPoints, ExerciseEntry, SubmissionEntry, SubmittableExerciseEntry
 from .permissions import (
     ExerciseVisiblePermission,
     BaseExerciseAssistantPermission,
@@ -103,6 +102,10 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     submission_url_name = 'submission'
     exercise_url_name = 'exercise'
 
+    summary: SubmittableExerciseEntry
+    submissions: List[SubmissionEntry]
+    cached_points: ExerciseEntry
+
     def get_exercise_object(self):
         try:
             exercise_id = self.content.find_path(
@@ -125,10 +128,10 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name")
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
-        self.summary = UserExerciseSummary(
-            self.exercise, user or self.request.user
+        self.summary = SubmittableExerciseEntry.get(
+            self.exercise, user or self.request.user, self.feedback_revealed
         )
-        self.submissions = self.summary.get_submissions()
+        self.submissions = self.summary.submissions
         self.note("summary", "submissions")
 
     def get_cached_points(self, user: Optional[User] = None) -> None:
@@ -171,6 +174,9 @@ class SubmissionBaseMixin:
         SubmissionVisiblePermission,
     )
 
+    submitter: UserProfile
+    submission: Submission
+
     def get_permissions(self):
         perms = super().get_permissions()
         perms.extend((Perm() for Perm in self.submission_permission_classes))
@@ -189,6 +195,8 @@ class SubmissionBaseMixin:
 
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
+    index: int
+    submission_entry: SubmissionEntry
 
     def get_submission_object(self) -> Submission:
         return get_object_or_404(
@@ -202,14 +210,15 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
         if not (user or self.submitter):
             # The submission has no submitters.
-            # Use AnonymousUser in the UserExerciseSummary
+            # Use AnonymousUser in the SubmittableExerciseEntry
             # so that it does not pick submissions from request.user (the teacher).
             user = AnonymousUser()
             self.index = 0
         super().get_summary_submissions(user or self.submitter.user)
         if self.submissions:
-            self.index = len(self.submissions) - list(self.submissions).index(self.submission)
-        self.note("index")
+            self.index = len(self.submissions) - list(s.id for s in self.submissions).index(self.submission.id)
+            self.submission_entry = next(s for s in self.submissions if s.id == self.submission.id)
+        self.note("index", "submission_entry")
 
     def get_cached_points(self, user: Optional[User] = None) -> None:
         super().get_cached_points(user or (self.submitter.user if self.submitter else None))
