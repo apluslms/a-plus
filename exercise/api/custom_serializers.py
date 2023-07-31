@@ -138,8 +138,7 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.is_course_staff)
-        entry = points.get_exercise(view.exercise.id)
+        entry = SubmittableExerciseEntry.get(view.exercise, obj.user, view.is_course_staff)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():
             rep[key] = value
