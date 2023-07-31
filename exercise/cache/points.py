@@ -1099,10 +1099,11 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
             course_instance: CourseInstance,
             user: User,
             show_unrevealed: bool = False,
+            prefetch_children: bool = True,
             ) -> None:
         self.instance = course_instance
         self.user = user
-        self.data = CachedPointsData.get(course_instance, user, show_unrevealed)
+        self.data = CachedPointsData.get(course_instance, user, show_unrevealed, prefetch_children=prefetch_children)
 
     def created(self) -> Tuple[datetime.datetime, datetime.datetime]:
         return self.data.points_created, super().created()
