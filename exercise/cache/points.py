@@ -49,7 +49,7 @@ from .invalidate_util import (
     with_user_ids,
 )
 from ..exercise_models import CourseChapter, LearningObject
-from ..models import BaseExercise, Submission, RevealRule
+from ..models import BaseExercise, Submission, SubmissionProto, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
 
 
@@ -308,17 +308,21 @@ class CategoryEntry(DifficultyStats, CategoryEntryBase):
 
 
 @dataclass(eq=False)
-class SubmissionEntryBase(EqById):
+class SubmissionEntryBase(SubmissionProto, EqById):
     type: ClassVar[str] = 'submission'
     id: int
+    exercise: SubmittableExerciseEntry
     max_points: int
     points_to_pass: int
     confirm_the_level: bool
     graded: bool
-    submission_status: Union[str, bool]
+    status: str
     unofficial: bool
     date: datetime.datetime
     url: str
+    hash: Optional[str]
+    force_exercise_points: bool
+    is_assessed: bool
     late_penalty_applied: Optional[float]
     group_id: int
     feedback_reveal_time: Optional[datetime.datetime]
@@ -689,6 +693,11 @@ class SubmittableExerciseEntry(ExerciseEntry):
             if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
                 self.submission_count += 1
 
+            if isinstance(submission.meta_data, dict):
+                submission_hash = str(submission.meta_data.get("hash"))
+            else:
+                submission_hash = None
+
             group = None
             if submission.submitters.exists():
                 group = StudentGroup.get_exact_from(
@@ -703,6 +712,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
 
             submission_entry = SubmissionEntry(
                 id = submission.id,
+                exercise = self,
                 max_points = self.max_points,
                 points_to_pass = self.points_to_pass,
                 confirm_the_level = self.confirm_the_level,
@@ -710,12 +720,15 @@ class SubmittableExerciseEntry(ExerciseEntry):
                 _true_passed = submission.grade >= lobj.points_to_pass,
                 _true_points = submission.grade,
                 graded = submission.is_graded,
-                submission_status = submission.status if not submission.is_graded else False,
+                status = submission.status,
                 unofficial = unofficial,
                 date = submission.submission_time,
                 url = submission.get_url('submission-plain'),
                 feedback_revealed = True,
                 feedback_reveal_time = None,
+                hash = submission_hash,
+                force_exercise_points = submission.force_exercise_points,
+                is_assessed = submission.is_assessed,
                 late_penalty_applied = submission.late_penalty_applied,
                 group_id = group_id,
             )
@@ -851,12 +864,15 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     def post_build(self, precreated: ProxyManager):
         self.reveal(self._modifiers[0])
 
-        children = self.children
-        if children and isinstance(children[0], ExerciseEntry):
+        if isinstance(self.instance, CachedPointsData):
             return
 
         user_id = self._params[1]
         modifiers = self._modifiers
+
+        self.instance = precreated.get_or_create_proxy(CachedPointsData, *self.instance._params, user_id, modifiers=modifiers)
+
+        children = self.children
         for i, params in enumerate(children):
             children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
 
@@ -908,6 +924,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         self._true_unconfirmed_points_by_difficulty = {}
         self._unconfirmed_points_by_difficulty = {}
 
+        self.instance = precreated.get_or_create_proxy(CachedPointsData, module.course_instance_id, user_id, modifiers=self._modifiers)
         self.children = [ex for ex in exercises if ex.parent is None]
 
         must_confirm = any(entry.confirm_the_level for entry in self.children)

@@ -249,7 +249,11 @@ def get_cache_fields(cls) -> Tuple[Tuple[str, ...], Tuple[str, ...]]:
 
     # Add the cache fields from parents that aren't loaded separately
     parents = cls.__dict__.get("_parents", ())
+    proto_bases = cls.__dict__.get("_proto_bases", ())
     for base in cls.__bases__:
+        if base in proto_bases:
+            continue
+
         cached, varying = get_cache_fields(base)
         varying_fields.update(varying)
 
@@ -317,6 +321,7 @@ class CacheMeta(type):
     _varying_fields: Tuple[str, ...]
     _all_cached_fields: Set[str]
     _parents: Tuple[Type[CacheBase], ...]
+    _proto_bases: Tuple[type, ...]
 
     def __new__(cls, name, bases, namespace, **kwargs):
         ncls = super().__new__(cls, name, bases, namespace, **kwargs)
@@ -334,11 +339,15 @@ class CacheMeta(type):
         cache_meta_mro: List[CacheMeta] = [base for base in ncls.__mro__ if isinstance(base, CacheMeta)]
         cached_mro: List[CacheMeta] = [base for base in cache_meta_mro if "KEY_PREFIX" in base.__dict__]
 
+        ncls._proto_bases = ncls.__dict__.get("PROTO_BASES", ())
+
         if "PARENTS" in ncls.__dict__:
             parents = ncls.__dict__["PARENTS"]
             for base in parents:
                 if not isinstance(base, CacheMeta) or "KEY_PREFIX" not in base.__dict__:
                     raise ValueError(f"{base} is not a valid cache parent of {ncls}")
+                if base in ncls._proto_bases:
+                    raise ValueError(f"{base} cannot be both in PROTO_BASES and PARENTS of {ncls}")
             ncls._parents = tuple([*parents, ncls])
         else:
             skip = set()
