@@ -59,18 +59,17 @@ class ExercisePointsSerializer(serializers.Serializer):
                 'exercise_id': exercise_id,
             }, request=request)
 
-        def submission_url(submission_id: Optional[int]) -> Optional[str]:
-            if submission_id is None:
+        def submission_url(submission: Optional[SubmissionEntry]) -> Optional[str]:
+            if submission is None:
                 return None
             return reverse('api:submission-detail', kwargs={
-                'submission_id': submission_id
+                'submission_id': submission.id
             }, request=request)
 
         def submission_obj(submission_cached: SubmissionEntry) -> Dict[str, Any]:
-            id_ = submission_cached.id
             return {
-                'id': id_,
-                'url': submission_url(id_),
+                'id': submission_cached.id,
+                'url': submission_url(submission_cached),
                 'submission_time': submission_cached.date,
                 'grade': submission_cached.points,
             }
