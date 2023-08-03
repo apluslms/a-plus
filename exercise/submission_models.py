@@ -42,6 +42,15 @@ class SubmissionQuerySet(models.QuerySet):
         """Filter only submissions that pass the exercise"""
         return self.filter(grade__gte=F("exercise__points_to_pass"))
 
+    def exclude_errors(self):
+        return self.exclude(status__in=(
+            Submission.STATUS.ERROR,
+            Submission.STATUS.REJECTED,
+        ))
+
+    def exclude_unofficial(self):
+        return self.exclude(status=Submission.STATUS.UNOFFICIAL)
+
     def annotate_submitter_points(
             self,
             field_name: str = 'total',
@@ -277,6 +286,9 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
         ))
+
+    def exclude_unofficial(self):
+        return self.exclude(status=Submission.STATUS.UNOFFICIAL)
 
     def get_combined_enrollment_submission_data(self, user):
         """Retrieve the user's submissions to enrollment exercises and combine
