@@ -34,13 +34,13 @@ class CachedContentTest(CourseTestCase):
         self.assertEqual(len(exercises1), 2)
         exercise = exercises0[0]
         self.assertEqual(exercise.module_id, modules[0].id)
-        self.assertTrue(CachedContent.is_visible(exercise))
-        self.assertFalse(CachedContent.is_listed(exercise))
+        self.assertTrue(exercise.is_visible())
+        self.assertFalse(exercise.is_listed())
         exercise = exercises1[0]
         self.assertEqual(exercise.module_id, modules[1].id)
-        self.assertTrue(CachedContent.is_visible(exercise))
-        self.assertTrue(CachedContent.is_listed(exercise))
-        self.assertFalse(CachedContent.is_in_maintenance(exercise))
+        self.assertTrue(exercise.is_visible())
+        self.assertTrue(exercise.is_visible())
+        self.assertFalse(exercise.is_in_maintenance())
         self.assertEqual(exercise.opening_time, self.module.opening_time)
         self.assertEqual(exercise.closing_time, self.module.closing_time)
         self.assertEqual(exercise.points_to_pass, 0)
