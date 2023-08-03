@@ -251,7 +251,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
     def list(self, request, *args, **kwargs) -> Response:
         modules = []
         for module in self.content.data.modules:
-            if module.status != CourseModule.STATUS.HIDDEN:
+            if module.is_visible():
                 modules.append(self.__module_to_dict(module, **kwargs))
         return Response({"count": len(modules), "next": None, "previous": None, 'results': modules})
 

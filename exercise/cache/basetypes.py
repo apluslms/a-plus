@@ -208,6 +208,15 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
     def course_instance(self) -> "CachedDataBase":
         return self.instance
 
+    def is_visible(self) -> bool:
+        return self.status != CourseModule.STATUS.HIDDEN
+
+    def is_listed(self) -> bool:
+        return self.is_visible() and self.status != CourseModule.STATUS.UNLISTED
+
+    def is_in_maintenance(self) -> bool:
+        return self.status == CourseModule.STATUS.MAINTENANCE
+
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.children
 
@@ -249,7 +258,7 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
 
         for exercise in lobjs:
             if isinstance(exercise, BaseExercise):
-                if not exercise.category.confirm_the_level:
+                if not exercise.category.confirm_the_level and exercise.is_visible():
                     _add_to(self, exercise)
 
 
@@ -263,6 +272,18 @@ class CategoryEntryBase(EqById):
     exercise_count: int = 0
     max_points: int = 0
     max_points_by_difficulty: Dict[str, int] = field(default_factory=dict)
+
+    def is_visible(self) -> bool:
+        return self.status not in (
+            LearningObjectCategory.STATUS.HIDDEN,
+            LearningObjectCategory.STATUS.NOTOTAL,
+        )
+
+    def is_listed(self) -> bool:
+        return self.is_visible()
+
+    def is_in_maintenance(self) -> bool:
+        return False
 
 
 @dataclass
@@ -401,7 +422,8 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
         for exercise in lobjs:
             if isinstance(exercise, BaseExercise):
                 entry = exercise_index[exercise.id]
-                if not entry.confirm_the_level:
+                # TODO: should this be is_listed?
+                if not entry.confirm_the_level and entry.is_visible():
                     _add_to(categories[entry.category_id], exercise)
                     _add_to(total, exercise)
 

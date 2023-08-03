@@ -64,28 +64,13 @@ def list_unselected(langs):
 
 
 @register.filter
-def is_visible(entry):
-    return CachedContent.is_visible(entry)
-
-
-@register.filter
 def is_visible_to(entry, user):
     return entry.is_visible_to(user)
 
 
 @register.filter
-def is_listed(entry):
-    return CachedContent.is_listed(entry)
-
-
-@register.filter
 def len_listed(entries):
-    return len([e for e in entries if CachedContent.is_listed(e)])
-
-
-@register.filter
-def is_in_maintenance(entry):
-    return CachedContent.is_in_maintenance(entry)
+    return len([e for e in entries if e.is_listed()])
 
 
 @register.filter

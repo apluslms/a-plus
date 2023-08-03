@@ -421,66 +421,12 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
 
     def _previous(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
         for entry in previous_iterator(self.modules(), tree, skip_first=True):
-            if self.is_listed(entry):
+            if entry.is_listed():
                 return entry
         return None
 
     def _next(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
         for entry in next_iterator(self.modules(), tree, skip_first=True, level_markers=False):
-            if self.is_listed(entry):
+            if entry.is_listed():
                 return entry
         return None
-
-    @classmethod
-    def is_visible(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
-        if isinstance(entry, ExerciseEntryBase):
-            return (
-                entry.category_status != LearningObjectCategory.STATUS.HIDDEN
-                and entry.module_status != CourseModule.STATUS.HIDDEN
-                and not entry.status in (
-                    LearningObject.STATUS.HIDDEN,
-                    LearningObject.STATUS.ENROLLMENT,
-                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
-                )
-            )
-        elif isinstance(entry, ModuleEntryBase):
-            return entry.status != CourseModule.STATUS.HIDDEN
-        elif isinstance(entry, CategoryEntryBase):
-            return not entry.status in (
-                LearningObjectCategory.STATUS.HIDDEN,
-                LearningObjectCategory.STATUS.NOTOTAL,
-            )
-
-        return False
-
-    @classmethod
-    def is_listed(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
-        if not cls.is_visible(entry):
-            return False
-
-        if isinstance(entry, ExerciseEntryBase):
-            return (
-                entry.category_status != LearningObjectCategory.STATUS.HIDDEN
-                and entry.module_status != CourseModule.STATUS.UNLISTED
-                and not entry.status in (
-                    LearningObject.STATUS.UNLISTED,
-                    LearningObject.STATUS.MAINTENANCE,
-                )
-            )
-        elif isinstance(entry, ModuleEntryBase):
-            return entry.status != CourseModule.STATUS.UNLISTED
-        elif isinstance(entry, CategoryEntryBase):
-            return entry.status != LearningObjectCategory.STATUS.HIDDEN
-
-        return True
-
-    @classmethod
-    def is_in_maintenance(cls, entry: Union[ModuleEntry, ExerciseEntry]) -> bool:
-        if isinstance(entry, ExerciseEntryBase):
-            return (
-                entry.module_status == CourseModule.STATUS.MAINTENANCE
-                or entry.status == LearningObject.STATUS.MAINTENANCE
-            )
-        elif isinstance(entry, ModuleEntryBase):
-            return entry.status == CourseModule.STATUS.MAINTENANCE
-        return False
