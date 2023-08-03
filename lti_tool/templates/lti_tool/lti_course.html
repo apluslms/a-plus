@@ -24,13 +24,13 @@
 
 <ul class="toc">
 	{% for module in content.data.modules %}
-	{% if module|is_listed %}
+	{% if module.is_listed %}
 	{% module_accessible module as accessible %}
 	{% exercise_accessible module as exercise_accessible %}
 	<li>
 		{% if accessible %}
 		<h3>
-			<a href="{{ module.link }}" class="{% if module|is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
+			<a href="{{ module.link }}" class="{% if module.is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
 		</h3>
 		<h4>
 			{% if module.requirements|length > 0 %}

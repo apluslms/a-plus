@@ -9,7 +9,7 @@
 <p class="filter-categories">
 	<small>{% translate "FILTER_VIEW" %}:</small>
 	{% for entry in categories %}
-	{% if entry|is_listed %}
+	{% if entry.is_listed %}
 	<button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}" aria-pressed="true">
 		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
 		{{ entry.name|parse_localization }}
@@ -35,7 +35,7 @@
 </p>
 
 {% for module in modules %}
-{% if module|is_visible or is_teacher %}
+{% if module.is_visible or is_teacher %}
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
@@ -68,7 +68,7 @@
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
 			{% endif %}
-			{% if not module|is_visible and is_teacher %}
+			{% if not module.is_visible and is_teacher %}
 			<span class="label label-danger pull-right">{% translate "HIDDEN_capitalized" %}</span>
 			{% endif %}
 			<span class="caret" aria-hidden="true"></span>
@@ -127,11 +127,11 @@
 			</tr>
 			{% for entry in module.flatted %}
 
-			{% if entry.submittable and entry|is_visible or entry.submittable and is_teacher %}
+			{% if entry.submittable and entry.is_visible or entry.submittable and is_teacher %}
 			<tr data-category="{{ entry.category_id }}">
 				<td>
 					{% if exercise_accessible and entry.is_revealed or is_course_staff %}
-					<a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+					<a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
 					{% if entry|deadline_extended_exercise_open:now %}
 						<span
 							data-toggle="tooltip"
@@ -207,18 +207,18 @@
 					</a>
 				</td>
 				<td>
-					{% if not entry|is_visible and is_teacher %}
+					{% if not entry.is_visible and is_teacher %}
 					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
 					{% endif %}
 				</td>
 				{% endif %}
 			</tr>
 
-			{% elif entry.type == 'exercise' and entry|is_visible or entry.type == 'exercise' and is_teacher %}
+			{% elif entry.type == 'exercise' and entry.is_visible or entry.type == 'exercise' and is_teacher %}
 			<tr>
 				<td colspan="5">
 					{% if accessible and entry.is_revealed %}
-					<strong><a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
+					<strong><a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
 					{% else %}
 					<strong>{{ entry.name|parse_localization }}</strong>
 					{% if not entry.is_revealed and accessible %}
@@ -242,7 +242,7 @@
 					{% endif %}
 				</td>
 				<td>
-					{% if not entry|is_visible and is_teacher %}
+					{% if not entry.is_visible and is_teacher %}
 					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
 					{% endif %}
 				</td>

@@ -526,7 +526,7 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
             if entry.confirm_the_level:
                 self._true_children_unconfirmed = self._true_children_unconfirmed and not entry._true_passed
                 self._children_unconfirmed = self._children_unconfirmed and not entry._passed
-            else:
+            elif entry.is_visible():
                 self.feedback_revealed = self.feedback_revealed and entry.feedback_revealed
                 self.max_points += entry.max_points
                 self.submission_count += entry.submission_count
@@ -936,7 +936,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
                 self._children_unconfirmed = self._children_unconfirmed and not entry._passed
 
         for entry in exercises:
-            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry):
+            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
                 self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
                 _add_to(self, entry)
 
@@ -1068,7 +1068,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
         self.invalidate_time = None
         for entry in self.exercise_index.values():
-            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry):
+            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
                 self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
                 _add_to(self.categories[entry.category_id], entry)
                 _add_to(self.total, entry)

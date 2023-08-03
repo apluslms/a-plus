@@ -16,7 +16,7 @@
 {% endcomment %}
 
 {% for entry in categories %}
-{% if entry|is_visible and entry.max_points > 0 %}
+{% if entry.is_visible and entry.max_points > 0 %}
 <div class="well">
     <p>{{ entry.name|parse_localization }}</p>
     <p><strong class="h2">
