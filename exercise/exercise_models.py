@@ -98,6 +98,8 @@ class LearningObjectProto(UrlMixin):
     parent: Optional[LearningObjectProto]
     status: str
     order: int
+    category_status: str
+    module_status: str
 
     def get_path(self) -> str:
         return "/".join([o.url for o in self.parent_list()])
@@ -115,6 +117,32 @@ class LearningObjectProto(UrlMixin):
                 self.order,
             )
         return self.get_absolute_url()
+
+    def is_visible(self) -> bool:
+        return (
+            self.category_status != LearningObjectCategory.STATUS.HIDDEN
+            and self.module_status != CourseModule.STATUS.HIDDEN
+            and self.status not in (
+                LearningObject.STATUS.HIDDEN,
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+            )
+        )
+
+    def is_listed(self) -> bool:
+        return self.is_visible() and (
+            self.module_status != CourseModule.STATUS.UNLISTED
+            and self.status not in (
+                LearningObject.STATUS.UNLISTED,
+                LearningObject.STATUS.MAINTENANCE,
+            )
+        )
+
+    def is_in_maintenance(self) -> bool:
+        return (
+            self.module_status == CourseModule.STATUS.MAINTENANCE
+            or self.status == LearningObject.STATUS.MAINTENANCE
+        )
 
 
 class LearningObject(LearningObjectProto, ModelWithInheritance):
@@ -437,6 +465,14 @@ class LearningObject(LearningObjectProto, ModelWithInheritance):
             if key: # avoid empty or missing values
                 keys.add(key)
         return keys
+
+    @property
+    def module_status(self) -> str:
+        return self.course_module.status
+
+    @property
+    def category_status(self) -> str:
+        return self.category.status
 
 
 def invalidate_exercise(sender, instance, **kwargs): # pylint: disable=unused-argument
