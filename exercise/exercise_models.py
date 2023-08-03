@@ -768,11 +768,12 @@ class BaseExercise(LearningObject):
         return self.course_instance.students\
             .filter(submissions__exercise=self).distinct().count()
 
-    def get_submissions_for_student(self, user_profile, exclude_errors=False):
+    def get_submissions_for_student(self, user_profile, exclude_errors=False, exclude_unofficial=False):
+        submissions = user_profile.submissions
         if exclude_errors:
-            submissions = user_profile.submissions.exclude_errors()
-        else:
-            submissions = user_profile.submissions
+            submissions = submissions.exclude_errors()
+        if exclude_unofficial:
+            submissions = submissions.exclude_unofficial()
         return submissions.filter(exercise=self)
 
     def max_submissions_for_student(self, user_profile):
@@ -796,7 +797,7 @@ class BaseExercise(LearningObject):
             # The students are in the same group, therefore, each student should
             # have the same submission count. However, max submission deviation
             # may be set for only one group member.
-            submission_count = self.get_submissions_for_student(profile, True).count()
+            submission_count = self.get_submissions_for_student(profile, True, True).count()
             if submission_count < self.max_submissions_for_student(profile):
                 return True, []
         # Even in situations where the student could otherwise make an infinite
@@ -821,7 +822,7 @@ class BaseExercise(LearningObject):
         if self.max_submissions == 0:
             return False
         for profile in students:
-            if self.get_submissions_for_student(profile, True).count() \
+            if self.get_submissions_for_student(profile, True, True).count() \
                     <= self.max_submissions_for_student(profile):
                 return False
         return True
