@@ -5,7 +5,6 @@ from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance, LearningObjectCategory
 from ...models import BaseExercise, LearningObjectDisplay
-from ...exercise_summary import ResultTable
 
 
 class Command(BaseCommand):
@@ -31,8 +30,6 @@ class Command(BaseCommand):
             self.export_json(args[1])
         elif args[0] == 'views':
             self.export_views(args[1])
-        elif args[0] == 'results':
-            self.export_results(args[1])
         else:
             raise CommandError('Unknown argument!')
 
@@ -120,44 +117,6 @@ class Command(BaseCommand):
                     submission.status,
                     str(submission.grade),
                 ])
-
-    def export_results(self, cid):
-        instance = CourseInstance.objects.filter(id=cid).first()
-        if not instance:
-            raise CommandError('Course instance not found.')
-        table = ResultTable(instance)
-
-        difficulties = set()
-        for e in table.exercises:
-            if e.difficulty:
-                difficulties.add(e.difficulty)
-        difficulties = sorted(difficulties)
-
-        labels = ['UID','Student ID','Email','Name','Tags','Total']
-        labels.extend(c.name for c in table.categories)
-        labels.extend(difficulties)
-
-        def label(exercise):
-            return "{} ({})".format(str(exercise), exercise.difficulty)
-        labels.extend([label(e) for e in table.exercises])
-        self.print_row(labels)
-
-        for student in table.students:
-            points = [table.results[student.id][exercise.id] or 0 for exercise in table.exercises]
-            row = [
-                str(student.id),
-                student.student_id or '',
-                student.user.email,
-                student.user.first_name + ' ' + student.user.last_name,
-                '/'.join([t.name for t in student.taggings.tags_for_instance(instance)]),
-                str(sum(points)),
-            ]
-            for c in table.categories:
-                row.append(str(table.results_by_category[student.id][c.id]))
-            for d in difficulties:
-                row.append(str(sum(p for i,p in enumerate(points) if table.exercises[i].difficulty == d)))
-            row.extend([str(p) for p in points])
-            self.print_row(row)
 
     def export_json(self, cid):
         instance = CourseInstance.objects.filter(id=cid).first()
