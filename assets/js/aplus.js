@@ -309,7 +309,7 @@ $(function() {
                 copyTargetCounter += 1;
             }
 
-            hljs.highlightElement(codeBlock[0])
+            hljs.highlightElement(codeBlock[0]);
 
             // Add line numbers.
             const pre = $(codeBlock);
