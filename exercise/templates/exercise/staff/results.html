@@ -14,15 +14,30 @@
 {{% block scripts %}
 {{ block.super }}
 <!--Library to handle multiselection on select tags-->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css"
+		integrity="sha384-uGXhEhwnSxYfC7ximwJPZiYTu/JP4EChMqBDXZ81R+eY0/t0KrA3zlBoIjSTi3F+"
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"
+		integrity="sha384-29LyJx1+1j98d6pqDn6FDyw3dBUacW3vjeiwEXWZMj/fdulg6SuF4vLtBilbjY+c"
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- DataTables plugin with Bootstrap 3 styling and Buttons/export support -->
-<!-- To upgrade plugin versions, go to https://datatables.net/download/index -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.13.1/b-2.3.3/b-html5-2.3.3/datatables.min.css"/>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-2.5.0/dt-1.13.1/b-2.3.3/b-html5-2.3.3/datatables.min.js"></script>
+<!-- To upgrade plugin versions, go to https://datatables.net/download/index
+Note that the linked file contains comments with a link to the DataTables download builder
+that includes the correct DataTables extensions. -->
+<link rel="stylesheet" type="text/css"
+		href="https://cdn.datatables.net/v/bs/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/datatables.min.css"
+		integrity="sha384-T9nIBlJy7lb54CCkbU4Xxh/F+ZEdfSez3gA08MymuNN8ifrUBNW1weV/96xqfbbL"
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script type="text/javascript"
+		src="https://cdn.datatables.net/v/bs/jszip-3.10.1/dt-1.13.6/b-2.4.1/b-html5-2.4.1/datatables.min.js"
+		integrity="sha384-ZUGRkvDvQeccM9JYOPtXV3yP1HTmkHCe2WzRIr2xXvaJGExPHD1ERMoYADKqH+06"
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <!-- DataTables plugin for calculating a sum during data filtering -->
-<script src="https://cdn.datatables.net/plug-ins/1.13.1/api/sum().js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/api/sum().js"
+		integrity="sha384-VxQASjltoUFzCM7sSOzPQ44by+o1OPrp80OoLh8PgR30+674xTzKa1Z8d7+U87tg"
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!--Custom for loading animation (loading_animation.css) and other extra customizations (results_staff.css)
     results_staff.js is the main script for this page. -->
