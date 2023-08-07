@@ -1,16 +1,16 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, InitVar
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Tuple, Type, TypeVar, Union
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, QuerySet
 from django.db.models.signals import post_delete, post_save
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseInstanceProto, CourseModule, CourseModuleProto
-from lib.cache.cached import CacheBase, DBData, ProxyManager
+from lib.cache.cached import CacheBase, DBData, Dependencies, ProxyManager
 from threshold.models import CourseModuleRequirement
-from .invalidate_util import category_learning_objects, learning_object_ancestors, module_learning_objects
+from .invalidate_util import category_learning_objects, module_learning_objects
 from ..models import BaseExercise, LearningObject, LearningObjectCategory, LearningObjectProto
 
 
@@ -47,13 +47,43 @@ CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
 Totals = TypeVar("Totals", bound="TotalsBase")
 
 
+def prefetch_data(prefetched: DBData, module_qs: QuerySet) -> Tuple[List[CourseModule], List[LearningObject]]:
+    modules = list(
+        module_qs.prefetch_related(
+            Prefetch(
+                "requirements",
+                queryset=(
+                    CourseModuleRequirement.objects
+                    .select_related("threshold")
+                    .prefetch_related(
+                        "passed_modules"
+                        "passed_categories",
+                        Prefetch(
+                            "passed_exercises",
+                            queryset=BaseExercise.objects.select_related("parent"),
+                        ),
+                        "points",
+                    )
+                )
+            ),
+        )
+    )
+    lobjs = list(LearningObject.objects.filter(course_module__in=modules).select_related("category"))
+
+    prefetched.extend(CourseModule, modules)
+    prefetched.extend(LearningObject, lobjs)
+
+    return modules, lobjs
+
+
 class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     PROTO_BASES = (LearningObjectProto,)
     KEY_PREFIX: ClassVar[str] = 'exercise'
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
-        (LearningObject, [post_delete, post_save], learning_object_ancestors),
-        (LearningObjectCategory, [post_delete, post_save], category_learning_objects(learning_object_ancestors)),
+        (LearningObject, [post_delete, post_save], ("id",)),
+        (LearningObject, [post_delete, post_save], ("parent_id",)), # In case the parent changed
+        (LearningObjectCategory, [post_delete, post_save], category_learning_objects(lambda lobj: [lobj.id])),
         (CourseModule, [post_delete, post_save], module_learning_objects),
     ]
     type: ClassVar[Literal['exercise']] = 'exercise'
@@ -113,12 +143,21 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         lobj_id = self._params[0]
         lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
+        if prefetched_data is None:
+            prefetched_data = DBData()
+            # This is required so that dependency detection doesn't trigger
+            # when loaded the next time
+            self._generated_on = prefetched_data.gen_start
+
+            modules, _ = prefetch_data(prefetched_data, CourseModule.objects.filter(id=lobj.course_module_id))
+            module = modules[0]
+        else:
+            module = DBData.get_db_object(prefetched_data, CourseModule, lobj.course_module_id)
         children = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj_id)
-        module = DBData.get_db_object(prefetched_data, CourseModule, lobj.course_module_id)
         category = lobj.category
 
         self.module = precreated.get_or_create_proxy(ModuleEntryBase, module.id)
@@ -165,6 +204,14 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
             self.max_submissions = 0
             self.max_points = 0
             self.allow_assistant_viewing = False
+
+        # This is required so that dependency detection doesn't trigger
+        # when loaded the next time.
+        precreated.resolve(self.children, prefetched_data=prefetched_data)
+
+        # We cannot rely on INVALIDATORS as the parent of a child might change,
+        # in which case this object wouldn't be invalidated (and the children would be wrong)
+        return {ExerciseEntryBase: [proxy._params for proxy in self.children]}
 
 
 class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntry]):
@@ -223,7 +270,7 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         module_id = self._params[0]
         module = DBData.get_db_object(prefetched_data, CourseModule, module_id)
@@ -258,6 +305,10 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
             if isinstance(exercise, BaseExercise):
                 if not exercise.category.confirm_the_level and exercise.is_visible():
                     _add_to(self, exercise)
+
+        # We rely on the module of an exercise never changing, so the invalidators do the work
+        # without the need for dependencies
+        return {}
 
 
 @dataclass(eq=False)
@@ -299,8 +350,6 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
     KEY_PREFIX: ClassVar[str] = 'instance'
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
-        # This technically doesn't invalidate correctly if the instance of
-        # a module, exercise or category changes but that should never happen.
         (CourseInstance, [post_delete, post_save], ("id",)),
         (CourseModule, [post_delete, post_save], ("course_instance_id",)),
         (LearningObject, [post_delete, post_save], (["course_module", "course_instance_id"],)),
@@ -344,40 +393,19 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         instance_id = self._params[0]
         if not prefetched_data:
             prefetched_data = DBData()
+            # This is required so that dependency detection doesn't trigger
+            # when loaded the next time
+            self._generated_on = prefetched_data.gen_start
 
             instance = CourseInstance.objects.get(id=instance_id)
-            module_objs = (
-                CourseModule.objects
-                .filter(course_instance=instance)
-                .prefetch_related(
-                    Prefetch(
-                        "requirements",
-                        queryset=(
-                            CourseModuleRequirement.objects
-                            .select_related("threshold")
-                            .prefetch_related(
-                                "passed_modules"
-                                "passed_categories",
-                                Prefetch(
-                                    "passed_exercises",
-                                    queryset=BaseExercise.objects.select_related("parent"),
-                                ),
-                                "points",
-                            )
-                        )
-                    ),
-                )
-            )
-            lobjs = LearningObject.objects.filter(course_module__in=module_objs).prefetch_related("category")
-
             prefetched_data.add(instance)
-            prefetched_data.extend(CourseModule, module_objs)
-            prefetched_data.extend(LearningObject, lobjs)
+
+            module_objs, lobjs = prefetch_data(prefetched_data, CourseModule.objects.filter(course_instance=instance))
         else:
             instance = prefetched_data.get_db_object(CourseInstance, instance_id)
             module_objs = prefetched_data.filter_db_objects(CourseModule, course_instance_id=instance_id)
@@ -434,3 +462,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
             total.min_group_size = 1
 
         self.created = timezone.now()
+
+        # We rely on the instance of a module never changing, so the invalidators do the work
+        # without the need for dependencies
+        return {}
