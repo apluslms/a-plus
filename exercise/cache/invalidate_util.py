@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Callable, Generator, Iterable, List, Optional, Tuple, Union
 
+from django.db.models import Model
+
 from course.models import CourseModule
 from deviations.models import SubmissionRuleDeviation
 from notification.models import Notification
@@ -8,26 +10,7 @@ from userprofile.models import UserProfile
 from ..models import BaseExercise, Submission, RevealRule, LearningObject, LearningObjectCategory
 
 
-def learning_object_ancestors(lobj: LearningObject) -> Generator[int, None, None]:
-    yield lobj.id
-    lobj_index = {
-        o.id: o
-        for o in (
-            LearningObject.bare_objects
-            .filter(course_module=lobj.course_module)
-            .only("id", "parent", "course_module")
-        )
-    }
-    while lobj.parent_id is not None:
-        parent = lobj_index.get(lobj.parent_id)
-        if parent is None:
-            # Parent was deleted at the same time, no need to invalidate it
-            return
-        lobj = parent
-        yield lobj.id
-
-
-def category_learning_objects(generator: Callable[[LearningObject], Generator[int, None, None]]):
+def category_learning_objects(generator: Callable[[LearningObject], Iterable[int]]):
     def inner(category: LearningObjectCategory) -> Generator[int, None, None]:
         seen = set()
         for lobj in LearningObject.bare_objects.filter(category=category).only("id", "parent", "course_module"):
@@ -99,37 +82,10 @@ def model_module(obj: RevealRule) -> Generator[CourseModule, None, None]:
         yield module
 
 
-def model_module_id(obj: RevealRule) -> Generator[int, None, None]:
-    module = model_module(obj)
-    if module is not None:
-        yield module.id
-
-
-def model_exercise_module_id(obj: ModelTypes):
+def model_exercise_as_iterable(obj: ModelTypes) -> Generator[LearningObject, None, None]:
     exercise = model_exercise(obj)
-    if exercise is None:
-        return
-    yield exercise.course_module_id
-
-
-
-def model_instance_id(obj: ModelTypes):
-    if isinstance(obj, Notification) and obj.course_instance_id:
-        instance_id = obj.course_instance_id
-    else:
-        exercise = model_exercise(obj)
-        if exercise is None:
-            return
-        instance_id = exercise.course_module.course_instance_id
-
-    yield instance_id
-
-
-def model_exercise_ancestors(obj: ModelTypes) -> Generator[int, None, None]:
-    exercise = model_exercise(obj)
-    if exercise is None:
-        return
-    yield from learning_object_ancestors(exercise)
+    if exercise is not None:
+        yield exercise
 
 
 def exercise_siblings_confirms_the_level(exercise: LearningObject) -> Generator[int, None, None]:
@@ -149,23 +105,24 @@ def exercise_siblings_confirms_the_level(exercise: LearningObject) -> Generator[
 
 def model_exercise_siblings_confirms_the_level(obj: ModelTypes) -> Generator[int, None, None]:
     exercise = model_exercise(obj)
-    if exercise is None:
-        return
-    yield from exercise_siblings_confirms_the_level(exercise)
+    if exercise is not None:
+        yield from exercise_siblings_confirms_the_level(exercise)
 
 
 def with_user_ids(
-        generator: Callable[[ModelTypes], Generator[int, None, None]],
+        generator: Callable[[ModelTypes], Generator[Union[int, Model], None, None]],
         ):
     def inner(obj: ModelTypes) -> Generator[Tuple[int, int], None, None]:
         user_ids = model_user_ids(obj)
         for model_id in generator(obj):
+            if isinstance(model_id, Model):
+                model_id = model_id.id
             for user_id in user_ids:
                 yield (model_id, user_id)
     return inner
 
 
-def m2m_submission_userprofile(generator: Callable[[Submission], Generator[int, None, None]]):
+def m2m_submission_userprofile(generator: Callable[[Submission], Generator[LearningObject, None, None]]):
     def inner(
             obj: Union[Submission, UserProfile],
             action: str,
@@ -177,16 +134,16 @@ def m2m_submission_userprofile(generator: Callable[[Submission], Generator[int, 
             submissions = Submission.objects.filter(pk__in=pk_set)
             seen = set()
             for submission in submissions:
-                for model_id in generator(submission):
-                    if model_id in seen:
+                for model in generator(submission):
+                    if model.id in seen:
                         continue
-                    seen.add(model_id)
-                    yield (model_id, obj.id)
+                    seen.add(model.id)
+                    yield (model.id, obj.id)
         else:
-            for model_id in generator(obj):
+            for model in generator(obj):
                 for user_id in pk_set:
-                    yield (model_id, user_id)
+                    yield (model.id, user_id)
                 for user_id in model_user_ids(obj):
                     if user_id not in pk_set:
-                        yield (model_id, user_id)
+                        yield (model.id, user_id)
     return (inner, ["action", "pk_set"])

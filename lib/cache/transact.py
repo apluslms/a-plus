@@ -1,6 +1,6 @@
 import logging
 from time import time
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from django.core.cache import cache
 from django.db import connections, transaction
@@ -10,19 +10,19 @@ from ..request_globals import RequestGlobal
 logger = logging.getLogger('aplus.cache')
 
 
-def _get(key: str) -> Optional[Tuple[float, Optional[bytes]]]:
+def _get(key: str) -> Optional[Any]:
     return cache.get(key)
 
 
-def _get_many(keys: Iterable[str]) -> Dict[str, Tuple[float, Optional[bytes]]]:
+def _get_many(keys: Iterable[str]) -> Dict[str, Any]:
     return cache.get_many(keys) # type: ignore
 
 
-def _set(key: str, item: Tuple[float, Optional[bytes]]) -> None:
+def _set(key: str, item: Any) -> None:
     cache.set(key, item)
 
 
-def _set_many(items: Dict[str, Tuple[float, Optional[bytes]]]) -> None:
+def _set_many(items: Dict[str, Any]) -> None:
     failed = cache.set_many(items)
     if failed:
         logger.warning("Failed to save the following in the cache: %s", "; ".join(failed))
@@ -51,7 +51,7 @@ class CacheTransactionManager(RequestGlobal):
     and modifications do affect other actions taken during the transaction
     itself.
     """
-    memos: List[Tuple[int, Dict[str, Tuple[float, Optional[bytes]]]]]
+    memos: List[Tuple[int, Dict[str, Any]]]
     commiting: Optional[int]
 
     def init(self):
@@ -65,7 +65,7 @@ class CacheTransactionManager(RequestGlobal):
             conn.savepoint_commit = _savepoint_commit(conn.savepoint_commit)
             conn.savepoint_rollback =_savepoint_rollback(conn.savepoint_rollback)
 
-    def get_many(self, keys: Iterable[str]) -> Dict[str, Tuple[float, Optional[bytes]]]:
+    def get_many(self, keys: Iterable[str]) -> Dict[str, Any]:
         self._update_memos()
         memo = {}
         for _, m in self.memos:
@@ -86,7 +86,7 @@ class CacheTransactionManager(RequestGlobal):
 
         return items
 
-    def get(self, key: str) -> Optional[Tuple[float, Optional[bytes]]]:
+    def get(self, key: str) -> Optional[Any]:
         self._update_memos()
         item = _get(key)
         for _, m in reversed(self.memos):
@@ -104,7 +104,7 @@ class CacheTransactionManager(RequestGlobal):
 
         return item
 
-    def set(self, key: str, item: Tuple[float, Optional[bytes]]) -> None:
+    def set(self, key: str, item: Any) -> None:
         self._update_memos()
         if not self.memos:
             _set(key, item)
@@ -112,7 +112,7 @@ class CacheTransactionManager(RequestGlobal):
             self.memos[-1][1][key] = item
             self._set_on_commit()
 
-    def set_many(self, items: Dict[str, Tuple[float, Optional[bytes]]]) -> None:
+    def set_many(self, items: Dict[str, Any]) -> None:
         self._update_memos()
         if not self.memos:
             _set_many(items)
@@ -168,7 +168,7 @@ class CacheTransactionManager(RequestGlobal):
             # Already saved
             return
 
-        t = (time(), None)
+        t = (time(), None, None, None)
 
         memo_ids = self._get_memo_ids()
         if memo_ids:
@@ -178,7 +178,7 @@ class CacheTransactionManager(RequestGlobal):
         memo = self.memos[0][1]
         # Update invalidation time to commit time
         memo = {
-            k: t if v[1] is None else v
+            k: t if v[2] is None else v
             for k,v in memo.items()
         }
         keys = list(memo.keys())
