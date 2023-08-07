@@ -27,9 +27,11 @@ from typing import (
 import logging
 import sys
 
-from django.core.cache import cache
 from django.db.models import Model
 from django.db.models.signals import ModelSignal
+
+from .transact import CacheTransactionManager
+
 
 logger = logging.getLogger('aplus.cached2')
 
@@ -111,7 +113,7 @@ class ProxyManager:
 
     def fetch(self) -> None:
         if self.new_keys:
-            items = cast(Dict[str, Tuple[float, Optional[bytes]]], cache.get_many(self.new_keys))
+            items = CacheTransactionManager().get_many(self.new_keys)
             self.fetched_data.update((k, item[1]) for k,item in items.items())
             self.new_keys.clear()
 
@@ -132,7 +134,7 @@ class ProxyManager:
                 proxy._build(fetched, nstates, self, prefetched_data)
 
     def save(self) -> None:
-        stored_states = cache.get_many(self.nstates.keys())
+        stored_states = CacheTransactionManager().get_many(self.nstates.keys())
         save_states = {}
         for k, nstate in self.nstates.items():
             # stored_state is None or a (float (time), Optional[bytes])-tuple like values in self.nstates
@@ -143,10 +145,7 @@ class ProxyManager:
             ):
                 save_states[k] = nstate
 
-        failed = cache.set_many(save_states)
-        if failed:
-            logger.warning(f"Failed to save the following in the cache: {'; '.join(failed)}")
-
+        CacheTransactionManager().set_many(save_states)
         self.nstates = {}
 
     def get_or_create_proxy(self, cls: Type[CacheBaseT], *params: Any, modifiers: Tuple[Any,...] = ()) -> CacheBaseT:
@@ -393,7 +392,7 @@ class CacheMeta(type):
         # The time is needed in case the cache is being generated at the same time:
         # otherwise the cache could be generated using old data and then saved, even though
         # that data was invalidated
-        cache.set(cache_key, (time(), None))
+        CacheTransactionManager().set(cache_key, (time(), None))
 
     def invalidate_many(cls, models_iterable: Collection[Tuple[Any,...]]) -> None:
         if len(models_iterable) == 0:
@@ -402,7 +401,7 @@ class CacheMeta(type):
         cache_keys = [cls._get_keys_with_cls(*params)[-1][1] for params in params_iterable]
         logger.debug(f"Invalidating cached data for {cls.__name__}[{', '.join(cache_keys)}]")
         t = (time(), None)
-        cache.set_many({ key: t for key in cache_keys })
+        CacheTransactionManager().set_many({ key: t for key in cache_keys })
 
 
 T = TypeVar("T", bound="CacheBase")
