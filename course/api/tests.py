@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
 from course.models import CourseInstance
@@ -9,6 +9,7 @@ class CourseInstanceAPITest(TestCase):
     from ..tests import CourseTest # pylint: disable=import-outside-toplevel
     setUp = CourseTest.setUp
 
+    @override_settings(BASE_URL="http://testserver/")
     def test_get_courselist(self):
         """
         Test if list of courses are given correctly via REST.

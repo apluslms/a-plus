@@ -8,6 +8,7 @@ from rest_framework.utils.field_mapping import get_nested_relation_kwargs
 from rest_framework.fields import get_attribute
 
 from .fields import NestedHyperlinkedIdentityField, NestedHyperlinkedRelatedField
+from lib.helpers import build_aplus_url
 
 
 class NestedHyperlinkedModelSerializer(HyperlinkedModelSerializer):
@@ -61,9 +62,8 @@ class HtmlViewField(serializers.ReadOnlyField):
         super().__init__(*args, **kwargs)
 
     def to_representation(self, obj): # pylint: disable=arguments-renamed
-        request = self.context['request']
-        url = obj.get_absolute_url()
-        return request.build_absolute_uri(url)
+        url = obj.get_display_url()
+        return build_aplus_url(url, True)
 
 
 class NestedHyperlinkedIdentityFieldWithQuery(NestedHyperlinkedIdentityField):
