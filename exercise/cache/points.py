@@ -1,7 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, Field, fields, InitVar, MISSING
 import datetime
-from time import time
 from typing import (
     Any,
     cast,
@@ -26,7 +25,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule, StudentGroup
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
-from lib.cache.cached import DBData, ProxyManager, resolve_proxies
+from lib.cache.cached import DBData, Dependencies, ProxyManager, resolve_proxies
 from lib.helpers import format_points
 from notification.models import Notification
 from .basetypes import (
@@ -41,11 +40,9 @@ from .basetypes import (
 from .hierarchy import ContentMixin
 from .invalidate_util import (
     m2m_submission_userprofile,
-    model_exercise_module_id,
-    model_instance_id,
-    model_exercise_ancestors,
+    model_exercise_as_iterable,
     model_exercise_siblings_confirms_the_level,
-    model_module_id,
+    model_module,
     with_user_ids,
 )
 from ..exercise_models import CourseChapter, LearningObject
@@ -248,14 +245,6 @@ class CommonPointData:
         if show_unrevealed:
             self.feedback_revealed = True
 
-    def reset_points(self):
-        self.submission_count = 0
-        self._true_passed = False
-        self._passed = False
-        self._true_points = 0
-        self._points = 0
-        self.feedback_revealed = True
-
 
 @dataclass(repr=False)
 class DifficultyStats(CommonPointData):
@@ -266,13 +255,6 @@ class DifficultyStats(CommonPointData):
 
     points_by_difficulty = RevealableAttribute[Dict[str, int]]()
     unconfirmed_points_by_difficulty = RevealableAttribute[Dict[str, int]]()
-
-    def reset_points(self):
-        super().reset_points()
-        self._true_points_by_difficulty = {}
-        self._points_by_difficulty = {}
-        self._true_unconfirmed_points_by_difficulty = {}
-        self._unconfirmed_points_by_difficulty = {}
 
 
 TotalsType = TypeVar("TotalsType", bound=TotalsBase)
@@ -344,17 +326,19 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     KEY_PREFIX = "exercisepoints"
     NUM_PARAMS = 2
     INVALIDATORS = [
-        (Submission, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
-        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
-        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
-        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
-        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_ancestors))
+        (Submission, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
+        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
+        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
+        # listen to the m2m_changed signal since submission.submitters is a many-to-many
+        # field and instances must be saved before the many-to-many fields may be modified,
+        # that is to say, the submission post save hook may see an empty submitters list
+        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_as_iterable))
     ]
     _is_container: ClassVar[bool] = False
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
     model_answer_modules: List["ModuleEntry"]
-    invalidate_time: Optional[float]
     # This is different in ExerciseEntry compared to ExerciseEntryBase, so we need
     # to save it separately for ExerciseEntry
     max_points: int
@@ -439,12 +423,6 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def get_proxy_keys(self) -> Iterable[str]:
         return super().get_proxy_keys() + ["model_answer_modules"]
 
-    def is_valid(self) -> bool:
-        return (
-            self.invalidate_time is None
-            or time() >= self.invalidate_time
-        )
-
     def _prefetch_data(
             self,
             prefetched_data: Optional[DBData],
@@ -458,6 +436,9 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
 
         if not prefetched_data:
             prefetched_data = DBData()
+            # This is required so that dependency detection doesn't trigger
+            # when loaded the next time
+            self._generated_on = prefetched_data.gen_start
 
             module = lobj.course_module
             module_lobjs = module.learning_objects.all()
@@ -524,13 +505,12 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         lobj_id, user_id = self._params[:2]
         lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
         if isinstance(lobj, BaseExercise):
             self.__class__ = SubmittableExerciseEntry
-            self._generate_data(precreated, prefetched_data)
-            return
+            return self._generate_data(precreated, prefetched_data)
 
         prefetched_data, lobj, _, module_lobjs, child_objs = self._prefetch_data(prefetched_data)
 
@@ -543,7 +523,6 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         self.max_points = 0
         self._true_points = 0
         self._points = 0
-        self.invalidate_time = None
         for entry in self.children:
             if entry.confirm_the_level:
                 self._true_children_unconfirmed = self._true_children_unconfirmed and not entry._true_passed
@@ -552,13 +531,18 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
                 self.feedback_revealed = self.feedback_revealed and entry.feedback_revealed
                 self.max_points += entry.max_points
                 self.submission_count += entry.submission_count
-                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                self._expires_on = none_min(self._expires_on, entry._expires_on)
                 self._true_passed = self._true_passed and entry._true_passed
                 self._passed = self._passed and entry._passed
                 # pylint: disable-next=unidiomatic-typecheck
                 if type(entry) is ExerciseEntry or (isinstance(entry, SubmittableExerciseEntry) and entry.graded):
                     self._true_points += entry._true_points
                     self._points += entry._points
+
+        return {
+            ExerciseEntryBase: [self._params[:1]],
+            ExerciseEntry: [proxy._params for proxy in self.children],
+        }
 
 
 class SubmittableExerciseEntry(ExerciseEntry):
@@ -580,7 +564,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
             with_user_ids(model_exercise_siblings_confirms_the_level)
         ),
         (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
-        (Notification, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
+        (Notification, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
     ]
     submissions: List[SubmissionEntry] = field(default_factory=list)
@@ -638,13 +622,12 @@ class SubmittableExerciseEntry(ExerciseEntry):
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         lobj_id, user_id = self._params[:2]
         prefetched_data, lobj, user, module_lobjs, child_lobjs = self._prefetch_data(prefetched_data)
         if not isinstance(lobj, BaseExercise):
             self.__class__ = ExerciseEntry
-            self._generate_data(precreated, prefetched_data)
-            return
+            return self._generate_data(precreated, prefetched_data)
 
         self._generate_common(precreated, prefetched_data, lobj, module_lobjs, child_lobjs)
 
@@ -845,7 +828,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
 
         self.feedback_revealed = is_revealed
         self.feedback_reveal_time = reveal_time
-        self.invalidate_time = timestamp
+        self._expires_on = timestamp
 
         for submission in self.submissions:
             if is_revealed:
@@ -857,6 +840,11 @@ class SubmittableExerciseEntry(ExerciseEntry):
             submission.feedback_revealed = is_revealed
             submission.feedback_reveal_time = reveal_time
 
+        return {
+            ExerciseEntryBase: [self._params[:1]],
+            ExerciseEntry: [proxy._params for proxy in self.children],
+        }
+
 
 EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
 
@@ -866,16 +854,10 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     KEY_PREFIX = "modulepoints"
     NUM_PARAMS = 2
     INVALIDATORS = [
-        (Submission, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
-        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
-        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
-        (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_module_id)),
-        (RevealRule, [post_delete, post_save], with_user_ids(model_module_id)),
-        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_module_id)),
+        (RevealRule, [post_delete, post_save], with_user_ids(model_module)),
     ]
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
-    invalidate_time: Optional[float]
     is_model_answer_revealed: bool
 
     children_unconfirmed = RevealableAttribute[bool]()
@@ -913,20 +895,17 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         for i, params in enumerate(children):
             children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
 
-    def is_valid(self) -> bool:
-        return (
-            self.invalidate_time is None
-            or time() >= self.invalidate_time
-        )
-
     def _generate_data(
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         module_id, user_id = self._params[:2]
         if not prefetched_data:
             prefetched_data = DBData()
+            # This is required so that dependency detection doesn't trigger
+            # when loaded the next time
+            self._generated_on = prefetched_data.gen_start
 
             if user_id is not None:
                 user = User.objects.get(id=user_id)
@@ -958,7 +937,6 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         self._true_points = 0
         self._points = 0
         self.feedback_revealed = True
-        self.invalidate_time = None
         self._true_points_by_difficulty = {}
         self._points_by_difficulty = {}
         self._true_unconfirmed_points_by_difficulty = {}
@@ -979,7 +957,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
 
         for entry in exercises:
             if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
-                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                self._expires_on = none_min(self._expires_on, entry._expires_on)
                 _add_to(self, entry)
 
         self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
@@ -993,25 +971,20 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
             self.is_model_answer_revealed = reveal_rule.is_revealed(state)
             reveal_time = reveal_rule.get_reveal_time(state)
             timestamp = reveal_time and reveal_time.timestamp()
-            self.invalidate_time = none_min(self.invalidate_time, timestamp)
+            self._expires_on = none_min(self._expires_on, timestamp)
+
+        return {
+            ModuleEntryBase: [self._params[:1]],
+            ExerciseEntry: [proxy._params for proxy in exercises],
+        }
 
 
 CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
 class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
     NUM_PARAMS: ClassVar[int] = 2
-    INVALIDATORS = [
-        (Submission, [post_delete, post_save], with_user_ids(model_instance_id)),
-        (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_instance_id)),
-        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_instance_id)),
-        (RevealRule, [post_delete, post_save], with_user_ids(model_instance_id)),
-        # listen to the m2m_changed signal since submission.submitters is a many-to-many
-        # field and instances must be saved before the many-to-many fields may be modified,
-        # that is to say, the submission post save hook may see an empty submitters list
-        (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_instance_id)),
-    ]
+    INVALIDATORS = []
     user_id: InitVar[int]
-    invalidate_time: Optional[float]
     points_created: datetime.datetime
     categories: Dict[int, CategoryEntry]
     total: Totals
@@ -1057,20 +1030,17 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             prefetched_data=prefetched_data,
         )
 
-    def is_valid(self) -> bool:
-        return (
-            self.invalidate_time is None
-            or time() < self.invalidate_time
-        )
-
     def _generate_data(
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Optional[Dependencies]:
         instance_id, user_id = self._params
         if not prefetched_data:
             prefetched_data = DBData()
+            # This is required so that dependency detection doesn't trigger
+            # when loaded the next time
+            self._generated_on = prefetched_data.gen_start
 
             modules = CourseModule.objects.filter(course_instance_id=instance_id)
             lobjs = LearningObject.objects.filter(course_module__in=modules)
@@ -1106,14 +1076,9 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
         precreated.resolve(self.get_child_proxies(), prefetched_data=prefetched_data)
 
-        self.total.reset_points()
-        for category in self.categories.values():
-            category.reset_points()
-
-        self.invalidate_time = None
         for entry in self.exercise_index.values():
             if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
-                self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
+                self._expires_on = none_min(self._expires_on, entry._expires_on)
                 _add_to(self.categories[entry.category_id], entry)
                 _add_to(self.total, entry)
 
@@ -1122,6 +1087,12 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             category._passed = category._points >= category.points_to_pass
 
         self.points_created = timezone.now()
+
+        # We rely on a ModuleEntry being invalid if any of the exercises are
+        return {
+            CachedDataBase: [self._params[:1]],
+            ModuleEntry: [proxy._params for proxy in self.modules],
+        }
 
 
 class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):

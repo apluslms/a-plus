@@ -7,6 +7,7 @@ from time import time
 from typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
     Collection,
     Dict,
@@ -96,6 +97,8 @@ class DBData:
         return bool(self.data)
 
 
+# generation time, expiry time, dependency params, object state
+CacheData = Union[Tuple[float, None, None, None], Tuple[float, Optional[float], Dict[str, List[str]], Any]]
 ProxyID = Tuple[str, Tuple[Any, ...], Tuple[Any, ...]]
 CacheBaseT = TypeVar("CacheBaseT", bound="CacheBase")
 class ProxyManager:
@@ -109,9 +112,9 @@ class ProxyManager:
     nstates contains new items to be saved to the cache on .save().
     """
     proxies: Dict[ProxyID, CacheBase]
-    fetched_data: Dict[str, Optional[bytes]]
+    fetched_data: Dict[str, Optional[CacheData]]
     new_keys: Set[str]
-    nstates: Dict[str, Tuple[float, bytes]]
+    nstates: Dict[str, CacheData]
 
     def __init__(self, proxies: Iterable[CacheBase] = ()):
         self.fetched_data = {}
@@ -122,8 +125,49 @@ class ProxyManager:
 
     def fetch(self) -> None:
         if self.new_keys:
-            items = CacheTransactionManager().get_many(self.new_keys)
-            self.fetched_data.update((k, item[1]) for k,item in items.items())
+            timestamp = time()
+
+            def fetch(keys: Set[str], used: Set[str]):
+                used.update(keys)
+                items = CacheTransactionManager().get_many(keys)
+                items = cast(Dict[str, Optional[CacheData]], items)
+                dependencies = {}
+                next_keys = set()
+                # Get all dependencies
+                for key in keys:
+                    item = items.get(key)
+                    if item is None:
+                        items[key] = None
+                        continue
+                    if item[2] is None or (item[1] is not None and item[1] < timestamp):
+                        items[key] = None
+                        continue
+
+                    if item[2]:
+                        dependency_keys = []
+                        for key_prefix, postfixes in item[2].items():
+                            dependency_keys.extend(f"{key_prefix}:{postfix}" for postfix in postfixes)
+
+                        dependencies[key] = dependency_keys
+                        next_keys.update(k for k in dependency_keys if k not in used and k not in self.fetched_data)
+
+                # Fetch dependencies
+                if next_keys:
+                    fetch(next_keys, used)
+
+                # Check dependencies for validity
+                for key, dkeys in dependencies.items():
+                    g,*_ = cast(CacheData, items[key])
+                    for k in dkeys:
+                        dependency = items.get(k) or self.fetched_data.get(k)
+                        if dependency is None or dependency[0] > g:
+                            items[key] = None
+                            break
+
+                self.fetched_data.update(items)
+
+            # Get data from cache and check dependencies
+            fetch(self.new_keys, set())
             self.new_keys.clear()
 
     def update(self, proxies: Iterable[CacheBase] = ()) -> None:
@@ -169,7 +213,7 @@ class ProxyManager:
         if proxy is None:
             proxy = cls.proxy(*params, modifiers=modifiers)
             self.proxies[proxy_id] = proxy
-            self.new_keys.update(proxy._keys)
+            self.new_keys.update(key for key in proxy._keys if key not in self.fetched_data)
             proxy._manager = self
         return proxy # type: ignore
 
@@ -412,10 +456,13 @@ class CacheMeta(type):
 
         return ncls
 
+    def _get_key_postfix(cls, params) -> str:
+        return ','.join(str(p) for p in params)
+
     def _get_keys_with_cls(cls, *params) -> List[Tuple[Type[CacheBase], str]]:
         keys = []
         for p in cls._parents:
-            id_str = ','.join(str(p) for p in params[:p.NUM_PARAMS])
+            id_str = p._get_key_postfix(params[:p.NUM_PARAMS])
             cache_key = f"{p.KEY_PREFIX}:{id_str}"
             keys.append((p, cache_key))
         return keys
@@ -432,7 +479,7 @@ class CacheMeta(type):
         # The time is needed in case the cache is being generated at the same time:
         # otherwise the cache could be generated using old data and then saved, even though
         # that data was invalidated
-        CacheTransactionManager().set(cache_key, (time(), None))
+        CacheTransactionManager().set(cache_key, (time(), None, None, None))
 
     def invalidate_many(cls, models_iterable: Collection[Tuple[Any,...]]) -> None:
         if len(models_iterable) == 0:
@@ -440,10 +487,11 @@ class CacheMeta(type):
         params_iterable = (cls.parameter_ids(*models) for models in models_iterable)
         cache_keys = [cls._get_keys_with_cls(*params)[-1][1] for params in params_iterable]
         logger.debug("Invalidating cached data for %s%s", cls.__name__, cache_keys)
-        t = (time(), None)
+        t = (time(), None, None, None)
         CacheTransactionManager().set_many({ key: t for key in cache_keys })
 
 
+Dependencies = Dict[Type["CacheBase"], Iterable[Tuple[Any,...]]]
 T = TypeVar("T", bound="CacheBase")
 class CacheBase(metaclass=CacheMeta):
     _keys_with_cls: NoCache[List[Tuple[Type[CacheBase], str]]]
@@ -452,6 +500,7 @@ class CacheBase(metaclass=CacheMeta):
     _params: NoCache[Tuple[Any, ...]]
     _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
+    _expires_on: Varies[Optional[float]]
     # This might not exist if the object wasn't created through a ProxyManager
     _manager: NoCache[ProxyManager]
 
@@ -566,8 +615,8 @@ class CacheBase(metaclass=CacheMeta):
 
     def _build(
             self,
-            cache_data: Dict[str, Any],
-            new_cache_data: Dict[str, Tuple[float, bytes]],
+            cache_data: Dict[str, Optional[CacheData]],
+            new_cache_data: Dict[str, CacheData],
             precreated: ProxyManager,
             prefetched_data: Optional[DBData],
             ):
@@ -577,7 +626,6 @@ class CacheBase(metaclass=CacheMeta):
         # Set _resolved to true here to make sure that _get_data doesn't accidentally trigger lazy resolving
         # or recursively try to resolve self again
         self._resolved = True
-        parent_generated_on: Dict[type, float] = {}
         for base_cls, cache_key in self._keys_with_cls:
             # Trick python to use the base_cls' versions of methods instead of the original class'.
             # This should ensure that _get_data (and _generate_data) work correctly even if self
@@ -585,9 +633,12 @@ class CacheBase(metaclass=CacheMeta):
             self.__class__ = base_cls
 
             attrs = cache_data.get(cache_key)
+            if attrs is not None and attrs[3] is None:
+                attrs = None
+
             if attrs is not None:
                 try:
-                    unpickler = Unpickler(precreated, attrs)
+                    unpickler = Unpickler(precreated, attrs[3])
                     self._setstate(unpickler.load())
                 except TypeError as e:
                     logger.warning("_setstate TypeError with %s[%s]: %s", base_cls, cache_key, e)
@@ -595,20 +646,15 @@ class CacheBase(metaclass=CacheMeta):
                 else:
                     self.post_get(precreated)
 
-                    # Regenerate if any of the parents are newer than the loaded data
-                    for b in base_cls._parents:
-                        genedon = parent_generated_on.get(b)
-                        if genedon and genedon > self._generated_on:
-                            attrs = None # Generate new cache data
-                            break
-
             if attrs is None or not self.is_valid():
-                self._get_data(precreated, prefetched_data)
+                dependencies = self._get_data(precreated, prefetched_data)
+                dependencies = {
+                    dcls.KEY_PREFIX: [dcls._get_key_postfix(params) for params in paramss]
+                    for dcls,paramss in dependencies.items()
+                }
                 pickler = Pickler()
                 pickler.dump(self._getstate())
-                new_cache_data[cache_key] = (self._generated_on, pickler.getvalue())
-
-            parent_generated_on[base_cls] = self._generated_on
+                new_cache_data[cache_key] = (self._generated_on, self._expires_on, dependencies, pickler.getvalue())
 
         # Do not reset the class back if _get_data/unpickler changed the type
         if self.__class__ is base_cls:
@@ -620,7 +666,7 @@ class CacheBase(metaclass=CacheMeta):
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
-            ):
+            ) -> Dependencies:
         if prefetched_data is None:
             gen_start = time()
         else:
@@ -628,10 +674,17 @@ class CacheBase(metaclass=CacheMeta):
         gen_start_dt = str(datetime.fromtimestamp(gen_start))
         cache_name = "%s[%s]" % (self.__class__.__name__, self._params)
         logger.debug("Generating cached data for %s with ts %s", cache_name, gen_start_dt)
-        self._generate_data(precreated=precreated, prefetched_data=prefetched_data)
-        self._generated_on = gen_start
+        self._expires_on = None
+        dependencies = self._generate_data(precreated=precreated, prefetched_data=prefetched_data)
+        if "_generated_on" not in self.__dict__:
+            self._generated_on = gen_start
+        else:
+            self._generated_on = max(gen_start, self._generated_on)
+        return dependencies or {}
 
-    def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
+    def _generate_data(
+            self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None
+            ) -> Optional[Dependencies]:
         """Generate the data for self. Use precreated to get/create/resolve any additional cache objects"""
         raise NotImplementedError(
             f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data"
