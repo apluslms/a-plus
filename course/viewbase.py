@@ -42,6 +42,7 @@ class CourseInstanceBaseMixin:
     course_permission_classes = (
         CourseVisiblePermission,
     )
+    content: CachedContent
 
     def get_permissions(self):
         perms = super().get_permissions()
