@@ -109,7 +109,6 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
             children.append(self.parent)
         return children
 
-    # pylint: disable-next=arguments-differ too-many-locals
     def _generate_data(
             self,
             precreated: ProxyManager,
@@ -220,7 +219,6 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.children
 
-    # pylint: disable-next=arguments-differ too-many-locals
     def _generate_data(
             self,
             precreated: ProxyManager,
@@ -327,7 +325,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
         return self.course_url_kwargs
 
     @classmethod
-    def get(
+    def get( # pylint: disable=arguments-differ
             cls: Type[CachedDataBaseType],
             instance: Union[CourseInstance, int],
             prefetch_children: bool = True,
@@ -342,7 +340,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return self.modules + list(self.exercise_index.values())
 
-    def _generate_data(
+    def _generate_data( # pylint: disable=too-many-locals
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
