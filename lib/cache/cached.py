@@ -17,6 +17,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Sequence,
     Set,
     Tuple,
     Type,
@@ -123,6 +124,8 @@ class ProxyManager:
             for proxy in proxies
         })
         self.new_keys.update(key for proxy in proxies for key in proxy._keys)
+        for proxy in proxies:
+            proxy._manager = self
 
     def resolve(self, proxies: Iterable[CacheBase], prefetched_data: Optional[DBData] = None) -> None:
         self.fetch()
@@ -159,14 +162,19 @@ class ProxyManager:
             proxy = cls.proxy(*params, modifiers=modifiers)
             self.proxies[proxy_id] = proxy
             self.new_keys.update(proxy._keys)
+            proxy._manager = self
         return proxy # type: ignore
 
 
-def resolve_proxies(proxies: Iterable[CacheBase]) -> None:
+def resolve_proxies(proxies: Sequence[CacheBase]) -> None:
     """Resolve proxies and save any newly generated ones"""
-    manager = ProxyManager(proxies)
-    manager.resolve(proxies)
-    manager.save()
+    if proxies:
+        try:
+            manager = proxies[0]._manager
+        except AttributeError:
+            manager = ProxyManager(proxies)
+        manager.resolve(proxies)
+        manager.save()
 
 
 class Pickler(pickle.Pickler):
@@ -412,6 +420,8 @@ class CacheBase(metaclass=CacheMeta):
     _params: NoCache[Tuple[Any, ...]]
     _modifiers: NoCache[Tuple[Any, ...]]
     _generated_on: Varies[float]
+    # This might not exist if the object wasn't created through a ProxyManager
+    _manager: NoCache[ProxyManager]
 
     def __init__(self, *args, **kwargs):
         raise TypeError("CacheBase classes cannot be instantiated normally. Use .get(...) or .proxy(...) instead.")
@@ -437,8 +447,7 @@ class CacheBase(metaclass=CacheMeta):
 
     def populate_children(self, prefetched_data: Optional[DBData] = None):
         children = self.get_child_proxies()
-        precreated = ProxyManager([self, *children])
-        precreated.resolve(children, prefetched_data=prefetched_data)
+        self._manager.resolve(children)
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
         return []
