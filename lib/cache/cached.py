@@ -100,6 +100,15 @@ class DBData:
 ProxyID = Tuple[str, Tuple[Any, ...], Tuple[Any, ...]]
 CacheBaseT = TypeVar("CacheBaseT", bound="CacheBase")
 class ProxyManager:
+    """Handles creating and building cache objects while trying to minimize
+    the number of cache operations.
+
+    proxies contains a list of proxies managed by this manager.
+    fetched_data holds on to the data fetched from the cache.
+    new_keys contains cache keys that were added to the manager since the
+    last cache get.
+    nstates contains new items to be saved to the cache on .save().
+    """
     proxies: Dict[ProxyID, CacheBase]
     fetched_data: Dict[str, Optional[bytes]]
     new_keys: Set[str]
@@ -178,6 +187,7 @@ def resolve_proxies(proxies: Sequence[CacheBase]) -> None:
 
 
 class Pickler(pickle.Pickler):
+    """Custom pickler that returns persistent ids for cache objects"""
     def __init__(self):
         self.buf = BytesIO()
         super().__init__(self.buf)
@@ -192,6 +202,9 @@ class Pickler(pickle.Pickler):
 
 
 class Unpickler(pickle.Unpickler):
+    """Custom unpickler that resolves persistent ids for cache objects created by the above pickler
+    using the given proxy manager. Cache objects with the same params and modifiers will be set to
+    the same instance"""
     precreated: ProxyManager
 
     def __init__(self, precreated, data):
@@ -319,7 +332,20 @@ def _invalidator(cls: CacheMeta, attrs_or_generator: Union[Tuple[str,...], Param
 
 
 class CacheMeta(type):
-    """A metaclass for CacheBase to set the _cached_fields attribute automatically for each subclass"""
+    """
+    A metaclass for CacheBase to set the _cached_fields attribute automatically for each subclass
+
+    Class variables:
+    - KEY_PREFIX: prefix used for the cache key
+    - NUM_PARAMS: number of cache parameters (i.e. the parameters given to CacheBase.get())
+    - INVALIDATORS: A list of (Model, List[ModelSignal], ParamAttrsOrGenerator). Used to
+    determine which database models invalidate the cache. See basetypes.py and points.py for examples on use.
+    - PARENTS: Can be used to override the parent items in cache. In essence, this can be used to
+    manually determine which parent classes should be fetched separately and which should be included in the
+    this class' cache. (Classes in PARENTS will be fetched separately)
+    - PROTO_BASES: Base classes that are to be handled as protocols: their fields are not included in the
+    cache.
+    """
     # Use PARENTS: Tuple[CacheMeta, ...] to manually determine the parent classes
     KEY_PREFIX: str
     NUM_PARAMS: int
@@ -594,4 +620,5 @@ class CacheBase(metaclass=CacheMeta):
         self._generated_on = gen_start
 
     def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
+        """Generate the data for self. Use precreated to get/create/resolve any additional cache objects"""
         raise NotImplementedError(f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data")
