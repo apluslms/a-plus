@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule, StudentGroup
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
-from lib.cache.cached import CacheBase, DBData, ProxyManager, resolve_proxies
+from lib.cache.cached import DBData, ProxyManager, resolve_proxies
 from lib.helpers import format_points
 from notification.models import Notification
 from .basetypes import (
@@ -81,7 +81,7 @@ def cache_fields(cls):
         if not hasattr(b, "_dc_fields"):
             try:
                 b._dc_fields = fields(b)
-            except:
+            except TypeError:
                 pass
 
     return cls
@@ -171,14 +171,21 @@ def prefetch_exercise_data(
                 instance = lobj.course_instance
 
         if instance is not None:
-            groups = StudentGroup.objects.filter(course_instance=instance, members=user.userprofile).prefetch_related("members")
+            groups = (
+                StudentGroup.objects.filter(
+                    course_instance=instance, members=user.userprofile
+                ).prefetch_related("members")
+            )
         else:
             groups = []
 
         submission_queryset = (
             user.userprofile.submissions
             .prefetch_related("notifications", "submitters")
-            .only('id', 'exercise', 'submission_time', 'status', 'grade', 'force_exercise_points', 'grader_id', 'meta_data', 'late_penalty_applied')
+            .only(
+                'id', 'exercise', 'submission_time', 'status', 'grade',
+                'force_exercise_points', 'grader_id', 'meta_data', 'late_penalty_applied'
+            )
             .order_by('-submission_time')
         )
 
@@ -217,8 +224,7 @@ class RevealableAttribute(Generic[RType]):
     def __get__(self, instance, owner=None) -> RType:
         if instance.feedback_revealed:
             return getattr(instance, self.true_name)
-        else:
-            return getattr(instance, self.name)
+        return getattr(instance, self.name)
 
 
 @dataclass(repr=False)
@@ -359,8 +365,7 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def unconfirmed(self) -> bool:
         if self.parent:
             return self.parent.children_unconfirmed
-        else:
-            return self.module.children_unconfirmed
+        return self.module.children_unconfirmed
 
     @property
     def is_revealed(self) -> bool:
@@ -373,18 +378,16 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def _true_unconfirmed(self) -> bool:
         if self.parent:
             return self.parent._true_children_unconfirmed
-        else:
-            return self.module._true_children_unconfirmed
+        return self.module._true_children_unconfirmed
 
     @property
     def _unconfirmed(self) -> bool:
         if self.parent:
             return self.parent._children_unconfirmed
-        else:
-            return self.module._children_unconfirmed
+        return self.module._children_unconfirmed
 
     @classmethod
-    def get(
+    def get( # pylint: disable=arguments-differ too-many-arguments
             cls: Type[ExerciseEntryType],
             lobj: Union[LearningObject, int],
             user: Union[User, int, None],
@@ -425,7 +428,9 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module._params, user_id, modifiers=modifiers)
 
         if self.parent:
-            self.parent = precreated.get_or_create_proxy(ExerciseEntry, *self.parent._params, user_id, modifiers=modifiers)
+            self.parent = precreated.get_or_create_proxy(
+                ExerciseEntry, *self.parent._params, user_id, modifiers=modifiers
+            )
 
         children = self.children
         for i, params in enumerate(children):
@@ -440,7 +445,10 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
             or time() >= self.invalidate_time
         )
 
-    def _prefetch_data(self, prefetched_data: Optional[DBData]) -> Tuple[DBData, LearningObject, Optional[User], Iterable[LearningObject], Iterable[LearningObject]]:
+    def _prefetch_data(
+            self,
+            prefetched_data: Optional[DBData],
+            ) -> Tuple[DBData, LearningObject, Optional[User], Iterable[LearningObject], Iterable[LearningObject]]:
         lobj_id, user_id = self._params[:2]
         lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
         if user_id is None:
@@ -468,15 +476,29 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
 
         return prefetched_data, lobj, user, module_lobjs, child_lobjs
 
-    def _generate_common(self, precreated: ProxyManager, prefetched_data: DBData, lobj, module_lobjs, child_lobjs):
+    def _generate_common( # pylint: disable=too-many-arguments
+            self,
+            precreated: ProxyManager,
+            prefetched_data: DBData,
+            lobj: LearningObject,
+            module_lobjs: Iterable[LearningObject],
+            child_lobjs: Iterable[LearningObject],
+            ):
         user_id = self._params[1]
 
-        self.module = precreated.get_or_create_proxy(ModuleEntry, lobj.course_module_id, user_id, modifiers=self._modifiers)
+        self.module = precreated.get_or_create_proxy(
+            ModuleEntry, lobj.course_module_id, user_id, modifiers=self._modifiers
+        )
         if lobj.parent:
-            self.parent = precreated.get_or_create_proxy(ExerciseEntry, lobj.parent_id, user_id, modifiers=self._modifiers)
+            self.parent = precreated.get_or_create_proxy(
+                ExerciseEntry, lobj.parent_id, user_id, modifiers=self._modifiers
+            )
         else:
             self.parent = None
-        self.children = [precreated.get_or_create_proxy(ExerciseEntry, o.id, user_id, modifiers=self._modifiers) for o in child_lobjs]
+        self.children = [
+            precreated.get_or_create_proxy(ExerciseEntry, o.id, user_id, modifiers=self._modifiers)
+            for o in child_lobjs
+        ]
         if isinstance(lobj, CourseChapter):
             self.model_answer_modules = [
                 precreated.get_or_create_proxy(ModuleEntry, module.id, user_id, modifiers=self._modifiers)
@@ -488,8 +510,8 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         if any(not s._resolved for s in self.children):
             # Create proxies for all the module learning objects, so that there is
             # no need to fetch them from the cache recursively through .resolve() below
-            for lobj in module_lobjs:
-                precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
+            for mlobj in module_lobjs:
+                precreated.get_or_create_proxy(ExerciseEntry, mlobj.id, user_id, modifiers=self._modifiers)
 
             precreated.resolve(self.children, prefetched_data=prefetched_data)
 
@@ -533,6 +555,7 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
                 self.invalidate_time = none_min(self.invalidate_time, entry.invalidate_time)
                 self._true_passed = self._true_passed and entry._true_passed
                 self._passed = self._passed and entry._passed
+                # pylint: disable-next=unidiomatic-typecheck
                 if type(entry) is ExerciseEntry or (isinstance(entry, SubmittableExerciseEntry) and entry.graded):
                     self._true_points += entry._true_points
                     self._points += entry._points
@@ -551,7 +574,11 @@ class SubmittableExerciseEntry(ExerciseEntry):
         # These invalidate exercises with confirm_the_level = True whenever any of its sibling exercises change
         (Submission, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
         (DeadlineRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
-        (MaxSubmissionsRuleDeviation, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
+        (
+            MaxSubmissionsRuleDeviation,
+            [post_delete, post_save],
+            with_user_ids(model_exercise_siblings_confirms_the_level)
+        ),
         (RevealRule, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_ancestors)),
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
@@ -586,7 +613,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
         return None
 
     @classmethod
-    def get(cls,
+    def get(cls, # pylint: disable=arguments-renamed too-many-arguments
             exercise: Union[BaseExercise, int],
             user: Union[User, int, None],
             show_unrevealed: bool = False,
@@ -606,7 +633,8 @@ class SubmittableExerciseEntry(ExerciseEntry):
         for submission in self.submissions:
             submission.reveal(self._modifiers[0])
 
-    def _generate_data(
+    # pylint: disable-next=too-many-locals
+    def _generate_data( # noqa: MC0001
             self,
             precreated: ProxyManager,
             prefetched_data: Optional[DBData] = None,
@@ -624,8 +652,12 @@ class SubmittableExerciseEntry(ExerciseEntry):
         if user is not None:
             # We rely on these only containing the max deviations for user
             deadline_deviations = DBData.filter_db_objects(prefetched_data, DeadlineRuleDeviation, exercise_id=lobj_id)
-            submission_deviations = DBData.filter_db_objects(prefetched_data, MaxSubmissionsRuleDeviation, exercise_id=lobj_id)
-            sibling_lobjs = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj.parent_id, course_module_id=lobj.course_module_id)
+            submission_deviations = DBData.filter_db_objects(
+                prefetched_data, MaxSubmissionsRuleDeviation, exercise_id=lobj_id
+            )
+            sibling_lobjs = DBData.filter_db_objects(
+                prefetched_data, LearningObject, parent_id=lobj.parent_id, course_module_id=lobj.course_module_id
+            )
             instance_id = lobj.course_module.course_instance_id
             groups = DBData.filter_db_objects(prefetched_data, StudentGroup, course_instance_id=instance_id)
         else:
@@ -637,7 +669,10 @@ class SubmittableExerciseEntry(ExerciseEntry):
         self.confirmable_points = False
         if self.confirm_the_level:
             # Only resolve siblings with confirm_the_level=False so there are not cyclical dependencies
-            siblings = [precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers) for lobj in sibling_lobjs if not lobj.category.confirm_the_level]
+            siblings = [
+                precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
+                for lobj in sibling_lobjs if not lobj.category.confirm_the_level
+            ]
             if any(not s._resolved for s in siblings):
                 precreated.resolve(siblings, prefetched_data=prefetched_data)
 
@@ -846,7 +881,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     children_unconfirmed = RevealableAttribute[bool]()
 
     @classmethod
-    def get(
+    def get( # pylint: disable=arguments-differ too-many-arguments
             cls: Type[ModuleEntryType],
             module: Union[CourseModule, int],
             user: Union[User, int, None],
@@ -870,7 +905,9 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         user_id = self._params[1]
         modifiers = self._modifiers
 
-        self.instance = precreated.get_or_create_proxy(CachedPointsData, *self.instance._params, user_id, modifiers=modifiers)
+        self.instance = precreated.get_or_create_proxy(
+            CachedPointsData, *self.instance._params, user_id, modifiers=modifiers
+        )
 
         children = self.children
         for i, params in enumerate(children):
@@ -907,7 +944,10 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
             module = prefetched_data.get_db_object(CourseModule, module_id)
             lobjs = prefetched_data.filter_db_objects(LearningObject, course_module_id=module_id)
 
-        exercises = [precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers) for lobj in lobjs]
+        exercises = [
+            precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
+            for lobj in lobjs
+        ]
         if any(not s._resolved for s in exercises):
             precreated.resolve(exercises, prefetched_data=prefetched_data)
 
@@ -924,7 +964,9 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         self._true_unconfirmed_points_by_difficulty = {}
         self._unconfirmed_points_by_difficulty = {}
 
-        self.instance = precreated.get_or_create_proxy(CachedPointsData, module.course_instance_id, user_id, modifiers=self._modifiers)
+        self.instance = precreated.get_or_create_proxy(
+            CachedPointsData, module.course_instance_id, user_id, modifiers=self._modifiers
+        )
         self.children = [ex for ex in exercises if ex.parent is None]
 
         must_confirm = any(entry.confirm_the_level for entry in self.children)
@@ -995,10 +1037,12 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
 
         exercise_index = self.exercise_index
         for k, entry in exercise_index.items():
-            exercise_index[k] = precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=modifiers)
+            exercise_index[k] = precreated.get_or_create_proxy(
+                ExerciseEntry, *entry._params, user_id, modifiers=modifiers
+            )
 
     @classmethod
-    def get(
+    def get( # pylint: disable=arguments-renamed too-many-arguments
             cls: Type[CachedPointsDataType],
             instance: Union[CourseInstance, int],
             user: Union[User, int, None],
@@ -1148,9 +1192,11 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
         return submissions
 
     @overload
-    def entry_for_exercise(self, model: BaseExercise) -> SubmittableExerciseEntry: ...
+    def entry_for_exercise(self, model: BaseExercise) -> SubmittableExerciseEntry:
+        ...
     @overload
-    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry: ...
+    def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry:
+        ...
     def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry:
         return super().entry_for_exercise(model)
 
@@ -1164,11 +1210,13 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
 
 
 # Required so that Submission post_delete receivers can access submitters
+# pylint: disable-next=unused-argument
 def prefetch_submitters(sender: Type[Submission], instance: Submission, **kwargs: Any) -> None:
     prefetch_related_objects([instance], "submitters")
 
 
 # Required so that RevealRule post_delete receivers can access exercise
+# pylint: disable-next=unused-argument
 def prefetch_exercise(sender: Type[RevealRule], instance: RevealRule, **kwargs: Any) -> None:
     try:
         instance.exercise = BaseExercise.objects.get(submission_feedback_reveal_rule=instance)
@@ -1177,6 +1225,7 @@ def prefetch_exercise(sender: Type[RevealRule], instance: RevealRule, **kwargs: 
 
 
 # Required so that RevealRule post_delete receivers can access module
+# pylint: disable-next=unused-argument
 def prefetch_module(sender: Type[RevealRule], instance: RevealRule, **kwargs: Any) -> None:
     try:
         instance.module = CourseModule.objects.get(model_solution_reveal_rule=instance)

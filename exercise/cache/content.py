@@ -9,6 +9,8 @@ Totals = TotalsBase
 CategoryEntry = CategoryEntryBase
 # This is a class because a type alias with ForwardRefs cannot be pickled (i.e. cached)
 class ExerciseEntry(ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]): ...
+
+
 ModuleEntry = ModuleEntryBase[ExerciseEntry]
 CachedContentData = CachedDataBase[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]
 

@@ -2,11 +2,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import (
     cast,
-    Dict,
     Generator,
     Generic,
     Iterable,
-    Iterator,
     List,
     Literal,
     Optional,
@@ -19,16 +17,16 @@ from typing import (
 
 from django.http.response import Http404
 
-from course.models import CourseModule, LearningObjectCategory
+from course.models import CourseModule
 from ..models import LearningObject
 from .basetypes import CachedDataBase, CategoryEntryBase, ExerciseEntryBase, ModuleEntryBase, TotalsBase
 from .exceptions import NoSuchContent
 
 
-ExerciseEntry = TypeVar("ExerciseEntry", bound="ExerciseEntryBase")
-ModuleEntry = TypeVar("ModuleEntry", bound="ModuleEntryBase")
-CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
-Totals = TypeVar("Totals", bound="TotalsBase")
+ExerciseEntry = TypeVar("ExerciseEntry", bound=ExerciseEntryBase)
+ModuleEntry = TypeVar("ModuleEntry", bound=ModuleEntryBase)
+CategoryEntry = TypeVar("CategoryEntry", bound=CategoryEntryBase)
+Totals = TypeVar("Totals", bound=TotalsBase)
 
 
 Entry = Union[ExerciseEntry, ModuleEntry]
@@ -58,21 +56,26 @@ def next_iterator(
         tree: Optional[Sequence[Entry[EE, ME]]] = None,
         skip_first: bool = False,
         level_markers: Literal[True] = True,
-        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]: ...
+        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+    ...
 @overload
 def next_iterator(
         children: Sequence[Entry[EE, ME]],
         tree: Optional[Sequence[Entry[EE, ME]]] = None,
         skip_first: bool = False,
         level_markers: Literal[False] = True, # type: ignore
-        ) -> Generator[Entry[EE, ME], None, None]: ...
+        ) -> Generator[Entry[EE, ME], None, None]:
+    ...
 def next_iterator(
         children: Sequence[Entry[EE, ME]],
         tree: Optional[Sequence[Entry[EE, ME]]] = None,
         skip_first: bool = False,
         level_markers: bool = True,
         ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
-    def descendants(entry: Entry[EE, ME], start: List[int]) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+    def descendants(
+            entry: Entry[EE, ME],
+            start: List[int],
+            ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
         children = entry.children
         if start:
             children = children[start[0]:]
@@ -197,22 +200,24 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
         return categories
 
     @overload
-    def flat_module(
+    def flat_module( # pyright: ignore[reportGeneralTypeIssues]
             self,
             module: Union[ModuleEntry, CourseModule],
             level_markers: Literal[True] = True,
-            ) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]: ...
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+        return [] # Needed for pylint
     @overload
     def flat_module(
             self,
             module: Union[ModuleEntry, CourseModule],
             level_markers: Literal[False] = True, # type: ignore
-            ) -> Iterator[Union[ModuleEntry, ExerciseEntry]]: ...
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry]]:
+        ...
     def flat_module(
             self,
             module: Union[ModuleEntry, CourseModule],
             level_markers: bool = True,
-            ) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
         entry = self.entry_for_model(module)
         children = cast(List[ExerciseEntry], entry.children)
         return next_iterator(
@@ -221,12 +226,17 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
         )
 
     @overload
-    def flat_full(self, level_markers: Literal[True] = True) -> Iterator[Union[ModuleEntry, ExerciseEntry, LevelMarker]]: ...
+    def flat_full( # pyright: ignore[reportGeneralTypeIssues]
+        self,
+        level_markers: Literal[True] = True,
+        ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+        return [] # Needed for pylint
     @overload
     def flat_full(
             self,
             level_markers: Literal[False] = True, # type: ignore
-            ) -> Iterator[Union[ModuleEntry, ExerciseEntry]]: ...
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry]]:
+        ...
     def flat_full(self, level_markers = True):
         return next_iterator(
             self.modules(),
@@ -251,7 +261,10 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
         E.g. number="3.2.5" takes the fifth learning object in the second
         learning object of the third module
         """
-        def find(search: Sequence[Union[ModuleEntry, ExerciseEntry]], number: str) -> Union[ModuleEntry, ExerciseEntry]:
+        def find(
+                search: Sequence[Union[ModuleEntry, ExerciseEntry]],
+                number: str,
+                ) -> Union[ModuleEntry, ExerciseEntry]:
             for s in search:
                 if s.number == number:
                     return s
@@ -332,11 +345,11 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
             ) -> Union[ModuleEntry, ExerciseEntry]:
         if isinstance(model, ModuleEntryBase):
             return self.get_module(model.id)
-        elif isinstance(model, ExerciseEntryBase):
+        if isinstance(model, ExerciseEntryBase):
             return self.get_exercise(model.id)
-        elif isinstance(model, CourseModule):
+        if isinstance(model, CourseModule):
             return self.get_module(model.id)
-        elif isinstance(model, LearningObject):
+        if isinstance(model, LearningObject):
             return self.get_exercise(model.id)
 
         raise NoSuchContent()
@@ -344,24 +357,24 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     def entry_for_exercise(self, model: LearningObject) -> ExerciseEntry:
         return self.get_exercise(model.id)
 
-    def get_exercise(self, id: int) -> ExerciseEntry:
-        if id in self.data.exercise_index:
-            return self.data.exercise_index[id]
+    def get_exercise(self, exercise_id: int) -> ExerciseEntry:
+        if exercise_id in self.data.exercise_index:
+            return self.data.exercise_index[exercise_id]
         raise NoSuchContent()
 
     def entry_for_module(self, model: CourseModule) -> ModuleEntry:
         return self.get_module(model.id)
 
-    def get_module(self, id: int) -> ModuleEntry:
-        if id in self.data.module_index:
-            return self.data.module_index[id]
+    def get_module(self, module_id: int) -> ModuleEntry:
+        if module_id in self.data.module_index:
+            return self.data.module_index[module_id]
         raise NoSuchContent()
 
     def search_exercises(self, **kwargs) -> List[ExerciseEntryBase]:
         _, entries = self.search_entries(**kwargs)
         return [e for e in entries if isinstance(e, ExerciseEntryBase)]
 
-    def search_entries(
+    def search_entries( # pylint: disable=too-many-arguments
             self,
             number: Optional[str] = None,
             category_id: Optional[int] = None,
@@ -408,8 +421,8 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
             ):
                 entries.append(entry) # type: ignore
 
-            for entry in entry.children:
-                search_descendants(entry)
+            for child in entry.children:
+                search_descendants(child)
 
         if entry:
             search_descendants(entry)
