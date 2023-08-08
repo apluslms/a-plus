@@ -49,6 +49,14 @@ $questionnaire-focus-bg: #bce8f1;
 		color: #333;
 	}
 
+	/* Incorrectly answered question group with 'group_errors' grading. */
+	fieldset.alert-danger {
+		background-color: $body-bg;
+		color: #333;
+		border: 2px solid $brand-danger;
+		font-weight: bold;
+	}
+
 	.quiz1-icon-correct {
 		@include icons.glyphicon;
 		color: #5cb85c;
