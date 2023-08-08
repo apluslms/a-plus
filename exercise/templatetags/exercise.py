@@ -1,7 +1,5 @@
-from dataclasses import asdict
-import datetime
 import json
-from typing import Any, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Optional, Union
 
 from django import template
 from django.contrib.auth.models import User
@@ -27,7 +25,6 @@ from ..cache.points import (
     SubmittableExerciseEntry,
 )
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
-from ..reveal_states import ExerciseRevealState
 
 
 register = template.Library()
@@ -158,7 +155,7 @@ AnyPointsEntry = Union[
     SubmissionEntry,
 ]
 
-def _points_data( # pylint: disable=too-many-locals
+def _points_data(
         obj: AnyPointsEntry,
         classes: Optional[str] = None,
         ) -> Dict[str, Any]:

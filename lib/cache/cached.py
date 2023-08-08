@@ -7,7 +7,6 @@ from time import time
 from typing import (
     Any,
     Callable,
-    cast,
     ClassVar,
     Collection,
     Dict,
@@ -349,13 +348,20 @@ class CacheMeta(type):
     # Use PARENTS: Tuple[CacheMeta, ...] to manually determine the parent classes
     KEY_PREFIX: str
     NUM_PARAMS: int
-    INVALIDATORS: List[Tuple[Type[Model], List[ModelSignal], Union[Tuple[str,...], ParamGenerator, ParamGeneratorWithKwargs]]]
+    INVALIDATORS: List[
+        Tuple[
+            Type[Model],
+            List[ModelSignal],
+            Union[Tuple[str,...], ParamGenerator, ParamGeneratorWithKwargs]
+        ]
+    ]
     _cached_fields: Tuple[str, ...]
     _varying_fields: Tuple[str, ...]
     _all_cached_fields: Set[str]
     _parents: Tuple[Type[CacheBase], ...]
     _proto_bases: Tuple[type, ...]
 
+    # pylint: disable-next=too-many-locals
     def __new__(cls, name, bases, namespace, **kwargs):
         ncls = super().__new__(cls, name, bases, namespace, **kwargs)
 
@@ -421,7 +427,7 @@ class CacheMeta(type):
 
     def invalidate(cls, *models: Any) -> None:
         _, cache_key = cls._get_keys_with_cls(*cls.parameter_ids(*models))[-1]
-        logger.debug(f"Invalidating cached data for {cls.__name__}[{cache_key}]")
+        logger.debug("Invalidating cached data for %s[%s]", cls.__name__, cache_key)
         # The cache is invalid, if the invalidate time is greater than the generation time
         # The time is needed in case the cache is being generated at the same time:
         # otherwise the cache could be generated using old data and then saved, even though
@@ -433,7 +439,7 @@ class CacheMeta(type):
             return
         params_iterable = (cls.parameter_ids(*models) for models in models_iterable)
         cache_keys = [cls._get_keys_with_cls(*params)[-1][1] for params in params_iterable]
-        logger.debug(f"Invalidating cached data for {cls.__name__}[{', '.join(cache_keys)}]")
+        logger.debug("Invalidating cached data for %s%s", cls.__name__, cache_keys)
         t = (time(), None)
         CacheTransactionManager().set_many({ key: t for key in cache_keys })
 
@@ -503,11 +509,11 @@ class CacheBase(metaclass=CacheMeta):
 
     def __getattr__(self, name: str) -> Any:
         if not self._resolved and name in self.__class__._all_cached_fields:
-            logger.debug(f"Lazy resolving {self!r} due to missing {name}")
+            logger.debug("Lazy resolving %r due to missing %s", self, name)
             resolve_proxies([self])
             return getattr(self, name)
-        elif name in self.__class__._all_cached_fields:
-            logger.error(f"Lazy resolving loop for {self!r} due to missing {name}")
+        if name in self.__class__._all_cached_fields:
+            logger.error("Lazy resolving loop for %r due to missing %s", self, name)
 
         raise AttributeError(f"{name} not found in {self!r}")
 
@@ -539,7 +545,13 @@ class CacheBase(metaclass=CacheMeta):
         return cls._get(params, modifiers, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
 
     @classmethod
-    def _get(cls: Type[T], params: Tuple[Any,...], modifiers: Tuple[Any,...] = (), prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
+    def _get(
+            cls: Type[T],
+            params: Tuple[Any,...],
+            modifiers: Tuple[Any,...] = (),
+            prefetch_children: bool = False,
+            prefetched_data: Optional[DBData] = None,
+            ) -> T:
         precreated = ProxyManager()
         obj = precreated.get_or_create_proxy(cls, *params, modifiers=modifiers)
         precreated.resolve([obj], prefetched_data=prefetched_data)
@@ -578,7 +590,7 @@ class CacheBase(metaclass=CacheMeta):
                     unpickler = Unpickler(precreated, attrs)
                     self._setstate(unpickler.load())
                 except TypeError as e:
-                    logger.warning(f"_setstate TypeError with {base_cls}[{cache_key}]: {e}")
+                    logger.warning("_setstate TypeError with %s[%s]: %s", base_cls, cache_key, e)
                     attrs = None # Generate new cache data
                 else:
                     self.post_get(precreated)
@@ -621,4 +633,6 @@ class CacheBase(metaclass=CacheMeta):
 
     def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
         """Generate the data for self. Use precreated to get/create/resolve any additional cache objects"""
-        raise NotImplementedError(f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data")
+        raise NotImplementedError(
+            f"Subclass of CacheBase ({self.__class__.__name__}) needs to implement _generate_data"
+        )
