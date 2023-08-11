@@ -1494,7 +1494,13 @@ def _delete_file(sender, instance, **kwargs): # pylint: disable=unused-argument
     """
     Deletes exercise attachment file after the exercise in database is removed.
     """
-    default_storage.delete(instance.attachment.path)
+    try:
+        path = instance.attachment.path
+    except ValueError:
+        # The file doesn't exist in storage
+        pass
+    else:
+        default_storage.delete(path)
 
 
 def _clear_cache(sender, instance, **kwargs): # pylint: disable=unused-argument
