@@ -309,6 +309,26 @@ $(function() {
                 copyTargetCounter += 1;
             }
 
+            // If the URL ends with a file extension or "Dockerfile", set language for highlight.js manually.
+            // The programming language is detected automatically if highlight.js does not know the file extension or
+            // the URL does not end with a file extension.
+            const url = codeBlock.attr('data-url');
+            if (url) {
+              let fileExtOrAlias = "";
+              const splitUrl = url.split('.');
+              if (splitUrl.length > 1) { // Has file extension
+                fileExtOrAlias = splitUrl.pop();
+              } else if (splitUrl.pop().endsWith("Dockerfile")) {
+                fileExtOrAlias = "dockerfile";
+              }
+              if (fileExtOrAlias === "m") {
+                fileExtOrAlias = "matlab";
+              }
+              if (fileExtOrAlias) {
+                codeBlock.addClass('hljs language-' + fileExtOrAlias);
+              }
+            }
+
             hljs.highlightElement(codeBlock[0]);
 
             // Add line numbers.
