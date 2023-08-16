@@ -265,6 +265,7 @@ def update_learning_objects( # noqa: MC0001
                     "time": RevealRule.TRIGGER.TIME,
                     "deadline": RevealRule.TRIGGER.DEADLINE,
                     "deadline_all": RevealRule.TRIGGER.DEADLINE_ALL,
+                    "deadline_or_full_points": RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS,
                     "completion": RevealRule.TRIGGER.COMPLETION,
                 }, "trigger", errors)
                 rule = getattr(lobject, lobject_key)
