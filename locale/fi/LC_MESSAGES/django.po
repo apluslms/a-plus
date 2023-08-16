@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-19 08:06+0300\n"
+"POT-Creation-Date: 2023-08-25 12:04+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -4045,6 +4045,10 @@ msgid "OPEN_FOR_READING"
 msgstr "Lukumateriaali avoinna"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
+msgstr "Tehtäviä henkilökohtaisella määräaikapidennyksellä"
+
+#: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html
 msgid "REQUIRES"
@@ -4068,6 +4072,10 @@ msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Palautukset"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "PERSONAL_DEADLINE_DEVIATION"
+msgstr "Henkilökohtainen määräaikapidennys"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_base.html

@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Union
+from copy import deepcopy
 
 from django import template
 from django.db import models
@@ -20,6 +21,11 @@ def _prepare_topmenu(context):
         request = context.get('request', None)
         context['topmenu'] = CachedTopMenu(request.user if request else None)
     return context['topmenu']
+
+
+def _deadline_extended_exercise_open(entry, now):
+    personal_deadline = entry.get('personal_deadline')
+    return personal_deadline is not None and entry['opening_time'] <= now <= personal_deadline
 
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
@@ -85,6 +91,17 @@ def is_in_maintenance(entry):
 @register.filter
 def exercises_open(entry, now):
     return entry['opening_time'] <= now <= entry['closing_time']
+
+
+@register.filter
+def deadline_extended_exercise_open(entry, now):
+    return _deadline_extended_exercise_open(entry, now)
+
+
+@register.filter
+def deadline_extended_exercises_open(entry, now):
+    entries = deepcopy(entry['flatted'])
+    return any(_deadline_extended_exercise_open(entry, now) for entry in entries)
 
 
 @register.filter
