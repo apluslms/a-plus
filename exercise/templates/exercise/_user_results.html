@@ -57,6 +57,11 @@
 				{% translate "OPEN_FOR_READING" %}
 			</span>
 			{% endif %}
+			{% if module|deadline_extended_exercises_open:now %}
+			<span class="badge pull-right">
+				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+			</span>
+			{% endif %}
 			{% if module.requirements|length > 0 %}
 			<span class="badge pull-right">
 				{% translate "REQUIRES" %}:
@@ -127,6 +132,15 @@
 				<td>
 					{% if exercise_accessible or is_course_staff %}
 					<a href="{{ entry.link }}" class="{% if entry|is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+					{% if entry|deadline_extended_exercise_open:now %}
+						<span
+							data-toggle="tooltip"
+							title="{% translate 'PERSONAL_DEADLINE_DEVIATION' %} {{ entry.personal_deadline }}"
+						>
+							<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+							<span class="sr-only">{% translate 'PERSONAL_DEADLINE_DEVIATION' %} {{ entry.personal_deadline }}</span>
+						</span>
+					{% endif %}
 					{% else %}
 					{{ entry.name|parse_localization }}
 					{% endif %}

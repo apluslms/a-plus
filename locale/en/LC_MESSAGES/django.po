@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-19 08:06+0300\n"
+"POT-Creation-Date: 2023-08-25 12:04+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -4035,6 +4035,10 @@ msgid "OPEN_FOR_READING"
 msgstr "Open for reading"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
+msgstr "Assignments with personal deadline extensions"
+
+#: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html
 msgid "REQUIRES"
@@ -4058,6 +4062,10 @@ msgstr "There may be changes in the assignments before the module opens!"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Submissions"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "PERSONAL_DEADLINE_DEVIATION"
+msgstr "Personal deadline extension"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_base.html
