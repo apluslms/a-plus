@@ -202,6 +202,19 @@
 	</div>
 </div>
 {% endcomment %}
+
+<script>
+$(function() {
+	const hash = window.location.hash;
+	const target = $(hash);
+	const stickyAlert = $('.sticky-alert');
+	if (target.length > 0 && stickyAlert.length > 0) {
+		const alertHeight = stickyAlert[0].offsetHeight;
+		target.css('padding-top', alertHeight + 'px');
+	}
+});
+</script>
+
 {% endblock %}
 
 {% block mobilemenu %}
