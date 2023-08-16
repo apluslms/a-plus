@@ -73,6 +73,7 @@ class ExerciseRevealRuleMixin:
                 RevealRule.TRIGGER.TIME,
                 RevealRule.TRIGGER.DEADLINE,
                 RevealRule.TRIGGER.DEADLINE_ALL,
+                RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS,
             ):
                 reveal_time = rule.get_reveal_time(state)
                 formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")

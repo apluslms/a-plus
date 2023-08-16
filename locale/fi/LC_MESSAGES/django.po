@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-25 12:04+0300\n"
+"POT-Creation-Date: 2023-08-28 12:16+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3576,6 +3576,10 @@ msgid "TRIGGER_COMPLETION"
 msgstr "Kun tehtävä on valmis (täydet pisteet tai kaikki palautukset käytetty)"
 
 #: exercise/reveal_models.py
+msgid "TRIGGER_DEADLINE_OR_FULL_POINTS"
+msgstr "Määräajan ja henkilökohtaisten pidennyksien jälkeen tai täysillä pisteillä"
+
+#: exercise/reveal_models.py
 msgid "LABEL_TRIGGER"
 msgstr "Milloin paljastetaan"
 
@@ -4700,7 +4704,7 @@ msgstr "Ei vielä palautuksia tälle kurssille."
 #: exercise/templatetags/exercise.py exercise/viewbase.py
 #, python-brace-format
 msgid "RESULTS_WILL_BE_REVEALED -- {time}"
-msgstr "Tulokset paljastetaan {time}."
+msgstr "Tulokset paljastetaan viimeistään {time}."
 
 #: exercise/templatetags/exercise.py exercise/viewbase.py
 msgid "RESULTS_ARE_CURRENTLY_HIDDEN"

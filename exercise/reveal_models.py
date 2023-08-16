@@ -22,6 +22,7 @@ class RevealRule(models.Model):
         DEADLINE = 4, _('TRIGGER_DEADLINE')
         DEADLINE_ALL = 5, _('TRIGGER_DEADLINE_ALL')
         COMPLETION = 6, _('TRIGGER_COMPLETION')
+        DEADLINE_OR_FULL_POINTS = 7, _('TRIGGER_DEADLINE_OR_FULL_POINTS')
 
     trigger = models.IntegerField(choices=TRIGGER.choices,
         verbose_name=_('LABEL_TRIGGER'))
@@ -52,26 +53,13 @@ class RevealRule(models.Model):
         if self.trigger in [
             RevealRule.TRIGGER.TIME,
             RevealRule.TRIGGER.DEADLINE,
-            RevealRule.TRIGGER.DEADLINE_ALL
+            RevealRule.TRIGGER.DEADLINE_ALL,
         ]:
-            if time is None:
-                time = timezone.now()
-            reveal_time = self.get_reveal_time(state)
-            if reveal_time is not None:
-                return time > reveal_time
-        elif self.trigger == RevealRule.TRIGGER.COMPLETION:
-            points = state.get_points()
-            max_points = state.get_max_points()
-            if points is not None and max_points is not None:
-                if points >= max_points:
-                    return True
-            submissions = state.get_submissions()
-            max_submissions = state.get_max_submissions()
-            if submissions is not None and max_submissions is not None:
-                if max_submissions == 0:
-                    return False
-                if submissions >= max_submissions:
-                    return True
+            return self._is_revealed_due_to_time(state, time)
+        if self.trigger == RevealRule.TRIGGER.COMPLETION:
+            return self._is_revealed_due_to_full_points(state) or self._is_revealed_due_to_max_submissions(state)
+        if self.trigger == RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS:
+            return self._is_revealed_due_to_full_points(state) or self._is_revealed_due_to_time(state, time)
 
         return False
 
@@ -84,7 +72,7 @@ class RevealRule(models.Model):
 
         if self.trigger == RevealRule.TRIGGER.TIME:
             return self.time
-        if self.trigger == RevealRule.TRIGGER.DEADLINE:
+        if self.trigger in [RevealRule.TRIGGER.DEADLINE, RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS]:
             deadline = state.get_deadline()
             if deadline is not None:
                 return deadline + datetime.timedelta(minutes=self.delay_minutes or 0)
@@ -94,3 +82,19 @@ class RevealRule(models.Model):
                 return latest_deadline + datetime.timedelta(minutes=self.delay_minutes or 0)
 
         return None
+
+    def _is_revealed_due_to_full_points(self, state: 'BaseRevealState') -> bool:
+        points = state.get_points()
+        max_points = state.get_max_points()
+        return points is not None and max_points is not None and points >= max_points
+
+    def _is_revealed_due_to_time(self, state: 'BaseRevealState', time: Optional[datetime.datetime]) -> bool:
+        if time is None:
+            time = timezone.now()
+        reveal_time = self.get_reveal_time(state)
+        return reveal_time is not None and time > reveal_time
+
+    def _is_revealed_due_to_max_submissions(self, state: 'BaseRevealState') -> bool:
+        submissions = state.get_submissions()
+        max_submissions = state.get_max_submissions()
+        return submissions is not None and max_submissions is not None and 0 < max_submissions <= submissions

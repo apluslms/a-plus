@@ -113,6 +113,7 @@ class RevealRuleForm(FieldsetModelForm):
         self.fields['delay_minutes'].widget.attrs['data-visible-triggers'] = [
             RevealRule.TRIGGER.DEADLINE.value,
             RevealRule.TRIGGER.DEADLINE_ALL.value,
+            RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS.value,
         ]
 
     def clean(self) -> Dict[str, Any]:
