@@ -3,7 +3,7 @@ from django.db import transaction
 from django.test import SimpleTestCase, TransactionTestCase
 from threading import Thread, Event, Barrier
 from unittest.mock import patch
-from lib.cache.cached import DBData, ProxyManager
+from lib.cache.cached import DBDataManager, ProxyManager
 
 from lib.cache.cached_old import CachedAbstract
 from .cached import CacheBase
@@ -52,7 +52,7 @@ class MockCache(CacheBase):
     NUM_PARAMS = 0
     INVALIDATORS = []
 
-    def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None):
+    def _generate_data(self, precreated: ProxyManager, prefetched_data: Optional[DBDataManager]):
         return
 
 
