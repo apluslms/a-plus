@@ -249,6 +249,7 @@ class LearningObject(LearningObjectProto, ModelWithInheritance):
         id: int
         parent_id: Optional[int]
         children: RelatedManager["LearningObject"]
+        model_answer_modules: RelatedManager["CourseModule"]
 
     class Meta:
         verbose_name = _('MODEL_NAME_LEARNING_OBJECT')

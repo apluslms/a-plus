@@ -1,17 +1,18 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, Field, fields, InitVar, MISSING
 import datetime
+from itertools import groupby
 from typing import (
     Any,
     cast,
     ClassVar,
-    Collection,
     Dict,
     Generic,
     Iterable,
     List,
     Optional,
     overload,
+    Set,
     Type,
     TypeVar,
     Tuple,
@@ -19,13 +20,13 @@ from typing import (
 )
 
 from django.contrib.auth.models import User
-from django.db.models import prefetch_related_objects, Prefetch
+from django.db.models import prefetch_related_objects
 from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseModule, StudentGroup
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
-from lib.cache.cached import DBData, Dependencies, ProxyManager, resolve_proxies
+from lib.cache.cached import DBDataManager, Dependencies, ProxyManager, resolve_proxies
 from lib.helpers import format_points
 from notification.models import Notification
 from .basetypes import (
@@ -45,7 +46,7 @@ from .invalidate_util import (
     model_module,
     with_user_ids,
 )
-from ..exercise_models import CourseChapter, LearningObject
+from ..exercise_models import LearningObject
 from ..models import BaseExercise, Submission, SubmissionProto, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
 
@@ -152,64 +153,119 @@ def is_newer(submission: Submission, current_best_submission: Optional[Submissio
     )
 
 
-def prefetch_exercise_data(
-        prefetched_data: DBData,
-        user: Optional[User],
-        lobjs: Collection[LearningObject],
-        instance: Optional[CourseInstance] = None,
-        ) -> None:
-    exercise_objs = [lobj for lobj in lobjs if isinstance(lobj, BaseExercise)]
-    prefetch_related_objects(exercise_objs, "submission_feedback_reveal_rule")
+class PointsDBData(DBDataManager):
+    exercises: Dict[int, Set[int]]
+    modules: Set[int]
+    submissions: Dict[Tuple[int, int], List[Submission]]
+    deadline_deviations: Dict[Tuple[int, int], List[DeadlineRuleDeviation]]
+    submission_deviations: Dict[Tuple[int, int], List[MaxSubmissionsRuleDeviation]]
+    reveal_rules: Dict[int, RevealRule]
+    module_reveal_rules: Dict[int, RevealRule]
+    groups: Dict[Tuple[int, int], List[StudentGroup]]
+    fetched: Set[Tuple[int,int]]
 
-    if user is not None:
-        if instance is None:
-            lobj = next(iter(lobjs), None)
-            if lobj is not None:
-                instance = lobj.course_instance
+    def __init__(self):
+        self.exercises = {}
+        self.modules = set()
+        self.submissions = {}
+        self.deadline_deviations = {}
+        self.submission_deviations = {}
+        self.reveal_rules = {}
+        self.module_reveal_rules = {}
+        self.groups = {}
+        self.fetched = set()
 
-        if instance is not None:
-            groups = (
-                StudentGroup.objects.filter(
-                    course_instance=instance, members=user.userprofile
-                ).prefetch_related("members")
+    def add(self, proxy: Union[CachedPointsData, ModuleEntry, ExerciseEntry]) -> None:
+        model_id, user_id = proxy._params
+        if user_id is not None and isinstance(proxy, ExerciseEntry) and (user_id, model_id) not in self.fetched:
+            self.exercises.setdefault(user_id, set()).add(model_id)
+        elif isinstance(proxy, ModulePoints):
+            self.modules.add(model_id)
+
+    def fetch(self) -> None:
+        modules = (
+            CourseModule.objects
+            .filter(id__in=self.modules, model_answer__isnull=False)
+            .select_related(None)
+            .select_related("model_solution_reveal_rule")
+            .only("id", "model_solution_reveal_rule")
+        )
+        self.module_reveal_rules.update(
+            (m.id, m.active_model_solution_reveal_rule)
+            for m in modules
+        )
+        self.modules.clear()
+
+        for user_id, exercise_ids in self.exercises.items():
+            self.fetched.update((user_id, exercise_id) for exercise_id in exercise_ids)
+
+            user = User.objects.get(id=user_id)
+            submissions = (
+                Submission.objects
+                .filter(submitters=user.userprofile, exercise_id__in=exercise_ids)
+                .prefetch_related("exercise", "notifications", "submitters")
+                .order_by('-submission_time', 'exercise_id')
             )
-        else:
-            groups = []
+            for exercise_id, exercise_submissions in groupby(submissions, key=lambda s: s.exercise_id):
+                self.submissions[(user_id, exercise_id)] = list(exercise_submissions)
 
-        submission_queryset = (
-            user.userprofile.submissions
-            .prefetch_related("notifications", "submitters")
-            .only(
-                'id', 'exercise', 'submission_time', 'status', 'grade',
-                'force_exercise_points', 'grader_id', 'meta_data', 'late_penalty_applied'
+            deadline_deviations = (
+                DeadlineRuleDeviation.objects
+                .get_max_deviations(user.userprofile, exercise_ids)
             )
-            .order_by('-submission_time')
-        )
+            for exercise_id, exercise_deviations in groupby(deadline_deviations, key=lambda s: s.exercise_id):
+                self.deadline_deviations[(user_id, exercise_id)] = list(exercise_deviations)
+            submission_deviations = (
+                MaxSubmissionsRuleDeviation.objects
+                .get_max_deviations(user.userprofile, exercise_ids)
+            )
+            for exercise_id, exercise_deviations in groupby(submission_deviations, key=lambda s: s.exercise_id):
+                self.submission_deviations[(user_id, exercise_id)] = list(exercise_deviations)
 
-        # SubmittableExerciseEntry relies on these only containing the max deviations
-        # for the user for whom cache is being generated
-        deadline_deviations = (
-            DeadlineRuleDeviation.objects
-            .get_max_deviations(user.userprofile, exercise_objs)
-        )
-        submission_deviations = (
-            MaxSubmissionsRuleDeviation.objects
-            .get_max_deviations(user.userprofile, exercise_objs)
-        )
+            exercises = (
+                BaseExercise.bare_objects
+                .filter(id__in=exercise_ids)
+                .select_related("submission_feedback_reveal_rule", "course_module")
+                .only("id", "course_module__course_instance_id", "submission_feedback_reveal_rule")
+            )
 
-        prefetched_data.add(user)
-        prefetched_data.extend(StudentGroup, groups)
-        prefetched_data.extend(DeadlineRuleDeviation, deadline_deviations)
-        prefetched_data.extend(MaxSubmissionsRuleDeviation, submission_deviations)
-    else:
-        submission_queryset = Submission.objects.none()
-        deadline_deviations = []
-        submission_deviations = []
+            self.reveal_rules.update(
+                (e.id, e.active_submission_feedback_reveal_rule)
+                for e in exercises
+            )
 
-    prefetch_related_objects(
-        exercise_objs,
-        Prefetch("submissions", submission_queryset)
-    )
+            instance_ids = {e.course_module.course_instance_id for e in exercises}
+            group_qs = StudentGroup.objects.filter(
+                course_instance__in=instance_ids, members=user.userprofile
+            ).prefetch_related("members").order_by('course_instance_id')
+            instance_groups = {
+                instance_id: list(groups)
+                for instance_id, groups in groupby(group_qs, lambda g: g.course_instance_id)
+            }
+            self.groups.update(
+                ((user_id, e.id), instance_groups.get(e.course_module.course_instance_id, []))
+                for e in exercises
+            )
+
+        self.exercises.clear()
+
+    def get_submissions(self, user_id: int, exercise_id: int) -> List[Submission]:
+        return self.submissions.get((user_id, exercise_id), [])
+
+    def get_deadline_deviations(self, user_id: int, exercise_id: int) -> List[DeadlineRuleDeviation]:
+        return self.deadline_deviations.get((user_id, exercise_id), [])
+
+    def get_submission_deviations(self, user_id: int, exercise_id: int) -> List[MaxSubmissionsRuleDeviation]:
+        return self.submission_deviations.get((user_id, exercise_id), [])
+
+    def get_reveal_rule(self, exercise_id: int) -> RevealRule:
+        return self.reveal_rules[exercise_id]
+
+    def get_module_reveal_rule(self, module_id: int) -> Optional[RevealRule]:
+        return self.module_reveal_rules.get(module_id)
+
+    def get_groups(self, user_id: int, exercise_id: int) -> List[StudentGroup]:
+        return self.groups[(user_id, exercise_id)]
 
 
 RType = TypeVar("RType")
@@ -335,13 +391,14 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         # that is to say, the submission post save hook may see an empty submitters list
         (Submission.submitters.through, [m2m_changed], m2m_submission_userprofile(model_exercise_as_iterable))
     ]
+    DBCLS = PointsDBData
     _is_container: ClassVar[bool] = False
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
-    model_answer_modules: List["ModuleEntry"]
     # This is different in ExerciseEntry compared to ExerciseEntryBase, so we need
     # to save it separately for ExerciseEntry
     max_points: int
+    confirmable_children: bool
 
     children_unconfirmed = RevealableAttribute[bool]()
 
@@ -371,19 +428,17 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         return self.module._children_unconfirmed
 
     @classmethod
-    def get( # pylint: disable=arguments-differ too-many-arguments
+    def get( # pylint: disable=arguments-differ
             cls: Type[ExerciseEntryType],
             lobj: Union[LearningObject, int],
             user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = False,
-            prefetched_data: Optional[DBData] = None
             ) -> ExerciseEntryType:
         return super()._get(
             params=cls.parameter_ids(lobj, user),
             modifiers=(show_unrevealed,),
             prefetch_children=prefetch_children,
-            prefetched_data=prefetched_data
         )
 
     @classmethod
@@ -411,6 +466,11 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
 
         self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module._params, user_id, modifiers=modifiers)
 
+        self.model_answer_modules = [
+            precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=modifiers)
+            for module in self.model_answer_modules
+        ]
+
         if self.parent:
             self.parent = precreated.get_or_create_proxy(
                 ExerciseEntry, *self.parent._params, user_id, modifiers=modifiers
@@ -423,98 +483,53 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def get_proxy_keys(self) -> Iterable[str]:
         return super().get_proxy_keys() + ["model_answer_modules"]
 
-    def _prefetch_data(
-            self,
-            prefetched_data: Optional[DBData],
-            ) -> Tuple[DBData, LearningObject, Optional[User], Iterable[LearningObject], Iterable[LearningObject]]:
-        lobj_id, user_id = self._params[:2]
-        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
-        if user_id is None:
-            user = None
-        else:
-            user = DBData.get_db_object(prefetched_data, User, user_id)
-
-        if not prefetched_data:
-            prefetched_data = DBData()
-            # This is required so that dependency detection doesn't trigger
-            # when loaded the next time
-            self._generated_on = prefetched_data.gen_start
-
-            module = lobj.course_module
-            module_lobjs = module.learning_objects.all()
-
-            prefetched_data.add(module)
-            prefetched_data.extend(LearningObject, module_lobjs)
-
-            prefetch_exercise_data(prefetched_data, user, module_lobjs)
-
-            # This is needed so that prefetch_exercise_data affects lobj
-            lobj = prefetched_data.get_db_object(LearningObject, lobj_id)
-        else:
-            module_lobjs = prefetched_data.filter_db_objects(LearningObject, course_module_id=lobj.course_module_id)
-
-        child_lobjs = prefetched_data.filter_db_objects(LearningObject, parent_id=lobj.id)
-
-        return prefetched_data, lobj, user, module_lobjs, child_lobjs
-
-    def _generate_common( # pylint: disable=too-many-arguments
+    def _generate_common(
             self,
             precreated: ProxyManager,
-            prefetched_data: DBData,
-            lobj: LearningObject,
-            module_lobjs: Iterable[LearningObject],
-            child_lobjs: Iterable[LearningObject],
             ):
         user_id = self._params[1]
 
         self.module = precreated.get_or_create_proxy(
-            ModuleEntry, lobj.course_module_id, user_id, modifiers=self._modifiers
+            ModuleEntry, *self.module._params, user_id, modifiers=self._modifiers
         )
-        if lobj.parent:
+        if self.parent is not None:
             self.parent = precreated.get_or_create_proxy(
-                ExerciseEntry, lobj.parent_id, user_id, modifiers=self._modifiers
+                ExerciseEntry, *self.parent._params, user_id, modifiers=self._modifiers
             )
         else:
             self.parent = None
         self.children = [
-            precreated.get_or_create_proxy(ExerciseEntry, o.id, user_id, modifiers=self._modifiers)
-            for o in child_lobjs
+            precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=self._modifiers)
+            for entry in self.children
         ]
-        if isinstance(lobj, CourseChapter):
-            self.model_answer_modules = [
-                precreated.get_or_create_proxy(ModuleEntry, module.id, user_id, modifiers=self._modifiers)
-                for module in lobj.model_answer_modules.all()
-            ]
-        else:
-            self.model_answer_modules = []
+        self.model_answer_modules = [
+            precreated.get_or_create_proxy(ModuleEntry, *entry._params, user_id, modifiers=self._modifiers)
+            for entry in self.model_answer_modules
+        ]
 
         if any(not s._resolved for s in self.children):
-            # Create proxies for all the module learning objects, so that there is
-            # no need to fetch them from the cache recursively through .resolve() below
-            for mlobj in module_lobjs:
-                precreated.get_or_create_proxy(ExerciseEntry, mlobj.id, user_id, modifiers=self._modifiers)
-
-            precreated.resolve(self.children, prefetched_data=prefetched_data)
+            precreated.resolve(self.children)
 
         must_confirm = any(entry.confirm_the_level for entry in self.children)
 
         self._true_children_unconfirmed = must_confirm
         self._children_unconfirmed = must_confirm
 
+        self.confirmable_children = False
+        for entry in self.children:
+            if not entry.confirm_the_level and entry.submission_count > 0:
+                self.confirmable_children = True
+
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: ExerciseEntry.DBCLS,
             ) -> Optional[Dependencies]:
-        lobj_id, user_id = self._params[:2]
-        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
-        if isinstance(lobj, BaseExercise):
+        if self.submittable:
             self.__class__ = SubmittableExerciseEntry
             return self._generate_data(precreated, prefetched_data)
 
-        prefetched_data, lobj, _, module_lobjs, child_objs = self._prefetch_data(prefetched_data)
-
-        self._generate_common(precreated, prefetched_data, lobj, module_lobjs, child_objs)
+        self._generate_common(precreated)
 
         self._true_passed = True
         self._passed = True
@@ -535,7 +550,7 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
                 self._true_passed = self._true_passed and entry._true_passed
                 self._passed = self._passed and entry._passed
                 # pylint: disable-next=unidiomatic-typecheck
-                if type(entry) is ExerciseEntry or (isinstance(entry, SubmittableExerciseEntry) and entry.graded):
+                if type(entry) is ExerciseEntry or entry.graded:
                     self._true_points += entry._true_points
                     self._points += entry._points
 
@@ -567,12 +582,12 @@ class SubmittableExerciseEntry(ExerciseEntry):
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
     ]
+    DBCLS = ExerciseEntry.DBCLS
     submissions: List[SubmissionEntry] = field(default_factory=list)
     _true_best_submission: Optional[SubmissionEntry]
     _best_submission: Optional[SubmissionEntry]
     graded: bool
     unofficial: bool
-    confirmable_points: bool
     forced_points: bool
     notified: bool
     unseen: bool
@@ -587,6 +602,12 @@ class SubmittableExerciseEntry(ExerciseEntry):
     def official_points(self) -> int:
         return self.best_submission.points if self.best_submission and not self.unofficial else 0
 
+    @property
+    def confirmable_points(self) -> bool:
+        if self.parent is not None:
+            return self.confirm_the_level and self.parent.confirmable_children
+        return self.confirm_the_level and self.module.confirmable_children
+
     def get_penalty(self) -> Optional[float]:
         return self.best_submission.late_penalty_applied if self.best_submission else None
 
@@ -597,18 +618,16 @@ class SubmittableExerciseEntry(ExerciseEntry):
         return None
 
     @classmethod
-    def get(cls, # pylint: disable=arguments-renamed too-many-arguments
+    def get(cls, # pylint: disable=arguments-renamed
             exercise: Union[BaseExercise, int],
             user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = False,
-            prefetched_data: Optional[DBData] = None,
             ) -> SubmittableExerciseEntry:
         return super()._get(
             params=cls.parameter_ids(exercise, user),
             modifiers=(show_unrevealed,),
             prefetch_children=prefetch_children,
-            prefetched_data=prefetched_data,
         )
 
     def post_build(self, precreated: ProxyManager):
@@ -621,48 +640,26 @@ class SubmittableExerciseEntry(ExerciseEntry):
     def _generate_data( # noqa: MC0001
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: SubmittableExerciseEntry.DBCLS,
             ) -> Optional[Dependencies]:
-        lobj_id, user_id = self._params[:2]
-        prefetched_data, lobj, user, module_lobjs, child_lobjs = self._prefetch_data(prefetched_data)
-        if not isinstance(lobj, BaseExercise):
+        if not self.submittable:
             self.__class__ = ExerciseEntry
             return self._generate_data(precreated, prefetched_data)
 
-        self._generate_common(precreated, prefetched_data, lobj, module_lobjs, child_lobjs)
+        self._generate_common(precreated)
 
-        submissions = lobj.submissions.all()
-        if user is not None:
-            # We rely on these only containing the max deviations for user
-            deadline_deviations = DBData.filter_db_objects(prefetched_data, DeadlineRuleDeviation, exercise_id=lobj_id)
-            submission_deviations = DBData.filter_db_objects(
-                prefetched_data, MaxSubmissionsRuleDeviation, exercise_id=lobj_id
-            )
-            sibling_lobjs = DBData.filter_db_objects(
-                prefetched_data, LearningObject, parent_id=lobj.parent_id, course_module_id=lobj.course_module_id
-            )
-            instance_id = lobj.course_module.course_instance_id
-            groups = DBData.filter_db_objects(prefetched_data, StudentGroup, course_instance_id=instance_id)
+        lobj_id, user_id = self._params[:2]
+
+        if user_id is not None:
+            submissions = prefetched_data.get_submissions(user_id, lobj_id)
+            deadline_deviations = prefetched_data.get_deadline_deviations(user_id, lobj_id)
+            submission_deviations = prefetched_data.get_submission_deviations(user_id, lobj_id)
+            groups = prefetched_data.get_groups(user_id, lobj_id)
         else:
+            submissions = []
             deadline_deviations = []
             submission_deviations = []
-            sibling_lobjs = []
             groups = []
-
-        self.confirmable_points = False
-        if self.confirm_the_level:
-            # Only resolve siblings with confirm_the_level=False so there are not cyclical dependencies
-            siblings = [
-                precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
-                for lobj in sibling_lobjs if not lobj.category.confirm_the_level
-            ]
-            if any(not s._resolved for s in siblings):
-                precreated.resolve(siblings, prefetched_data=prefetched_data)
-
-            for sibling in siblings:
-                if sibling.submission_count > 0:
-                    self.confirmable_points = True
-                    break
 
         self.personal_deadline = None
         self.personal_deadline_has_penalty = None
@@ -698,9 +695,9 @@ class SubmittableExerciseEntry(ExerciseEntry):
         final_submission = None
         last_submission = None
 
-        if lobj.grading_mode == BaseExercise.GRADING_MODE.BEST:
+        if self.grading_mode == BaseExercise.GRADING_MODE.BEST:
             is_better_than = has_more_points
-        elif lobj.grading_mode == BaseExercise.GRADING_MODE.LAST:
+        elif self.grading_mode == BaseExercise.GRADING_MODE.LAST:
             is_better_than = is_newer
         else:
             is_better_than = has_more_points
@@ -735,7 +732,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
                 points_to_pass = self.points_to_pass,
                 confirm_the_level = self.confirm_the_level,
                 submission_count = 1, # to fool points badge
-                _true_passed = submission.grade >= lobj.points_to_pass,
+                _true_passed = submission.grade >= self.points_to_pass,
                 _true_points = submission.grade,
                 graded = submission.is_graded,
                 status = submission.status,
@@ -810,7 +807,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
 
         if self.submissions:
             # Check the reveal rule now that all submissions for the exercise have been iterated.
-            reveal_rule = lobj.active_submission_feedback_reveal_rule
+            reveal_rule = prefetched_data.get_reveal_rule(lobj_id)
             state = ExerciseRevealState(self)
             is_revealed = reveal_rule.is_revealed(state)
             reveal_time = reveal_rule.get_reveal_time(state)
@@ -856,26 +853,26 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     INVALIDATORS = [
         (RevealRule, [post_delete, post_save], with_user_ids(model_module)),
     ]
+    DBCLS = PointsDBData
     _true_children_unconfirmed: bool
     _children_unconfirmed: bool
     is_model_answer_revealed: bool
+    confirmable_children: bool
 
     children_unconfirmed = RevealableAttribute[bool]()
 
     @classmethod
-    def get( # pylint: disable=arguments-differ too-many-arguments
+    def get( # pylint: disable=arguments-differ
             cls: Type[ModuleEntryType],
             module: Union[CourseModule, int],
             user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = False,
-            prefetched_data: Optional[DBData] = None
             ) -> ModuleEntryType:
         return super()._get(
             params=cls.parameter_ids(module, user),
             modifiers=(show_unrevealed,),
             prefetch_children=prefetch_children,
-            prefetched_data=prefetched_data
         )
 
     def post_build(self, precreated: ProxyManager):
@@ -898,37 +895,9 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: ModuleEntry.DBCLS,
             ) -> Optional[Dependencies]:
         module_id, user_id = self._params[:2]
-        if not prefetched_data:
-            prefetched_data = DBData()
-            # This is required so that dependency detection doesn't trigger
-            # when loaded the next time
-            self._generated_on = prefetched_data.gen_start
-
-            if user_id is not None:
-                user = User.objects.get(id=user_id)
-            else:
-                user = None
-
-            module = CourseModule.objects.get(id=module_id)
-            lobjs = module.learning_objects.all()
-
-            prefetched_data.add(module)
-            prefetched_data.extend(LearningObject, lobjs)
-
-            prefetch_exercise_data(prefetched_data, user, lobjs)
-        else:
-            module = prefetched_data.get_db_object(CourseModule, module_id)
-            lobjs = prefetched_data.filter_db_objects(LearningObject, course_module_id=module_id)
-
-        exercises = [
-            precreated.get_or_create_proxy(ExerciseEntry, lobj.id, user_id, modifiers=self._modifiers)
-            for lobj in lobjs
-        ]
-        if any(not s._resolved for s in exercises):
-            precreated.resolve(exercises, prefetched_data=prefetched_data)
 
         self.submissions = 0
         self.submission_count = 0
@@ -943,39 +912,51 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
         self._unconfirmed_points_by_difficulty = {}
 
         self.instance = precreated.get_or_create_proxy(
-            CachedPointsData, module.course_instance_id, user_id, modifiers=self._modifiers
+            CachedPointsData, *self.instance._params, user_id, modifiers=self._modifiers
         )
-        self.children = [ex for ex in exercises if ex.parent is None]
+        self.children = [
+            precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=self._modifiers)
+            for entry in self.children
+        ]
+        precreated.resolve(self.children, depth=-1)
 
         must_confirm = any(entry.confirm_the_level for entry in self.children)
         self._true_children_unconfirmed = must_confirm
         self._children_unconfirmed = must_confirm
+        self.confirmable_children = False
         for entry in self.children:
             if entry.confirm_the_level:
                 self._true_children_unconfirmed = self._true_children_unconfirmed and not entry._true_passed
                 self._children_unconfirmed = self._children_unconfirmed and not entry._passed
+            elif entry.submission_count > 0:
+                self.confirmable_children = True
 
-        for entry in exercises:
-            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
-                self._expires_on = none_min(self._expires_on, entry._expires_on)
-                _add_to(self, entry)
+        def add_points(children):
+            for entry in children:
+                if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
+                    self._expires_on = none_min(self._expires_on, entry._expires_on)
+                    _add_to(self, entry)
+                add_points(entry.children)
+
+        add_points(self.children)
 
         self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
         self._passed = self._passed and self._points >= self.points_to_pass
 
-        self.is_model_answer_revealed = True
-        model_chapter = module.model_answer
-        if model_chapter is not None:
-            reveal_rule = module.active_model_solution_reveal_rule
+        reveal_rule = prefetched_data.get_module_reveal_rule(module_id)
+        if reveal_rule is None:
+            self.is_model_answer_revealed = True
+        else:
             state = ModuleRevealState(self)
             self.is_model_answer_revealed = reveal_rule.is_revealed(state)
-            reveal_time = reveal_rule.get_reveal_time(state)
-            timestamp = reveal_time and reveal_time.timestamp()
-            self._expires_on = none_min(self._expires_on, timestamp)
+            if not self.is_model_answer_revealed:
+                reveal_time = reveal_rule.get_reveal_time(state)
+                timestamp = reveal_time and reveal_time.timestamp()
+                self._expires_on = none_min(self._expires_on, timestamp)
 
         return {
             ModuleEntryBase: [self._params[:1]],
-            ExerciseEntry: [proxy._params for proxy in exercises],
+            ExerciseEntry: [proxy._params for proxy in self.children],
         }
 
 
@@ -1015,45 +996,25 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             )
 
     @classmethod
-    def get( # pylint: disable=arguments-renamed too-many-arguments
+    def get( # pylint: disable=arguments-renamed
             cls: Type[CachedPointsDataType],
             instance: Union[CourseInstance, int],
             user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = True,
-            prefetched_data: Optional[DBData] = None,
             ) -> CachedPointsDataType:
         return super()._get(
             params=cls.parameter_ids(instance, user),
             modifiers=(show_unrevealed,),
             prefetch_children=prefetch_children,
-            prefetched_data=prefetched_data,
         )
 
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: CachedPointsData.DBCLS,
             ) -> Optional[Dependencies]:
-        instance_id, user_id = self._params
-        if not prefetched_data:
-            prefetched_data = DBData()
-            # This is required so that dependency detection doesn't trigger
-            # when loaded the next time
-            self._generated_on = prefetched_data.gen_start
-
-            modules = CourseModule.objects.filter(course_instance_id=instance_id)
-            lobjs = LearningObject.objects.filter(course_module__in=modules)
-
-            prefetched_data.extend(CourseModule, modules)
-            prefetched_data.extend(LearningObject, lobjs)
-
-            if user_id is not None:
-                user = User.objects.get(id=user_id)
-            else:
-                user = None
-
-            prefetch_exercise_data(prefetched_data, user, lobjs)
+        user_id = self._params[1]
 
         for category in self.categories.values():
             CategoryEntry.upgrade(category)
@@ -1074,7 +1035,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
             for module in self.modules
         }
 
-        precreated.resolve(self.get_child_proxies(), prefetched_data=prefetched_data)
+        precreated.resolve(self.get_child_proxies())
 
         for entry in self.exercise_index.values():
             if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
