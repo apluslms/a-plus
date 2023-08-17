@@ -1,17 +1,17 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, InitVar
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Set, Type, TypeVar, Union
 
 from django.db.models import Prefetch, QuerySet
 from django.db.models.signals import post_delete, post_save
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseInstanceProto, CourseModule, CourseModuleProto
-from lib.cache.cached import CacheBase, DBData, Dependencies, ProxyManager
+from lib.cache.cached import CacheBase, DBDataManager, Dependencies, ProxyManager
 from threshold.models import CourseModuleRequirement
 from .invalidate_util import category_learning_objects, module_learning_objects
-from ..models import BaseExercise, LearningObject, LearningObjectCategory, LearningObjectProto
+from ..models import BaseExercise, CourseChapter, LearningObject, LearningObjectCategory, LearningObjectProto
 
 
 def add_by_difficulty(to: Dict[str, int], difficulty: str, points: int):
@@ -47,9 +47,43 @@ CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
 Totals = TypeVar("Totals", bound="TotalsBase")
 
 
-def prefetch_data(prefetched: DBData, module_qs: QuerySet) -> Tuple[List[CourseModule], List[LearningObject]]:
-    modules = list(
-        module_qs.prefetch_related(
+class ContentDBData(DBDataManager):
+    exercises: Dict[int, LearningObject]
+    needed_exercises: Set[int]
+    modules: Dict[int, CourseModule]
+    needed_modules: Set[int]
+    instances: Dict[int, CourseInstance]
+    needed_instances: Set[int]
+    exercise_children: Dict[int, List[LearningObject]]
+    module_children: Dict[int, List[LearningObject]]
+    module_exercises: Dict[int, List[LearningObject]]
+    instance_modules: Dict[int, List[CourseModule]]
+    instance_exercises: Dict[int, List[LearningObject]]
+
+    def __init__(self):
+        self.exercises = {}
+        self.needed_exercises = set()
+        self.modules = {}
+        self.needed_modules = set()
+        self.instances = {}
+        self.needed_instances = set()
+        self.exercise_children = {}
+        self.module_children = {}
+        self.module_exercises = {}
+        self.instance_modules = {}
+        self.instance_exercises = {}
+
+    def add(self, proxy: Union[CachedDataBase, ModuleEntryBase, ExerciseEntryBase]) -> None:
+        model_id = proxy._params[0]
+        if isinstance(proxy, CachedDataBase) and model_id not in self.instances:
+            self.needed_instances.add(model_id)
+        elif isinstance(proxy, ModuleEntryBase) and model_id not in self.modules:
+            self.needed_modules.add(model_id)
+        elif isinstance(proxy, ExerciseEntryBase) and model_id not in self.exercises:
+            self.needed_exercises.add(model_id)
+
+    def _load_modules_qs(self, module_qs: QuerySet[CourseModule]) -> Iterable[CourseModule]:
+        new_modules = module_qs.prefetch_related(
             Prefetch(
                 "requirements",
                 queryset=(
@@ -67,17 +101,98 @@ def prefetch_data(prefetched: DBData, module_qs: QuerySet) -> Tuple[List[CourseM
                 )
             ),
         )
-    )
-    lobjs = list(LearningObject.objects.filter(course_module__in=modules).select_related("category"))
+        self.modules.update(
+            (module.id, module)
+            for module in new_modules
+        )
 
-    prefetched.extend(CourseModule, modules)
-    prefetched.extend(LearningObject, lobjs)
+        for module in new_modules:
+            self.instance_modules.setdefault(module.course_instance_id, []).append(module)
 
-    return modules, lobjs
+        new_exercises = LearningObject.objects.filter(course_module__in=new_modules).select_related("category")
+        self.exercises.update(
+            (exercise.id, exercise)
+            for exercise in new_exercises
+        )
+
+        self.needed_exercises.difference_update(e.id for e in new_exercises)
+
+        for exercise in new_exercises:
+            if exercise.parent_id is not None:
+                self.exercise_children.setdefault(exercise.parent_id, []).append(exercise)
+
+        for exercise in new_exercises:
+            if exercise.course_module_id is not None:
+                self.module_exercises.setdefault(exercise.course_module_id, []).append(exercise)
+                if exercise.parent_id is None:
+                    self.module_children.setdefault(exercise.course_module_id, []).append(exercise)
+
+        return new_modules
+
+    def _load_modules(self, module_ids: Iterable[int]) -> Iterable[CourseModule]:
+        return self._load_modules_qs(CourseModule.objects.filter(id__in=module_ids))
+
+    def fetch(self) -> None:
+        if self.needed_instances:
+            new_instances = CourseInstance.objects.filter(id__in=self.needed_instances)
+            self.instances.update(
+                (instance.id, instance)
+                for instance in new_instances
+            )
+
+            new_modules = self._load_modules_qs(CourseModule.objects.filter(course_instance__in=new_instances))
+            self.needed_modules.difference_update(m.id for m in new_modules)
+            self.needed_instances.clear()
+
+        if self.needed_modules:
+            self._load_modules(self.needed_modules)
+            self.needed_modules.clear()
+
+        if self.needed_exercises:
+            new_exercises = LearningObject.objects.filter(id__in=self.needed_exercises).select_related("category")
+            # This also sets the exercises we just loaded in self.exercises
+            self._load_modules(e.course_module_id for e in new_exercises if e.course_module_id not in self.modules)
+            self.needed_exercises.clear()
+
+    def get_instance(self, instance_id: int) -> CourseInstance:
+        if instance_id in self.instances:
+            return self.instances[instance_id]
+        raise CourseInstance.DoesNotExist()
+
+    def get_module(self, module_id: int) -> CourseModule:
+        if module_id in self.modules:
+            return self.modules[module_id]
+        raise CourseModule.DoesNotExist()
+
+    def get_exercise(self, exercise_id: int) -> LearningObject:
+        if exercise_id in self.exercises:
+            return self.exercises[exercise_id]
+        raise LearningObject.DoesNotExist()
+
+    def get_exercise_children(self, parent_id: int) -> List[LearningObject]:
+        return self.exercise_children.get(parent_id, [])
+
+    def get_module_children(self, module_id: int) -> List[LearningObject]:
+        return self.module_children.get(module_id, [])
+
+    def get_module_exercises(self, module_id: int) -> List[LearningObject]:
+        return self.module_exercises.get(module_id, [])
+
+    def get_instance_modules(self, instance_id: int) -> List[CourseModule]:
+        return self.instance_modules.get(instance_id, [])
+
+    def get_instance_exercises(self, instance_id: int) -> List[LearningObject]:
+        modules = self.instance_modules.get(instance_id, [])
+        return [
+            exercise
+            for module in modules
+            for exercise in self.get_module_exercises(module.id)
+        ]
 
 
 class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
     PROTO_BASES = (LearningObjectProto,)
+    DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'exercise'
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
@@ -120,6 +235,8 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
     allow_assistant_viewing: bool
     children: List[ExerciseEntry]
     submittable: bool
+    grading_mode: Optional[int]
+    model_answer_modules: List[ModuleEntry]
 
     @property
     def course_module(self):
@@ -142,22 +259,14 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: ExerciseEntryBase.DBCLS,
             ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         lobj_id = self._params[0]
-        lobj = DBData.get_db_object(prefetched_data, LearningObject, lobj_id)
-        if prefetched_data is None:
-            prefetched_data = DBData()
-            # This is required so that dependency detection doesn't trigger
-            # when loaded the next time
-            self._generated_on = prefetched_data.gen_start
+        lobj = prefetched_data.get_exercise(lobj_id)
+        module = prefetched_data.get_module(lobj.course_module_id)
+        children = prefetched_data.get_exercise_children(lobj_id)
 
-            modules, _ = prefetch_data(prefetched_data, CourseModule.objects.filter(id=lobj.course_module_id))
-            module = modules[0]
-        else:
-            module = DBData.get_db_object(prefetched_data, CourseModule, lobj.course_module_id)
-        children = DBData.filter_db_objects(prefetched_data, LearningObject, parent_id=lobj_id)
         category = lobj.category
 
         self.module = precreated.get_or_create_proxy(ModuleEntryBase, module.id)
@@ -189,6 +298,14 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
         self.late_percent = module.get_late_submission_point_worth()
         self.is_empty = lobj.is_empty()
         self.children = [precreated.get_or_create_proxy(ExerciseEntryBase, o.id) for o in children]
+        if isinstance(lobj, CourseChapter):
+            self.model_answer_modules = [
+                precreated.get_or_create_proxy(ModuleEntryBase, module.id)
+                for module in lobj.model_answer_modules.all()
+            ]
+        else:
+            self.model_answer_modules = []
+
 
         if isinstance(lobj, BaseExercise):
             self.submittable = True
@@ -197,6 +314,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
             self.max_submissions = lobj.max_submissions
             self.max_points = lobj.max_points
             self.allow_assistant_viewing = lobj.allow_assistant_viewing
+            self.grading_mode = lobj.grading_mode
         else:
             self.submittable = False
             self.points_to_pass = 0
@@ -204,10 +322,11 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
             self.max_submissions = 0
             self.max_points = 0
             self.allow_assistant_viewing = False
+            self.grading_mode = None
 
         # This is required so that dependency detection doesn't trigger
         # when loaded the next time.
-        precreated.resolve(self.children, prefetched_data=prefetched_data)
+        precreated.resolve(self.children)
 
         # We cannot rely on INVALIDATORS as the parent of a child might change,
         # in which case this object wouldn't be invalidated (and the children would be wrong)
@@ -216,6 +335,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
 
 class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntry]):
     PROTO_BASES = (CourseModuleProto,)
+    DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'module'
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
@@ -269,15 +389,13 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: ModuleEntryBase.DBCLS,
             ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         module_id = self._params[0]
-        module = DBData.get_db_object(prefetched_data, CourseModule, module_id)
-        lobjs = DBData.filter_db_objects(prefetched_data, LearningObject, course_module_id=module_id)
-        children = DBData.filter_db_objects(
-            prefetched_data, LearningObject, parent_id=None, course_module_id=module_id
-        )
+        module = prefetched_data.get_module(module_id)
+        lobjs = prefetched_data.get_module_exercises(module_id)
+        children = prefetched_data.get_module_children(module_id)
 
         self.id = module.id
         self.order = module.order
@@ -347,6 +465,7 @@ class TotalsBase:
 CachedDataBaseType = TypeVar("CachedDataBaseType", bound="CachedDataBase")
 class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
     PROTO_BASES = (CourseInstanceProto,)
+    DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'instance'
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
@@ -378,12 +497,10 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
             cls: Type[CachedDataBaseType],
             instance: Union[CourseInstance, int],
             prefetch_children: bool = True,
-            prefetched_data: Optional[DBData] = None,
             ) -> CachedDataBaseType:
         return super()._get(
             params=cls.parameter_ids(instance),
             prefetch_children=prefetch_children,
-            prefetched_data=prefetched_data,
         )
 
     def get_child_proxies(self) -> Iterable[CacheBase]:
@@ -392,24 +509,13 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
     def _generate_data( # pylint: disable=too-many-locals
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: CachedDataBase.DBCLS,
             ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         instance_id = self._params[0]
-        if not prefetched_data:
-            prefetched_data = DBData()
-            # This is required so that dependency detection doesn't trigger
-            # when loaded the next time
-            self._generated_on = prefetched_data.gen_start
-
-            instance = CourseInstance.objects.get(id=instance_id)
-            prefetched_data.add(instance)
-
-            module_objs, lobjs = prefetch_data(prefetched_data, CourseModule.objects.filter(course_instance=instance))
-        else:
-            instance = prefetched_data.get_db_object(CourseInstance, instance_id)
-            module_objs = prefetched_data.filter_db_objects(CourseModule, course_instance_id=instance_id)
-            lobjs = [lobj for module in module_objs for lobj in module.learning_objects.all()]
+        instance = prefetched_data.get_instance(instance_id)
+        module_objs = prefetched_data.get_instance_modules(instance_id)
+        lobjs = prefetched_data.get_instance_exercises(instance_id)
 
         self.url = instance.url
         self.course_url_kwargs = instance.course.get_url_kwargs()
@@ -439,7 +545,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
             module_index[module.id] = entry
             paths[module.id] = {}
 
-        precreated.resolve(self.get_child_proxies(), prefetched_data=prefetched_data)
+        precreated.resolve(self.get_child_proxies())
 
         for entry in exercise_index.values():
             paths[entry.module.id][entry.get_path()] = entry.id

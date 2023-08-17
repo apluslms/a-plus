@@ -1,4 +1,5 @@
 from __future__ import annotations
+from abc import ABC, abstractmethod
 from dataclasses import InitVar
 from datetime import datetime
 from io import BytesIO
@@ -36,65 +37,14 @@ from .transact import CacheTransactionManager
 
 logger = logging.getLogger('aplus.cached2')
 
+class DBDataManager(ABC):
+    @abstractmethod
+    def fetch(self) -> None:
+        """Fetch data from the database for the added cache entries"""
 
-ModelT = TypeVar("ModelT", bound=Model)
-class DBData:
-    # Model_class.__name__ -> {Model_object.id -> Model_object}
-    data: Dict[str, Dict[int, Any]]
-    gen_start: float
-
-    def __init__(self):
-        self.gen_start = time()
-        self.data = {}
-
-    def add(self, obj: Model):
-        container = self.data.setdefault(obj.__class__.__name__, {})
-        container[obj.id] = obj
-
-    def extend(self, cls: Type[ModelT], objects: Iterable[ModelT]):
-        container = self.data.setdefault(cls.__name__, {})
-        for obj in objects:
-            container[obj.id] = obj
-
-    def has_models(self, cls: Type[ModelT]) -> bool:
-        """Return whether any objects of type cls are contained"""
-        return cls.__name__ in self.data
-
-    def get_db_object(self: Optional[DBData], cls: Type[ModelT], model_id: int) -> ModelT:
-        """
-        Try to get an object from the prefeteched data, or get it from the database if not there.
-
-        Works with self == None, so you can do DBData.get_db_object(maybe_None_DBData, ...).
-        """
-        if self:
-            obj = self.data.get(cls.__name__, {}).get(model_id)
-            if obj is not None:
-                return obj
-        return cls.objects.get(id=model_id)
-
-    def filter_db_objects(self: Optional[DBData], cls: Type[ModelT], **search: Any) -> Iterable[ModelT]:
-        """
-        Search from prefetched_data if the prefetched data has data for the class, otherwise search from the database.
-
-        Works with self == None, so you can do DBData.filter_db_objects(maybe_None_DBData, ...).
-        WARNING: the returned data may not contain all of the matching objects if self.data contains some objects but
-        not all of the relevant ones.
-        """
-        if self and cls.__name__ in self.data:
-            objs = self.data[cls.__name__].values()
-            found = []
-            for obj in objs:
-                for k,v in search.items():
-                    if getattr(obj, k, None) != v:
-                        break
-                else:
-                    found.append(obj)
-            return found
-
-        return cls.objects.filter(**search)
-
-    def __bool__(self) -> bool:
-        return bool(self.data)
+    @abstractmethod
+    def add(self, proxy: CacheBase) -> None:
+        """Add cache object to be fetched data for"""
 
 
 # generation time, expiry time, dependency params, object state
@@ -111,22 +61,26 @@ class ProxyManager:
     last cache get.
     nstates contains new items to be saved to the cache on .save().
     """
+    gen_start: float
     proxies: Dict[ProxyID, CacheBase]
     fetched_data: Dict[str, Optional[CacheData]]
     new_keys: Set[str]
     nstates: Dict[str, CacheData]
+    new_proxies: List[CacheBase]
+    db_managers: Dict[Type[DBDataManager], DBDataManager]
 
     def __init__(self, proxies: Iterable[CacheBase] = ()):
+        self.gen_start = time()
         self.fetched_data = {}
         self.proxies = {}
         self.nstates = {}
         self.new_keys = set()
+        self.new_proxies = []
+        self.db_managers = {}
         self.update(proxies)
 
-    def fetch(self) -> None:
+    def fetch(self) -> None: # noqa: MC0001
         if self.new_keys:
-            timestamp = time()
-
             def fetch(keys: Set[str], used: Set[str]):
                 used.update(keys)
                 items = CacheTransactionManager().get_many(keys)
@@ -139,7 +93,7 @@ class ProxyManager:
                     if item is None:
                         items[key] = None
                         continue
-                    if item[2] is None or (item[1] is not None and item[1] < timestamp):
+                    if item[2] is None or (item[1] is not None and item[1] < self.gen_start):
                         items[key] = None
                         continue
 
@@ -170,6 +124,26 @@ class ProxyManager:
             fetch(self.new_keys, set())
             self.new_keys.clear()
 
+        if self.new_proxies:
+            # Add proxies to db data manager
+            changed = set()
+            for proxy in self.new_proxies:
+                for bcls, key in proxy._keys_with_cls:
+                    dbcls = bcls.__dict__.get("DBCLS")
+                    if dbcls is None:
+                        continue
+                    if dbcls not in self.db_managers:
+                        self.db_managers[dbcls] = dbcls()
+                    if self.fetched_data.get(key) is None:
+                        self.db_managers[dbcls].add(proxy)
+                        changed.add(dbcls)
+
+            # Fetch db data
+            for dbcls in changed:
+                self.db_managers[dbcls].fetch()
+
+            self.new_proxies.clear()
+
     def update(self, proxies: Iterable[CacheBase] = ()) -> None:
         self.proxies.update({
             (proxy.KEY_PREFIX, proxy._params, proxy._modifiers): proxy
@@ -179,14 +153,25 @@ class ProxyManager:
         for proxy in proxies:
             proxy._manager = self
 
-    def resolve(self, proxies: Iterable[CacheBase], prefetched_data: Optional[DBData] = None) -> None:
-        self.fetch()
+    def resolve(self, proxies: Iterable[CacheBase], depth: int = 1) -> None:
+        """Resolve given proxies. Depth is how many layers (child proxies) down should be resolved. Negative depth
+        means to resolve the whole proxy tree.
 
-        fetched = self.fetched_data
-        nstates = self.nstates
-        for proxy in proxies:
-            if not proxy._resolved:
-                proxy._build(fetched, nstates, self, prefetched_data)
+        NOTE: Doesn't resolve the children of already resolved proxies no matter the depth value."""
+        while proxies:
+            self.fetch()
+
+            fetched = self.fetched_data
+            nstates = self.nstates
+            db_managers = self.db_managers
+            for proxy in filter(lambda x: not x._resolved, proxies):
+                proxy._build(fetched, nstates, self, db_managers)
+
+            depth -= 1
+            if depth == 0:
+                break
+
+            proxies = [child for proxy in proxies for child in proxy.get_child_proxies() if not child._resolved]
 
     def save(self) -> None:
         stored_states = CacheTransactionManager().get_many(self.nstates.keys())
@@ -215,6 +200,7 @@ class ProxyManager:
             self.proxies[proxy_id] = proxy
             self.new_keys.update(key for key in proxy._keys if key not in self.fetched_data)
             proxy._manager = self
+            self.new_proxies.append(proxy)
         return proxy # type: ignore
 
 
@@ -388,6 +374,7 @@ class CacheMeta(type):
     this class' cache. (Classes in PARENTS will be fetched separately)
     - PROTO_BASES: Base classes that are to be handled as protocols: their fields are not included in the
     cache.
+    - DBCLS: DBDataManager subclass to be used for fetching data from the database.
     """
     # Use PARENTS: Tuple[CacheMeta, ...] to manually determine the parent classes
     KEY_PREFIX: str
@@ -399,6 +386,7 @@ class CacheMeta(type):
             Union[Tuple[str,...], ParamGenerator, ParamGeneratorWithKwargs]
         ]
     ]
+    DBCLS: Optional[Type[DBDataManager]] = None
     _cached_fields: Tuple[str, ...]
     _varying_fields: Tuple[str, ...]
     _all_cached_fields: Set[str]
@@ -526,7 +514,7 @@ class CacheBase(metaclass=CacheMeta):
     def is_valid(self) -> bool:
         return True
 
-    def populate_children(self, prefetched_data: Optional[DBData] = None):
+    def populate_children(self):
         children = self.get_child_proxies()
         self._manager.resolve(children)
 
@@ -588,10 +576,10 @@ class CacheBase(metaclass=CacheMeta):
         return obj
 
     @classmethod
-    def get(cls: Type[T], *all_params, prefetch_children: bool = False, prefetched_data: Optional[DBData] = None) -> T:
+    def get(cls: Type[T], *all_params, prefetch_children: bool = False) -> T:
         params, modifiers = all_params[:cls.NUM_PARAMS], all_params[cls.NUM_PARAMS:]
         params = cls.parameter_ids(*params)
-        return cls._get(params, modifiers, prefetch_children=prefetch_children, prefetched_data=prefetched_data)
+        return cls._get(params, modifiers, prefetch_children=prefetch_children)
 
     @classmethod
     def _get(
@@ -599,15 +587,14 @@ class CacheBase(metaclass=CacheMeta):
             params: Tuple[Any,...],
             modifiers: Tuple[Any,...] = (),
             prefetch_children: bool = False,
-            prefetched_data: Optional[DBData] = None,
             ) -> T:
         precreated = ProxyManager()
         obj = precreated.get_or_create_proxy(cls, *params, modifiers=modifiers)
-        precreated.resolve([obj], prefetched_data=prefetched_data)
+        precreated.resolve([obj])
 
         if prefetch_children:
             children = obj.get_child_proxies()
-            precreated.resolve(children, prefetched_data=prefetched_data)
+            precreated.resolve(children)
 
         precreated.save()
 
@@ -618,7 +605,7 @@ class CacheBase(metaclass=CacheMeta):
             cache_data: Dict[str, Optional[CacheData]],
             new_cache_data: Dict[str, CacheData],
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData],
+            db_managers: Dict[Type[DBDataManager], DBDataManager],
             ):
         ocls = self.__class__
         base_cls = None
@@ -647,7 +634,7 @@ class CacheBase(metaclass=CacheMeta):
                     self.post_get(precreated)
 
             if attrs is None or not self.is_valid():
-                dependencies = self._get_data(precreated, prefetched_data)
+                dependencies = self._get_data(precreated, db_managers.get(base_cls.__dict__.get("DBCLS")))
                 dependencies = {
                     dcls.KEY_PREFIX: [dcls._get_key_postfix(params) for params in paramss]
                     for dcls,paramss in dependencies.items()
@@ -665,12 +652,9 @@ class CacheBase(metaclass=CacheMeta):
     def _get_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: Optional[DBData] = None,
+            prefetched_data: Optional[DBDataManager] = None,
             ) -> Dependencies:
-        if prefetched_data is None:
-            gen_start = time()
-        else:
-            gen_start = prefetched_data.gen_start
+        gen_start = precreated.gen_start
         gen_start_dt = str(datetime.fromtimestamp(gen_start))
         cache_name = "%s[%s]" % (self.__class__.__name__, self._params)
         logger.debug("Generating cached data for %s with ts %s", cache_name, gen_start_dt)
@@ -683,7 +667,7 @@ class CacheBase(metaclass=CacheMeta):
         return dependencies or {}
 
     def _generate_data(
-            self, precreated: ProxyManager, prefetched_data: Optional[DBData] = None
+            self, precreated: ProxyManager, prefetched_data: Optional[DBDataManager]
             ) -> Optional[Dependencies]:
         """Generate the data for self. Use precreated to get/create/resolve any additional cache objects"""
         raise NotImplementedError(
