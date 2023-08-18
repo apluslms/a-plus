@@ -19,11 +19,11 @@ from django.http.response import Http404
 
 from course.models import CourseModule
 from ..models import LearningObject
-from .basetypes import CachedDataBase, CategoryEntryBase, ExerciseEntryBase, ModuleEntryBase, TotalsBase
+from .basetypes import CachedDataBase, CategoryEntryBase, LearningObjectEntryBase, ModuleEntryBase, TotalsBase
 from .exceptions import NoSuchContent
 
 
-ExerciseEntry = TypeVar("ExerciseEntry", bound=ExerciseEntryBase)
+ExerciseEntry = TypeVar("ExerciseEntry", bound=LearningObjectEntryBase)
 ModuleEntry = TypeVar("ModuleEntry", bound=ModuleEntryBase)
 CategoryEntry = TypeVar("CategoryEntry", bound=CategoryEntryBase)
 Totals = TypeVar("Totals", bound=TotalsBase)
@@ -31,7 +31,7 @@ Totals = TypeVar("Totals", bound=TotalsBase)
 
 Entry = Union[ExerciseEntry, ModuleEntry]
 
-EE = TypeVar("EE", bound=ExerciseEntryBase)
+EE = TypeVar("EE", bound=LearningObjectEntryBase)
 ME = TypeVar("ME", bound=ModuleEntryBase)
 
 
@@ -245,7 +245,7 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
 
     def begin(self) -> Optional[ExerciseEntry]:
         for entry in self.flat_full(level_markers=False):
-            if isinstance(entry, ExerciseEntryBase):
+            if isinstance(entry, LearningObjectEntryBase):
                 return entry
         return None
 
@@ -345,7 +345,7 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
             ) -> Union[ModuleEntry, ExerciseEntry]:
         if isinstance(model, ModuleEntryBase):
             return self.get_module(model.id)
-        if isinstance(model, ExerciseEntryBase):
+        if isinstance(model, LearningObjectEntryBase):
             return self.get_exercise(model.id)
         if isinstance(model, CourseModule):
             return self.get_module(model.id)
@@ -370,9 +370,9 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
             return self.data.module_index[module_id]
         raise NoSuchContent()
 
-    def search_exercises(self, **kwargs) -> List[ExerciseEntryBase]:
+    def search_exercises(self, **kwargs) -> List[LearningObjectEntryBase]:
         _, entries = self.search_entries(**kwargs)
-        return [e for e in entries if isinstance(e, ExerciseEntryBase)]
+        return [e for e in entries if isinstance(e, LearningObjectEntryBase)]
 
     def search_entries( # pylint: disable=too-many-arguments
             self,
@@ -414,7 +414,7 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
         def search_descendants(entry: Union[ExerciseEntry, ModuleEntry]) -> None:
             if (
                 isinstance(entry, ModuleEntryBase) or ( # pylint: disable=too-many-boolean-expressions
-                    isinstance(entry, ExerciseEntryBase) and
+                    isinstance(entry, LearningObjectEntryBase) and
                     (category_id is None or entry.category_id == category_id) and
                     (not filter_for_assistant or entry.allow_assistant_viewing)
                 )

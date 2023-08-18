@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django.core.exceptions import ValidationError
 
-from .cache.points import SubmittableExerciseEntry
+from .cache.points import ExercisePoints
 from .exercise_models import BaseExercise
 from .submission_models import Submission
 from course.models import LearningObjectCategory
@@ -78,7 +78,7 @@ class ExerciseCollection(BaseExercise):
         ):
             return None
 
-        for entry in SubmittableExerciseEntry.get_many(self.exercises, user):
+        for entry in ExercisePoints.get_many(self.exercises, user):
             if entry.best_submission is not None:
                 total_points += entry.best_submission.points
 
@@ -179,7 +179,7 @@ class ExerciseCollection(BaseExercise):
         grading_data = ""
 
         exercise_counter = 1
-        exercise_entries = SubmittableExerciseEntry.get_many(self.exercises, profile.user)
+        exercise_entries = ExercisePoints.get_many(self.exercises, profile.user)
         for exercise, entry in zip(self.exercises, exercise_entries):
             if entry.best_submission is None:
                 grade = 0

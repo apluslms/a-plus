@@ -26,7 +26,7 @@ from exercise.exercise_models import BaseExercise
 from exercise.submission_models import SubmissionQuerySet
 from userprofile.models import UserProfile
 
-from ...cache.points import CachedPoints, SubmittableExerciseEntry
+from ...cache.points import CachedPoints, ExercisePoints
 from ...models import Submission
 from .submission_sheet import filter_best_submissions, submissions_sheet
 from .aggregate_sheet import aggregate_sheet
@@ -469,5 +469,5 @@ def get_revealed_exercise_ids(search_args: Dict[str, Any], points: CachedPoints)
     return {
         e.id
         for e in exercises
-        if isinstance(e, SubmittableExerciseEntry) and e.feedback_revealed
+        if isinstance(e, ExercisePoints) and e.feedback_revealed
     }

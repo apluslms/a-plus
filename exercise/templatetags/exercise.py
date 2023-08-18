@@ -18,11 +18,11 @@ from ..cache.content import CachedContent
 from ..cache.points import (
     CachedPoints,
     CachedPointsData,
-    CategoryEntry,
-    ExerciseEntry,
-    ModuleEntry,
+    CategoryPoints,
+    LearningObjectPoints,
+    ModulePoints,
     SubmissionEntry,
-    SubmittableExerciseEntry,
+    ExercisePoints,
 )
 from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
 
@@ -148,10 +148,10 @@ def submission_status(status):
 
 AnyPointsEntry = Union[
     CachedPointsData,
-    ModuleEntry,
-    CategoryEntry,
-    ExerciseEntry,
-    SubmittableExerciseEntry,
+    ModulePoints,
+    CategoryPoints,
+    LearningObjectPoints,
+    ExercisePoints,
     SubmissionEntry,
 ]
 
@@ -162,7 +162,7 @@ def _points_data(
     reveal_time = None
 
     # All the different cached points entries
-    if isinstance(obj, SubmittableExerciseEntry):
+    if isinstance(obj, ExercisePoints):
         points = obj.official_points
     else:
         points = obj.points
@@ -190,7 +190,7 @@ def _points_data(
 
     if isinstance(obj, SubmissionEntry) and not data['graded']:
         data['submission_status'] = obj.status
-    elif isinstance(obj, ExerciseEntry):
+    elif isinstance(obj, LearningObjectPoints):
         data['exercise_page'] = True
 
     percentage = 0
@@ -201,7 +201,7 @@ def _points_data(
             required_percentage = int(round(100.0 * data['required'] / data['max']))
     feedback_hidden_description = None
     if not data.get('feedback_revealed'):
-        if isinstance(obj, (SubmissionEntry, CategoryEntry, ModuleEntry, CachedPointsData)):
+        if isinstance(obj, (SubmissionEntry, CategoryPoints, ModulePoints, CachedPointsData)):
             feedback_hidden_description = _('RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN')
         elif reveal_time is not None:
             formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")
@@ -222,14 +222,14 @@ def _points_data(
 
 @register.inclusion_tag("exercise/_points_progress.html")
 def points_progress(
-        obj: Union[CachedPointsData, ModuleEntry, CategoryEntry],
+        obj: Union[CachedPointsData, ModulePoints, CategoryPoints],
         ) -> Dict[str, Any]:
     return _points_data(obj, None)
 
 
 @register.inclusion_tag("exercise/_points_badge.html")
 def points_badge(
-        obj: Union[ModuleEntry, ExerciseEntry, SubmittableExerciseEntry, SubmissionEntry],
+        obj: Union[ModulePoints, LearningObjectPoints, ExercisePoints, SubmissionEntry],
         classes: Optional[str] = None,
         ) -> Dict[str, Any]:
     return _points_data(obj, classes)
