@@ -16,7 +16,7 @@ from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory
 from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
-from exercise.cache.points import SubmittableExerciseEntry
+from exercise.cache.points import ExercisePoints
 from exercise.exercise_models import build_upload_dir
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject, \
@@ -595,7 +595,7 @@ class ExerciseTest(ExerciseTestBase):
         self.late_submission_when_late_allowed.save()
         self.assertEqual(self.late_submission_when_late_allowed.grade, 100)
         self.assertEqual(self.late_submission_when_late_allowed.status, Submission.STATUS.UNOFFICIAL)
-        summary = SubmittableExerciseEntry.get(self.base_exercise_with_late_submission_allowed, self.user)
+        summary = ExercisePoints.get(self.base_exercise_with_late_submission_allowed, self.user)
         self.assertEqual(summary.submission_count, 2)
         self.assertEqual(summary.official_points, 0) # unofficial points are not shown here
         self.assertFalse(summary.graded)
@@ -606,7 +606,7 @@ class ExerciseTest(ExerciseTestBase):
         self.submission_when_late_allowed.save()
         self.assertEqual(self.submission_when_late_allowed.grade, 50)
         self.assertEqual(self.submission_when_late_allowed.status, Submission.STATUS.READY)
-        summary = SubmittableExerciseEntry.get(self.base_exercise_with_late_submission_allowed, self.user)
+        summary = ExercisePoints.get(self.base_exercise_with_late_submission_allowed, self.user)
         self.assertEqual(summary.submission_count, 2)
         self.assertEqual(summary.official_points, 50)
         self.assertTrue(summary.graded)
@@ -621,7 +621,7 @@ class ExerciseTest(ExerciseTestBase):
         sub.submitters.add(self.user.userprofile)
         sub.set_points(10, 10)
         sub.save()
-        summary = SubmittableExerciseEntry.get(self.base_exercise_with_late_submission_allowed, self.user)
+        summary = ExercisePoints.get(self.base_exercise_with_late_submission_allowed, self.user)
         self.assertEqual(summary.submission_count, 2)
         self.assertEqual(summary.official_points, 50)
         self.assertTrue(summary.graded)
