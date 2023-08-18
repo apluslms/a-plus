@@ -8,7 +8,7 @@ from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer
 from userprofile.models import UserProfile
-from ..cache.points import CachedPoints, SubmittableExerciseEntry, SubmissionEntry
+from ..cache.points import CachedPoints, ExercisePoints, SubmissionEntry
 
 
 class UserToTagSerializer(AlwaysListSerializer, CourseUsertagBriefSerializer):
@@ -51,7 +51,7 @@ class UserWithTagsSerializer(UserBriefSerializer):
 
 class ExercisePointsSerializer(serializers.Serializer):
 
-    def to_representation(self, entry: SubmittableExerciseEntry) -> Dict[str, Any]: # pylint: disable=arguments-renamed
+    def to_representation(self, entry: ExercisePoints) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         request = self.context['request']
 
         def exercise_url(exercise_id: int) -> str:
@@ -118,7 +118,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
             exercises = []
             for entry in module.flatted:
-                if isinstance(entry, SubmittableExerciseEntry):
+                if isinstance(entry, ExercisePoints):
                     exercises.append(
                         ExercisePointsSerializer(entry, context=self.context).data
                     )
@@ -138,7 +138,7 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        entry = SubmittableExerciseEntry.get(view.exercise, obj.user, view.is_course_staff)
+        entry = ExercisePoints.get(view.exercise, obj.user, view.is_course_staff)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():
             rep[key] = value

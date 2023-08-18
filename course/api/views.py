@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from aplus.api import api_reverse
 from edit_course.operations.configure import configure_from_url
-from exercise.cache.content import ModuleEntry, ExerciseEntry
+from exercise.cache.content import ModuleContent, LearningObjectContent
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
@@ -206,7 +206,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
 
     def __recurse_exercises(
             self,
-            module: Union[ModuleEntry, ExerciseEntry],
+            module: Union[ModuleContent, LearningObjectContent],
             exercises: List[Dict[str, Any]],
             ) -> List[Dict[str, Any]]:
         for child in module.children:
@@ -232,7 +232,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
 
         return exercises
 
-    def __module_to_dict(self, module: ModuleEntry, **kwargs) -> Dict[str, Any]:
+    def __module_to_dict(self, module: ModuleContent, **kwargs) -> Dict[str, Any]:
         kwargs['exercisemodule_id'] = module.id
         module_dictionary = {
             'id': module.id,

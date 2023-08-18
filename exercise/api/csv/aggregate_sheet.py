@@ -1,11 +1,17 @@
 from collections import OrderedDict
 from typing import List, Union
 
-from exercise.cache.content import ModuleEntry, ExerciseEntry
+from exercise.cache.content import ModuleContent, LearningObjectContent
 
 
 # pylint: disable-next=too-many-locals
-def aggregate_sheet(profiles, taggings, exercises: List[Union[ModuleEntry, ExerciseEntry]], aggregate, number):
+def aggregate_sheet(
+        profiles,
+        taggings,
+        exercises: List[Union[ModuleContent, LearningObjectContent]],
+        aggregate,
+        number,
+        ):
     DEFAULT_FIELDS = [
       'UserID', 'StudentID', 'Email', 'Tags',
     ]
@@ -42,7 +48,7 @@ def aggregate_sheet(profiles, taggings, exercises: List[Union[ModuleEntry, Exerc
             exercise_max[num] = 0
             for n in OBJECT_FIELDS:
                 exercise_fields.append(n.format(num))
-            if isinstance(e, ExerciseEntry):
+            if isinstance(e, LearningObjectContent):
                 exercise_map[e.id] = num
                 exercise_max[num] += e.max_points
         elif level > d:

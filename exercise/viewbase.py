@@ -14,7 +14,7 @@ from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
 
 from .cache.hierarchy import NoSuchContent
-from .cache.points import ExerciseEntry, SubmissionEntry, SubmittableExerciseEntry
+from .cache.points import LearningObjectPoints, SubmissionEntry, ExercisePoints
 from .permissions import (
     ExerciseVisiblePermission,
     BaseExerciseAssistantPermission,
@@ -102,9 +102,9 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     submission_url_name = 'submission'
     exercise_url_name = 'exercise'
 
-    summary: SubmittableExerciseEntry
+    summary: ExercisePoints
     submissions: List[SubmissionEntry]
-    cached_points: ExerciseEntry
+    cached_points: LearningObjectPoints
 
     def get_exercise_object(self):
         try:
@@ -128,14 +128,14 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name")
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
-        self.summary = SubmittableExerciseEntry.get(
+        self.summary = ExercisePoints.get(
             self.exercise, user or self.request.user, self.feedback_revealed
         )
         self.submissions = self.summary.submissions
         self.note("summary", "submissions")
 
     def get_cached_points(self, user: Optional[User] = None) -> None:
-        self.cached_points = ExerciseEntry.get(self.exercise, user or self.request.user, self.is_course_staff)
+        self.cached_points = LearningObjectPoints.get(self.exercise, user or self.request.user, self.is_course_staff)
         self.note("cached_points")
 
 
@@ -209,7 +209,7 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
         if not (user or self.submitter):
             # The submission has no submitters.
-            # Use AnonymousUser in the SubmittableExerciseEntry
+            # Use AnonymousUser in the ExercisePoints
             # so that it does not pick submissions from request.user (the teacher).
             user = AnonymousUser()
             self.index = 0

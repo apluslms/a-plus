@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
 from course.models import CourseInstance, UserTagging
-from exercise.cache.points import SubmittableExerciseEntry
+from exercise.cache.points import ExercisePoints
 from lib.localization_syntax import pick_localized
 from userprofile.models import UserProfile
 from ..cache.menu import CachedTopMenu
@@ -87,7 +87,7 @@ def deadline_extended_exercises_open(entry, now):
     return any(
         _deadline_extended_exercise_open(entry, now)
         for entry in entry.flatted
-        if isinstance(entry, SubmittableExerciseEntry)
+        if isinstance(entry, ExercisePoints)
     )
 
 

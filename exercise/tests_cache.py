@@ -2,19 +2,14 @@ from lib.testdata import CourseTestCase
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from deviations.models import MaxSubmissionsRuleDeviation
 from exercise.tests import ExerciseTestBase
-from .cache.content import (
-    CachedContent,
-    CachedContentData,
-    ExerciseEntry as ExerciseContentEntry,
-    ModuleEntry as ModuleContentEntry,
-)
+from .cache.content import CachedContent, InstanceContent, LearningObjectContent, ModuleContent
 from .cache.hierarchy import previous_iterator
 from .cache.points import (
     CachedPoints,
     CachedPointsData,
-    ExerciseEntry as ExercisePointsEntry,
-    ModuleEntry as ModulePointsEntry,
-    SubmittableExerciseEntry,
+    LearningObjectPoints,
+    ModulePoints,
+    ExercisePoints,
 )
 from .models import BaseExercise, CourseChapter, LearningObject, RevealRule, StaticExercise, Submission
 from deviations.models import DeadlineRuleDeviation
@@ -22,52 +17,52 @@ from deviations.models import DeadlineRuleDeviation
 
 class CachedExerciseContentTest(ExerciseTestBase):
     def test_no_invalidation(self):
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
-        base_entry2 = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
+        base_entry2 = LearningObjectContent.get(self.base_exercise)
         self.assertEqual(base_entry._generated_on, base_entry2._generated_on)
 
     def test_invalidation_save(self):
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
 
         self.base_exercise.save()
-        base_entry2 = ExerciseContentEntry.get(self.base_exercise)
+        base_entry2 = LearningObjectContent.get(self.base_exercise)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
-        lobj_entry = ExerciseContentEntry.get(self.learning_object)
-        lobj_entry2 = ExerciseContentEntry.get(self.learning_object)
+        lobj_entry = LearningObjectContent.get(self.learning_object)
+        lobj_entry2 = LearningObjectContent.get(self.learning_object)
         self.assertEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
         self.base_exercise.parent = self.learning_object
         self.base_exercise.save()
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
         # learning_object children have changed
-        lobj_entry2 = ExerciseContentEntry.get(self.learning_object)
+        lobj_entry2 = LearningObjectContent.get(self.learning_object)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
         self.base_exercise.parent = self.broken_learning_object
         self.base_exercise.save()
         # learning_object children have changed
-        lobj_entry = ExerciseContentEntry.get(self.learning_object)
+        lobj_entry = LearningObjectContent.get(self.learning_object)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
         self.learning_object_category.save()
-        base_entry2 = ExerciseContentEntry.get(self.base_exercise)
+        base_entry2 = LearningObjectContent.get(self.base_exercise)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
         self.course_module.save()
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
     def test_invalidation_delete_exercise(self):
         self.base_exercise.parent = self.learning_object
         self.base_exercise.save()
         # Create an entry in the cache
-        ExerciseContentEntry.get(self.base_exercise)
-        lobj_entry = ExerciseContentEntry.get(self.learning_object)
+        LearningObjectContent.get(self.base_exercise)
+        lobj_entry = LearningObjectContent.get(self.learning_object)
         self.base_exercise.delete()
         try:
-            ExerciseContentEntry.get(self.base_exercise)
+            LearningObjectContent.get(self.base_exercise)
         except LearningObject.DoesNotExist:
             pass
         else:
@@ -75,24 +70,24 @@ class CachedExerciseContentTest(ExerciseTestBase):
                 "ExerciseEntry.get should have thrown a LearningObject.DoesNotExist"
                 " exception for a non-existent exercise"
             )
-        lobj_entry2 = ExerciseContentEntry.get(self.learning_object)
+        lobj_entry2 = LearningObjectContent.get(self.learning_object)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
     def test_invalidation_delete_module(self):
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
         self.course_module.delete()
         try:
-            base_entry2 = ExerciseContentEntry.get(self.base_exercise)
+            base_entry2 = LearningObjectContent.get(self.base_exercise)
         except LearningObject.DoesNotExist:
             pass
         else:
             self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
     def test_invalidation_delete_category(self):
-        base_entry = ExerciseContentEntry.get(self.base_exercise)
+        base_entry = LearningObjectContent.get(self.base_exercise)
         self.learning_object_category.delete()
         try:
-            base_entry2 = ExerciseContentEntry.get(self.base_exercise)
+            base_entry2 = LearningObjectContent.get(self.base_exercise)
         except LearningObject.DoesNotExist:
             pass
         else:
@@ -101,31 +96,31 @@ class CachedExerciseContentTest(ExerciseTestBase):
 
 class CachedModuleContentTest(ExerciseTestBase):
     def test_no_invalidation(self):
-        entry = ModuleContentEntry.get(self.course_module)
-        entry2 = ModuleContentEntry.get(self.course_module)
+        entry = ModuleContent.get(self.course_module)
+        entry2 = ModuleContent.get(self.course_module)
         self.assertEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_save(self):
-        entry = ModuleContentEntry.get(self.course_module)
+        entry = ModuleContent.get(self.course_module)
 
         self.course_module.save()
-        entry2 = ModuleContentEntry.get(self.course_module)
+        entry2 = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.base_exercise.save()
-        entry = ModuleContentEntry.get(self.course_module)
+        entry = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.learning_object_category.save()
-        entry2 = ModuleContentEntry.get(self.course_module)
+        entry2 = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_delete_module(self):
         # Create an entry in the cache
-        ModuleContentEntry.get(self.course_module)
+        ModuleContent.get(self.course_module)
         self.course_module.delete()
         try:
-            ModuleContentEntry.get(self.course_module)
+            ModuleContent.get(self.course_module)
         except CourseModule.DoesNotExist:
             pass
         else:
@@ -134,50 +129,50 @@ class CachedModuleContentTest(ExerciseTestBase):
             )
 
     def test_invalidation_delete_exercise(self):
-        entry = ModuleContentEntry.get(self.course_module)
+        entry = ModuleContent.get(self.course_module)
 
         self.base_exercise.delete()
-        entry2 = ModuleContentEntry.get(self.course_module)
+        entry2 = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_delete_category(self):
-        entry = ModuleContentEntry.get(self.course_module)
+        entry = ModuleContent.get(self.course_module)
 
         self.learning_object_category.delete()
-        entry2 = ModuleContentEntry.get(self.course_module)
+        entry2 = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
 
 class CachedContentTest(CourseTestCase):
     def test_no_invalidation(self):
-        entry = CachedContentData.get(self.instance)
-        entry2 = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation(self):
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.instance.save()
-        entry2 = CachedContentData.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.module.save()
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.exercise.save()
-        entry2 = CachedContentData.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.category.save()
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_delete_instance(self):
         # Create an entry in the cache
-        CachedContentData.get(self.instance)
+        InstanceContent.get(self.instance)
         self.instance.delete()
         try:
-            CachedContentData.get(self.instance)
+            InstanceContent.get(self.instance)
         except CourseInstance.DoesNotExist:
             pass
         else:
@@ -187,21 +182,21 @@ class CachedContentTest(CourseTestCase):
             )
 
     def test_invalidation_delete_module(self):
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.module.delete()
-        entry2 = CachedContentData.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_delete_exercise(self):
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.exercise.delete()
-        entry2 = CachedContentData.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_delete_category(self):
-        entry = CachedContentData.get(self.instance)
+        entry = InstanceContent.get(self.instance)
         self.category.delete()
-        entry2 = CachedContentData.get(self.instance)
+        entry2 = InstanceContent.get(self.instance)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_content(self):
@@ -314,37 +309,37 @@ class CachedContentTest(CourseTestCase):
 
 class CachedExercisePointsTest(ExerciseTestBase):
     def test_no_invalidation(self):
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertEqual(base_entry._generated_on, base_entry2._generated_on)
 
     def test_content_invalidated(self):
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
-        ExerciseContentEntry.invalidate(self.base_exercise)
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
+        LearningObjectContent.invalidate(self.base_exercise)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
     def test_invalidation_save(self):
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
 
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.submission.submitters.add(self.user2.userprofile)
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
         self.submission.save()
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
         self.deadline_rule_deviation.exercise = self.base_exercise
         self.deadline_rule_deviation.save()
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
         MaxSubmissionsRuleDeviation.objects.create(
@@ -353,9 +348,9 @@ class CachedExercisePointsTest(ExerciseTestBase):
             granter=self.teacher.userprofile,
             extra_submissions=1,
         )
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
         reveal_rule = RevealRule.objects.create(
@@ -363,22 +358,22 @@ class CachedExercisePointsTest(ExerciseTestBase):
         )
         self.base_exercise.submission_feedback_reveal_rule = reveal_rule
         self.base_exercise.save()
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
 
         reveal_rule.save()
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
     def test_invalidation_delete_submission(self):
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.submission_with_two_submitters.delete()
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
     def test_invalidation_delete_reveal_rule(self):
@@ -388,12 +383,12 @@ class CachedExercisePointsTest(ExerciseTestBase):
         self.base_exercise.submission_feedback_reveal_rule = reveal_rule
         self.base_exercise.save()
 
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         reveal_rule.delete()
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
     def test_invalidation_delete_max_submission_rule_deviation(self):
@@ -404,49 +399,49 @@ class CachedExercisePointsTest(ExerciseTestBase):
             extra_submissions=1,
         )
 
-        base_entry = ExercisePointsEntry.get(self.base_exercise, self.user)
-        user2_base_entry = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        base_entry = LearningObjectPoints.get(self.base_exercise, self.user)
+        user2_base_entry = LearningObjectPoints.get(self.base_exercise, self.user2)
         submission_rule_deviation.delete()
-        base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user)
+        base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user)
         self.assertNotEqual(base_entry._generated_on, base_entry2._generated_on)
-        user2_base_entry2 = ExercisePointsEntry.get(self.base_exercise, self.user2)
+        user2_base_entry2 = LearningObjectPoints.get(self.base_exercise, self.user2)
         self.assertNotEqual(user2_base_entry._generated_on, user2_base_entry2._generated_on)
 
     def test_invalidation_child_dependency(self):
         self.base_exercise.parent = self.learning_object
-        lobj_entry = ExercisePointsEntry.get(self.learning_object, self.user)
+        lobj_entry = LearningObjectPoints.get(self.learning_object, self.user)
         self.base_exercise.save()
-        lobj_entry2 = ExercisePointsEntry.get(self.learning_object, self.user)
+        lobj_entry2 = LearningObjectPoints.get(self.learning_object, self.user)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
-        ExercisePointsEntry.invalidate(self.base_exercise, self.user)
-        lobj_entry = ExercisePointsEntry.get(self.learning_object, self.user)
+        LearningObjectPoints.invalidate(self.base_exercise, self.user)
+        lobj_entry = LearningObjectPoints.get(self.learning_object, self.user)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
 
 
 class CachedModulePointsTest(ExerciseTestBase):
     def test_no_invalidation(self):
-        entry = ModulePointsEntry.get(self.course_module, self.user)
-        entry2 = ModulePointsEntry.get(self.course_module, self.user)
+        entry = ModulePoints.get(self.course_module, self.user)
+        entry2 = ModulePoints.get(self.course_module, self.user)
         self.assertEqual(entry._generated_on, entry2._generated_on)
 
     def test_content_invalidated(self):
-        entry = ModulePointsEntry.get(self.course_module, self.user)
-        ExerciseContentEntry.invalidate(self.course_module)
-        entry2 = ModulePointsEntry.get(self.course_module, self.user)
+        entry = ModulePoints.get(self.course_module, self.user)
+        LearningObjectContent.invalidate(self.course_module)
+        entry2 = ModulePoints.get(self.course_module, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
     def test_invalidation_descendant_dependency(self):
         self.base_exercise.parent = self.learning_object
         self.base_exercise.save()
 
-        entry = ModulePointsEntry.get(self.course_module, self.user)
+        entry = ModulePoints.get(self.course_module, self.user)
         self.base_exercise.save()
-        entry2 = ModulePointsEntry.get(self.course_module, self.user)
+        entry2 = ModulePoints.get(self.course_module, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
         self.learning_object.save()
-        entry = ModulePointsEntry.get(self.course_module, self.user)
+        entry = ModulePoints.get(self.course_module, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
 
@@ -458,7 +453,7 @@ class CachedPointsTest(CourseTestCase):
 
     def test_content_invalidated(self):
         entry = CachedPointsData.get(self.instance, self.user)
-        CachedContentData.invalidate(self.instance)
+        InstanceContent.invalidate(self.instance)
         entry2 = CachedPointsData.get(self.instance, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
@@ -468,7 +463,7 @@ class CachedPointsTest(CourseTestCase):
         entry2 = CachedPointsData.get(self.instance, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
-        ModulePointsEntry.invalidate(self.module, self.user)
+        ModulePoints.invalidate(self.module, self.user)
         entry = CachedPointsData.get(self.instance, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
@@ -478,7 +473,7 @@ class CachedPointsTest(CourseTestCase):
         entry2 = CachedPointsData.get(self.instance, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
-        ExercisePointsEntry.invalidate(self.module, self.user)
+        LearningObjectPoints.invalidate(self.module, self.user)
         entry = CachedPointsData.get(self.instance, self.user)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
 
@@ -627,12 +622,12 @@ class CachedPointsTest(CourseTestCase):
         self.assertTrue(entry2.is_revealed)
         self.assertFalse(chapter_entry.is_revealed)
 
-class SubmittableExerciseTest(ExerciseTestBase):
+class ExercisePointsTest(ExerciseTestBase):
     def test_forced_points(self) -> None:
         self.submission.set_points(5, 10)
         self.submission.status = Submission.STATUS.READY
         self.submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 50)
         self.assertEqual(entry.points, 50)
 
@@ -643,13 +638,13 @@ class SubmittableExerciseTest(ExerciseTestBase):
         forced_points_submission.submitters.add(self.user.userprofile)
         forced_points_submission.set_points(1, 10)
         forced_points_submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 50)
         self.assertEqual(entry.points, 50)
 
         self.submission.status = Submission.STATUS.UNOFFICIAL
         self.submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 0)
         self.assertEqual(entry.points, 50)
 
@@ -657,7 +652,7 @@ class SubmittableExerciseTest(ExerciseTestBase):
         self.submission.save()
         forced_points_submission.force_exercise_points = True
         forced_points_submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 10)
         self.assertEqual(entry.points, 10)
 
@@ -666,17 +661,17 @@ class SubmittableExerciseTest(ExerciseTestBase):
         forced_points_submission.save()
         self.submission.status = Submission.STATUS.UNOFFICIAL
         self.submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 10)
         self.assertEqual(entry.points, 10)
 
         forced_points_submission.delete()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 0)
         self.assertEqual(entry.points, 50)
 
         self.submission.status = Submission.STATUS.READY
         self.submission.save()
-        entry = SubmittableExerciseEntry.get(self.base_exercise, self.user)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 50)
         self.assertEqual(entry.points, 50)

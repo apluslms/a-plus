@@ -526,8 +526,8 @@ class CourseChapter(LearningObject):
         If this chapter is a model solution to modules, check if the chapter
         can be revealed to the user according to the module's reveal rule.
         """
-        from .cache.points import ExerciseEntry # pylint: disable=import-outside-toplevel
-        entry = ExerciseEntry.get(self, user)
+        from .cache.points import LearningObjectPoints # pylint: disable=import-outside-toplevel
+        entry = LearningObjectPoints.get(self, user)
         return entry.is_revealed
 
     def _is_empty(self):
