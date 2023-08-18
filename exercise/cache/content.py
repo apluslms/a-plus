@@ -59,6 +59,7 @@ class CachedContent(ContentMixin, CachedAbstract):
                     'order': o.order,
                     'status': o.status,
                     'name': str(o),
+                    'hierarchical_name': o.hierarchical_name(),
                     'number': module['number'] + '.' + o.number(),
                     'link': o.get_display_url(),
                     'submittable': False,

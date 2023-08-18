@@ -1,5 +1,3 @@
-import re
-
 from rest_framework import filters, viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
@@ -206,17 +204,6 @@ class CourseExercisesViewSet(NestedViewSetMixin,
     def __recurse_exercises(self, module, exercises):
         for child in filter(lambda ex: ex['type'] == 'exercise', module['children']):
             if child['submittable']:
-                # check if there is a xx.yy pattern at the start of the name (e.g. 6.2 Hello Python). Also matches 1.
-                # Also matches roman numerals
-                # https://stackoverflow.com/questions/267399/how-do-you-match-only-valid-roman-numerals-with-a-regular-expression
-                hierarchical_name = (
-                    child['name']
-                    if re.match(
-                        r"^([0-9]+\.[0-9.]* )|(M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})) ",
-                        child['name'],
-                    )
-                    else f"{child['number']} {child['name']}"
-                )
                 exercise_dictionary = {
                     'id': child['id'],
                     'url': build_aplus_url(
@@ -227,7 +214,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                     'display_name': child['name'],
                     'max_points': child['max_points'],
                     'max_submissions': child['max_submissions'],
-                    'hierarchical_name': hierarchical_name,
+                    'hierarchical_name': child['hierarchical_name'],
                     'difficulty': child['difficulty'],
                 }
                 exercises.append(exercise_dictionary)
