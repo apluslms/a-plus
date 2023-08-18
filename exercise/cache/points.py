@@ -34,7 +34,7 @@ from .basetypes import (
     CachedDataBase,
     CategoryEntryBase,
     EqById,
-    ExerciseEntryBase,
+    LearningObjectEntryBase,
     ModuleEntryBase,
     TotalsBase,
 )
@@ -91,7 +91,7 @@ def none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
     return a or b
 
 
-def _add_to(target: Union[ModuleEntry, CategoryEntry, Totals], entry: SubmittableExerciseEntry) -> None:
+def _add_to(target: Union[ModulePoints, CategoryPoints, Totals], entry: ExercisePoints) -> None:
     target._true_passed = target._true_passed and entry._true_passed
     target._passed = target._passed and entry._passed
     target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
@@ -175,9 +175,9 @@ class PointsDBData(DBDataManager):
         self.groups = {}
         self.fetched = set()
 
-    def add(self, proxy: Union[CachedPointsData, ModuleEntry, ExerciseEntry]) -> None:
+    def add(self, proxy: Union[CachedPointsData, ModulePoints, LearningObjectPoints]) -> None:
         model_id, user_id = proxy._params
-        if user_id is not None and isinstance(proxy, ExerciseEntry) and (user_id, model_id) not in self.fetched:
+        if user_id is not None and isinstance(proxy, LearningObjectPoints) and (user_id, model_id) not in self.fetched:
             self.exercises.setdefault(user_id, set()).add(model_id)
         elif isinstance(proxy, ModulePoints):
             self.modules.add(model_id)
@@ -342,7 +342,7 @@ class Totals(DifficultyStats, TotalsBase):
 CategoryEntryType = TypeVar("CategoryEntryType", bound=CategoryEntryBase)
 @cache_fields
 @dataclass(eq=False)
-class CategoryEntry(DifficultyStats, CategoryEntryBase):
+class CategoryPoints(DifficultyStats, CategoryEntryBase):
     @classmethod
     def upgrade(cls: Type[CategoryEntryType], data: CategoryEntryBase, **kwargs) -> CategoryEntryType:
         if data.__class__ is cls:
@@ -355,7 +355,7 @@ class CategoryEntry(DifficultyStats, CategoryEntryBase):
 class SubmissionEntryBase(SubmissionProto, EqById):
     type: ClassVar[str] = 'submission'
     id: int
-    exercise: SubmittableExerciseEntry
+    exercise: ExercisePoints
     max_points: int
     points_to_pass: int
     confirm_the_level: bool
@@ -377,8 +377,8 @@ class SubmissionEntry(CommonPointData, SubmissionEntryBase):
     _is_container: ClassVar[bool] = False
 
 
-ExerciseEntryType = TypeVar("ExerciseEntryType", bound="ExerciseEntry")
-class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseEntry"]):
+ExerciseEntryType = TypeVar("ExerciseEntryType", bound="LearningObjectPoints")
+class LearningObjectPoints(CommonPointData, LearningObjectEntryBase["ModulePoints", "LearningObjectPoints"]):
     KEY_PREFIX = "exercisepoints"
     NUM_PARAMS = 2
     INVALIDATORS = [
@@ -458,27 +458,29 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def post_build(self, precreated: ProxyManager):
         self.reveal(self._modifiers[0])
 
-        if isinstance(self.module, ModuleEntry):
+        if isinstance(self.module, ModulePoints):
             return
 
         user_id = self._params[1]
         modifiers = self._modifiers
 
-        self.module = precreated.get_or_create_proxy(ModuleEntry, *self.module._params, user_id, modifiers=modifiers)
+        self.module = precreated.get_or_create_proxy(ModulePoints, *self.module._params, user_id, modifiers=modifiers)
 
         self.model_answer_modules = [
-            precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=modifiers)
+            precreated.get_or_create_proxy(ModulePoints, *module._params, user_id, modifiers=modifiers)
             for module in self.model_answer_modules
         ]
 
         if self.parent:
             self.parent = precreated.get_or_create_proxy(
-                ExerciseEntry, *self.parent._params, user_id, modifiers=modifiers
+                LearningObjectPoints, *self.parent._params, user_id, modifiers=modifiers
             )
 
         children = self.children
         for i, params in enumerate(children):
-            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
+            children[i] = precreated.get_or_create_proxy(
+                LearningObjectPoints, *params._params, user_id, modifiers=modifiers
+            )
 
     def get_proxy_keys(self) -> Iterable[str]:
         return super().get_proxy_keys() + ["model_answer_modules"]
@@ -490,20 +492,20 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
         user_id = self._params[1]
 
         self.module = precreated.get_or_create_proxy(
-            ModuleEntry, *self.module._params, user_id, modifiers=self._modifiers
+            ModulePoints, *self.module._params, user_id, modifiers=self._modifiers
         )
         if self.parent is not None:
             self.parent = precreated.get_or_create_proxy(
-                ExerciseEntry, *self.parent._params, user_id, modifiers=self._modifiers
+                LearningObjectPoints, *self.parent._params, user_id, modifiers=self._modifiers
             )
         else:
             self.parent = None
         self.children = [
-            precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=self._modifiers)
+            precreated.get_or_create_proxy(LearningObjectPoints, *entry._params, user_id, modifiers=self._modifiers)
             for entry in self.children
         ]
         self.model_answer_modules = [
-            precreated.get_or_create_proxy(ModuleEntry, *entry._params, user_id, modifiers=self._modifiers)
+            precreated.get_or_create_proxy(ModulePoints, *entry._params, user_id, modifiers=self._modifiers)
             for entry in self.model_answer_modules
         ]
 
@@ -523,10 +525,10 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: ExerciseEntry.DBCLS,
+            prefetched_data: LearningObjectPoints.DBCLS,
             ) -> Optional[Dependencies]:
         if self.submittable:
-            self.__class__ = SubmittableExerciseEntry
+            self.__class__ = ExercisePoints
             return self._generate_data(precreated, prefetched_data)
 
         self._generate_common(precreated)
@@ -550,25 +552,25 @@ class ExerciseEntry(CommonPointData, ExerciseEntryBase["ModuleEntry", "ExerciseE
                 self._true_passed = self._true_passed and entry._true_passed
                 self._passed = self._passed and entry._passed
                 # pylint: disable-next=unidiomatic-typecheck
-                if type(entry) is ExerciseEntry or entry.graded:
+                if type(entry) is LearningObjectPoints or entry.graded:
                     self._true_points += entry._true_points
                     self._points += entry._points
 
         return {
-            ExerciseEntryBase: [self._params[:1]],
-            ExerciseEntry: [proxy._params for proxy in self.children],
+            LearningObjectEntryBase: [self._params[:1]],
+            LearningObjectPoints: [proxy._params for proxy in self.children],
         }
 
 
-class SubmittableExerciseEntry(ExerciseEntry):
-    # Remove ExerciseEntry from the parents. SubmittableExerciseEntry isn't buil
-    # on top of ExerciseEntry but has its fields. Inheriting directly from ExerciseEntry
-    # allows isinstance(..., ExerciseEntry) to work
-    PARENTS = ExerciseEntry._parents[:-1]
-    KEY_PREFIX = ExerciseEntry.KEY_PREFIX
-    NUM_PARAMS = ExerciseEntry.NUM_PARAMS
+class ExercisePoints(LearningObjectPoints):
+    # Remove LearningObjectPoints from the parents. ExercisePoints isn't built
+    # on top of LearningObjectPoints but has its fields. Inheriting directly from LearningObjectPoints
+    # allows isinstance(..., LearningObjectPoints) to work
+    PARENTS = LearningObjectPoints._parents[:-1]
+    KEY_PREFIX = LearningObjectPoints.KEY_PREFIX
+    NUM_PARAMS = LearningObjectPoints.NUM_PARAMS
     INVALIDATORS = [
-        # ExerciseEntry handles the general learning object invalidation. Here we invalidate for reasons
+        # LearningObjectPoints handles the general learning object invalidation. Here we invalidate for reasons
         # specific to submittable exercises.
         # These invalidate exercises with confirm_the_level = True whenever any of its sibling exercises change
         (Submission, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
@@ -582,7 +584,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_as_iterable)),
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
     ]
-    DBCLS = ExerciseEntry.DBCLS
+    DBCLS = LearningObjectPoints.DBCLS
     submissions: List[SubmissionEntry] = field(default_factory=list)
     _true_best_submission: Optional[SubmissionEntry]
     _best_submission: Optional[SubmissionEntry]
@@ -623,7 +625,7 @@ class SubmittableExerciseEntry(ExerciseEntry):
             user: Union[User, int, None],
             show_unrevealed: bool = False,
             prefetch_children: bool = False,
-            ) -> SubmittableExerciseEntry:
+            ) -> ExercisePoints:
         return super()._get(
             params=cls.parameter_ids(exercise, user),
             modifiers=(show_unrevealed,),
@@ -640,10 +642,10 @@ class SubmittableExerciseEntry(ExerciseEntry):
     def _generate_data( # noqa: MC0001
             self,
             precreated: ProxyManager,
-            prefetched_data: SubmittableExerciseEntry.DBCLS,
+            prefetched_data: ExercisePoints.DBCLS,
             ) -> Optional[Dependencies]:
         if not self.submittable:
-            self.__class__ = ExerciseEntry
+            self.__class__ = LearningObjectPoints
             return self._generate_data(precreated, prefetched_data)
 
         self._generate_common(precreated)
@@ -838,16 +840,16 @@ class SubmittableExerciseEntry(ExerciseEntry):
             submission.feedback_reveal_time = reveal_time
 
         return {
-            ExerciseEntryBase: [self._params[:1]],
-            ExerciseEntry: [proxy._params for proxy in self.children],
+            LearningObjectEntryBase: [self._params[:1]],
+            LearningObjectPoints: [proxy._params for proxy in self.children],
         }
 
 
-EitherExerciseEntry = Union[ExerciseEntry, SubmittableExerciseEntry]
+EitherExerciseEntry = Union[LearningObjectPoints, ExercisePoints]
 
 
-ModuleEntryType = TypeVar("ModuleEntryType", bound="ModuleEntry")
-class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
+ModuleEntryType = TypeVar("ModuleEntryType", bound="ModulePoints")
+class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
     KEY_PREFIX = "modulepoints"
     NUM_PARAMS = 2
     INVALIDATORS = [
@@ -890,12 +892,14 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
 
         children = self.children
         for i, params in enumerate(children):
-            children[i] = precreated.get_or_create_proxy(ExerciseEntry, *params._params, user_id, modifiers=modifiers)
+            children[i] = precreated.get_or_create_proxy(
+                LearningObjectPoints, *params._params, user_id, modifiers=modifiers
+            )
 
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: ModuleEntry.DBCLS,
+            prefetched_data: ModulePoints.DBCLS,
             ) -> Optional[Dependencies]:
         module_id, user_id = self._params[:2]
 
@@ -915,7 +919,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
             CachedPointsData, *self.instance._params, user_id, modifiers=self._modifiers
         )
         self.children = [
-            precreated.get_or_create_proxy(ExerciseEntry, *entry._params, user_id, modifiers=self._modifiers)
+            precreated.get_or_create_proxy(LearningObjectPoints, *entry._params, user_id, modifiers=self._modifiers)
             for entry in self.children
         ]
         precreated.resolve(self.children, depth=-1)
@@ -933,7 +937,7 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
 
         def add_points(children):
             for entry in children:
-                if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
+                if not entry.confirm_the_level and isinstance(entry, ExercisePoints) and entry.is_visible():
                     self._expires_on = none_min(self._expires_on, entry._expires_on)
                     _add_to(self, entry)
                 add_points(entry.children)
@@ -956,18 +960,18 @@ class ModuleEntry(DifficultyStats, ModuleEntryBase[ExerciseEntry]):
 
         return {
             ModuleEntryBase: [self._params[:1]],
-            ExerciseEntry: [proxy._params for proxy in self.children],
+            LearningObjectPoints: [proxy._params for proxy in self.children],
         }
 
 
 CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")
-class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
+class CachedPointsData(CachedDataBase[ModulePoints, EitherExerciseEntry, CategoryPoints, Totals]):
     KEY_PREFIX: ClassVar[str] = 'instancepoints'
     NUM_PARAMS: ClassVar[int] = 2
     INVALIDATORS = []
     user_id: InitVar[int]
     points_created: datetime.datetime
-    categories: Dict[int, CategoryEntry]
+    categories: Dict[int, CategoryPoints]
     total: Totals
 
     def post_build(self, precreated: ProxyManager):
@@ -976,7 +980,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         for category in self.categories.values():
             category.reveal(show_unrevealed)
 
-        if not self.modules or isinstance(self.modules[0], ModuleEntry):
+        if not self.modules or isinstance(self.modules[0], ModulePoints):
             return
 
         user_id = self._params[1]
@@ -985,14 +989,14 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         modules = self.modules
         module_index = self.module_index
         for i, entry in enumerate(modules):
-            proxy = precreated.get_or_create_proxy(ModuleEntry, *entry._params, user_id, modifiers=modifiers)
+            proxy = precreated.get_or_create_proxy(ModulePoints, *entry._params, user_id, modifiers=modifiers)
             modules[i] = proxy
             module_index[entry._params[0]] = proxy
 
         exercise_index = self.exercise_index
         for k, entry in exercise_index.items():
             exercise_index[k] = precreated.get_or_create_proxy(
-                ExerciseEntry, *entry._params, user_id, modifiers=modifiers
+                LearningObjectPoints, *entry._params, user_id, modifiers=modifiers
             )
 
     @classmethod
@@ -1017,16 +1021,16 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         user_id = self._params[1]
 
         for category in self.categories.values():
-            CategoryEntry.upgrade(category)
+            CategoryPoints.upgrade(category)
         Totals.upgrade(self.total)
 
         self.exercise_index = {
-            id: precreated.get_or_create_proxy(ExerciseEntry, id, user_id, modifiers=self._modifiers)
+            id: precreated.get_or_create_proxy(LearningObjectPoints, id, user_id, modifiers=self._modifiers)
             for id in self.exercise_index
         }
 
         self.modules = [
-            precreated.get_or_create_proxy(ModuleEntry, *module._params, user_id, modifiers=self._modifiers)
+            precreated.get_or_create_proxy(ModulePoints, *module._params, user_id, modifiers=self._modifiers)
             for module in self.modules
         ]
 
@@ -1038,7 +1042,7 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         precreated.resolve(self.get_child_proxies())
 
         for entry in self.exercise_index.values():
-            if not entry.confirm_the_level and isinstance(entry, SubmittableExerciseEntry) and entry.is_visible():
+            if not entry.confirm_the_level and isinstance(entry, ExercisePoints) and entry.is_visible():
                 self._expires_on = none_min(self._expires_on, entry._expires_on)
                 _add_to(self.categories[entry.category_id], entry)
                 _add_to(self.total, entry)
@@ -1052,11 +1056,11 @@ class CachedPointsData(CachedDataBase[ModuleEntry, EitherExerciseEntry, Category
         # We rely on a ModuleEntry being invalid if any of the exercises are
         return {
             CachedDataBase: [self._params[:1]],
-            ModuleEntry: [proxy._params for proxy in self.modules],
+            ModulePoints: [proxy._params for proxy in self.modules],
         }
 
 
-class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry, Totals]):
+class CachedPoints(ContentMixin[ModulePoints, EitherExerciseEntry, CategoryPoints, Totals]):
     """
     Extends `CachedContent` to include data about a user's submissions and
     points in the course's exercises.
@@ -1106,7 +1110,7 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
         submissions = []
         if best:
             for entry in exercises:
-                if not isinstance(entry, SubmittableExerciseEntry):
+                if not isinstance(entry, ExercisePoints):
                     continue
 
                 if entry.best_submission is not None:
@@ -1117,14 +1121,14 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
                         submissions.append(entry_submissions[0].id) # Last submission is first in the cache
         else:
             for entry in exercises:
-                if not isinstance(entry, SubmittableExerciseEntry):
+                if not isinstance(entry, ExercisePoints):
                     continue
 
                 submissions.extend(s.id for s in entry.submissions)
         return submissions
 
     @overload
-    def entry_for_exercise(self, model: BaseExercise) -> SubmittableExerciseEntry:
+    def entry_for_exercise(self, model: BaseExercise) -> ExercisePoints:
         ...
     @overload
     def entry_for_exercise(self, model: LearningObject) -> EitherExerciseEntry:
@@ -1138,7 +1142,7 @@ class CachedPoints(ContentMixin[ModuleEntry, EitherExerciseEntry, CategoryEntry,
         for module in instance.course_modules.prefetch_related("learning_objects").all():
             ModuleEntryBase.invalidate(module, user)
             for exercise in module.learning_objects.all():
-                ExerciseEntryBase.invalidate(exercise, user)
+                LearningObjectEntryBase.invalidate(exercise, user)
 
 
 # Required so that Submission post_delete receivers can access submitters

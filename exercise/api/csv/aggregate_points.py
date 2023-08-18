@@ -3,7 +3,7 @@ from typing import List
 
 from django.conf import settings
 
-from exercise.cache.content import ExerciseEntry
+from exercise.cache.content import LearningObjectContent
 
 # Generate students' results from this course instance
 # Only exercises in which student has submitted answers will be returned
@@ -12,7 +12,8 @@ from exercise.cache.content import ExerciseEntry
 # where xx is the exercise id, yy the submission count and zz the exercise points.
 # For convenience, we also return the total submission count and points for student
 
-def aggregate_points(profiles, taggings, exercises: List[ExerciseEntry], aggregate): # pylint: disable=too-many-locals
+# pylint: disable-next=too-many-locals
+def aggregate_points(profiles, taggings, exercises: List[LearningObjectContent], aggregate):
     DEFAULT_FIELDS = [
         'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
     ]

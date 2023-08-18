@@ -41,7 +41,7 @@ class EqById:
         return self.id == other.id
 
 
-ExerciseEntry = TypeVar("ExerciseEntry", bound="ExerciseEntryBase")
+LearningObjectEntry = TypeVar("LearningObjectEntry", bound="LearningObjectEntryBase")
 ModuleEntry = TypeVar("ModuleEntry", bound="ModuleEntryBase")
 CategoryEntry = TypeVar("CategoryEntry", bound="CategoryEntryBase")
 Totals = TypeVar("Totals", bound="TotalsBase")
@@ -73,13 +73,13 @@ class ContentDBData(DBDataManager):
         self.instance_modules = {}
         self.instance_exercises = {}
 
-    def add(self, proxy: Union[CachedDataBase, ModuleEntryBase, ExerciseEntryBase]) -> None:
+    def add(self, proxy: Union[CachedDataBase, ModuleEntryBase, LearningObjectEntryBase]) -> None:
         model_id = proxy._params[0]
         if isinstance(proxy, CachedDataBase) and model_id not in self.instances:
             self.needed_instances.add(model_id)
         elif isinstance(proxy, ModuleEntryBase) and model_id not in self.modules:
             self.needed_modules.add(model_id)
-        elif isinstance(proxy, ExerciseEntryBase) and model_id not in self.exercises:
+        elif isinstance(proxy, LearningObjectEntryBase) and model_id not in self.exercises:
             self.needed_exercises.add(model_id)
 
     def _load_modules_qs(self, module_qs: QuerySet[CourseModule]) -> Iterable[CourseModule]:
@@ -190,7 +190,7 @@ class ContentDBData(DBDataManager):
         ]
 
 
-class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEntry, ExerciseEntry]):
+class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEntry, LearningObjectEntry]):
     PROTO_BASES = (LearningObjectProto,)
     DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'exercise'
@@ -204,7 +204,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
     type: ClassVar[Literal['exercise']] = 'exercise'
     # Disable repr for ancestors so there are no infinite loops
     module: ModuleEntry
-    parent: Optional[ExerciseEntry]
+    parent: Optional[LearningObjectEntry]
     category: str
     category_id: int
     category_status: str
@@ -233,7 +233,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
     max_submissions: int
     max_points: int
     allow_assistant_viewing: bool
-    children: List[ExerciseEntry]
+    children: List[LearningObjectEntry]
     submittable: bool
     grading_mode: Optional[int]
     model_answer_modules: List[ModuleEntry]
@@ -259,7 +259,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
     def _generate_data(
             self,
             precreated: ProxyManager,
-            prefetched_data: ExerciseEntryBase.DBCLS,
+            prefetched_data: LearningObjectEntryBase.DBCLS,
             ) -> Optional[Dependencies]:
         """ Returns object that is cached into self.data """
         lobj_id = self._params[0]
@@ -273,7 +273,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
         if lobj.parent_id is None:
             self.parent = None
         else:
-            self.parent = precreated.get_or_create_proxy(ExerciseEntryBase, lobj.parent_id)
+            self.parent = precreated.get_or_create_proxy(LearningObjectEntryBase, lobj.parent_id)
         self.category = str(category)
         self.category_id = category.id
         self.category_status = category.status
@@ -297,7 +297,7 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
         self.late_time = module.late_submission_deadline
         self.late_percent = module.get_late_submission_point_worth()
         self.is_empty = lobj.is_empty()
-        self.children = [precreated.get_or_create_proxy(ExerciseEntryBase, o.id) for o in children]
+        self.children = [precreated.get_or_create_proxy(LearningObjectEntryBase, o.id) for o in children]
         if isinstance(lobj, CourseChapter):
             self.model_answer_modules = [
                 precreated.get_or_create_proxy(ModuleEntryBase, module.id)
@@ -330,10 +330,10 @@ class ExerciseEntryBase(LearningObjectProto, CacheBase, EqById, Generic[ModuleEn
 
         # We cannot rely on INVALIDATORS as the parent of a child might change,
         # in which case this object wouldn't be invalidated (and the children would be wrong)
-        return {ExerciseEntryBase: [proxy._params for proxy in self.children]}
+        return {LearningObjectEntryBase: [proxy._params for proxy in self.children]}
 
 
-class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntry]):
+class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObjectEntry]):
     PROTO_BASES = (CourseModuleProto,)
     DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'module'
@@ -368,7 +368,7 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
     max_points: int
     max_points_by_difficulty: Dict[str, int]
     instance: "CachedDataBase"
-    children: List[ExerciseEntry]
+    children: List[LearningObjectEntry]
 
     @property
     def course_instance(self) -> "CachedDataBase":
@@ -414,7 +414,7 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[ExerciseEntr
         self.late_percent = module.get_late_submission_point_worth()
         self.points_to_pass = module.points_to_pass
         self.instance = precreated.get_or_create_proxy(CachedDataBase, module.course_instance_id)
-        self.children = [precreated.get_or_create_proxy(ExerciseEntryBase, child.id) for child in children]
+        self.children = [precreated.get_or_create_proxy(LearningObjectEntryBase, child.id) for child in children]
         self.exercise_count = 0
         self.max_points = 0
         self.max_points_by_difficulty = {}
@@ -463,7 +463,7 @@ class TotalsBase:
 
 
 CachedDataBaseType = TypeVar("CachedDataBaseType", bound="CachedDataBase")
-class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
+class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, LearningObjectEntry, CategoryEntry, Totals]):
     PROTO_BASES = (CourseInstanceProto,)
     DBCLS = ContentDBData
     KEY_PREFIX: ClassVar[str] = 'instance'
@@ -483,7 +483,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
     course_url_kwargs: Dict[str, str]
     created: datetime
     module_index: Dict[int, ModuleEntry]
-    exercise_index: Dict[int, ExerciseEntry]
+    exercise_index: Dict[int, LearningObjectEntry]
     paths: Dict[int, Dict[str, int]]
     modules: List[ModuleEntry]
     categories: Dict[int, CategoryEntry]
@@ -528,7 +528,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Exerci
         self.total = total = TotalsBase()
 
         for lobj in lobjs:
-            exercise_index[lobj.id] = precreated.get_or_create_proxy(ExerciseEntryBase, lobj.id)
+            exercise_index[lobj.id] = precreated.get_or_create_proxy(LearningObjectEntryBase, lobj.id)
             category = lobj.category
             if category.id not in categories:
                 categories[category.id] = CategoryEntryBase(

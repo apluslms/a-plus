@@ -9,17 +9,17 @@ from course.models import CourseModule
 from .exercise_models import BaseExercise
 
 if TYPE_CHECKING:
-    from .cache.points import ExerciseEntry, ModuleEntry, SubmittableExerciseEntry
+    from .cache.points import LearningObjectPoints, ModulePoints, ExercisePoints
 
 
-def _get_exercise_common_deadlines(exercise: SubmittableExerciseEntry) -> List[datetime.datetime]:
+def _get_exercise_common_deadlines(exercise: ExercisePoints) -> List[datetime.datetime]:
     deadlines = [exercise.closing_time]
     if exercise.late_allowed and exercise.late_percent > 0:
         deadlines.append(exercise.late_time)
     return deadlines
 
 
-def _get_exercise_deadline(exercise: SubmittableExerciseEntry) -> datetime.datetime:
+def _get_exercise_deadline(exercise: ExercisePoints) -> datetime.datetime:
     deadlines = _get_exercise_common_deadlines(exercise)
     personal_deadline = exercise.personal_deadline
     if personal_deadline is not None:
@@ -27,7 +27,7 @@ def _get_exercise_deadline(exercise: SubmittableExerciseEntry) -> datetime.datet
     return max(deadlines)
 
 
-def _get_max_submissions(exercise: SubmittableExerciseEntry) -> int:
+def _get_max_submissions(exercise: ExercisePoints) -> int:
     personal_max_submissions = exercise.personal_max_submissions
     if personal_max_submissions is not None:
         return personal_max_submissions
@@ -68,21 +68,21 @@ class ExerciseRevealState(BaseRevealState):
     def __init__(self, exercise: BaseExercise, student: User):
         ...
     @overload
-    def __init__(self, exercise: SubmittableExerciseEntry):
+    def __init__(self, exercise: ExercisePoints):
         ...
     def __init__(
             self,
-            exercise: Union[BaseExercise, SubmittableExerciseEntry],
+            exercise: Union[BaseExercise, ExercisePoints],
             student: Optional[User] = None
             ):
         # Can be constructed either with a BaseExercise instance or a
         # CachedPoints exercise entry. If a BaseExercise is provided, the
         # cache entry is fetched here.
         if isinstance(exercise, BaseExercise):
-            from .cache.points import SubmittableExerciseEntry # pylint: disable=import-outside-toplevel
+            from .cache.points import ExercisePoints # pylint: disable=import-outside-toplevel
             # 'True' is always passed to CachedPoints as the show_unrevealed argument
             # because we need to know the actual points.
-            entry = SubmittableExerciseEntry.get(exercise, student, True)
+            entry = ExercisePoints.get(exercise, student, True)
             self.cache = entry
         else:
             self.cache = exercise
@@ -128,12 +128,12 @@ class ExerciseRevealState(BaseRevealState):
 
 class ModuleRevealState(BaseRevealState):
     @overload
-    def __init__(self, module: CourseModule, student: User):
+    def __init__(self, module: ModulePoints, student: User):
         ...
     @overload
-    def __init__(self, module: ModuleEntry):
+    def __init__(self, module: ModulePoints):
         ...
-    def __init__(self, module: Union[CourseModule, ModuleEntry], student: Optional[User] = None):
+    def __init__(self, module: Union[CourseModule, ModulePoints], student: Optional[User] = None):
         if isinstance(module, CourseModule):
             from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
             cached_points = CachedPoints(module.course_instance, student, True)
@@ -182,13 +182,13 @@ class ModuleRevealState(BaseRevealState):
     def get_max_submissions(self) -> Optional[int]:
         return sum(_get_max_submissions(exercise) for exercise in self.exercises)
 
-    def _get_exercises(self) -> List[SubmittableExerciseEntry]:
-        from .cache.points import SubmittableExerciseEntry # pylint: disable=import-outside-toplevel
-        exercises: List[SubmittableExerciseEntry] = []
+    def _get_exercises(self) -> List[ExercisePoints]:
+        from .cache.points import ExercisePoints # pylint: disable=import-outside-toplevel
+        exercises: List[ExercisePoints] = []
 
-        def recursion(children: List[ExerciseEntry]) -> None:
+        def recursion(children: List[LearningObjectPoints]) -> None:
             for entry in children:
-                if isinstance(entry, SubmittableExerciseEntry):
+                if isinstance(entry, ExercisePoints):
                     exercises.append(entry)
                 recursion(entry.children)
 
