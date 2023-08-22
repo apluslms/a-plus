@@ -5413,6 +5413,16 @@ msgstr ""
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "Käyttäjätili on poistettu käytöstä."
 
+#: templates/403.html
+msgid "ACCESS_RESTRICTED_403"
+msgstr "Pääsy kielletty"
+
+#: templates/403.html
+msgid "ACCESS_RESTRICTED_403_INFO"
+msgstr ""
+"Sinulla ei ole tarvittavia oikeuksia nähdäksesi tätä sisältöä. Muistathan "
+"kirjautua sisään, jos sinulla on Aalto-käyttäjätunnus."
+
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"
 msgstr "Sivu ei ole saatavilla tällä kielellä."
