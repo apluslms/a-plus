@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-10 14:22+0300\n"
+"POT-Creation-Date: 2023-08-22 12:42+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -4315,6 +4315,10 @@ msgid "SUMMARY"
 msgstr "Summary"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
+msgstr "%(count)s submissions."
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
 msgstr ""
@@ -4323,8 +4327,12 @@ msgstr ""
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
-msgstr "%(count)s submissions"
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"

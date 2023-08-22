@@ -65,10 +65,12 @@ class ListSubmissionsView(ExerciseListBaseView):
                 Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance)),
             )
         )
-        self.all = self.request.GET.get('all', None)
-        self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
-        self.submissions = qs if self.all else qs[:self.default_limit]
-        self.note("all", "all_url", "submissions", "default_limit")
+
+        self.limited = self.request.GET.get('limited', False)
+        self.not_all_url = self.exercise.get_submission_list_url() + "?limited=true"
+        self.all_url = self.exercise.get_submission_list_url()
+        self.submissions = qs[:self.default_limit] if self.limited else qs
+        self.note("limited", "not_all_url", "all_url", "submissions", "default_limit")
 
 
 class SubmissionsSummaryView(ExerciseBaseView):
