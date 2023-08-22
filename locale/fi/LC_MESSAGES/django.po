@@ -4430,16 +4430,24 @@ msgid "SUMMARY"
 msgstr "Yhteenveto"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
+msgstr "%(count)s palautusta."
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
 msgstr ""
-"%(limit)s viimeistä palautusta. <a class=\"aplus-button--secondary aplus-"
+"%(limit)s viimeisintä palautusta. <a class=\"aplus-button--secondary aplus-"
 "button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
-msgstr "%(count)s palautusta"
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s palautusta. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Näytä %(limit)s viimeisintä</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"

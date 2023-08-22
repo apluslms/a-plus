@@ -92,14 +92,15 @@ class ListSubmissionsView(ExerciseListBaseView):
 
         for submission in qs:
             format_submission(submission, self.pseudonymize)
-        self.all = self.request.GET.get('all', None)
-        self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
-        self.submissions = qs if self.all else qs[:self.default_limit]
+        self.limited = self.request.GET.get('limited', False)
+        self.not_all_url = self.exercise.get_submission_list_url() + "?limited=true"
+        self.all_url = self.exercise.get_submission_list_url()
+        self.submissions = qs[:self.default_limit] if self.limited else qs
         self.count = len(self.submissions)
         self.percentage_graded = (
             f"{graded_submitters} / {total_submitters} ({int(graded_submitters / total_submitters * 100)}%)"
         )
-        self.note("all", "all_url", "submissions", "default_limit", "count", "percentage_graded")
+        self.note("limited", "not_all_url", "all_url", "submissions", "default_limit", "count", "percentage_graded")
 
 
 class SubmissionsSummaryView(ExerciseBaseView):

@@ -4415,6 +4415,10 @@ msgid "SUMMARY"
 msgstr "Summary"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
+msgstr "%(count)s submissions."
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
 msgstr ""
@@ -4423,8 +4427,12 @@ msgstr ""
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
-msgstr "%(count)s submissions"
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"
