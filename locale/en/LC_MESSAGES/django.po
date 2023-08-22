@@ -198,7 +198,7 @@ msgstr "A superuser of the service"
 
 #: authorization/permissions.py
 msgid "ACCESS_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to view this content."
+msgstr "Unfortunately, you are not permitted to view this content."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
@@ -814,7 +814,7 @@ msgstr "No permission to access submission"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to view this course."
+msgstr "Unfortunately, you are not permitted to view this course."
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_ERROR_NOT_VISIBLE"
@@ -3472,7 +3472,7 @@ msgstr "Only one student field can be given"
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to view this assignment."
+msgstr "Unfortunately, you are not permitted to view this assignment."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
@@ -3496,7 +3496,7 @@ msgstr "The assignment is only for external users."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately assistants are not permitted to view this."
+msgstr "Unfortunately, assistants are not permitted to view this."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_ERROR_NO_ASSISTANT_VIEWING"
@@ -3508,7 +3508,7 @@ msgstr "Assistant grading is not allowed for this assignment."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see view submission."
+msgstr "Unfortunately, you are not permitted to view this submission."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_ERROR_ONLY_SUBMITTER"
@@ -3516,7 +3516,7 @@ msgstr "Only the submitter shall pass."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to view this model answer."
+msgstr "Unfortunately, you are not permitted to view this model answer."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_ERROR_NOT_ALLOWED_VIEWING"
@@ -3860,7 +3860,7 @@ msgstr ""
 #: exercise/templates/exercise/_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
 msgstr ""
-"Unfortunately grading takes longer than expected. Return later to see the "
+"Unfortunately, grading takes longer than expected. Return later to see the "
 "result."
 
 #: exercise/templates/exercise/_exercise_wait.html
@@ -4733,7 +4733,7 @@ msgstr ""
 
 #: exercise/views.py
 msgid "EXERCISE_IN_MAINTENTANCE"
-msgstr "Unfortunately this assignment is currently under maintenance."
+msgstr "Unfortunately, this assignment is currently under maintenance."
 
 #: exercise/views.py
 #, python-brace-format
@@ -5003,7 +5003,7 @@ msgstr ""
 
 #: external_services/permissions.py
 msgid "MENU_VISIBILTY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to use this link."
+msgstr "Unfortunately, you are not permitted to use this link."
 
 #: external_services/permissions.py
 msgid "MENU_VISIBILITY_ERROR_ONLY_TEACHERS"
@@ -5398,8 +5398,12 @@ msgstr "Access restricted"
 #: templates/403.html
 msgid "ACCESS_RESTRICTED_403_INFO"
 msgstr ""
-"You lack the necessary permissions to view this content. If you have an "
-"Aalto user ID, remember to log in."
+"You lack the necessary permissions to view this content. If you have a user "
+"ID, remember to log in."
+
+#: templates/404.html
+msgid "NOT_FOUND_404"
+msgstr "Page not found"
 
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"
@@ -5420,6 +5424,15 @@ msgid "PAGE_DOES_NOT_EXIST"
 msgstr ""
 "For an unknown reason you arrived somewhere that does not exist. Please, try "
 "again. "
+
+#: templates/500.html
+msgid "INTERNAL_SERVER_ERROR_500"
+msgstr "Internal server error"
+
+#: templates/500.html
+msgid "SOMETHING_WENT_WRONG"
+msgstr ""
+"Something went terribly wrong and your request could not be processed. Sorry!"
 
 #: templates/ajax_search_select.html
 msgid "SEARCH"

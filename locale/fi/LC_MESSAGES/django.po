@@ -5421,7 +5421,11 @@ msgstr "Pääsy kielletty"
 msgid "ACCESS_RESTRICTED_403_INFO"
 msgstr ""
 "Sinulla ei ole tarvittavia oikeuksia nähdäksesi tätä sisältöä. Muistathan "
-"kirjautua sisään, jos sinulla on Aalto-käyttäjätunnus."
+"kirjautua sisään, jos sinulla on käyttäjätunnus."
+
+#: templates/404.html
+msgid "NOT_FOUND_404"
+msgstr "Sivua ei löytynyt"
 
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"
@@ -5442,6 +5446,16 @@ msgid "PAGE_DOES_NOT_EXIST"
 msgstr ""
 "Olet päätynyt tuntemattomasta syystä osoitteeseen, jota ei ole olemassa. Ole "
 "ystävällinen, ja yritä uudelleen."
+
+#: templates/500.html
+msgid "INTERNAL_SERVER_ERROR_500"
+msgstr "Palvelimen sisäinen virhe"
+
+#: templates/500.html
+msgid "SOMETHING_WENT_WRONG"
+msgstr ""
+"Jokin meni pahasti pieleen, eikä pyyntöäsi onnistuttu käsittelemään. "
+"Pahoittelut!"
 
 #: templates/ajax_search_select.html
 msgid "SEARCH"
