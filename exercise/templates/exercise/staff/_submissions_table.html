@@ -42,13 +42,17 @@
 	</div>
 	<p>
 		{% exercise_text_stats exercise %} |
-		{% if not all and count == default_limit %}
-		{% blocktranslate trimmed with limit=default_limit count=count url=all_url %}
+		{% if count <= default_limit and not limited %}
+		{% blocktranslate trimmed with count=count url=all_url %}
+			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}, {{ url }}
+		{% endblocktranslate %}
+		{% elif limited %}
+		{% blocktranslate trimmed with limit=default_limit url=all_url %}
 			NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- {{ limit }}, {{ url }}
 		{% endblocktranslate %}
 		{% else %}
-		{% blocktranslate trimmed with count=count %}
-			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}
+		{% blocktranslate trimmed with count=count url=not_all_url limit=default_limit %}
+			NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- {{ count }}, {{ url }}, {{ limit }}
 		{% endblocktranslate %}
 		{% endif %}
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submitter-list' }}">
@@ -56,7 +60,7 @@
 		</a>
 	</p>
 </div>
-<table class="table table-bordered{% if all or count < default_limit %} filtered-table ordered-table{% endif %}">
+<table class="table table-bordered{% if not limited or count < default_limit %} filtered-table ordered-table{% endif %}">
 		<thead>
 				<tr>
 						<th>{% translate "SUBMITTERS" %} {{percentage_graded}} {% translate "GRADED" %}</th>
