@@ -1,45 +1,41 @@
+{% extends "base.html" %}
 {% load i18n %}
-{% load base %}
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>404 Not found</title>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
-    </head>
-    <body>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="page-header">
-                        <h1>404 Not found</h1>
-                    </div>
-                    {% include "_messages.html" %}
-                    {% if url_without_language %}
-                    <div class="alert alert-danger">
-                        {% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
-                        <a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
-                    </div>
-                    {% elif languages %}
-                    <div class="alert alert-danger">
-                        {% blocktranslate trimmed %}
-                            PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
-                        {% endblocktranslate %}
-                        {% for lang in languages %}
-                            <a href="{{ lang.url }}">{{ lang.name }}</a>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-danger">
-                        {% blocktranslate trimmed %}
-                            PAGE_DOES_NOT_EXIST
-                        {% endblocktranslate %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% tracking_html %}
-    </body>
-</html>
+
+{% block title %}{% translate "NOT_FOUND_404" %} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-8">
+			<div class="page-header">
+				<h1>
+					{% translate "NOT_FOUND_404" %}
+					<span class="tiny">(404)</span>
+				</h1>
+			</div>
+			{% if url_without_language %}
+			<div class="alert alert-danger">
+				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				{% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
+				<a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
+			</div>
+			{% elif languages %}
+			<div class="alert alert-danger">
+				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				{% blocktranslate trimmed %}
+				PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
+				{% endblocktranslate %}
+				{% for lang in languages %}
+				<a href="{{ lang.url }}">{{ lang.name }}</a>
+				{% endfor %}
+			</div>
+			{% else %}
+			<div class="alert alert-danger">
+				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				{% translate "PAGE_DOES_NOT_EXIST" %}
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -4,12 +4,12 @@ class CommonLocators:
     FORBIDDEN_PAGE = (
         By.XPATH,
         "//div[@class='message'][contains(text(), "
-        "'Unfortunately you are not permitted to view this content')]"
+        "'Unfortunately, you are not permitted to view this content')]"
     )
     PERMISSION_DENIED_ACCESS_MODE = (
         By.XPATH,
         "//main[@id='content']//div[@class='message'][contains(text(), "
-        "'Unfortunately you are not permitted to view this content')]"
+        "'Unfortunately, you are not permitted to view this content')]"
     )
 
 class LoginPageLocators:
