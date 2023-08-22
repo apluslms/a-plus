@@ -198,7 +198,7 @@ msgstr "A superuser of the service"
 
 #: authorization/permissions.py
 msgid "ACCESS_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see this content."
+msgstr "Unfortunately you are not permitted to view this content."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_AUTHENTICATED"
@@ -206,15 +206,15 @@ msgstr "Please login."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_TEACHERS"
-msgstr "Only course teachers shall pass."
+msgstr "Only course teachers are permitted."
 
 #: authorization/permissions.py
 msgid "ACCESS_ERROR_ONLY_COURSE_STAFF"
-msgstr "Only course staff shall pass."
+msgstr "Only course staff is permitted."
 
 #: authorization/permissions.py course/permissions.py
 msgid "ACCESS_ERROR_ONLY_ENROLLED_STUDENTS"
-msgstr "Only enrolled students shall pass."
+msgstr "Only enrolled students are permitted."
 
 #: course/admin.py external_services/templates/external_services/list_menu.html
 msgid "URL"
@@ -814,7 +814,7 @@ msgstr "No permission to access submission"
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see this course."
+msgstr "Unfortunately you are not permitted to view this course."
 
 #: course/permissions.py
 msgid "COURSE_VISIBILITY_ERROR_NOT_VISIBLE"
@@ -1653,6 +1653,7 @@ msgstr ""
 
 #: deviations/templates/deviations/add_dl.html
 #: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_deviationslink.html
 msgid "ADD_DEADLINE_DEVIATIONS"
 msgstr "Add deadline deviations"
 
@@ -3470,7 +3471,7 @@ msgstr "Only one student field can be given"
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see this assignement."
+msgstr "Unfortunately you are not permitted to view this assignment."
 
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
@@ -3494,7 +3495,7 @@ msgstr "The assignment is only for external users."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately assistants are not permitted to see this."
+msgstr "Unfortunately assistants are not permitted to view this."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_ERROR_NO_ASSISTANT_VIEWING"
@@ -3506,7 +3507,7 @@ msgstr "Assistant grading is not allowed for this assignment."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see this submission."
+msgstr "Unfortunately you are not permitted to see view submission."
 
 #: exercise/permissions.py
 msgid "SUBMISSION_VISIBILITY_ERROR_ONLY_SUBMITTER"
@@ -3514,7 +3515,7 @@ msgstr "Only the submitter shall pass."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr "Unfortunately you are not permitted to see this model answer."
+msgstr "Unfortunately you are not permitted to view this model answer."
 
 #: exercise/permissions.py
 msgid "EXERCISE_MODEL_ANSWER_VISIBILITY_ERROR_NOT_ALLOWED_VIEWING"
@@ -5388,6 +5389,16 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "The user account has been disabled."
+
+#: templates/403.html
+msgid "ACCESS_RESTRICTED_403"
+msgstr "Access restricted"
+
+#: templates/403.html
+msgid "ACCESS_RESTRICTED_403_INFO"
+msgstr ""
+"You lack the necessary permissions to view this content. If you have an "
+"Aalto user ID, remember to log in."
 
 #: templates/404.html
 msgid "PAGE_NOT_AVAILABLE_IN_LANGUAGE"
