@@ -1122,7 +1122,17 @@
      * Loads new data on page load, and when "Show only official points" checkbox clicked
      * @param {*} show_unofficial
      */
-    function loadStudentData(show_unofficial, ignore_last_grading_mode) {
+    function loadStudentData(show_unofficial, show_unconfirmed, ignore_last_grading_mode) {
+        if(show_unofficial == undefined) {
+            show_unofficial = $('input.unofficial-checkbox').prop('checked')
+        }
+        if(show_unconfirmed == undefined) {
+            show_unconfirmed = $('input.unconfirmed-checkbox').prop('checked')
+        }
+        if(ignore_last_grading_mode == undefined) {
+            ignore_last_grading_mode = $('#ignore-last-mode-checkbox').prop('checked');
+        }
+
         // Destroy old data table if it exists
         // Also multiselects and event handlers that will be recreated
         if(dtApi !== undefined) {
@@ -1138,6 +1148,7 @@
         let pUrl = pointsBestUrl;
         if (!ignore_last_grading_mode) pUrl = pointsUrl;
         if (show_unofficial) pUrl = pUrl + "&show_unofficial=true";
+        if (show_unconfirmed) pUrl = pUrl + "&show_unconfirmed=true";
         $.when(
             $.ajax(exercisesUrl),
             $.ajax(pUrl),
@@ -1573,17 +1584,10 @@
      * To toggle whether only official points are displayed, we need to refetch the
      * data from backend. This is because the frontend logic is already very complex.
      */
-    $('input.official-checkbox').change(function(){
-        loadStudentData(!$(this).prop('checked'), $('#ignore-last-mode-checkbox').prop('checked'));
-    });
-
-    $('#ignore-last-mode-checkbox').change(function(){
-        loadStudentData(!$('input.official-checkbox').prop('checked'), $(this).prop('checked'));
-    });
-
-    $(document).on("aplus:translation-ready", function() {
-        loadStudentData(false, true);
-    });
+    $('input.unconfirmed-checkbox').change(() => loadStudentData());
+    $('input.unofficial-checkbox').change(() => loadStudentData());
+    $('#ignore-last-mode-checkbox').change(() => loadStudentData());
+    $(document).on("aplus:translation-ready", () => loadStudentData());
 
 })(jQuery, document, window);
 

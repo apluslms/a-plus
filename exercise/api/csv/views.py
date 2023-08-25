@@ -1,5 +1,13 @@
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any, Dict, Iterable, List, Optional, Set, Union
 
+from django.db.models import (
+    Exists,
+    ExpressionWrapper,
+    F,
+    IntegerField,
+    OuterRef,
+    Q,
+)
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from rest_framework import viewsets
@@ -14,6 +22,8 @@ from lib.api.mixins import MeUserMixin
 from lib.api.constants import REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
 from course.permissions import IsCourseAdminOrUserObjIsSelf
+from exercise.exercise_models import BaseExercise
+from exercise.submission_models import SubmissionQuerySet
 from userprofile.models import UserProfile
 
 from ...cache.points import CachedPoints
@@ -296,6 +306,8 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {'course_id': 'enrollment.course_instance.id'}
 
+    point_annotator = "annotate_submitter_points"
+
     def get_queryset(self):
         if self.action == 'list':
             return self.instance.students
@@ -318,16 +330,82 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         return self.serialize_profiles(request, [self.get_object()])
 
     # pylint: disable-next=too-many-arguments
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
+    def get_submissions_query(
+            self,
+            ids: List[int],
+            profiles: QuerySet[UserProfile],
+            exclude_list: List[str], # Submission.STATUS
+            revealed_ids: Iterable[int],
+            show_unofficial: bool,
+            show_unconfirmed: bool,
+            ) -> SubmissionQuerySet:
+        query = (
             Submission.objects
             .filter(exercise__in=ids, submitters__in=profiles)
             .exclude(status__in=(exclude_list))
+        )
+
+        if not show_unconfirmed:
+            # Select mandatory sibling exercises
+            need_to_confirm = (
+                BaseExercise.objects
+                .annotate(
+                    # ExpressionWrapper is needed due to https://code.djangoproject.com/ticket/31714
+                    outer_parent_id=ExpressionWrapper(
+                        OuterRef("exercise__parent_id"),
+                        output_field=IntegerField(),
+                    )
+                )
+                .filter(
+                    Q(parent_id=F("outer_parent_id"))
+                    # Exercises directly under a module have NULL parents
+                    | Q(parent_id=None, outer_parent_id=None),
+                )
+                .filter(
+                    course_module__course_instance=self.instance,
+                    category__confirm_the_level=True,
+                    course_module_id=OuterRef("exercise__course_module_id"),
+                )
+            )
+            # Select submissions that pass mandatory sibling exercises
+            confirmed = (
+                Submission.objects
+                .annotate(
+                    # ExpressionWrapper is needed due to https://code.djangoproject.com/ticket/31714
+                    outer_parent_id=ExpressionWrapper(
+                        OuterRef("exercise__parent_id"),
+                        output_field=IntegerField(),
+                    )
+                )
+                .filter(
+                    Q(exercise__parent_id=F("outer_parent_id"))
+                    # Exercises directly under a module have NULL parents
+                    | Q(exercise__parent_id=None, outer_parent_id=None),
+                )
+                .filter(
+                    submitters=OuterRef("submitters"),
+                    exercise__category__confirm_the_level=True,
+                    exercise__course_module_id=OuterRef("exercise__course_module_id"),
+                )
+                .passes()
+            )
+            # Exclude unconfirmed submissions: a submission is unconfirmed
+            # if it has at least one mandatory exercise sibling (including the exercise itself)
+            # and none of them have been completed yet
+            query = query.filter(
+                ~Exists(need_to_confirm) | Exists(confirmed)
+            )
+
+        query = (
+            query
             .values('submitters__user_id', 'exercise_id')
             .annotate(count=Count('id'))
-            .annotate_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
         )
+
+        # Call annotate_best_submitter_points or annotate_submitter_points depending on the selection
+        query = getattr(query, self.point_annotator)('total', revealed_ids, show_unofficial)
+
+        return query.order_by()
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
@@ -339,7 +417,8 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         show_unofficial = request.GET.get('show_unofficial') == 'true'
         if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        aggr = self.get_submissions_query(ids, profiles, exclude_list, revealed_ids, show_unofficial)
+        show_unconfirmed = request.GET.get('show_unconfirmed') == 'true'
+        aggr = self.get_submissions_query(ids, profiles, exclude_list, revealed_ids, show_unofficial, show_unconfirmed)
         data,fields = aggregate_points(
             profiles,
             self.instance.taggings.all(),
@@ -369,17 +448,7 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     The results are returned as if all exercises used the BEST mode
     and the LAST mode is ignored.
     """
-    # pylint: disable-next=too-many-arguments
-    def get_submissions_query(self, ids, profiles, exclude_list, revealed_ids, show_unofficial):
-        return (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-            .values('submitters__user_id', 'exercise_id')
-            .annotate(count=Count('id'))
-            .annotate_best_submitter_points('total', revealed_ids, show_unofficial)
-            .order_by()
-        )
+    point_annotator = "annotate_best_submitter_points"
 
 
 def int_or_none(value):

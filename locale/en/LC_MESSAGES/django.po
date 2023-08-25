@@ -4522,20 +4522,29 @@ msgid "OPTIONS"
 msgstr "Options"
 
 #: exercise/templates/exercise/staff/results.html
-msgid "OFFICIAL_POINTS_TOOLTIP"
+msgid "UNOFFICIAL_POINTS_TOOLTIP"
 msgstr ""
 "Points are official if the submission is within deadline and submission "
 "count limits. Unofficial submissions are allowed only if they have been "
-"enabled in the assignment category settings. KNOWN ISSUES: (1) the official "
-"points currently include also unconfirmed points. Unconfirmed points exist "
-"only if mandatory activities have been enabled in the assignment category "
-"settings. Usually, mandatory activities are used for mandatory chapter "
-"feedback questionnaires. (2) DO NOT PRESS this checkbox MORE THAN ONCE. If "
-"you do, the points table will keep showing UNOFFICIAL points."
+"enabled in the assignment category settings. KNOWN ISSUE: DO NOT PRESS "
+"this checkbox MORE THAN ONCE. If you do, the points table will keep "
+"showing UNOFFICIAL points."
 
 #: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SHOW_ONLY_OFFICIAL_POINTS"
-msgstr "Show only official points"
+msgid "RESULTS_SHOW_UNOFFICIAL_POINTS"
+msgstr "Include unofficial points"
+
+#: exercise/templates/exercise/staff/results.html
+msgid "UNCONFIRMED_POINTS_TOOLTIP"
+msgstr ""
+"Points are unconfirmed if a mandatory exercise exists in the same chapter "
+"and the user has not passed it. Unconfirmed points exist only if mandatory "
+"activities have been enabled in the assignment category settings. Usually, "
+"mandatory activities are used for mandatory chapter feedback questionnaires."
+
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_SHOW_UNCONFIRMED_POINTS"
+msgstr "Include unconfirmed points"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"

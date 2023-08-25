@@ -4534,21 +4534,30 @@ msgid "OPTIONS"
 msgstr "Valinnat"
 
 #: exercise/templates/exercise/staff/results.html
-msgid "OFFICIAL_POINTS_TOOLTIP"
+msgid "UNOFFICIAL_POINTS_TOOLTIP"
 msgstr ""
 "Pisteet ovat virallisia, jos palautus on tehty määräajassa ja sallittujen "
 "palautuskertojen sisällä. Epäviralliset palautukset ovat mahdollisia vain, "
 "jos epäviralliset palautukset on sallittu tehtäväkategorian asetuksissa. "
-"TUNNETUT ONGELMAT: (1) viralliset pisteet sisältävät myös vahvistamattomat "
-"pisteet. Vahvistamattomia pisteitä on olemassa vain, jos tehtäväkategoriassa "
-"on asetettu pakolliset osiot. Yleensä pakollisia osioita käytetään "
-"pakollisiin palautelomakkeisiin lukujen lopussa. (2) ÄLÄ PAINA tätä valintaa "
-"YLI YHDEN KERRAN. Jos tätä painetaan useammin kuin kerran, taulukko näyttää "
-"kuitenkin aina EPÄVIRALLISIA pisteitä."
+"TUNNETTU ONGELMA: ÄLÄ PAINA tätä valintaa YLI YHDEN KERRAN. Jos tätä "
+"painetaan useammin kuin kerran, taulukko näyttää kuitenkin aina "
+"EPÄVIRALLISIA pisteitä."
 
 #: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SHOW_ONLY_OFFICIAL_POINTS"
-msgstr "Näytä vain viralliset pisteet"
+msgid "RESULTS_SHOW_UNOFFICIAL_POINTS"
+msgstr "Sisällytä epäviralliset pisteet"
+
+#: exercise/templates/exercise/staff/results.html
+msgid "UNCONFIRMED_POINTS_TOOLTIP"
+msgstr ""
+"Pisteet ovat vahvistamattomia, jos samassa luvussa on pakollinen tehtävä ja "
+"käyttäjä ei ole päässyt sitä läpi. Vahvistamattomia pisteitä on olemassa "
+"vain, jos tehtäväkategoriassa on asetettu pakolliset osiot. Yleensä "
+"pakollisia osioita käytetään pakollisiin palautelomakkeisiin lukujen lopussa."
+
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_SHOW_UNCONFIRMED_POINTS"
+msgstr "Sisällytä vahvistamattomat pisteet"
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS"

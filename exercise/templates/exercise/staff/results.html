@@ -111,11 +111,17 @@ that includes the correct DataTables extensions. -->
 			<h4>{% translate "OPTIONS" %}</h4>
 			<span class="has-error">
 				<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
-				data-placement="right"
-				title="{% translate 'OFFICIAL_POINTS_TOOLTIP' %}">
-					<input type="checkbox" class="official-checkbox" value="official" checked>
-					{% translate "RESULTS_SHOW_ONLY_OFFICIAL_POINTS" %}
-			</label>
+					data-placement="right"
+					title="{% translate 'UNOFFICIAL_POINTS_TOOLTIP' %}">
+						<input type="checkbox" class="unofficial-checkbox" value="unofficial">
+						{% translate "RESULTS_SHOW_UNOFFICIAL_POINTS" %}
+				</label>
+				<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
+					data-placement="right"
+					title="{% translate 'UNCONFIRMED_POINTS_TOOLTIP' %}">
+						<input type="checkbox" class="unconfirmed-checkbox" value="unconfirmed">
+						{% translate "RESULTS_SHOW_UNCONFIRMED_POINTS" %}
+				</label>
 			</span>
 			<label style="margin-left: 10px;" class="checkbox-inline" data-toggle="tooltip"
 				title="{% translate 'RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS' %}">

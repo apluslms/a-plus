@@ -3,7 +3,7 @@ import json
 import logging
 from mimetypes import guess_type
 import os
-from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING
+from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
 from urllib.parse import urlparse
 
 from binaryornot.check import is_binary
@@ -36,6 +36,10 @@ logger = logging.getLogger('aplus.exercise')
 
 
 class SubmissionQuerySet(models.QuerySet):
+    def passes(self) -> "SubmissionQuerySet":
+        """Filter only submissions that pass the exercise"""
+        return self.filter(grade__gte=F("exercise__points_to_pass"))
+
     def annotate_submitter_points(
             self,
             field_name: str = 'total',
@@ -219,6 +223,9 @@ class SubmissionQuerySet(models.QuerySet):
 
 class SubmissionManager(JWTAccessible["Submission"], models.Manager):
     _queryset_class = SubmissionQuerySet
+
+    # Hints the correct return type for .filter(...)
+    filter: Callable[..., SubmissionQuerySet]
 
     def get_queryset(self):
         return super().get_queryset()\
