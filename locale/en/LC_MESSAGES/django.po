@@ -1445,10 +1445,11 @@ msgstr ""
 "users cannot re-enrol in the course.</p>"
 
 #: course/templatetags/base.py
-msgid "GRADER_PROBLEMS_ALERT"
+#, python-brace-format
+msgid "GRADER_PROBLEMS_ALERT -- {exercises}"
 msgstr ""
-"Automatic grading has currently issues. You may experience delay in "
-"receiving feedback."
+"Automatic grading currently has issues. You may experience delay in "
+"receiving feedback. Affected exercises include at least {exercises}."
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
@@ -1653,6 +1654,7 @@ msgstr ""
 
 #: deviations/templates/deviations/add_dl.html
 #: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_deviationslink.html
 msgid "ADD_DEADLINE_DEVIATIONS"
 msgstr "Add deadline deviations"
 

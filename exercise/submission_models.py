@@ -836,6 +836,24 @@ class PendingSubmissionManager(models.Manager):
         return not (total_retries and total_retries > settings.GRADER_STABLE_THRESHOLD)
 
 
+    def get_exercise_names_if_grader_is_unstable(self, instance):
+        total_retries_per_exercise = self.values(
+            'submission__exercise__name',
+        ).filter(
+            submission__exercise__course_module__course_instance=instance.id,
+        ).annotate(
+            num_retries=models.Sum('num_retries'),
+        ).order_by(
+            '-num_retries',
+        )[:10]
+        total_retries = sum(entry['num_retries'] for entry in total_retries_per_exercise)
+        # Check if the grader can be considered unstable on this course instance
+        if total_retries > settings.GRADER_STABLE_THRESHOLD:
+            exercises = ", ".join(f"'{entry['submission__exercise__name']}'" for entry in total_retries_per_exercise)
+            return exercises
+        return ''
+
+
 class PendingSubmission(models.Model):
     submission = models.OneToOneField(Submission,
         verbose_name=_('LABEL_SUBMISSION'),
