@@ -3,6 +3,7 @@ from datetime import datetime
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 from lib.helpers import remove_query_param_from_url, settings_text, update_url_params
 from exercise.submission_models import PendingSubmission
@@ -31,13 +32,28 @@ def get_date(cont, key):
 def brand_name():
     return mark_safe(settings.BRAND_NAME)
 
+
 @register.simple_tag
 def brand_name_long():
     return mark_safe(settings.BRAND_NAME_LONG)
 
+
 @register.simple_tag
 def brand_institution_name():
     return mark_safe(settings_text('BRAND_INSTITUTION_NAME'))
+
+
+@register.simple_tag
+def course_alert(instance):
+    exercises = PendingSubmission.objects.get_exercise_names_if_grader_is_unstable(instance)
+    if exercises:
+        message = format_lazy(
+            _('GRADER_PROBLEMS_ALERT -- {exercises}'),
+            exercises=exercises,
+        )
+        return mark_safe(format_lazy('<div class="alert alert-danger">{message}</div>', message=message))
+    return ''
+
 
 @register.simple_tag
 def site_alert():
@@ -45,9 +61,6 @@ def site_alert():
     if message:
         return mark_safe('<div class="alert alert-danger">{}</div>'
                          .format(pick_localized(message)))
-    if not PendingSubmission.objects.is_grader_stable():
-        # Prefer configured alert text, if one is set
-        return mark_safe('<div class="alert alert-danger">{}</div>'.format(_('GRADER_PROBLEMS_ALERT')))
     return ''
 
 

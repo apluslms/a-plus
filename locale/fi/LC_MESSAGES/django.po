@@ -1453,10 +1453,12 @@ msgstr ""
 "käyttäjät eivät pysty ilmoittautumaan kurssille uudelleen.</p>"
 
 #: course/templatetags/base.py
-msgid "GRADER_PROBLEMS_ALERT"
+#, python-brace-format
+msgid "GRADER_PROBLEMS_ALERT -- {exercises}"
 msgstr ""
 "Automaattisessa arvioinnissa on tällä hetkellä ongelmia. Palautteen "
-"saamisessa saattaa esiintyä viivettä."
+"saamisessa saattaa esiintyä viivettä. Ongelmia on havaittu ainakin "
+"tehtävissä {exercises}."
 
 #: course/views.py
 msgid "COURSE_INSTANCES_NOT_VISIBLE_TO_STUDENTS"
@@ -1663,6 +1665,7 @@ msgstr ""
 
 #: deviations/templates/deviations/add_dl.html
 #: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_deviationslink.html
 msgid "ADD_DEADLINE_DEVIATIONS"
 msgstr "Lisää määräaikojen poikkeamia"
 
