@@ -3831,9 +3831,10 @@ msgid "POINTS_REQUIRED_TO_PASS"
 msgstr "Pistevaatimus"
 
 #: exercise/templates/exercise/_exercise_info.html
+#: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_plain.html
-msgid "EXTENDED_DEADLINE"
-msgstr "Pidennetty määräaika"
+msgid "PERSONAL_EXTENDED_DEADLINE"
+msgstr "Henkilökohtainen pidennetty määräaika"
 
 #: exercise/templates/exercise/_exercise_info.html
 #: exercise/templates/exercise/exercise_plain.html
@@ -4072,10 +4073,6 @@ msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Palautukset"
-
-#: exercise/templates/exercise/_user_results.html
-msgid "PERSONAL_DEADLINE_DEVIATION"
-msgstr "Henkilökohtainen määräaikapidennys"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_base.html
