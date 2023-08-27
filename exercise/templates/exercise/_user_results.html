@@ -135,10 +135,10 @@
 					{% if entry|deadline_extended_exercise_open:now %}
 						<span
 							data-toggle="tooltip"
-							title="{% translate 'PERSONAL_DEADLINE_DEVIATION' %} {{ entry.personal_deadline }}"
+							title="{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}"
 						>
 							<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-							<span class="sr-only">{% translate 'PERSONAL_DEADLINE_DEVIATION' %} {{ entry.personal_deadline }}</span>
+							<span class="sr-only">{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}</span>
 						</span>
 					{% endif %}
 					{% else %}

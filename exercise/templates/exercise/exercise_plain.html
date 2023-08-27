@@ -124,7 +124,7 @@
 											<li>
 												<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
 												{% if cached_points.personal_deadline %}
-													{% translate "EXTENDED_DEADLINE" %}
+													{% translate "PERSONAL_EXTENDED_DEADLINE" %}
 													{{ cached_points.personal_deadline }}
 													{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
 													({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}

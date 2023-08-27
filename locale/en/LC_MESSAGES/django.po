@@ -3824,9 +3824,10 @@ msgid "POINTS_REQUIRED_TO_PASS"
 msgstr "Points required to pass"
 
 #: exercise/templates/exercise/_exercise_info.html
+#: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_plain.html
-msgid "EXTENDED_DEADLINE"
-msgstr "Extended deadline"
+msgid "PERSONAL_EXTENDED_DEADLINE"
+msgstr "Personal extended deadline"
 
 #: exercise/templates/exercise/_exercise_info.html
 #: exercise/templates/exercise/exercise_plain.html
@@ -4062,10 +4063,6 @@ msgstr "There may be changes in the assignments before the module opens!"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "SUBMISSIONS"
 msgstr "Submissions"
-
-#: exercise/templates/exercise/_user_results.html
-msgid "PERSONAL_DEADLINE_DEVIATION"
-msgstr "Personal deadline extension"
 
 #: exercise/templates/exercise/_user_results.html
 #: exercise/templates/exercise/exercise_base.html
