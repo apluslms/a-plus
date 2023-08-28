@@ -4,6 +4,9 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
       return function () { return [user_id]; };
     };
   }
+  if (!api_url.endsWith('/')) {
+    api_url = api_url + '/';
+  }
 
   // Get popover button dictionaries
   const colortag_buttons = function (elem) {
