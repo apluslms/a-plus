@@ -1,8 +1,9 @@
 import copy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from functools import partial
 import json
-from typing import Any, cast, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from aplus_auth.payload import Permission, Permissions
 from aplus_auth.requests import get as aplus_get
@@ -111,11 +112,15 @@ def remove_newlines(value):
     return value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')
 
 
+ChangesGetter = Callable[[dict, dict], Optional[dict]]
+
+
 def get_config_changes(
         old: Dict[str, Any],
         new: Dict[str, Any],
         *,
-        keep: Union[None, List[str], List[List[str]]] = None,
+        recurser: Optional[ChangesGetter] = None,
+        keep: Optional[List[str]] = None,
         keep_unchanged: bool = False,
         ) -> Optional[Dict]:
     """Gets changes between configs.
@@ -124,11 +129,8 @@ def get_config_changes(
     :param new: new config
 
     Keyword-only parameters:
-    :param keep: fields in <new> to add output as-is (unless no changes were detected,
-    see the <keep_unchanged> param). May be a list of fields or a list of lists of fields
-    where first list is used to determine fields to keep now and later lists are
-    recursively used for nested dicts (second list is used for dicts nested in the
-    current dict, third for those nested in the nested dicts, etc.).
+    :param keep: fields in <new> to add to output as-is (unless no changes were detected,
+    see the <keep_unchanged> param).
     :param keep_unchanged: whether to add fields in <keep> to output even when they
     have no changes. Fields in <keep> are normally not added to output
     if there were no changes in the dict itself. E.g. comparison of {"field": "value"} to
@@ -137,32 +139,27 @@ def get_config_changes(
     {"field": "value"}.
 
     Returns None if <new> == <old> (and <keep_unchanged> is False). Otherwise:
-    Recursively finds the differences in dicts <new> and <old>. If the values for
-    a key differ, the value in <new> is added to output. If the values are the same,
-    the key is removed from the output.
+    Finds the differences in dicts <new> and <old> where <recurser> is used to find differences
+    between dict values. If the values for a key differ, the value in <new> is added to output.
+    If the values are the same, the key is removed from the output.
     """
     if keep is None:
         keep = []
-
-    if len(keep) > 0 and isinstance(keep[0], list):
-        keep_now, *keep_later = cast(List[List[str]], keep)
-    else:
-        keep_now, keep_later = cast(List[str], keep), []
 
     if not keep_unchanged and old == new:
         return None
 
     # Keys to keep in output whether changed or not. This includes the ones
-    # in <keep_now>, and the keys that are in <new> but not in <old>
-    kept = new.keys() - (old.keys() - keep_now)
+    # in <keep>, and the keys that are in <new> but not in <old>
+    kept = new.keys() - (old.keys() - keep)
     # Keys that need to be compared: those that are in both dicts,
-    # and are not in <keep_now>
-    commonkeys_not_in_keep = old.keys() & new.keys() - keep_now
+    # and are not in <keep>
+    commonkeys_not_in_keep = old.keys() & new.keys() - keep
 
     diff = {key: new[key] for key in kept}
     for key in commonkeys_not_in_keep:
-        if isinstance(old[key], dict) and isinstance(new[key], dict):
-            new_val = get_config_changes(old[key], new[key], keep=keep_later, keep_unchanged=keep_unchanged)
+        if recurser is not None and isinstance(old[key], dict) and isinstance(new[key], dict):
+            new_val = recurser(old[key], new[key])
             # Do not include the attribute if there were no changes
             if new_val is not None:
                 diff[key] = new_val
@@ -170,6 +167,17 @@ def get_config_changes(
             diff[key] = new[key]
 
     return diff
+
+
+# Gets changes between two {lobj key: lobj config} -dicts
+get_lobject_changes: ChangesGetter = partial(
+    get_config_changes,
+    recurser=partial(
+        # We don't want to recurse any further to leave each field in the lobj intact.
+        get_config_changes,
+        keep=["children", "category", "target_category", "target_url", "max_submissions", "lti"]
+    )
+)
 
 
 def lobject_class(config: dict) -> Type[LearningObject]:
@@ -539,11 +547,7 @@ class ConfigParts:
         if modules_config is None:
             modules_config = {}
 
-        module_lobjects = get_config_changes(
-            old.module_lobjects,
-            new.module_lobjects,
-            keep=[[], [], ["children", "category", "target_category", "target_url", "max_submissions", "lti"]],
-        )
+        module_lobjects = get_config_changes(old.module_lobjects, new.module_lobjects, recurser=get_lobject_changes)
         if module_lobjects is None:
             module_lobjects = {}
 

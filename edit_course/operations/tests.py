@@ -232,6 +232,36 @@ class ConfigureTest(TestCase):
                 0,
             )
 
+    def test_field_defined_by_dict(self):
+        exercise_config = self.get_exercise_config("BaseExercise", 0, "test_BaseExercise")
+
+        exercise_config["exercise_info"] = {
+            "test": "test",
+            "test2": "test2",
+        }
+        self.insert_exercise(self.config, exercise_config, 0)
+        self.configure_and_test()
+
+        exercise_config["exercise_info"] = {
+            "test": "test",
+            "test2": "test2",
+            "test3": "test3",
+        }
+        self.insert_exercise(self.config, exercise_config, 0)
+        self.configure_and_test()
+
+        exercise_config["exercise_info"] = {
+            "test": "test",
+        }
+        self.insert_exercise(self.config, exercise_config, 0)
+        self.configure_and_test()
+
+        exercise_config["exercise_info"] = {
+            "test5": "test5",
+        }
+        self.insert_exercise(self.config, exercise_config, 0)
+        self.configure_and_test()
+
     def test_categories(self):
         self.set_category(self.config, "cat3", category_configs["cat3"])
 
