@@ -998,8 +998,12 @@ class ExerciseTest(TestCase):
         reveal_rule.time = self.tomorrow
         self.assertFalse(reveal_rule.is_revealed(reveal_state))
 
-        # DEADLINE and DEADLINE_ALL should work similarly for these assertions
-        for trigger in [RevealRule.TRIGGER.DEADLINE, RevealRule.TRIGGER.DEADLINE_ALL]:
+        # Test deadline with no deviations
+        for trigger in [
+            RevealRule.TRIGGER.DEADLINE,
+            RevealRule.TRIGGER.DEADLINE_ALL,
+            RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS
+        ]:
             reveal_rule.trigger = trigger
             self.assertFalse(reveal_rule.is_revealed(reveal_state))
             self.assertEqual(reveal_rule.get_reveal_time(reveal_state), self.tomorrow)
@@ -1010,6 +1014,7 @@ class ExerciseTest(TestCase):
             self.assertEqual(reveal_rule.get_reveal_time(old_reveal_state), self.today + timedelta(minutes=30))
             reveal_rule.delay_minutes = 0
 
+        # Test deadline with deviations
         deadline_rule_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
@@ -1019,11 +1024,19 @@ class ExerciseTest(TestCase):
         old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user)
         user2_old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user2)
 
-        reveal_rule.trigger = RevealRule.TRIGGER.DEADLINE
-        self.assertFalse(reveal_rule.is_revealed(old_reveal_state_deviation))
-        self.assertEqual(reveal_rule.get_reveal_time(old_reveal_state_deviation), self.today + timedelta(minutes=30))
-        self.assertTrue(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
-        self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today)
+        for trigger in [
+            RevealRule.TRIGGER.DEADLINE,
+            RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS
+        ]:
+            reveal_rule.trigger = trigger
+            self.assertFalse(reveal_rule.is_revealed(old_reveal_state_deviation))
+            self.assertEqual(
+                reveal_rule.get_reveal_time(old_reveal_state_deviation),
+                self.today + timedelta(minutes=30)
+            )
+            self.assertTrue(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
+            self.assertEqual(reveal_rule.get_reveal_time(user2_old_reveal_state_deviation), self.today)
+
         reveal_rule.trigger = RevealRule.TRIGGER.DEADLINE_ALL
         self.assertFalse(reveal_rule.is_revealed(user2_old_reveal_state_deviation))
         self.assertEqual(
@@ -1032,6 +1045,11 @@ class ExerciseTest(TestCase):
         )
 
         deadline_rule_deviation_old_base_exercise.delete()
+
+    def test_reveal_rule_max_submissions(self):
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.MANUAL,
+        )
 
         completion_test_base_exercise = BaseExercise.objects.create(
             name="completion test exercise",
@@ -1061,18 +1079,50 @@ class ExerciseTest(TestCase):
         submission.delete()
         submission2.delete()
 
-        submission = Submission.objects.create(
-            exercise=completion_test_base_exercise,
-            status=Submission.STATUS.READY,
-            grade=10,
+    def test_reveal_rule_full_points(self):
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.MANUAL,
         )
-        submission.submitters.add(self.user.userprofile)
-        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
-        self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
-        submission.submitters.add(self.user2.userprofile)
-        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
-        self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
-        submission.delete()
+
+        completion_test_base_exercise = BaseExercise.objects.create(
+            name="completion test exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="bcompletion",
+            max_submissions=2,
+            max_points=10,
+        )
+
+        for trigger in [
+            RevealRule.TRIGGER.COMPLETION,
+            RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS
+        ]:
+            if trigger == RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS:
+                # The deadline cant be passed for DEADLINE_OR_FULL_POINTS or the points are always revealed
+                self.course_module.closing_time=self.tomorrow
+                self.course_module.save()
+
+            else:
+                # The deadline is purposefully passed for COMPLETION trigger to make sure that it doesn't cause the
+                # points to be revealed
+                self.course_module.closing_time=self.yesterday
+                self.course_module.save()
+            reveal_rule.trigger = trigger
+            reveal_rule.save()
+            self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+            self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
+            submission = Submission.objects.create(
+                exercise=completion_test_base_exercise,
+                status=Submission.STATUS.READY,
+                grade=10,
+            )
+            submission.submitters.add(self.user.userprofile)
+            self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+            self.assertFalse(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
+            submission.submitters.add(self.user2.userprofile)
+            self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user)))
+            self.assertTrue(reveal_rule.is_revealed(ExerciseRevealState(completion_test_base_exercise, self.user2)))
+            submission.delete()
 
         completion_test_base_exercise.delete()
 
