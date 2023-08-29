@@ -4557,9 +4557,9 @@ msgid "UNOFFICIAL_POINTS_TOOLTIP"
 msgstr ""
 "Points are official if the submission is within deadline and submission "
 "count limits. Unofficial submissions are allowed only if they have been "
-"enabled in the assignment category settings. KNOWN ISSUE: DO NOT PRESS "
-"this checkbox MORE THAN ONCE. If you do, the points table will keep "
-"showing UNOFFICIAL points."
+"enabled in the assignment category settings. KNOWN ISSUE: DO NOT PRESS this "
+"checkbox MORE THAN ONCE. If you do, the points table will keep showing "
+"UNOFFICIAL points."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_UNOFFICIAL_POINTS"

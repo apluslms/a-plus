@@ -3595,7 +3595,8 @@ msgstr "Kun tehtävä on valmis (täydet pisteet tai kaikki palautukset käytett
 
 #: exercise/reveal_models.py
 msgid "TRIGGER_DEADLINE_OR_FULL_POINTS"
-msgstr "Määräajan ja henkilökohtaisten pidennyksien jälkeen tai täysillä pisteillä"
+msgstr ""
+"Määräajan ja henkilökohtaisten pidennyksien jälkeen tai täysillä pisteillä"
 
 #: exercise/reveal_models.py
 msgid "LABEL_TRIGGER"
