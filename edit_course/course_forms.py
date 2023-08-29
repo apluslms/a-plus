@@ -68,7 +68,8 @@ class CourseModuleForm(FieldsetModelForm):
             'closing_time',
             'late_submissions_allowed',
             'late_submission_deadline',
-            'late_submission_penalty'
+            'late_submission_penalty',
+            'model_answer',
         ]
         widgets = {
             'opening_time': DateTimeLocalInput,
@@ -77,13 +78,38 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submission_deadline': DateTimeLocalInput,
         }
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        from .exercise_forms import RevealRuleForm # pylint: disable=import-outside-toplevel
+        self.model_solution_form = RevealRuleForm(
+            data=kwargs.get('data'),
+            instance=self.instance.active_model_solution_reveal_rule,
+            prefix='model_solution',
+        )
+
     def get_fieldsets(self):
         return [
             { 'legend':_('HIERARCHY'), 'fields':self.get_fields('status','order','url') },
-            { 'legend':_('CONTENT'), 'fields':self.get_fields('name','introduction','points_to_pass') },
+            { 'legend':_('CONTENT'), 'fields':
+             self.get_fields('name','introduction','points_to_pass', 'model_answer') },
+            { 'legend':_('REVEAL_MODEL_SOLUTIONS'), 'fields': self.model_solution_form },
             { 'legend':_('SCHEDULE'), 'fields':self.get_fields('reading_opening_time','opening_time','closing_time',
                 'late_submissions_allowed','late_submission_deadline', 'late_submission_penalty') },
         ]
+
+    def is_valid(self) -> bool:
+        return (
+            super().is_valid()
+            and self.model_solution_form.is_valid()
+        )
+
+    def save(self, *args: Any, **kwargs: Any) -> Any:
+        if self.model_solution_form.has_changed():
+            self.instance.model_solution_reveal_rule = (
+                self.model_solution_form.save(*args, **kwargs)
+            )
+        return super().save(*args, **kwargs)
 
 
 class CourseInstanceForm(forms.ModelForm):

@@ -67,6 +67,10 @@ class ExerciseVisiblePermissionBase(ObjectVisibleBasePermission):
                 self.error_msg(_('EXERCISE_VISIBLITY_ERROR_ONLY_EXTERNAL_USERS'))
                 return False
 
+        if not exercise.can_be_shown_as_module_model_solution(user):
+            self.error_msg(_('MODULE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG'))
+            return False
+
         return True
 
 

@@ -20,9 +20,9 @@ from exercise.exercise_models import build_upload_dir
 from exercise.exercise_summary import UserExerciseSummary
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject, \
-    RevealRule
+    RevealRule, CourseChapter
 from exercise.protocol.exercise_page import ExercisePage
-from exercise.reveal_states import ExerciseRevealState
+from exercise.reveal_states import ExerciseRevealState, ModuleRevealState
 from exercise.submission_models import build_upload_dir as build_upload_dir_for_submission_model
 from lib.helpers import build_aplus_url
 
@@ -975,6 +975,43 @@ class ExerciseTest(TestCase):
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
 
+    def test_can_be_shown_as_module_model_solution(self):
+        chapter = CourseChapter.objects.create(
+            name="test course chapter",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="c1",
+        )
+        deadline_deviation_old_base_exercise = DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
+            extra_minutes=1440, # One day
+        )
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.DEADLINE,
+        )
+        self.old_course_module.model_answer = chapter
+        self.old_course_module.model_answer_reveal_rule = reveal_rule
+        self.old_course_module.save()
+        self.base_exercise.parent = chapter
+        self.base_exercise.save()
+        self.static_exercise.parent = self.base_exercise
+        self.static_exercise.save()
+        # Chapter is model answer to a closed module with a deadline extension
+        self.assertFalse(chapter.can_be_shown_as_module_model_solution(self.user))
+        # Unrevealed chapter's child
+        self.assertFalse(self.base_exercise.can_be_shown_as_module_model_solution(self.user))
+        # Unrevealed chapter's grandchild
+        self.assertFalse(self.static_exercise.can_be_shown_as_module_model_solution(self.user))
+        self.assertTrue(chapter.can_be_shown_as_module_model_solution(self.user2))
+
+        deadline_deviation_old_base_exercise.extra_minutes = 0
+        deadline_deviation_old_base_exercise.save()
+        self.assertTrue(chapter.can_be_shown_as_module_model_solution(self.user))
+        self.assertTrue(self.base_exercise.can_be_shown_as_module_model_solution(self.user))
+        self.assertTrue(self.static_exercise.can_be_shown_as_module_model_solution(self.user))
+
     def test_reveal_rule(self):
         reveal_rule = RevealRule.objects.create(
             trigger=RevealRule.TRIGGER.MANUAL,
@@ -1125,6 +1162,97 @@ class ExerciseTest(TestCase):
             submission.delete()
 
         completion_test_base_exercise.delete()
+
+    def test_module_reveal_state(self):
+        course_module_chapter = CourseChapter.objects.create(
+            name="test course chapter",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="c1",
+        )
+        optional_exercise = BaseExercise.objects.create(
+            order=4,
+            name="test exercise 4",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            url="b4",
+            max_submissions=0,
+            max_points=1,
+        )
+        self.base_exercise.parent = course_module_chapter
+        self.base_exercise.max_points = 5
+        # max submissions 1
+        self.base_exercise.save()
+        self.static_exercise.parent = course_module_chapter
+        self.static_exercise.max_submissions = 2
+        # max points 50
+        self.static_exercise.save()
+        self.exercise_with_attachment.max_submissions = 1
+        # max points 50
+        self.exercise_with_attachment.save()
+
+        DeadlineRuleDeviation.objects.create(
+            exercise=self.old_base_exercise,
+            submitter=self.user.userprofile,
+            granter=self.teacher.userprofile,
+            extra_minutes=4320,
+        ) # this should have not effect on the module reveal state
+
+        user_reveal_state = ModuleRevealState(self.course_module, self.user)
+        self.assertEqual(len(user_reveal_state.exercises), 4)
+        self.assertEqual(user_reveal_state.get_deadline(), self.two_days_from_now) # User has a deadline deviation
+        user2_reveal_state = ModuleRevealState(self.course_module, self.user2)
+        self.assertEqual(user2_reveal_state.get_deadline(), self.tomorrow) # User2 has no deadline deviation
+        self.assertEqual(user2_reveal_state.get_latest_deadline(), self.two_days_from_now)
+        self.assertEqual(user_reveal_state.get_latest_deadline(), self.two_days_from_now)
+
+        user_reveal_state_with_late_submissions = ModuleRevealState(
+            self.course_module_with_late_submissions_allowed, self.user
+        )
+        self.assertEqual(user_reveal_state_with_late_submissions.get_deadline(), self.two_days_from_now)
+
+        Submission.objects.all().delete()
+        for submission_data in [
+            {
+                'exercise': self.base_exercise,
+                'grade': 5,
+                'status': Submission.STATUS.READY,
+            },
+            {
+                'exercise': optional_exercise,
+                'grade': 1,
+                'status': Submission.STATUS.READY,
+            }, # Should have no effect on submission count, since max_submissions is 0
+            {
+                'exercise': self.static_exercise,
+                'grade': 10,
+                'status': Submission.STATUS.READY,
+            },
+            {
+                'exercise': self.static_exercise,
+                'grade': 40,
+                'status': Submission.STATUS.READY,
+            },
+            {
+                'exercise': self.static_exercise,
+                'grade': 50,
+                'status': Submission.STATUS.UNOFFICIAL,
+            }, # Should have no effect
+            {
+                'exercise': self.old_base_exercise,
+                'grade': 10,
+                'status': Submission.STATUS.READY,
+            }, # Should have no effect
+        ]:
+            submission = Submission.objects.create(**submission_data)
+            submission.submitters.add(self.user.userprofile)
+
+        user_reveal_state = ModuleRevealState(self.course_module, self.user)
+        self.assertEqual(user_reveal_state.get_points(), 46)
+        self.assertEqual(user_reveal_state.get_max_points(), 106)
+        self.assertEqual(user_reveal_state.get_submissions(), 3)
+        self.assertEqual(user_reveal_state.get_max_submissions(), 4)
+
 
     def test_annotate_submitter_points(self):
         points_test_base_exercise_1 = BaseExercise.objects.create(

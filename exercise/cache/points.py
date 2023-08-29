@@ -16,14 +16,14 @@ from django.db.models.base import Model
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.utils import timezone
 
-from course.models import CourseInstance
+from course.models import CourseInstance, CourseModule
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation, SubmissionRuleDeviation
 from lib.cache import CachedAbstract
 from lib.helpers import format_points
 from notification.models import Notification
 from userprofile.models import UserProfile
 from ..models import BaseExercise, Submission, RevealRule
-from ..reveal_states import ExerciseRevealState
+from ..reveal_states import ExerciseRevealState, ModuleRevealState
 from .content import CachedContent
 from .hierarchy import ContentMixin
 
@@ -104,13 +104,19 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 MaxSubmissionsRuleDeviation.objects
                 .get_max_deviations(user.userprofile, exercises)
             )
+            module_instances = list(
+                instance.course_modules.all()
+            )
         else:
             submissions = []
             deadline_deviations = []
             submission_deviations = []
+            module_instances = []
 
         # Generate the staff and student version of the cache, and merge them.
-        generate_args = (user.is_authenticated, submissions, deadline_deviations, submission_deviations)
+        generate_args = (
+            user.is_authenticated, submissions, deadline_deviations, submission_deviations, module_instances
+        )
         staff_data = self._generate_data_internal(True, *generate_args)
         student_data = self._generate_data_internal(False, *generate_args)
         self._pack_tuples(staff_data, student_data) # Now staff_data is the final, combined data.
@@ -136,6 +142,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
             submissions: Iterable[Submission],
             deadline_deviations: Iterable[DeadlineRuleDeviation],
             submission_deviations: Iterable[MaxSubmissionsRuleDeviation],
+            module_instances: Iterable[CourseModule],
             ) -> Dict[str, Any]:
         """
         Handles the generation of one version of the cache (staff or student).
@@ -143,7 +150,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
         arguments to this method.
         """
         data = deepcopy(self.content.data)
-        module_index = data['module_index'] # pylint: disable=unused-variable
+        module_index = data['module_index']
         exercise_index = data['exercise_index']
         modules = data['modules']
         categories = data['categories']
@@ -171,6 +178,9 @@ class CachedPoints(ContentMixin, CachedAbstract):
                         'feedback_revealed': True,
                         'feedback_reveal_time': None,
                     })
+                entry.update({
+                    'is_revealed': True,
+                })
                 r_augment(entry.get('children'))
         for module in modules:
             module.update({
@@ -232,6 +242,17 @@ class CachedPoints(ContentMixin, CachedAbstract):
             final_submission = None
             last_submission = None
 
+            def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
+                if (
+                    invalidate_time is not None
+                    and invalidate_time > timezone.now()
+                    and (
+                        data['invalidate_time'] is None
+                        or invalidate_time < data['invalidate_time']
+                    )
+                ):
+                    data['invalidate_time'] = invalidate_time
+
             def check_reveal_rule() -> None:
                 """
                 Evaluate the reveal rule of the current exercise and ensure
@@ -262,15 +283,7 @@ class CachedPoints(ContentMixin, CachedAbstract):
 
                 # If the reveal rule depends on time, update the cache's
                 # invalidation time.
-                if (
-                    reveal_time is not None
-                    and reveal_time > timezone.now()
-                    and (
-                        data['invalidate_time'] is None
-                        or reveal_time < data['invalidate_time']
-                    )
-                ):
-                    data['invalidate_time'] = reveal_time
+                update_invalidation_time(reveal_time)
 
             # Augment submission data.
             for submission in submissions:
@@ -378,6 +391,29 @@ class CachedPoints(ContentMixin, CachedAbstract):
             # reveal rule of the last exercise (if there was one).
             if exercise is not None and not is_staff:
                 check_reveal_rule()
+
+        if not is_staff:
+            def update_is_revealed_recursive(entry: Dict[str, Any], is_revealed: bool) -> None:
+                if is_revealed:
+                    return
+                entry.update({
+                    'is_revealed': is_revealed,
+                })
+                for child in entry.get('children', []):
+                    update_is_revealed_recursive(child, is_revealed)
+
+            for module in module_instances:
+                model_chapter = module.model_answer
+                if model_chapter is None:
+                    continue
+                reveal_rule = module.active_model_solution_reveal_rule
+                entry = self._by_idx(modules, exercise_index[model_chapter.id])[-1]
+                cached_module = self._by_idx(modules, module_index[module.id])[-1]
+                state = ModuleRevealState(cached_module)
+                is_revealed = reveal_rule.is_revealed(state)
+                reveal_time = reveal_rule.get_reveal_time(state)
+                update_is_revealed_recursive(entry, is_revealed)
+                update_invalidation_time(reveal_time)
 
         # Confirm points.
         def r_check(parent: Dict[str, Any], children: List[Dict[str, Any]]) -> None:

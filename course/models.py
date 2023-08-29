@@ -29,7 +29,7 @@ from requests.exceptions import HTTPError
 from apps.models import BaseTab, BasePlugin
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from lib.fields import PercentField
+from lib.fields import PercentField, DefaultOneToOneField, DefaultForeignKey
 from lib.helpers import (
     Enum,
     get_random_string,
@@ -1282,6 +1282,23 @@ class CourseModule(UrlMixin, models.Model):
         default=0.5,
         help_text=_('MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT'),
     )
+    model_answer = DefaultForeignKey(
+        'exercise.CourseChapter',
+        verbose_name=_('LABEL_MODEL_ANSWER'),
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="model_answer_modules",
+    )
+    model_solution_reveal_rule = DefaultOneToOneField(
+        'exercise.RevealRule',
+        verbose_name=_('LABEL_MODEL_SOLUTION_REVEAL_RULE'),
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+    )
+
 
     objects = CourseModuleManager()
 
@@ -1316,6 +1333,20 @@ class CourseModule(UrlMixin, models.Model):
             errors['reading_opening_time'] = _('MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING')
         if errors:
             raise ValidationError(errors)
+
+    @property
+    def default_model_solution_reveal_rule(self):
+        from exercise.models import RevealRule # pylint: disable=import-outside-toplevel
+        return RevealRule(
+            trigger=RevealRule.TRIGGER.DEADLINE,
+        )
+
+    @property
+    def active_model_solution_reveal_rule(self):
+        return (
+            self.model_solution_reveal_rule
+            or self.default_model_solution_reveal_rule
+        )
 
     @staticmethod
     def check_is_open(reading_opening_time, opening_time, closing_time, when=None):

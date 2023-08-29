@@ -744,6 +744,14 @@ msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, esim. 0,1 = 10%"
 
 #: course/models.py
+msgid "LABEL_MODEL_ANSWER"
+msgstr "esimerkkiratkaisu"
+
+#: course/models.py
+msgid "LABEL_MODEL_SOLUTION_REVEAL_RULE"
+msgstr "malliratkaisun paljastamissääntö"
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_MODULE"
 msgstr "kurssimoduuli"
 
@@ -1987,6 +1995,10 @@ msgstr "Hierarkia"
 msgid "CONTENT"
 msgstr "Sisältö"
 
+#: edit_course/course_forms.py edit_course/exercise_forms.py
+msgid "REVEAL_MODEL_SOLUTIONS"
+msgstr "Malliratkaisun paljastaminen"
+
 #: edit_course/course_forms.py
 msgid "SCHEDULE"
 msgstr "Aikataulu"
@@ -2275,10 +2287,6 @@ msgstr "Arvostelu"
 #: edit_course/exercise_forms.py
 msgid "REVEAL_SUBMISSION_FEEDBACK"
 msgstr "Tehtävien palautteen paljastaminen"
-
-#: edit_course/exercise_forms.py
-msgid "REVEAL_MODEL_SOLUTIONS"
-msgstr "Malliratkaisujen paljastaminen"
 
 #: edit_course/managers.py
 msgid "CATEGORY_lowercase"
@@ -3506,6 +3514,13 @@ msgid "EXERCISE_VISIBLITY_ERROR_ONLY_EXTERNAL_USERS"
 msgstr "Tämä tehtävä on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
 #: exercise/permissions.py
+msgid "MODULE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
+msgstr ""
+"Valitettavasti sinulla ei ole oikeutta nähdä tätä sisältöä, sillä se "
+"sisältää esimerkkiratkaisuja tehtäviin, joiden määräaika ei ole vielä "
+"umpeutunut."
+
+#: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
 msgstr "Valitettavasti assistenteilla ei ole oikeutta nähdä tätä."
 
@@ -4094,6 +4109,12 @@ msgstr "Ei vielä palautuksia"
 #: exercise/templates/exercise/submission_plain.html
 msgid "INSPECT"
 msgstr "Tutki"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
+msgstr ""
+"Tämä luku on piilotettu, sillä se sisältää esimerkkiratkaisuja tehtäviin, "
+"joiden määräaika ei ole vielä umpeutunut."
 
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html
