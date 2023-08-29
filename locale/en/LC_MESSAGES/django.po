@@ -740,6 +740,14 @@ msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Multiplier of points to reduce as a decimal (e.g. 0.1 = 10%)."
 
 #: course/models.py
+msgid "LABEL_MODEL_ANSWER"
+msgstr "model answer"
+
+#: course/models.py
+msgid "LABEL_MODEL_SOLUTION_REVEAL_RULE"
+msgstr "Model solution reveal rule"
+
+#: course/models.py
 msgid "MODEL_NAME_COURSE_MODULE"
 msgstr "course module"
 
@@ -1976,6 +1984,10 @@ msgstr "Hierarchy"
 msgid "CONTENT"
 msgstr "Content"
 
+#: edit_course/course_forms.py edit_course/exercise_forms.py
+msgid "REVEAL_MODEL_SOLUTIONS"
+msgstr "Reveal model solutions"
+
 #: edit_course/course_forms.py
 msgid "SCHEDULE"
 msgstr "Schedule"
@@ -2261,10 +2273,6 @@ msgstr "Grading"
 #: edit_course/exercise_forms.py
 msgid "REVEAL_SUBMISSION_FEEDBACK"
 msgstr "Reveal submission feedback"
-
-#: edit_course/exercise_forms.py
-msgid "REVEAL_MODEL_SOLUTIONS"
-msgstr "Reveal model solutions"
 
 #: edit_course/managers.py
 msgid "CATEGORY_lowercase"
@@ -3495,6 +3503,12 @@ msgid "EXERCISE_VISIBLITY_ERROR_ONLY_EXTERNAL_USERS"
 msgstr "The assignment is only for external users."
 
 #: exercise/permissions.py
+msgid "MODULE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
+msgstr ""
+"Unfortunately you are not permitted to view this content, since it contains "
+"model answers to assignments whose deadline has not yet passed."
+
+#: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
 msgstr "Unfortunately, assistants are not permitted to view this."
 
@@ -4083,6 +4097,12 @@ msgstr "No submissions yet"
 #: exercise/templates/exercise/submission_plain.html
 msgid "INSPECT"
 msgstr "Inspect"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
+msgstr ""
+"This chapter is hidden, since it contains model answers to assignments whose "
+"deadline has not yet passed."
 
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html

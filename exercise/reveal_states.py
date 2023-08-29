@@ -4,8 +4,30 @@ from typing import Any, Dict, List, Optional, overload, Union
 from django.contrib.auth.models import User
 
 from deviations.models import DeadlineRuleDeviation
+from course.models import CourseModule
 from .cache.content import CachedContent
 from .exercise_models import BaseExercise
+
+def _get_exercise_common_deadlines(exercise: Dict[str, Any]) -> List[datetime.datetime]:
+    deadlines = [exercise['closing_time']]
+    if exercise['late_allowed'] and exercise['late_percent'] > 0:
+        deadlines.append(exercise['late_time'])
+    return deadlines
+
+
+def _get_exercise_deadline(exercise: Dict[str, Any]) -> datetime.datetime:
+    deadlines = _get_exercise_common_deadlines(exercise)
+    personal_deadline = exercise['personal_deadline']
+    if personal_deadline is not None:
+        deadlines.append(personal_deadline)
+    return max(deadlines)
+
+
+def _get_max_submissions(exercise: Dict[str, Any]) -> int:
+    personal_max_submissions = exercise['personal_max_submissions']
+    if personal_max_submissions is not None:
+        return personal_max_submissions
+    return exercise['max_submissions']
 
 
 class BaseRevealState:
@@ -76,17 +98,10 @@ class ExerciseRevealState(BaseRevealState):
         return self.cache['submission_count']
 
     def get_max_submissions(self) -> Optional[int]:
-        personal_max_submissions = self.cache['personal_max_submissions']
-        if personal_max_submissions is not None:
-            return personal_max_submissions
-        return self.cache['max_submissions']
+        return _get_max_submissions(self.cache)
 
     def get_deadline(self) -> Optional[datetime.datetime]:
-        deadlines = self._get_common_deadlines()
-        personal_deadline = self.cache['personal_deadline']
-        if personal_deadline is not None:
-            deadlines.append(personal_deadline)
-        return max(deadlines)
+        return _get_exercise_deadline(self.cache)
 
     def get_latest_deadline(self) -> Optional[datetime.datetime]:
         deadlines = self._get_common_deadlines()
@@ -106,7 +121,74 @@ class ExerciseRevealState(BaseRevealState):
         return max(deadlines)
 
     def _get_common_deadlines(self) -> List[datetime.datetime]:
-        deadlines = [self.cache['closing_time']]
-        if self.cache['late_allowed'] and self.cache['late_percent'] > 0:
-            deadlines.append(self.cache['late_time'])
-        return deadlines
+        return _get_exercise_common_deadlines(self.cache)
+
+
+class ModuleRevealState(BaseRevealState):
+    @overload
+    def __init__(self, module: CourseModule, student: User):
+        ...
+    @overload
+    def __init__(self, module: Dict[str, Any]):
+        ...
+    def __init__(self, module: Union[CourseModule, Dict[str, Any]], student: Optional[User] = None):
+        if isinstance(module, CourseModule):
+            from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
+            cached_content = CachedContent(module.course_instance)
+            cached_points = CachedPoints(module.course_instance, student, cached_content, True)
+            self.module_id = module.id
+            cached_module, _, _, _ = cached_points.find(module)
+            self.module = cached_module
+        else:
+            self.module_id = module['id']
+            self.module = module
+        self.exercises = self._get_exercises()
+        self.max_deviation_fetched: bool = False
+        self.max_deviation: Optional[DeadlineRuleDeviation] = None
+
+    def get_deadline(self) -> Optional[datetime.datetime]:
+        return max(_get_exercise_deadline(exercise) for exercise in self.exercises)
+
+    def get_latest_deadline(self) -> Optional[datetime.datetime]:
+        deadlines = []
+        exercise_dict = {}
+        for exercise in self.exercises:
+            deadlines.extend(_get_exercise_common_deadlines(exercise))
+            exercise_dict[exercise['id']] = exercise
+        if not self.max_deviation_fetched:
+            self.max_deviation = (
+                DeadlineRuleDeviation.objects
+                .filter(exercise__course_module_id=self.module_id)
+                .order_by('-extra_minutes').first()
+            )
+            self.max_deviation_fetched = True
+        if self.max_deviation is not None:
+            deadlines.append(
+                self.max_deviation.get_new_deadline(exercise_dict[self.max_deviation.exercise_id]['closing_time'])
+            )
+        return max(deadlines)
+
+    def get_points(self) -> Optional[int]:
+        points = sum(exercise['points'] for exercise in self.exercises)
+        return points
+
+    def get_max_points(self) -> Optional[int]:
+        return self.module['max_points']
+
+    def get_submissions(self) -> Optional[int]:
+        return sum(min(exercise['submission_count'], _get_max_submissions(exercise)) for exercise in self.exercises)
+
+    def get_max_submissions(self) -> Optional[int]:
+        return sum(_get_max_submissions(exercise) for exercise in self.exercises)
+
+    def _get_exercises(self) -> List[Dict[str, Any]]:
+        exercises = []
+
+        def recursion(children: Dict[str, Any]) -> None:
+            for entry in children:
+                if entry['type'] == 'exercise' and entry['submittable']:
+                    exercises.append(entry)
+                recursion(entry.get('children', []))
+
+        recursion(self.module['children'])
+        return exercises

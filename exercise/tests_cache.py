@@ -3,7 +3,8 @@ from course.models import CourseModule, LearningObjectCategory
 from .cache.content import CachedContent
 from .cache.hierarchy import PreviousIterator
 from .cache.points import CachedPoints
-from .models import BaseExercise, StaticExercise, Submission
+from .models import BaseExercise, StaticExercise, Submission, CourseChapter, RevealRule
+from deviations.models import DeadlineRuleDeviation
 
 
 class CachedContentTest(CourseTestCase):
@@ -240,3 +241,35 @@ class CachedPointsTest(CourseTestCase):
         self.assertTrue(entry['graded'])
         self.assertFalse(entry['unofficial'])
         self.assertEqual(entry['points'], 50)
+
+    def test_is_revealed(self):
+        module_chapter = CourseChapter.objects.create(
+            name="test course chapter",
+            course_module=self.module,
+            category=self.category,
+            url="c1",
+        )
+        DeadlineRuleDeviation.objects.create(
+            exercise=self.exercise0,
+            submitter=self.student.userprofile,
+            granter=self.teacher.userprofile,
+            extra_minutes=2*24*60,
+        )
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.DEADLINE,
+        )
+        self.exercise.parent = module_chapter
+        self.exercise.save()
+        self.module0.model_answer = module_chapter
+        self.module0.model_solution_reveal_rule = reveal_rule
+        self.module0.save()
+        c = CachedContent(self.instance)
+        p = CachedPoints(self.instance, self.student, c)
+        entry0, _, _, _ = p.find(self.exercise0)
+        entry, _, _, _ = p.find(self.exercise)
+        entry2, _, _, _ = p.find(self.exercise2)
+        chapter_entry, _, _, _ = p.find(module_chapter)
+        self.assertTrue(entry0['is_revealed'])
+        self.assertFalse(entry['is_revealed'])
+        self.assertTrue(entry2['is_revealed'])
+        self.assertFalse(chapter_entry['is_revealed'])

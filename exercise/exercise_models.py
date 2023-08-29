@@ -280,6 +280,16 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_submittable(self):
         return False
 
+    def can_be_shown_as_module_model_solution(self, user: User) -> bool:
+        """
+        If this exercise's parent chapter is a model solution to modules, check if the chapter
+        can be revealed to the user according to the module's reveal rule.
+        """
+        if self.parent is not None:
+            return self.parent.can_be_shown_as_module_model_solution(user)
+        return True
+
+
     def is_empty(self):
         return not self.service_url and self.as_leaf_class()._is_empty()
 
@@ -440,6 +450,18 @@ class CourseChapter(LearningObject):
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_CHAPTER')
         verbose_name_plural = _('MODEL_NAME_COURSE_CHAPTER_PLURAL')
+
+    def can_be_shown_as_module_model_solution(self, user: User) -> bool:
+        """
+        If this chapter is a model solution to modules, check if the chapter
+        can be revealed to the user according to the module's reveal rule.
+        """
+        from .cache.content import CachedContent # pylint: disable=import-outside-toplevel
+        from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
+        content = CachedContent(self.course_instance)
+        points = CachedPoints(self.course_instance, user, content)
+        entry, _, _, _ = points.find(self)
+        return entry['is_revealed']
 
     def _is_empty(self):
         return not self.generate_table_of_contents
