@@ -55,7 +55,7 @@ class BaseDeviationForm(forms.Form):
             try:
                 # Support setting the initial value for submitter
                 self.fields['submitter'].initial_queryset = (
-                    course_instance.get_student_profiles().filter(id__in=initial.get('submitter'))
+                    course_instance.get_student_profiles().filter(user_id__in=initial.get('submitter'))
                 )
             except (ValueError, TypeError):
                 pass
