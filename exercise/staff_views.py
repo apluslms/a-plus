@@ -11,6 +11,7 @@ from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls.base import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -158,7 +159,6 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
-        self.get_summary_submissions()
         self.files = list(self.submission.files.all())
 
         self.lowest_visible_index = self.index - 10
@@ -413,9 +413,14 @@ class AnalyticsView(CourseInstanceBaseView):
 
 
 class UserResultsView(CourseInstanceBaseView):
+    context_properties = ["studentpoints"]
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/user_results.html"
     user_kw = 'user_id'
+
+    @cached_property
+    def studentpoints(self) -> CachedPoints:
+        return CachedPoints(self.instance, self.student, self.is_course_staff)
 
     def get_resource_objects(self):
         super().get_resource_objects()

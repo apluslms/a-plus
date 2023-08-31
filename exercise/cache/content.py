@@ -20,9 +20,9 @@ class CachedContent(ContentMixin[ModuleContent, LearningObjectContent, CategoryC
     instance: CourseInstance
     data: InstanceContent
 
-    def __init__(self, instance: CourseInstance):
+    def __init__(self, instance: CourseInstance, prefetch_children: bool = True):
         self.instance = instance
-        self.data = InstanceContent.get(instance)
+        self.data = InstanceContent.get(instance, prefetch_children=prefetch_children)
 
     @classmethod
     def invalidate(cls, instance: CourseInstance):

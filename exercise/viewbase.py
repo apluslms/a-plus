@@ -1,11 +1,12 @@
-from typing import List, Optional
+from typing import Callable, List, Optional, Tuple, Union
 
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +14,7 @@ from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
 
+from .cache.content import LearningObjectContent, ModuleContent
 from .cache.hierarchy import NoSuchContent
 from .cache.points import LearningObjectPoints, SubmissionEntry, ExercisePoints
 from .permissions import (
@@ -33,6 +35,7 @@ from .tasks import regrade_exercises
 
 
 class ExerciseBaseMixin:
+    context_properties = ["exercise"]
     exercise_kw = "exercise_path"
     exercise_permission_classes = (
         ExerciseVisiblePermission,
@@ -45,21 +48,18 @@ class ExerciseBaseMixin:
 
     # get_exercise_object
 
-    def get_resource_objects(self):
-        super().get_resource_objects()
-        self.exercise = self.get_exercise_object()
-        self.note("exercise")
+    @cached_property
+    def exercise(self) -> LearningObject:
+        return self.get_exercise_object()
 
 
 class ExerciseRevealRuleMixin:
-    def get_resource_objects(self) -> None:
-        super().get_resource_objects()
-        self.get_feedback_visibility()
-        self.get_model_visibility()
+    context_properties = ["feedback_revealed", "feedback_hidden_description", "model_revealed"]
 
-    def get_feedback_visibility(self) -> None:
-        self.feedback_revealed = True
-        self.feedback_hidden_description = None
+    @cached_property
+    def feedback_reveal_info(self) -> Tuple[bool, Union[str, Callable[[], str]]]:
+        feedback_revealed = True
+        feedback_hidden_description = None
         if (
             not self.is_course_staff
             and isinstance(self.exercise, BaseExercise)
@@ -67,7 +67,7 @@ class ExerciseRevealRuleMixin:
         ):
             rule = self.exercise.active_submission_feedback_reveal_rule
             state = ExerciseRevealState(self.exercise, self.request.user)
-            self.feedback_revealed = rule.is_revealed(state)
+            feedback_revealed = rule.is_revealed(state)
             if rule.trigger in (
                 RevealRule.TRIGGER.TIME,
                 RevealRule.TRIGGER.DEADLINE,
@@ -76,23 +76,34 @@ class ExerciseRevealRuleMixin:
             ):
                 reveal_time = rule.get_reveal_time(state)
                 formatted_time = date_format(timezone.localtime(reveal_time), "DATETIME_FORMAT")
-                self.feedback_hidden_description = format_lazy(
+                feedback_hidden_description = format_lazy(
                     _('RESULTS_WILL_BE_REVEALED -- {time}'),
                     time=formatted_time,
                 )
             else:
-                self.feedback_hidden_description = _('RESULTS_ARE_CURRENTLY_HIDDEN')
-        self.note("feedback_revealed", "feedback_hidden_description")
+                feedback_hidden_description = _('RESULTS_ARE_CURRENTLY_HIDDEN')
+        return (feedback_revealed, feedback_hidden_description)
 
-    def get_model_visibility(self) -> None:
-        self.model_revealed = True
+    @cached_property
+    def feedback_revealed(self):
+        return self.feedback_reveal_info[0]
+
+    @cached_property
+    def feedback_hidden_description(self) -> str:
+        if callable(self.feedback_reveal_info[1]):
+            return self.feedback_reveal_info[1]()
+        return self.feedback_reveal_info[1]
+
+    @cached_property
+    def model_revealed(self) -> bool:
+        model_revealed = True
         if (
             not self.is_course_staff
             and isinstance(self.exercise, BaseExercise)
             and isinstance(self.request.user, User)
         ):
-            self.model_revealed = self.exercise.can_show_model_solutions_to_student(self.request.user)
-        self.note("model_revealed")
+            model_revealed = self.exercise.can_show_model_solutions_to_student(self.request.user)
+        return model_revealed
 
 
 class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixin):
@@ -101,13 +112,11 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     )
     submission_url_name = 'submission'
     exercise_url_name = 'exercise'
-
-    summary: ExercisePoints
-    submissions: List[SubmissionEntry]
+    context_properties = ["summary", "submissions", "previous", "current", "next", "breadcrumb"]
 
     def get_exercise_object(self):
         try:
-            exercise_id = self.content.find_path(
+            exercise_id = self.content_bare.find_path(
                 self.module.id,
                 self.kwargs[self.exercise_kw]
             )
@@ -118,19 +127,54 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.now = timezone.now()
-        cur, tree, prev, nex = self.points.find(self.exercise)
-        self.previous = prev
-        self.current = cur
-        self.next = nex
-        self.breadcrumb = tree[1:-1]
-        self.note("now", "previous", "current", "next", "breadcrumb", "submission_url_name", "exercise_url_name")
+        self.note("now", "submission_url_name", "exercise_url_name")
 
-    def get_summary_submissions(self, user: Optional[User] = None) -> None:
-        self.summary = ExercisePoints.get(
-            self.exercise, user or self.request.user, self.is_course_staff
+    def get_summary_user(self) -> Optional[User]:
+        return self.request.user
+
+    @cached_property
+    def exercise_info(self) -> Tuple[
+                LearningObjectContent,
+                List[Union[ModuleContent, LearningObjectContent]],
+                Optional[Union[ModuleContent, LearningObjectContent]],
+                Optional[Union[ModuleContent, LearningObjectContent]]
+            ]:
+        return self.content.find(self.exercise)
+
+    @cached_property
+    def current(self) -> LearningObjectContent:
+        if "exercise_info" in self.__dict__ or "content" in self.__dict__:
+            return self.exercise_info[0]
+        return LearningObjectContent.get(self.exercise)
+
+    @cached_property
+    def breadcrumb(self):
+        return self.exercise_info[1][1:-1]
+
+    @cached_property
+    def previous(self):
+        return self.exercise_info[2]
+
+    @cached_property
+    def next(self):
+        return self.exercise_info[3]
+
+    @cached_property
+    def summary(self) -> ExercisePoints:
+        """Cached points for a submittable exercise. Raises AttributeError (i.e. signal to python that
+        the attribute doesn't exist) if the exercise is not submittable"""
+        entry = LearningObjectPoints.get(
+            self.exercise, self.get_summary_user(), self.is_course_staff
         )
-        self.submissions = self.summary.submissions
-        self.note("summary", "submissions")
+
+        if not isinstance(entry, ExercisePoints):
+            raise AttributeError(f"LearningObject '{self.exercise}' is not submittable")
+
+        return entry
+
+    @cached_property
+    def submissions(self) -> List[SubmissionEntry]:
+        return self.summary.submissions
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
@@ -188,8 +232,7 @@ class SubmissionBaseMixin:
 
 
 class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
-    index: int
-    submission_entry: SubmissionEntry
+    context_properties = ["index", "submission_entry"]
 
     def get_submission_object(self) -> Submission:
         return get_object_or_404(
@@ -200,19 +243,21 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
             exercise=self.exercise
         )
 
-    def get_summary_submissions(self, user: Optional[User] = None) -> None:
-        if not (user or self.submitter):
+    def get_summary_user(self) -> Optional[User]:
+        if not self.submitter:
             # The submission has no submitters.
-            # Use AnonymousUser in the ExercisePoints
+            # Use None (AnonymousUser) in the ExercisePoints
             # so that it does not pick submissions from request.user (the teacher).
-            user = AnonymousUser()
-            self.index = 0
-        super().get_summary_submissions(user or self.submitter.user)
-        if self.submissions:
-            self.index = len(self.submissions) - list(s.id for s in self.submissions).index(self.submission.id)
-            self.submission_entry = next(s for s in self.submissions if s.id == self.submission.id)
-        self.note("index", "submission_entry")
+            return None
+        return self.submitter.user
 
+    @cached_property
+    def submission_entry(self) -> int:
+        return next(s for s in self.submissions if s.id == self.submission.id)
+
+    @cached_property
+    def index(self) -> int:
+        return len(self.submissions) - list(s.id for s in self.submissions).index(self.submission.id)
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
