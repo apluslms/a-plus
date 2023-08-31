@@ -239,18 +239,6 @@ def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
 
 
 @register.simple_tag(takes_context=True)
-def max_group_size(context):
-    points = _prepare_context(context)
-    return points.total().max_group_size
-
-
-@register.simple_tag(takes_context=True)
-def min_group_size(context):
-    points = _prepare_context(context)
-    return points.total().min_group_size
-
-
-@register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
     t = entry.reading_opening_time
     if t:
