@@ -68,7 +68,7 @@
 					<nav class="exercise-summary navbar navbar-default" aria-label="{{ exercise|parse_localization }}">
 						<ul class="nav navbar-nav exercise-nav">
 							<li>
-								<a href="{% if feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
+								<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
 									class="exercise-nav-points"
 									role="button"
 								>

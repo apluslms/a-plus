@@ -14,7 +14,6 @@ from course.models import CourseInstance, CourseModule
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
-from ..cache.content import CachedContent
 from ..cache.points import (
     CachedPoints,
     CachedPointsData,
@@ -37,20 +36,19 @@ def _prepare_now(context):
 
 
 def _prepare_context(context: Context, student: Optional[User] = None) -> CachedPoints:
-    if 'instance' not in context:
-        raise TagUsageError()
-    instance = context['instance']
     _prepare_now(context)
-    if 'content' not in context:
-        context['content'] = CachedContent(instance)
 
-    def points(user: User, key: str) -> CachedPoints:
-        if key not in context:
-            context[key] = CachedPoints(instance, user, context['is_course_staff'])
-        return context[key]
-    if student:
-        return points(student, 'studentpoints')
-    return points(context['request'].user, 'points')
+    if student is None:
+        return context["points"]
+
+    if student.id != context["studentpoints"].user.id:
+        if 'instance' not in context:
+            raise TagUsageError()
+        instance = context['instance']
+
+        context["studentpoints"] = CachedPoints(instance, student, context['is_course_staff'])
+
+    return context["studentpoints"]
 
 
 def _get_toc(context, student=None):

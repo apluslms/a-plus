@@ -1,6 +1,10 @@
+from functools import partial
+from typing import Any, ClassVar, List
+
 from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
+from django.utils.functional import SimpleLazyObject
 from django.shortcuts import render
 from django.views.defaults import ERROR_403_TEMPLATE_NAME
 from rest_framework import permissions as drf_permissions
@@ -141,6 +145,11 @@ class AuthorizationMixin:
 
 
 class ResourceMixin:
+    # List of properties that will be added to the template context as a SimpleLazyObject.
+    # Expensive calculations whose results might not be used should be made into a cached_property and
+    # put in this list instead of using .note().
+    context_properties: ClassVar[List[str]]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__attr = []
@@ -159,7 +168,7 @@ class ResourceMixin:
         Use self.note to announce attributes of further interest.
         """
 
-    def note(self, *args):
+    def note(self, *args: str) -> None:
         """
         The class attribute names given in argument list are marked
         "interesting" for the view. In a TemplateView these will be
@@ -167,13 +176,19 @@ class ResourceMixin:
         """
         self.__attr.extend(args)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs: Any) -> dict:
         """
         Add member variables recorded with .note() to context_data
         """
         context = {"request": self.request}
         for key in self.__attr:
             context[key] = getattr(self, key)
+
+        # Add context_properties from all parent classes
+        for cls in self.__class__.__mro__:
+            for key in cls.__dict__.get("context_properties", []):
+                context[key] = SimpleLazyObject(partial(getattr, self, key))
+
         context.update(kwargs)
         return super().get_context_data(**context)
 
