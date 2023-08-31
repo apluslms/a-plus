@@ -285,6 +285,28 @@ class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
             return categories[category_id]
         raise NoSuchContent()
 
+    @overload
+    def find( # pyright: ignore[reportGeneralTypeIssues]
+            self,
+            model: LearningObject,
+            ) -> Tuple[
+                ExerciseEntry,
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        return (LearningObjectEntryBase, [], None, None) # Needed for pylint
+    @overload
+    def find(
+            self,
+            model: CourseModule,
+            ) -> Tuple[
+                ModuleEntry,
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        ...
     def find(
             self,
             model: Union[LearningObject, CourseModule],
