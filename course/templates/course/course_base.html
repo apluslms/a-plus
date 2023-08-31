@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block content %}
-<div data-taggings="{{ get_taggings|join:' ' }}" class="row">
+<div data-taggings="{{ taggings|join:' ' }}" class="row">
 	{% block course_sidebar %}
 	<button
 		class="hidden hidden-xs course-sidebar-expander"
