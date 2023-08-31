@@ -47,10 +47,6 @@ class ResultsView(TableOfContentsView):
 class ExerciseInfoView(ExerciseBaseView):
     ajax_template_name = "exercise/_exercise_info.html"
 
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.get_summary_submissions()
-
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
     template_name = "exercise/exercise.html"
@@ -87,7 +83,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
             submission_status, submission_allowed, issues, students = self.submission_check()
-            self.get_summary_submissions()
             disable_submit = submission_status in [
                 SUBMIT_STATUS.CANNOT_ENROLL,
                 SUBMIT_STATUS.NOT_ENROLLED,
@@ -214,7 +209,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             if not is_ajax(request) and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
-        self.get_summary_submissions()
         return self.render_to_response(self.get_context_data(
             page=page, students=students, submission=new_submission))
 
@@ -369,7 +363,6 @@ class ExerciseModelView(ExerciseModelBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.get_summary_submissions()
 
         id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.models = []
@@ -406,7 +399,6 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.get_summary_submissions()
 
         id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.templates = []
@@ -445,7 +437,6 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
-        self.get_summary_submissions()
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not self.feedback_revealed:
