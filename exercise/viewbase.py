@@ -104,7 +104,6 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
 
     summary: ExercisePoints
     submissions: List[SubmissionEntry]
-    cached_points: LearningObjectPoints
 
     def get_exercise_object(self):
         try:
@@ -118,7 +117,6 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
-        self.get_cached_points()
         self.now = timezone.now()
         cur, tree, prev, nex = self.points.find(self.exercise)
         self.previous = prev
@@ -129,14 +127,10 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
 
     def get_summary_submissions(self, user: Optional[User] = None) -> None:
         self.summary = ExercisePoints.get(
-            self.exercise, user or self.request.user, self.feedback_revealed
+            self.exercise, user or self.request.user, self.is_course_staff
         )
         self.submissions = self.summary.submissions
         self.note("summary", "submissions")
-
-    def get_cached_points(self, user: Optional[User] = None) -> None:
-        self.cached_points = LearningObjectPoints.get(self.exercise, user or self.request.user, self.is_course_staff)
-        self.note("cached_points")
 
 
 class ExerciseBaseView(ExerciseMixin, BaseTemplateView):
@@ -219,8 +213,6 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
             self.submission_entry = next(s for s in self.submissions if s.id == self.submission.id)
         self.note("index", "submission_entry")
 
-    def get_cached_points(self, user: Optional[User] = None) -> None:
-        super().get_cached_points(user or (self.submitter.user if self.submitter else None))
 
 
 class SubmissionBaseView(SubmissionMixin, BaseTemplateView):
