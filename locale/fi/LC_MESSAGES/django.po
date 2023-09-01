@@ -3550,11 +3550,13 @@ msgstr "Sinulla ei ole lupaa katsoa tämän tehtävän esimerkkiratkaisua."
 
 #: exercise/protocol/aplus.py
 msgid "EXERCISE_SERVICE_ERROR_CONNECTION_FAILED"
-msgstr "Tehtäväpalveluun ei saatu yhteyttä!"
+msgstr ""
+"Tehtäväpalveluun ei saatu yhteyttä! Kurssihenkilökunnalle on ilmoitettu."
 
 #: exercise/protocol/aplus.py
 msgid "ASSESSMENT_SERVICE_ERROR_CONNECTION_FAILED"
-msgstr "Arviointipalveluun ei saatu yhteyttä!"
+msgstr ""
+"Arviointipalveluun ei saatu yhteyttä! Kurssihenkilökunnalle on ilmoitettu."
 
 #: exercise/protocol/aplus.py
 #, python-brace-format
@@ -3873,13 +3875,13 @@ msgid "TOTAL_NUMBER_OF_SUBMITTERS"
 msgstr "Palauttaneita opiskelijoita yhteensä"
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: exercise/templates/exercise/_submit_progress.html
 #: exercise/templates/exercise/exercise.html templates/base.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
-"Tehtävän lataaminen epäonnistui. Yritä uudelleen myöhemmin. "
-"Kurssihenkilökunnalle on ilmoitettu ongelmasta. Mikäli ongelma jatkuu yli "
-"vuorokauden eikä siitä ole mainintaa kurssiuutisissa, otathan yhteyttä "
-"kurssihenkilökuntaan."
+"Palautuksen lähettämisessä arvosteluun tapahtui virhe. Tarkistathan internet-"
+"yhteytesi. Jos palautuskerta käytettiin, palautus arvostellaan "
+"automaattisesti, kun palvelu on jälleen käytettävissä."
 
 #: exercise/templates/exercise/_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
@@ -4007,14 +4009,6 @@ msgstr "Sisältää myöhästymissakon"
 #: exercise/templates/exercise/exercise.html
 msgid "POSTING_SUBMISSION"
 msgstr "Palautusta lähetetään..."
-
-#: exercise/templates/exercise/_submit_progress.html
-msgid "SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE"
-msgstr ""
-"Palautuksen lähettämisessä arvosteluun tapahtui virhe. Tarkistathan internet-"
-"yhteytesi. Jos palautuskerta käytettiin, palautus arvostellaan "
-"automaattisesti, kun palvelu on jälleen käytettävissä. Kurssihenkilökunnalle "
-"on ilmoitettu mikäli ongelma on palvelussa."
 
 #: exercise/templates/exercise/_template_files.html
 msgid "EXERCISE_HAS_NO_TEMPLATE"

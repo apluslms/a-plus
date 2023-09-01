@@ -2951,7 +2951,7 @@ msgstr ""
 msgid "ERROR_ALERT_EXERCISE_ASSESSMENT_SERVICE_MALFUNCTIONING"
 msgstr ""
 "<div class=\"alert alert-error\">\n"
-"<p>The assessment is malfunctioning. Staff has been notified.</p>\n"
+"<p>The assessment is malfunctioning. Course staff has been notified.</p>\n"
 "<p>This submission is now marked as erroneous.</p>\n"
 "</div>"
 
@@ -3538,11 +3538,13 @@ msgstr "You are not allowed to view model answers for this assignment."
 
 #: exercise/protocol/aplus.py
 msgid "EXERCISE_SERVICE_ERROR_CONNECTION_FAILED"
-msgstr "Connecting to the assignment service failed!"
+msgstr ""
+"Connecting to the assignment service failed! Course staff has been notified."
 
 #: exercise/protocol/aplus.py
 msgid "ASSESSMENT_SERVICE_ERROR_CONNECTION_FAILED"
-msgstr "Connecting to the assessment service failed!"
+msgstr ""
+"Connecting to the assessment service failed! Course staff has been notified."
 
 #: exercise/protocol/aplus.py
 #, python-brace-format
@@ -3863,13 +3865,13 @@ msgid "TOTAL_NUMBER_OF_SUBMITTERS"
 msgstr "Total number of submitters"
 
 #: exercise/templates/exercise/_exercise_wait.html
+#: exercise/templates/exercise/_submit_progress.html
 #: exercise/templates/exercise/exercise.html templates/base.html
 msgid "EXERCISE_ERROR_COMMUNICATION"
 msgstr ""
-"There was a problem loading the assignment. Try loading the page again "
-"later. The course staff has been notified. If the problem persists for over "
-"a day and hasn't been addressed on the course news, please contact course "
-"staff."
+"An error occurred while sending the submission for grading. Make sure you're "
+"connected to the internet. If a submission was consumed, the submission will "
+"be automatically graded after the service is available again."
 
 #: exercise/templates/exercise/_exercise_wait.html
 msgid "EXERCISE_ERROR_GRADING_TIMEOUT"
@@ -3996,14 +3998,6 @@ msgstr "Includes late penalty"
 #: exercise/templates/exercise/exercise.html
 msgid "POSTING_SUBMISSION"
 msgstr "Posting submission..."
-
-#: exercise/templates/exercise/_submit_progress.html
-msgid "SUBMISSION_ERROR_ALERT_COMMUNICATION_ERROR_W_SERVICE"
-msgstr ""
-"An error occurred while sending the submission for grading. Make sure you're "
-"connected to the internet. If a submission was consumed, the submission will "
-"be automatically graded after the service is available again. Course staff "
-"have been informed in case the problem is with the service."
 
 #: exercise/templates/exercise/_template_files.html
 msgid "EXERCISE_HAS_NO_TEMPLATE"
