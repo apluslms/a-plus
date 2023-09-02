@@ -106,6 +106,39 @@ def parse_choices(value, choices, field_name, errors):
     return parsed_value
 
 
+def parse_reveal_rule(rule_config: Dict[str, Any], rule_key: str, errors: List[str]):
+    if not isinstance(rule_config, dict) or "trigger" not in rule_config:
+        errors.append(format_lazy(_('REVEAL_RULE_ERROR_INVALID_JSON -- {key}'), key=rule_key))
+        return None
+    trigger = parse_choices(rule_config["trigger"], {
+        "immediate": RevealRule.TRIGGER.IMMEDIATE,
+        "manual": RevealRule.TRIGGER.MANUAL,
+        "time": RevealRule.TRIGGER.TIME,
+        "deadline": RevealRule.TRIGGER.DEADLINE,
+        "deadline_all": RevealRule.TRIGGER.DEADLINE_ALL,
+        "deadline_or_full_points": RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS,
+        "completion": RevealRule.TRIGGER.COMPLETION,
+    }, "trigger", errors)
+    rule = RevealRule()
+    rule.trigger = trigger
+    if "time" in rule_config:
+        rule.time = parse_date(rule_config["time"], errors)
+    if "delay_minutes" in rule_config:
+        rule.delay_minutes = parse_int(rule_config["delay_minutes"], errors)
+    rule.save()
+    return rule
+
+
+def parse_model_solution_chapter(value: str, errors: List[str]):
+    try:
+        module_key, chapter_key = value.split('/')
+        chapter = CourseChapter.objects.get(url=chapter_key, course_module__url=module_key)
+        return chapter
+    except CourseChapter.DoesNotExist:
+        errors.append(format_lazy(_('ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}'), value=value))
+        return None
+
+
 def remove_newlines(value):
     # Replace all newlines with a space.
     # \r\n is done first to avoid two consecutive spaces.
@@ -264,28 +297,11 @@ def update_learning_objects( # noqa: MC0001
                 rule_config = o.get(config_key)
                 if not rule_config:
                     continue
-                if not isinstance(rule_config, dict) or "trigger" not in rule_config:
-                    errors.append(format_lazy(_('REVEAL_RULE_ERROR_INVALID_JSON -- {key}'), key=config_key))
-                    continue
-                trigger = parse_choices(rule_config["trigger"], {
-                    "immediate": RevealRule.TRIGGER.IMMEDIATE,
-                    "manual": RevealRule.TRIGGER.MANUAL,
-                    "time": RevealRule.TRIGGER.TIME,
-                    "deadline": RevealRule.TRIGGER.DEADLINE,
-                    "deadline_all": RevealRule.TRIGGER.DEADLINE_ALL,
-                    "deadline_or_full_points": RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS,
-                    "completion": RevealRule.TRIGGER.COMPLETION,
-                }, "trigger", errors)
                 rule = getattr(lobject, lobject_key)
                 if not rule:
-                    rule = RevealRule()
-                rule.trigger = trigger
-                if "time" in rule_config:
-                    rule.time = parse_date(rule_config["time"], errors)
-                if "delay_minutes" in rule_config:
-                    rule.delay_minutes = parse_int(rule_config["delay_minutes"], errors)
-                rule.save()
-                setattr(lobject, lobject_key, rule)
+                    rule = parse_reveal_rule(rule_config, config_key, errors)
+                if rule:
+                    setattr(lobject, lobject_key, rule)
             if "grading_mode" in o:
                 grading_mode = parse_choices(o["grading_mode"], {
                     "best": BaseExercise.GRADING_MODE.BEST,
@@ -883,6 +899,12 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                 f = parse_float(m["late_penalty"], errors)
                 if f is not None:
                     module.late_submission_penalty = f
+            if "model_answer" in m:
+                module.model_answer = parse_model_solution_chapter(m["model_answer"], errors)
+            if "reveal_module_model_solution" in m:
+                module.model_solution_reveal_rule = parse_reveal_rule(
+                    m["reveal_module_model_solution"], "reveal_module_model_solution", errors
+                )
 
             module.full_clean()
             module.save()
