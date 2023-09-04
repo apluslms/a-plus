@@ -23,7 +23,7 @@
 </div>
 
 <ul class="toc">
-	{% for module in content.data.modules %}
+	{% for module in modules %}
 	{% if module|is_listed %}
 	{% module_accessible module as accessible %}
 	{% exercise_accessible module as exercise_accessible %}
