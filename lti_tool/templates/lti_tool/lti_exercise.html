@@ -6,6 +6,12 @@
 {% endblock %}
 {% block breadcrumb %}{% endblock %}
 {% block breadcrumblist %}{% endblock %}
-{% block siblings %}{% endblock %}
-{% block siblings_bottom %}{% endblock %}
+
+{% block siblings %}
+{% include "lti_tool/_siblings.html" %}
+{% endblock %}
+{% block siblings_bottom %}
+{% include "lti_tool/_siblings.html" %}
+{% endblock %}
+
 {% block footer %}{% endblock %}

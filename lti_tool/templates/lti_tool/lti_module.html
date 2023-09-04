@@ -5,12 +5,15 @@
 
 {% block title %}{{ current.name|parse_localization }} | {{ block.super }}{% endblock %}
 
-{% block siblings %}{% endblock %}
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
 {% block course_sidebar %}{% endblock %}
 {% block sidecontent %}{% endblock %}
+
+{% block siblings %}
+{% include "lti_tool/_siblings.html" %}
+{% endblock %}
 
 {% block coursecontent %}
 	<p>

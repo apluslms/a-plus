@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from pylti1p3.contrib.django import DjangoOIDCLogin, DjangoMessageLaunch
@@ -131,10 +132,48 @@ class LtiSessionMixin(BaseMixin):
             )
             self.message_launch_data = self.message_launch.get_launch_data()
 
+    def adjust_visibility(self, content):
+        """
+        Check whether given navigation link in ContentCache should be shown in LTI view.
+        This depends on whether LTI link points to single exercise, or whole module/course.
+        """
+        # LTI link points to specific exercise: no navigation allowed
+        if 'exercise_path' in self.lti_scope:
+            return None
+        if not content:
+            return None
+
+        try:
+            if content['type'] == 'exercise':
+                mod = CourseModule.objects.get(pk=content['module_id'])
+                lo = LearningObject.objects.get(pk=content['id'])
+                content.update({'link': lo.get_url("lti-exercise")})
+            elif content['type'] == 'module':
+                mod = CourseModule.objects.get(pk=content['id'])
+                content.update({'link': mod.get_url("lti-module")})
+            else:
+                return None
+        except (CourseModule.DoesNotExist, LearningObject.DoesNotExist):
+            return None
+
+        # If LTI link points to specific module: check that the target URL is in same module
+        if 'module_slug' in self.lti_scope and mod.url != self.lti_scope['module_slug']:
+            return None
+        return content
+
+    def get_upper(self, content):
+        if content['type'] == 'exercise':
+            mod = CourseModule.objects.get(pk=content['module_id'])
+            upper, _tree, _prev, _nex = self.content.find(mod)
+            return self.adjust_visibility(upper)
+        return None
+
     def get_common_objects(self):
         super().get_common_objects()
         self.disable_staff_nav = True
         self.submission_poll_ready_url_name = "lti-submission"
+        self.parse_lti_session_params()
+        self.lti_scope = self.message_launch_data.get("https://purl.imsglobal.org/spec/lti/claim/custom")
         self.note(
             "disable_staff_nav",
             "submission_poll_ready_url_name",
@@ -145,6 +184,11 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
 
     access_mode = ACCESS.ENROLLED
     template_name = "lti_tool/lti_course.html"
+
+    def get_common_objects(self) -> None:
+        super().get_common_objects()
+        self.modules = self.points.modules_flatted()
+        self.note("modules")
 
     def get(self, request, *args, **kwargs):
         # Edit links to point to LTI views
@@ -163,6 +207,15 @@ class LtiModuleView(LtiSessionMixin, ModuleView):
 
     access_mode = ACCESS.ENROLLED
     template_name = "lti_tool/lti_module.html"
+
+    def get_common_objects(self) -> None:
+        super().get_common_objects()
+        if 'module_slug' not in self.lti_scope:
+            self.upper_name = _("COURSE_MATERIALS")  # Course-level LTI association can access whole instance
+            self.upper_link = self.instance.get_url("lti-course")
+            self.note('upper_name', 'upper_link')
+        self.previous = self.adjust_visibility(self.previous)
+        self.next = self.adjust_visibility(self.next)
 
     def get(self, request, *args, **kwargs):
         learningobjects = LearningObject.objects.filter(course_module=self.module)
@@ -192,6 +245,16 @@ class LtiExerciseView(LtiSessionMixin, ExerciseView):
     @method_decorator(xframe_options_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
+
+    def get_common_objects(self) -> None:
+        super().get_common_objects()
+        upp = self.get_upper(self.current)
+        if upp:
+            self.upper_name = upp['name']
+            self.upper_link = upp['link']
+        self.previous = self.adjust_visibility(self.previous)
+        self.next = self.adjust_visibility(self.next)
+        self.note('upper_name', 'upper_link')
 
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs, redirect_view='lti-submission')
