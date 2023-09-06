@@ -164,7 +164,8 @@ def parse_page_content(
         page.is_accepted = True
         page.is_wait = False
 
-    remote_page.fix_relative_urls()
+    is_multilingual_course = len(exercise.course_module.course_instance.languages) > 1
+    remote_page.fix_relative_urls(is_multilingual_course)
     remote_page.find_and_replace('data-aplus-exercise', [{
         'id': ('chapter-exercise-' + str(o.order)),
         'data-aplus-exercise': o.get_absolute_url(),
