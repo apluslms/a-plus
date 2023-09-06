@@ -210,7 +210,7 @@ class RemotePage:
     def body(self) -> Optional[Tag]:
         return self.soup.body if self.soup else None
 
-    def fix_relative_urls(self):
+    def fix_relative_urls(self, is_multilingual_course):
         url = self.base_address()
         for tag,attr in [
             ("img","src"),
@@ -221,9 +221,10 @@ class RemotePage:
             ("video","poster"),
             ("source","src"),
         ]:
-            self._fix_relative_urls(url, tag, attr)
+            self._fix_relative_urls(url, tag, attr, is_multilingual_course)
 
-    def _fix_relative_urls(self, url, tag_name, attr_name): # pylint: disable=too-many-locals too-many-branches
+    # pylint: disable-next=too-many-locals too-many-branches
+    def _fix_relative_urls(self, url, tag_name, attr_name, is_multilingual_course):
         # Starts with "#", "//" or "https:".
         test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE) # noqa: W605
         # Ends with filename extension ".html" and possibly "#anchor".
@@ -294,7 +295,7 @@ class RemotePage:
                 # Remove lang suffix in chapter2_en#anchor without modifying the #anchor.
                 # Add slash / to the end before the #anchor.
                 m = lang_suffix.search(new_val)
-                if m:
+                if m and is_multilingual_course:
                     anchor = m.group('anchor')
                     if anchor is None:
                         anchor = ''
