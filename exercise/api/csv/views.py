@@ -26,7 +26,7 @@ from exercise.exercise_models import BaseExercise
 from exercise.submission_models import SubmissionQuerySet
 from userprofile.models import UserProfile
 
-from ...cache.points import CachedPoints
+from ...cache.points import CachedPoints, ExercisePoints
 from ...models import Submission
 from .submission_sheet import filter_best_submissions, submissions_sheet
 from .aggregate_sheet import aggregate_sheet
@@ -105,8 +105,8 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         # is visible to the request user, and not the points for that user.
         # Therefore it is okay to use CachedPoints, even though this view
         # includes many users and CachedPoints includes only one.
-        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
-        ids = [e['id'] for e in self.content.search_exercises(**search_args)]
+        points = CachedPoints(self.instance, request.user, self.is_course_staff)
+        ids = [e.id for e in self.content.search_exercises(**search_args)]
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         queryset = Submission.objects.filter(
             exercise_id__in=ids,
@@ -123,7 +123,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             ) -> Response:
         profile = self.get_object()
         search_args = self.get_search_args(request)
-        points = CachedPoints(self.instance, profile.user, self.content, self.is_course_staff)
+        points = CachedPoints(self.instance, profile.user, self.is_course_staff)
         ids = points.submission_ids(**search_args)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         queryset = Submission.objects.filter(
@@ -233,8 +233,8 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
         entry, exercises = self.content.search_entries(**search_args)
-        ids = [e['id'] for e in exercises if e['type'] == 'exercise']
-        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
+        ids = [e.id for e in exercises if e.type == 'exercise']
+        points = CachedPoints(self.instance, request.user, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         aggr = (
             Submission.objects
@@ -252,7 +252,7 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             self.instance.taggings.all(),
             exercises,
             aggr,
-            entry['number'] if entry else "",
+            entry.number if entry else "",
         )
         self.renderer_fields = fields
         response = Response(data)
@@ -409,9 +409,9 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
-        _, exercises = self.content.search_entries(**search_args)
-        ids = [e['id'] for e in exercises if e['type'] == 'exercise']
-        points = CachedPoints(self.instance, request.user, self.content, self.is_course_staff)
+        exercises = self.content.search_exercises(**search_args)
+        ids = [e.id for e in exercises]
+        points = CachedPoints(self.instance, request.user, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
         exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
         show_unofficial = request.GET.get('show_unofficial') == 'true'
@@ -467,8 +467,7 @@ def get_revealed_exercise_ids(search_args: Dict[str, Any], points: CachedPoints)
     """
     _, exercises = points.search_entries(**search_args)
     return {
-        e['id'] for e in exercises
-        if e['type'] == 'exercise'
-        and e['submittable']
-        and e['feedback_revealed']
+        e.id
+        for e in exercises
+        if isinstance(e, ExercisePoints) and e.feedback_revealed
     }

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 from django.db import models
 from django.utils.text import format_lazy
@@ -9,9 +9,11 @@ from course.models import (
     CourseModule,
     LearningObjectCategory,
 )
-from exercise.cache.hierarchy import NoSuchContent
+from exercise.cache.exceptions import NoSuchContent
 from exercise.models import BaseExercise
 
+if TYPE_CHECKING:
+    from exercise.cache.points import CachedPoints
 
 class Threshold(models.Model):
     """
@@ -38,6 +40,11 @@ class Threshold(models.Model):
         default=False,
         help_text=_('HARDER_POINTS_CONSUMED_BY_EASIER_DIFFICULTY_REQUIREMENTS'))
 
+    if TYPE_CHECKING:
+        passed_modules: models.ManyToManyField[CourseModule, "Threshold"]
+        passed_categories: models.ManyToManyField[LearningObjectCategory, "Threshold"]
+        passed_exercises: models.ManyToManyField[BaseExercise, "Threshold"]
+
     class Meta:
         verbose_name = _('MODEL_NAME_THRESHOLD')
         verbose_name_plural = _('MODEL_NAME_THRESHOLD_PLURAL')
@@ -54,32 +61,32 @@ class Threshold(models.Model):
         ]
         return " ".join(checks)
 
-    def is_passed(self, cached_points, unconfirmed=False):
+    def is_passed(self, cached_points: "CachedPoints", unconfirmed: bool = False) -> bool:
         try:
             for module in self.passed_modules.all():
-                entry,_,_,_ = cached_points.find(module)
-                if not entry["passed"]:
+                entry = cached_points.entry_for_module(module)
+                if not entry.passed:
                     return False
             for category in self.passed_categories.all():
-                if not cached_points.find_category(category.id)["passed"]:
+                if not cached_points.find_category(category.id).passed:
                     return False
             for exercise in self.passed_exercises.all():
-                entry,_,_,_ = cached_points.find(exercise)
-                if not entry["passed"]:
+                entry = cached_points.entry_for_exercise(exercise)
+                if not entry.passed:
                     return False
         except NoSuchContent:
             return False
 
         total = cached_points.total()
-        d_points = total["points_by_difficulty"].copy()
+        d_points = total.points_by_difficulty.copy()
         if unconfirmed:
-            u_points = total["unconfirmed_points_by_difficulty"]
+            u_points = total.unconfirmed_points_by_difficulty
             for key,value in u_points.items():
                 if key in d_points:
                     d_points[key] += value
                 else:
                     d_points[key] = value
-        return self._are_points_passed(total["points"], d_points)
+        return self._are_points_passed(total.points, d_points)
 
     def _are_points_passed(self, points: int, points_by_difficulty: Dict[str, int]) -> bool:
         if not self.points.exists():

@@ -6,12 +6,12 @@
     {% if exercise.category.confirm_the_level %}
     <p>{% translate "CURRENT_STATUS" %}</p>
     <p class="exercise-info-points">
-      {% points_badge summary is_revealed=feedback_revealed %}
+      {% points_badge summary %}
     </p>
     {% else %}
     <p>{% translate "EARNED_POINTS" %}</p>
     <p><strong class="h2 exercise-info-points">
-        {% format_points summary.get_points feedback_revealed False %}
+        {% format_points summary.official_points summary.feedback_revealed False %}
         <small>
             / {{ exercise.max_points }}
             {% if summary.get_penalty %}
@@ -21,7 +21,7 @@
             {% endif %}
         </small>
     </strong></p>
-    {% points_progress summary is_revealed=feedback_revealed %}
+    {% points_progress summary %}
     {% endif %}
 </div>
 
@@ -39,9 +39,9 @@
 			{% endif %}
 			<dt>{% translate "YOUR_SUBMISSIONS" %}</dt>
 			<dd class="exercise-info-submissions">
-				{{ summary.get_submission_count }}
+				{{ summary.submission_count }}
 				{% if exercise.max_submissions %}
-				/ {{ cached_points.personal_max_submissions|default_if_none:exercise.max_submissions }}
+				/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}
 				{% endif %}
 			</dd>
 
@@ -53,11 +53,11 @@
 			<dt>{% translate "DEADLINE" %}</dt>
 			<dd class="exercise-info-deadline">{{ exercise.course_module.closing_time }}</dd>
 
-			{% if cached_points.personal_deadline %}
+			{% if summary.personal_deadline %}
 			<dt>{% translate "PERSONAL_EXTENDED_DEADLINE" %}</dt>
 			<dd class="exercise-info-extended-deadline">
-				{{ cached_points.personal_deadline }}
-				{% if module.late_submission_penalty > 0 and cached_points.personal_deadline_has_penalty %}
+				{{ summary.personal_deadline }}
+				{% if module.late_submission_penalty > 0 and summary.personal_deadline_has_penalty %}
 					(-{{ exercise.course_module.late_submission_penalty|percent }}%)
 				{% endif %}
 			</dd>

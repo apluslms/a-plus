@@ -1,187 +1,339 @@
-from typing import Tuple
+from __future__ import annotations
+from datetime import datetime
+from typing import (
+    cast,
+    Generator,
+    Generic,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    overload,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
+
 from django.http.response import Http404
-from course.models import CourseModule, LearningObjectCategory
+
+from course.models import CourseModule
 from ..models import LearningObject
+from .basetypes import CachedDataBase, CategoryEntryBase, LearningObjectEntryBase, ModuleEntryBase, TotalsBase
+from .exceptions import NoSuchContent
 
 
-class NoSuchContent(Exception):
-    pass
+ExerciseEntry = TypeVar("ExerciseEntry", bound=LearningObjectEntryBase)
+ModuleEntry = TypeVar("ModuleEntry", bound=ModuleEntryBase)
+CategoryEntry = TypeVar("CategoryEntry", bound=CategoryEntryBase)
+Totals = TypeVar("Totals", bound=TotalsBase)
 
 
-class HierarchyIterator:
-    # pylint: disable-next=too-many-arguments
-    def __init__(self, children, idx=None, tree=None, visited=False, enclosed=True):
-        if idx is None:
-            self._default_start(children)
+Entry = Union[ExerciseEntry, ModuleEntry]
+
+EE = TypeVar("EE", bound=LearningObjectEntryBase)
+ME = TypeVar("ME", bound=ModuleEntryBase)
+
+
+class LevelMarker:
+    def __init__(self, up):
+        self.type = "level"
+        self.up = up
+        self.down = not up
+
+
+def _get_tree_indices(children: Sequence[Entry[EE,ME]], tree: Sequence[Entry[EE, ME]]) -> List[int]:
+    indices = []
+    for e in tree:
+        indices.append([c.id for c in children].index(e.id))
+        children = e.children
+    return indices
+
+
+@overload
+def next_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        level_markers: Literal[True] = True,
+        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+    ...
+@overload
+def next_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        level_markers: Literal[False] = True, # type: ignore
+        ) -> Generator[Entry[EE, ME], None, None]:
+    ...
+def next_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        level_markers: bool = True,
+        ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+    def descendants(
+            entry: Entry[EE, ME],
+            start: List[int],
+            ) -> Generator[Union[Entry[EE, ME], LevelMarker], None, None]:
+        children = entry.children
+        if start:
+            children = children[start[0]:]
         else:
-            self.idx = idx.copy()
-            self.levels = [children]
-            if tree and len(tree) > 1:
-                for entry in tree[:-1]:
-                    self.levels.append(entry['children'])
-        self.visited = visited
-        self.enclose_begun = not enclosed
-        self.enclose_ended = not enclosed
+            yield entry
+            if not children:
+                return
+            if level_markers:
+                yield LevelMarker(False)
 
-    def __iter__(self): # pylint: disable=non-iterator-returned
-        return self
+        for child in children:
+            yield from descendants(child, start[1:])
+            start = []
 
+        if level_markers:
+            yield LevelMarker(True)
 
-class NextIterator(HierarchyIterator):
+    if level_markers:
+        yield LevelMarker(False)
 
-    def _default_start(self, children):
-        self.idx = [0]
-        self.levels = [children]
+    # Get the starting index list of the first entry as specified by tree
+    if tree is not None:
+        tree_indices = _get_tree_indices(children, tree)
+    else:
+        tree_indices = [0]
 
-    def __next__(self):
-        if not self.enclose_begun:
-            self.enclose_begun = True
-            return {'type':'level','down':True}
-        i = self.idx[-1]
-        level = self.levels[-1]
-        if not self.visited:
-            if i < len(level):
-                self.visited = True
-                return level[i]
+    if skip_first:
+        # Move the starting index to the next element
+        first_entry = tree[-1] if tree else children[0]
+        if first_entry.children:
+            tree_indices.append(0)
         else:
-            children = level[i].get('children')
-            if children:
-                self.levels.append(children)
-                self.idx.append(0)
-                self.visited = False
-                return {'type':'level','down':True}
-            i += 1
-            if i < len(level):
-                self.idx[-1] = i
-                return level[i]
-        if len(self.idx) > 1:
-            self.idx = self.idx[:-1]
-            self.levels = self.levels[:-1]
-            self.idx[-1] += 1
-            self.visited = False
-            return {'type':'level','up':True}
-        if not self.enclose_ended:
-            self.enclose_ended = True
-            return {'type':'level','up':True}
-        raise StopIteration()
+            tree_indices[-1] += 1
+
+    children = children[tree_indices[0]:]
+
+    for child in children:
+        yield from descendants(child, tree_indices[1:])
+        tree_indices = []
+
+    if level_markers:
+        yield LevelMarker(True)
 
 
-class PreviousIterator(HierarchyIterator):
+def previous_iterator(
+        children: Sequence[Entry[EE, ME]],
+        tree: Optional[Sequence[Entry[EE, ME]]] = None,
+        skip_first: bool = False,
+        ) -> Generator[Entry[EE, ME], None, None]:
+    def descendants(
+            children: Sequence[Entry[EE, ME]],
+            start: List[int]
+            ) -> Generator[Entry[EE, ME], None, None]:
+        if start:
+            if len(start) == 1:
+                yield children[start[0]]
+                children = children[:start[0]]
+            else:
+                children = children[:start[0]+1]
 
-    def _default_start(self, children):
-        self.idx = []
-        self.levels = []
-        self._goto_last(children)
+        for child in reversed(children):
+            yield from descendants(child.children, start[1:])
+            yield child
+            start = []
 
-    def _goto_last(self, children):
-        level = children
-        while level:
-            i = len(level) - 1
-            self.idx.append(i)
-            self.levels.append(level)
-            level = level[i].get('children')
+    def _go_to_last(indices: List[int]):
+        nonlocal children
+        current = children
+        for s in indices:
+            current = current[s].children
 
-    def __next__(self):
-        i = self.idx[-1]
-        level = self.levels[-1]
-        if not self.visited:
-            self.visited = True
-            return level[i]
-        if i > 0:
-            i -= 1
-            self.idx[-1] = i
-            self._goto_last(level[i].get('children'))
-            return self.levels[-1][self.idx[-1]]
-        if len(self.idx) > 1:
-            self.idx = self.idx[:-1]
-            self.levels = self.levels[:-1]
-            return self.levels[-1][self.idx[-1]]
-        raise StopIteration()
+        while current:
+            indices.append(len(current)-1)
+            current = current[-1].children
+
+    # Get the starting index list of the first entry as specified by tree
+    if tree is not None:
+        tree_indices = _get_tree_indices(children, tree)
+    else:
+        tree_indices = []
+        _go_to_last(tree_indices)
+
+    if skip_first:
+        # Move the starting index to the previous element
+        if tree_indices[-1] == 0:
+            tree_indices = tree_indices[-1]
+        else:
+            tree_indices[-1] -= 1
+            _go_to_last(tree_indices)
+
+        if not tree_indices:
+            return
+
+    yield from descendants(children, tree_indices)
 
 
-class ContentMixin:
+class ContentMixin(Generic[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]):
+    data: CachedDataBase[ModuleEntry, ExerciseEntry, CategoryEntry, Totals]
 
-    def created(self):
-        return self.data['created']
+    def created(self) -> datetime:
+        return self.data.created
 
-    def total(self):
-        return self.data['total']
+    def total(self) -> Totals:
+        return self.data.total
 
-    def modules(self):
-        return self.data['modules']
+    def modules(self) -> List[ModuleEntry]:
+        return self.data.modules
 
-    def modules_flatted(self):
-        for module in self.data['modules']:
-            module['flatted'] = self.flat_module(module)
-        return self.data['modules']
+    def modules_flatted(self) -> List[ModuleEntry]:
+        for module in self.data.modules:
+            # TODO: this would be better as a cached property on the module entries themselves
+            # which would make this whole method unnecessary
+            module.flatted = list(self.flat_module(module))
+        return self.data.modules
+
+    def exercises(self) -> Iterable[ExerciseEntry]:
+        return self.data.exercise_index.values()
 
     def categories(self):
-        categories = list(self.data['categories'].values())
-        categories.sort(key=lambda entry: entry['name'])
+        categories = list(self.data.categories.values())
+        categories.sort(key=lambda entry: entry.name)
         return categories
 
-    def flat_module(self, module, enclosed=True):
-        modules = self.modules()
-        idx = self._model_idx(module)
-        tree = self._by_idx(modules, idx)
-        return NextIterator(tree[0]['children'], enclosed=enclosed)
+    @overload
+    def flat_module( # pyright: ignore[reportGeneralTypeIssues]
+            self,
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: Literal[True] = True,
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+        return [] # Needed for pylint
+    @overload
+    def flat_module(
+            self,
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: Literal[False] = True, # type: ignore
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry]]:
+        ...
+    def flat_module(
+            self,
+            module: Union[ModuleEntry, CourseModule],
+            level_markers: bool = True,
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+        entry = self.entry_for_model(module)
+        children = cast(List[ExerciseEntry], entry.children)
+        return next_iterator(
+            children,
+            level_markers=level_markers, # type: ignore
+        )
 
-    def flat_full(self):
-        return NextIterator(self.modules(), enclosed=False)
+    @overload
+    def flat_full( # pyright: ignore[reportGeneralTypeIssues]
+        self,
+        level_markers: Literal[True] = True,
+        ) -> Iterable[Union[ModuleEntry, ExerciseEntry, LevelMarker]]:
+        return [] # Needed for pylint
+    @overload
+    def flat_full(
+            self,
+            level_markers: Literal[False] = True, # type: ignore
+            ) -> Iterable[Union[ModuleEntry, ExerciseEntry]]:
+        ...
+    def flat_full(self, level_markers = True):
+        return next_iterator(
+            self.modules(),
+            level_markers=level_markers, # type: ignore
+        )
 
-    def begin(self):
-        for entry in self.flat_full():
-            if entry['type'] == 'exercise':
+    def begin(self) -> Optional[ExerciseEntry]:
+        for entry in self.flat_full(level_markers=False):
+            if isinstance(entry, LearningObjectEntryBase):
                 return entry
         return None
 
     def find_path(self, module_id, path):
-        paths = self.data['paths'].get(module_id, {})
+        paths = self.data.paths.get(module_id, {})
         if path in paths:
             return paths[path]
         raise NoSuchContent()
 
-    def find_number(self, number):
-        hit = None
-        search = self.modules()
-        parts = number.split('.')
-        for i in range(len(parts)):
-            number = '.'.join(parts[0:i+1])
+    def find_number(self, number: str) -> Union[ModuleEntry, ExerciseEntry]:
+        """Find item by a period separated list of order numbers
+
+        E.g. number="3.2.5" takes the fifth learning object in the second
+        learning object of the third module
+        """
+        def find(
+                search: Sequence[Union[ModuleEntry, ExerciseEntry]],
+                number: str,
+                ) -> Union[ModuleEntry, ExerciseEntry]:
             for s in search:
-                if s['number'] == number:
-                    hit = s
-                    search = hit['children']
-                    break
-            else:
-                raise NoSuchContent()
+                if s.number == number:
+                    return s
+            raise NoSuchContent()
+
+        parts = number.split('.')
+        number = parts[0]
+        hit = find(self.modules(), number)
+        for part in parts[1:]:
+            number += "." + part
+            hit = find(cast(List[ExerciseEntry], hit.children), number)
+
         return hit
 
-    def find_category(self, category_id):
-        categories = self.data['categories']
+    def find_category(self, category_id: int) -> CategoryEntry:
+        categories = self.data.categories
         if category_id in categories:
             return categories[category_id]
         raise NoSuchContent()
 
-    def find(self, model):
-        modules = self.modules()
-        idx = self._model_idx(model)
-        tree = self._by_idx(modules, idx)
+    @overload
+    def find( # pyright: ignore[reportGeneralTypeIssues]
+            self,
+            model: LearningObject,
+            ) -> Tuple[
+                ExerciseEntry,
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        return (LearningObjectEntryBase, [], None, None) # Needed for pylint
+    @overload
+    def find(
+            self,
+            model: CourseModule,
+            ) -> Tuple[
+                ModuleEntry,
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        ...
+    def find(
+            self,
+            model: Union[LearningObject, CourseModule],
+            ) -> Tuple[
+                Union[ModuleEntry, ExerciseEntry],
+                List[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                Optional[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        entry = self.entry_for_model(model)
+        tree = self._tree(entry)
         return (
-            tree[-1],
+            entry,
             tree,
-            self._previous(idx, tree),
-            self._next(idx, tree),
+            self._previous(tree),
+            self._next(tree),
         )
 
     def get_absolute_order_number(self, learning_object_id: int) -> int:
         """Get the absolute order number of the given learning object
         (i.e. how manieth chapter or exercise it is in the material).
         """
-        def inner(parent: dict, n: int) -> Tuple[bool, int]:
+        def inner(parent: Union[ModuleEntry, ExerciseEntry], n: int) -> Tuple[bool, int]:
             # parent is a cached dict representing a CourseModule or a LearningObject
-            for entry in parent['children']:
+            for entry in parent.children:
                 n += 1
-                if entry['id'] == learning_object_id:
+                if entry.id == learning_object_id:
                     return True, n
                 found, n = inner(entry, n)
                 if found:
@@ -194,155 +346,122 @@ class ContentMixin:
             if found:
                 return n
 
-    def search_exercises(self, **kwargs):
-        _, entries = self.search_entries(**kwargs)
-        return [e for e in entries if e['type'] == 'exercise']
+    def _tree(self, entry: Union[ModuleEntry, ExerciseEntry]) -> List[Union[ModuleEntry, ExerciseEntry]]:
+        if isinstance(entry, ModuleEntryBase):
+            return [entry]
 
-    def search_entries(self, number=None, category_id=None, module_id=None, # noqa: MC0001
-                       exercise_id=None, filter_for_assistant=False, best=False, # pylint: disable=unused-argument
-                       raise_404=True):
-        entry = None
-        if number:
-            try:
-                entry = self.find_number(number)
-                if entry['type'] == 'module':
-                    module_id = entry['id']
-                elif entry['type'] == 'exercise':
-                    exercise_id = entry['id']
-            except NoSuchContent:
-                if raise_404:
-                    raise Http404() # pylint: disable=raise-missing-from
-                raise
-        search = None
-        if exercise_id is not None:
-            search = { 'type': 'exercise', 'id': int(exercise_id) }
-        elif module_id is not None:
-            search = { 'type': 'module', 'id': int(module_id) }
-        if search:
-            try:
-                idx = self._model_idx(search)
-            except NoSuchContent:
-                if raise_404:
-                    raise Http404() # pylint: disable=raise-missing-from
-                raise
-            tree = self._by_idx(self.modules(), idx)
-            if not entry:
-                entry = tree[-1]
-        else:
-            tree = [{ 'type': 'all', 'children': self.modules() }]
-        exercises = []
-
-        def recursion(entry):
-            if (
-                entry['type'] == 'module' or ( # pylint: disable=too-many-boolean-expressions
-                    entry['type'] == 'exercise' and
-                    (category_id is None or entry['category_id'] == category_id) and
-                    (not filter_for_assistant or entry['allow_assistant_viewing'])
-                )
-            ):
-                exercises.append(entry)
-            for child in entry['children']:
-                recursion(child)
-        recursion(tree[-1])
-        return entry, exercises
-
-    def _previous(self, idx, tree):
-        for entry in PreviousIterator(self.modules(), idx, tree, visited=True):
-            if self.is_listed(entry):
-                return entry
-        return None
-
-    def _next(self, idx, tree):
-        for entry in NextIterator(self.modules(), idx, tree, visited=True, enclosed=False):
-            if self.is_listed(entry):
-                return entry
-        return None
-
-    def _model_idx(self, model):
-        def find(index, search):
-            if search in index:
-                return index[search]
-            raise NoSuchContent()
-        entry_type = None
-        if isinstance(model, dict):
-            entry_type = model.get('type', None)
-            if entry_type == 'module':
-                return find(self.data['module_index'], model['id'])
-            if entry_type == 'exercise':
-                return find(self.data['exercise_index'], model['id'])
-        elif isinstance(model, CourseModule):
-            return find(self.data['module_index'], model.id)
-        elif isinstance(model, LearningObject):
-            return find(self.data['exercise_index'], model.id)
-        else:
-            raise NoSuchContent()
-
-    @classmethod
-    def _by_idx(cls, hierarchy, idx):
+        module = entry.module
         tree = []
-        for i in idx:
-            entry = hierarchy[i]
-            hierarchy = entry['children']
+        while entry is not None:
             tree.append(entry)
+            entry = entry.parent # type: ignore
+
+        tree.append(module)
+
+        tree.reverse()
         return tree
 
-    @classmethod
-    def _add_by_difficulty(cls, to, difficulty, points):
-        if difficulty in to:
-            to[difficulty] += points
+    def entry_for_model(
+            self,
+            model: Union[ModuleEntry, ExerciseEntry, LearningObject, CourseModule]
+            ) -> Union[ModuleEntry, ExerciseEntry]:
+        if isinstance(model, ModuleEntryBase):
+            return self.get_module(model.id)
+        if isinstance(model, LearningObjectEntryBase):
+            return self.get_exercise(model.id)
+        if isinstance(model, CourseModule):
+            return self.get_module(model.id)
+        if isinstance(model, LearningObject):
+            return self.get_exercise(model.id)
+
+        raise NoSuchContent()
+
+    def entry_for_exercise(self, model: LearningObject) -> ExerciseEntry:
+        return self.get_exercise(model.id)
+
+    def get_exercise(self, exercise_id: int) -> ExerciseEntry:
+        if exercise_id in self.data.exercise_index:
+            return self.data.exercise_index[exercise_id]
+        raise NoSuchContent()
+
+    def entry_for_module(self, model: CourseModule) -> ModuleEntry:
+        return self.get_module(model.id)
+
+    def get_module(self, module_id: int) -> ModuleEntry:
+        if module_id in self.data.module_index:
+            return self.data.module_index[module_id]
+        raise NoSuchContent()
+
+    def search_exercises(self, **kwargs) -> List[LearningObjectEntryBase]:
+        _, entries = self.search_entries(**kwargs)
+        return [e for e in entries if isinstance(e, LearningObjectEntryBase)]
+
+    def search_entries( # pylint: disable=too-many-arguments
+            self,
+            number: Optional[str] = None,
+            category_id: Optional[int] = None,
+            module_id: Optional[int] = None, # noqa: MC0001
+            exercise_id: Optional[int] = None,
+            filter_for_assistant: bool = False,
+            best: bool = False, # pylint: disable=unused-argument
+            raise_404: bool = True,
+            ) -> Tuple[
+                Optional[Union[ModuleEntry, ExerciseEntry]],
+                List[Union[ModuleEntry, ExerciseEntry]]
+            ]:
+        """Returns an entry and its filtered descendants.
+
+        The entry is specified using number, module_id or exercise_id.
+        category_id and filter_for_assistant are used to filter the descendants"""
+        entry = None
+        try:
+            if number:
+                try:
+                    entry = self.find_number(number)
+                except NoSuchContent:
+                    if raise_404:
+                        raise Http404() # pylint: disable=raise-missing-from
+                    raise
+            elif exercise_id is not None:
+                entry = self.get_exercise(exercise_id)
+            elif module_id is not None:
+                entry = self.get_module(module_id)
+        except NoSuchContent:
+            if raise_404:
+                raise Http404() # pylint: disable=raise-missing-from
+            raise
+
+        entries = []
+
+        def search_descendants(entry: Union[ExerciseEntry, ModuleEntry]) -> None:
+            if (
+                isinstance(entry, ModuleEntryBase) or ( # pylint: disable=too-many-boolean-expressions
+                    isinstance(entry, LearningObjectEntryBase) and
+                    (category_id is None or entry.category_id == category_id) and
+                    (not filter_for_assistant or entry.allow_assistant_viewing)
+                )
+            ):
+                entries.append(entry) # type: ignore
+
+            for child in entry.children:
+                search_descendants(child)
+
+        if entry:
+            search_descendants(entry)
         else:
-            to[difficulty] = points
+            for entry in self.modules():
+                search_descendants(entry)
 
-    @classmethod
-    def is_visible(cls, entry):
-        t = entry['type']
-        if t == 'exercise':
-            return (
-                entry.get('category_status') != LearningObjectCategory.STATUS.HIDDEN
-                and entry.get('module_status') != CourseModule.STATUS.HIDDEN
-                and not entry['status'] in (
-                    LearningObject.STATUS.HIDDEN,
-                    LearningObject.STATUS.ENROLLMENT,
-                    LearningObject.STATUS.ENROLLMENT_EXTERNAL,
-                )
-            )
-        if t == 'module':
-            return entry['status'] != CourseModule.STATUS.HIDDEN
-        if t == 'category':
-            return not entry['status'] in (
-                LearningObjectCategory.STATUS.HIDDEN,
-                LearningObjectCategory.STATUS.NOTOTAL,
-            )
-        return False
+        return entry, entries
 
-    @classmethod
-    def is_listed(cls, entry):
-        if not cls.is_visible(entry):
-            return False
-        t = entry['type']
-        if t == 'exercise':
-            return (
-                entry.get('category_status') != LearningObjectCategory.STATUS.HIDDEN
-                and entry.get('module_status') != CourseModule.STATUS.UNLISTED
-                and not entry['status'] in (
-                    LearningObject.STATUS.UNLISTED,
-                    LearningObject.STATUS.MAINTENANCE,
-                )
-            )
-        if t == 'module':
-            return entry['status'] != CourseModule.STATUS.UNLISTED
-        if t == 'category':
-            return entry['status'] != LearningObjectCategory.STATUS.HIDDEN
-        return True
+    def _previous(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
+        for entry in previous_iterator(self.modules(), tree, skip_first=True):
+            if entry.is_listed():
+                return entry
+        return None
 
-    @classmethod
-    def is_in_maintenance(cls, entry):
-        t = entry['type']
-        if t == 'exercise':
-            return (
-                entry['module_status'] == CourseModule.STATUS.MAINTENANCE
-                or entry['status'] == LearningObject.STATUS.MAINTENANCE
-            )
-        if t == 'module':
-            return entry['status'] == CourseModule.STATUS.MAINTENANCE
-        return False
+    def _next(self, tree: List[Union[ExerciseEntry, ModuleEntry]]) -> Optional[Union[ExerciseEntry, ModuleEntry]]:
+        for entry in next_iterator(self.modules(), tree, skip_first=True, level_markers=False):
+            if entry.is_listed():
+                return entry
+        return None

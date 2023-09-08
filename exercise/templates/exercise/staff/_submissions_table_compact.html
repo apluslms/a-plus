@@ -26,10 +26,10 @@
 			<td>
 				{% if forloop.counter != index %}
 				<a href="{{ s|url:'submission-inspect' }}">
-					{{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+					{{ s.date|date:'DATETIME_SECONDS_FORMAT' }}
 				</a>
 				{% else %}
-				{{ s.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+				{{ s.date|date:'DATETIME_SECONDS_FORMAT' }}
 				{% endif %}
 				{% if s.late_penalty_applied %}
 				<span class="label label-warning">
@@ -47,12 +47,12 @@
 					<span class="difficulty">{{ exercise.difficulty }}</span>
 				{% endif %}
 				<span
-					class="badge{% if s.status != 'unofficial' %} {% if s.grade >= exercise.max_points %}badge-success{% elif s.grade >= exercise.points_to_pass %}badge-warning{% else %}badge-danger{% endif %}{% endif %}"
+					class="badge{% if not s.unofficial %} {% if s.points >= exercise.max_points %}badge-success{% elif s.points >= exercise.points_to_pass %}badge-warning{% else %}badge-danger{% endif %}{% endif %}"
 					data-toggle="tooltip"
 					data-placement="bottom"
-					title="{% if s.status == 'unofficial' %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% elif s.grade >= exercise.points_to_pass %}{% if exercise.points_to_pass > 0 %}{% translate 'PASSED' %}{% endif %}{% else %}{% blocktranslate trimmed with points=exercise.points_to_pass %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% endif %}"
+					title="{% if s.unofficial %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% elif s.points >= exercise.points_to_pass %}{% if exercise.points_to_pass > 0 %}{% translate 'PASSED' %}{% endif %}{% else %}{% blocktranslate trimmed with points=exercise.points_to_pass %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% endif %}"
 				>
-					{{ s.grade }} / {{ exercise.max_points }}
+					{{ s.points }} / {{ exercise.max_points }}
 				</span>
 
 				{% if s == summary.best_submission %}
@@ -70,7 +70,7 @@
 					></span>
 					{% endif %}
 				{% endif %}
-				{% if s.grader %}
+				{% if s.is_assessed %}
 				<span
 					class="label label-warning"
 					data-toggle="tooltip"

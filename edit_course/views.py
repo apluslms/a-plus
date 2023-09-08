@@ -86,11 +86,10 @@ class EditContentView(EditInstanceView):
             learning_objects = {lobject.id: lobject for lobject in module.learning_objects.all()}
             module.flat_objects = []
             try:
-                for entry in self.content.flat_module(module, enclosed=False):
-                    if entry['type'] != 'level':
-                        learning_object = learning_objects.get(entry['id'])
-                        if learning_object:
-                            module.flat_objects.append(learning_object)
+                for entry in self.content.flat_module(module, level_markers=False):
+                    learning_object = learning_objects.get(entry.id)
+                    if learning_object:
+                        module.flat_objects.append(learning_object)
             except NoSuchContent:
                 continue
         self.categories = self.instance.categories.annotate(
@@ -109,12 +108,12 @@ class EditContentView(EditInstanceView):
             n = 1
             for module in self.content.modules():
                 nn = self.renumber_recursion(module, n)
-                if module['status'] != 'hidden':
+                if module.status != 'hidden':
                     n = nn
         return super().form_valid(form)
 
     def renumber_recursion(self, parent, n=1):
-        for entry in parent['children']:
+        for entry in parent.children:
             model = LearningObject.objects.get(id=entry['id'])
             model.order = n
             model.save()

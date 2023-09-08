@@ -1,5 +1,9 @@
-from django.conf import settings
 from collections import OrderedDict
+from typing import List
+
+from django.conf import settings
+
+from exercise.cache.content import LearningObjectContent
 
 # Generate students' results from this course instance
 # Only exercises in which student has submitted answers will be returned
@@ -8,7 +12,8 @@ from collections import OrderedDict
 # where xx is the exercise id, yy the submission count and zz the exercise points.
 # For convenience, we also return the total submission count and points for student
 
-def aggregate_points(profiles, taggings, exercises, aggregate): # pylint: disable=too-many-locals
+# pylint: disable-next=too-many-locals
+def aggregate_points(profiles, taggings, exercises: List[LearningObjectContent], aggregate):
     DEFAULT_FIELDS = [
         'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
     ]
@@ -19,9 +24,8 @@ def aggregate_points(profiles, taggings, exercises, aggregate): # pylint: disabl
     exercise_fields = []
 
     for e in exercises:
-        if e['type'] == 'exercise':
-            for n in OBJECT_FIELDS:
-                exercise_fields.append(n.format(e['id']))
+        for n in OBJECT_FIELDS:
+            exercise_fields.append(n.format(e.id))
 
     agg = {}
     # Gather exercise points per student

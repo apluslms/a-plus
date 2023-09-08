@@ -16,6 +16,7 @@ from pylti1p3.exception import LtiException
 from course.views import InstanceView, ModuleView
 from course.models import CourseInstance, Enrollment, CourseModule
 from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView
+from exercise.cache.points import LearningObjectPoints
 from exercise.viewbase import ExerciseBaseView
 from exercise.models import LearningObject, BaseExercise
 from exercise.views import ExerciseView, SubmissionView
@@ -150,11 +151,11 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
         # Edit links to point to LTI views
         module_model_objs = CourseModule.objects.filter(course_instance=self.instance)
         learningobjects = LearningObject.objects.filter(course_module__course_instance=self.instance)
-        for module in self.content.data['modules']:
-            module_model_obj = next((x for x in module_model_objs if x.id == module['id']), None)
+        for module in self.content.data.modules:
+            module_model_obj = next((x for x in module_model_objs if x.id == module.id), None)
             module.update({'link': module_model_obj.get_url("lti-module")})
-            for exercise in module['children']:
-                lo_model_obj = next((x for x in learningobjects if x.id == exercise['id']), None)
+            for exercise in module.children:
+                lo_model_obj = next((x for x in learningobjects if x.id == exercise.id), None)
                 exercise.update({'link': lo_model_obj.get_url("lti-exercise")})
         return super().get(request, *args, **kwargs)
 
@@ -168,11 +169,11 @@ class LtiModuleView(LtiSessionMixin, ModuleView):
         learningobjects = LearningObject.objects.filter(course_module=self.module)
         learningobjects_dict = { obj.id: obj for obj in learningobjects }
         # Can't use self.children for iteration, so this instead
-        flat_module = self.content.flat_module(self.module)
-        exercises = [entry for entry in flat_module if entry['type'] == 'exercise']
+        flat_module = self.content.flat_module(self.module, level_markers=False)
+        exercises = [entry for entry in flat_module if isinstance(entry, LearningObjectPoints)]
         for exercise in exercises:
-            learningobj = learningobjects_dict[exercise['id']]
-            exercise['link'] = learningobj.get_url('lti-exercise')
+            learningobj = learningobjects_dict[exercise.id]
+            exercise.link = learningobj.get_url('lti-exercise')
         return super().get(request, *args, **kwargs)
 
 
@@ -319,11 +320,11 @@ class LtiSelectModuleView(LtiSelectContentMixin, CourseModuleBaseView):
     def get(self, request, *args, **kwargs):
         self.learningobjects = LearningObject.objects.filter(course_module=self.module)
         self.learningobjects_dict = { obj.id: obj for obj in self.learningobjects }
-        self.flat_module = self.content.flat_module(self.module)
-        exercises = [entry for entry in self.content.flat_module(self.module) if entry['type'] == 'exercise']
+        self.flat_module = list(self.content.flat_module(self.module))
+        exercises = [entry for entry in self.flat_module if isinstance(entry, LearningObjectPoints)]
         for exercise in exercises:
-            learningobj = self.learningobjects_dict[exercise['id']]
-            exercise['link'] = learningobj.get_url('lti-select-exercise')
+            learningobj = self.learningobjects_dict[exercise.id]
+            exercise.link = learningobj.get_url('lti-select-exercise')
         self.note("learningobjects", "flat_module")
         return super().get(request, *args, **kwargs)
 

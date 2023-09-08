@@ -11,6 +11,7 @@ from django.http.response import HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls.base import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -92,7 +93,7 @@ class ListSubmittersView(ExerciseListBaseView):
         self.submitters = []
 
         # The points, submission counts and submission times are retrieved
-        # using a QuerySet instead of CachedPoints or UserExerciseSummary,
+        # using a QuerySet instead of CachedPoints,
         # because those are specific to a single student, and this page is
         # supposed to list all students.
         submitter_summaries = (
@@ -139,7 +140,7 @@ class InspectSubmitterView(ExerciseBaseView, BaseRedirectView):
         )
 
         # Find the submitter's best submission using the cache.
-        cache = CachedPoints(self.instance, user, self.content, True)
+        cache = CachedPoints(self.instance, user, True)
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True, fallback_to_last=True)
         if not ids:
             raise Http404()
@@ -158,7 +159,6 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
-        self.get_summary_submissions()
         self.files = list(self.submission.files.all())
 
         self.lowest_visible_index = self.index - 10
@@ -176,11 +176,11 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                     self.not_final = True
                     # When not_final is True, the other variables are not needed. Stop the loop early.
                     break
-                if ((submission.grade > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
+                if ((submission.points > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
                         or (self.submission.status == Submission.STATUS.UNOFFICIAL
                             and submission.status != Submission.STATUS.UNOFFICIAL)):
                     self.not_best = True
-                if (submission.submission_time > self.submission.submission_time
+                if (submission.date > self.submission.submission_time
                         and submission.status != Submission.STATUS.UNOFFICIAL):
                     self.not_last = True
 
@@ -352,7 +352,7 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
             return self.redirect(self.exercise.get_submission_list_url())
 
         # Find the submitter's best submission using the cache.
-        cache = CachedPoints(self.instance, submitter.user, self.content, True)
+        cache = CachedPoints(self.instance, submitter.user, True)
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True, fallback_to_last=True)
         if not ids:
             raise Http404()
@@ -413,9 +413,14 @@ class AnalyticsView(CourseInstanceBaseView):
 
 
 class UserResultsView(CourseInstanceBaseView):
+    context_properties = ["studentpoints"]
     access_mode = ACCESS.ASSISTANT
     template_name = "exercise/staff/user_results.html"
     user_kw = 'user_id'
+
+    @cached_property
+    def studentpoints(self) -> CachedPoints:
+        return CachedPoints(self.instance, self.student, self.is_course_staff)
 
     def get_resource_objects(self):
         super().get_resource_objects()

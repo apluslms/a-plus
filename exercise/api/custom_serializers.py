@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -8,7 +8,7 @@ from course.models import Enrollment
 from lib.api.serializers import AlwaysListSerializer
 from userprofile.api.serializers import UserBriefSerializer
 from userprofile.models import UserProfile
-from ..cache.points import CachedPoints
+from ..cache.points import CachedPoints, ExercisePoints, SubmissionEntry
 
 
 class UserToTagSerializer(AlwaysListSerializer, CourseUsertagBriefSerializer):
@@ -51,35 +51,34 @@ class UserWithTagsSerializer(UserBriefSerializer):
 
 class ExercisePointsSerializer(serializers.Serializer):
 
-    def to_representation(self, entry): # pylint: disable=arguments-renamed
+    def to_representation(self, entry: ExercisePoints) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         request = self.context['request']
 
-        def exercise_url(exercise_id):
+        def exercise_url(exercise_id: int) -> str:
             return reverse('api:exercise-detail', kwargs={
                 'exercise_id': exercise_id,
             }, request=request)
 
-        def submission_url(submission_id):
-            if submission_id is None:
+        def submission_url(submission: Optional[SubmissionEntry]) -> Optional[str]:
+            if submission is None:
                 return None
             return reverse('api:submission-detail', kwargs={
-                'submission_id': submission_id
+                'submission_id': submission.id
             }, request=request)
 
-        def submission_obj(submission_cached):
-            id_ = submission_cached['id']
+        def submission_obj(submission_cached: SubmissionEntry) -> Dict[str, Any]:
             return {
-                'id': id_,
-                'url': submission_url(id_),
-                'submission_time': submission_cached['date'],
-                'grade': submission_cached['points'],
+                'id': submission_cached.id,
+                'url': submission_url(submission_cached),
+                'submission_time': submission_cached.date,
+                'grade': submission_cached.points,
             }
 
-        submissions = [submission_obj(s) for s in entry['submissions']]
+        submissions = [submission_obj(s) for s in entry.submissions]
         exercise_data = {
-            'url': exercise_url(entry['id']),
-            'best_submission': submission_url(entry['best_submission']),
-            'submissions': [s['url'] for s in submissions],
+            'url': exercise_url(entry.id),
+            'best_submission': submission_url(entry.best_submission),
+            'submissions': [s["url"] for s in submissions],
             'submissions_with_points': submissions,
         }
         for key in [
@@ -95,9 +94,9 @@ class ExercisePointsSerializer(serializers.Serializer):
             'passed',
             # 'official',
         ]:
-            exercise_data[key] = entry[key]
-        exercise_data['official'] = (entry['graded'] and
-                                     not entry.get('unconfirmed', False))
+            exercise_data[key] = getattr(entry, key)
+        exercise_data['official'] = (entry.graded and
+                                     not entry.unconfirmed)
         return exercise_data
 
 
@@ -106,7 +105,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
+        points = CachedPoints(view.instance, obj.user, view.is_course_staff)
         modules = []
         for module in points.modules_flatted():
             module_data = {}
@@ -115,11 +114,11 @@ class UserPointsSerializer(UserWithTagsSerializer):
                 'max_points', 'points_to_pass', 'submission_count',
                 'points', 'points_by_difficulty', 'passed',
             ]:
-                module_data[key] = module[key]
+                module_data[key] = getattr(module, key)
 
             exercises = []
-            for entry in module['flatted']:
-                if entry['type'] == 'exercise' and entry['submittable']:
+            for entry in module.flatted:
+                if isinstance(entry, ExercisePoints):
                     exercises.append(
                         ExercisePointsSerializer(entry, context=self.context).data
                     )
@@ -128,7 +127,7 @@ class UserPointsSerializer(UserWithTagsSerializer):
 
         total = points.total()
         for key in ['submission_count', 'points', 'points_by_difficulty']:
-            rep[key] = total[key]
+            rep[key] = getattr(total, key)
         rep['modules'] = modules
 
         return rep
@@ -139,8 +138,7 @@ class SubmitterStatsSerializer(UserWithTagsSerializer):
     def to_representation(self, obj: UserProfile) -> Dict[str, Any]: # pylint: disable=arguments-renamed
         rep = super().to_representation(obj)
         view = self.context['view']
-        points = CachedPoints(view.instance, obj.user, view.content, view.is_course_staff)
-        entry,_,_,_ = points.find(view.exercise)
+        entry = ExercisePoints.get(view.exercise, obj.user, view.is_course_staff)
         data = ExercisePointsSerializer(entry, context=self.context).data
         for key,value in data.items():
             rep[key] = value

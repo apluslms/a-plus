@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import string
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, TYPE_CHECKING
 import urllib.request
 import urllib.parse
 from random import choice
@@ -45,7 +45,11 @@ from userprofile.models import User, UserProfile, GraderUser
 from .sis import get_sis_configuration, StudentInfoSystem
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+
     from edit_course.operations.configure import ConfigParts
+    from exercise.exercise_models import LearningObject
+    from threshold.models import CourseModuleRequirement
 
 
 logger = logging.getLogger('aplus.course')
@@ -140,14 +144,29 @@ class StudentGroup(models.Model):
         ordering = ['course_instance','timestamp']
 
     @classmethod
-    def get_exact(cls, course_instance, member_profiles):
-        for group in cls.objects.filter(
-            course_instance=course_instance,
-            members=member_profiles[0]
-        ):
+    def get_exact_from(
+            cls,
+            search_from: Iterable['StudentGroup'],
+            member_profiles: Sequence[UserProfile],
+            ) -> Optional['StudentGroup']:
+        for group in search_from:
             if group.equals(member_profiles):
                 return group
         return None
+
+    @classmethod
+    def get_exact(
+            cls,
+            course_instance: Optional['CourseInstance'],
+            member_profiles: Sequence[UserProfile],
+            ) -> Optional['StudentGroup']:
+        return cls.get_exact_from(
+            cls.objects.filter(
+                course_instance=course_instance,
+                members=member_profiles[0],
+            ),
+            member_profiles,
+        )
 
     @classmethod
     def filter_collaborators_of(cls, members, profile):
@@ -528,8 +547,20 @@ def build_upload_dir(instance, filename):
     )
 
 
+class CourseInstanceProto(UrlMixin):
+    ABSOLUTE_URL_NAME = "course"
+    EDIT_URL_NAME = "course-edit"
+    url: str
+
+    def get_url_kwargs(self):
+        return {"instance_slug": self.url, **self.get_course_url_kwargs()}
+
+    def get_course_url_kwargs(self):
+        raise NotImplementedError(f"{self.__class__} must implement get_course_url_kwargs")
+
+
 @register_jwt_accessible_class("instance")
-class CourseInstance(UrlMixin, models.Model):
+class CourseInstance(CourseInstanceProto, models.Model):
     """
     CourseInstance class represent an instance of a course. A single course may have
     several instances either at the same time or during different years.
@@ -571,7 +602,7 @@ class CourseInstance(UrlMixin, models.Model):
         verbose_name=_('LABEL_INSTANCE_NAME'),
         max_length=255,
     )
-    url = models.CharField(
+    url: str = models.CharField( # type: ignore
         verbose_name=_('LABEL_URL'),
         max_length=255,
         blank=False,
@@ -688,6 +719,10 @@ class CourseInstance(UrlMixin, models.Model):
     # course_modules from course.models.CourseModule
 
     objects = CourseInstanceManager()
+
+    if TYPE_CHECKING:
+        id: int
+        course_modules: RelatedManager["CourseModule"]
 
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_INSTANCE')
@@ -1105,14 +1140,8 @@ class CourseInstance(UrlMixin, models.Model):
     def head_js_urls(self):
         return [url for url in self.head_urls.split() if ".js" in url]
 
-    ABSOLUTE_URL_NAME = "course"
-    EDIT_URL_NAME = "course-edit"
-
-    def get_url_kwargs(self):
-        # dict(foo=bar, **baz()) is not nice, but it's cleanest solution for this
-        # specific problem. For more read out stackoverflow answer about merging
-        # python dicts in single line: http://stackoverflow.com/a/26853961
-        return dict(instance_slug=self.url, **self.course.get_url_kwargs()) # pylint: disable=use-dict-literal
+    def get_course_url_kwargs(self) -> Dict[str, str]:
+        return self.course.get_url_kwargs()
 
     # A ConfigPart object is cached for each instance during an update. Cache is cleared
     # when the instance is deleted. The edit_course_operations.configure logic is responsible
@@ -1207,7 +1236,16 @@ class CourseModuleManager(models.Manager):
         return self.all()
 
 
-class CourseModule(UrlMixin, models.Model):
+class CourseModuleProto(UrlMixin):
+    ABSOLUTE_URL_NAME = "module"
+    course_instance: CourseInstanceProto
+    url: str
+
+    def get_url_kwargs(self):
+        return {"module_slug": self.url, **self.course_instance.get_url_kwargs()}
+
+
+class CourseModule(CourseModuleProto, models.Model):
     """
     CourseModule objects connect chapters and learning objects to logical sets
     of each other and course instances. They also contain information about the
@@ -1232,7 +1270,7 @@ class CourseModule(UrlMixin, models.Model):
         verbose_name=_('LABEL_NAME'),
         max_length=255,
     )
-    url = models.CharField(
+    url: str = models.CharField( # type: ignore
         verbose_name=_('LABEL_URL'),
         max_length=255,
         help_text=_('MODULE_URL_IDENTIFIER_HELPTEXT'),
@@ -1245,7 +1283,7 @@ class CourseModule(UrlMixin, models.Model):
         verbose_name=_('LABEL_INTRODUCTION'),
         blank=True,
     )
-    course_instance = models.ForeignKey(CourseInstance,
+    course_instance: CourseInstance = models.ForeignKey(CourseInstance, # type: ignore
         verbose_name=_('LABEL_COURSE_INSTANCE'),
         on_delete=models.CASCADE,
         related_name="course_modules",
@@ -1301,6 +1339,11 @@ class CourseModule(UrlMixin, models.Model):
 
 
     objects = CourseModuleManager()
+
+    if TYPE_CHECKING:
+        id: int
+        learning_objects: RelatedManager[LearningObject]
+        requirements: RelatedManager[CourseModuleRequirement]
 
     class Meta:
         verbose_name = _('MODEL_NAME_COURSE_MODULE')
@@ -1405,11 +1448,6 @@ class CourseModule(UrlMixin, models.Model):
         return self.course_instance.students\
             .filter(submissions__exercise__course_module=self).distinct().count()
 
-    ABSOLUTE_URL_NAME = "module"
-
-    def get_url_kwargs(self):
-        return dict(module_slug=self.url, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal
-
 
 class LearningObjectCategory(models.Model):
     """
@@ -1455,6 +1493,10 @@ class LearningObjectCategory(models.Model):
 
     #hidden_to = models.ManyToManyField(UserProfile, related_name="hidden_categories",
     #    blank=True, null=True)
+
+    if TYPE_CHECKING:
+        id: int
+        learning_objects: RelatedManager[LearningObject]
 
     class Meta:
         verbose_name = _('MODEL_NAME_LEARNING_OBJECT_CATEGORY')

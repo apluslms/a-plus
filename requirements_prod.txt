@@ -1,4 +1,4 @@
-pymemcache >= 4.0.0, < 5
+pylibmc ~= 1.6.3
 uwsgi >= 2.0.19.1, < 3
 # Required for building packages in requirements.txt
 wheel

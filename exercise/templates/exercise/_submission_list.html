@@ -8,10 +8,10 @@
 	<div class="list-group">
 		{% for submission in submissions %}
 		<a href="{{ submission|url }}" class="list-group-item">
-			{% points_badge submission is_revealed=feedback_revealed %}
+			{% points_badge submission %}
 			{{ submission.exercise }}<br />
 			<small class="text-nowrap">
-				{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+				{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
 			</small>
 		</a>
 		{% empty %}

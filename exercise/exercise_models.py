@@ -1,6 +1,7 @@
+from __future__ import annotations
 import json
 import os
-from typing import Any, TYPE_CHECKING, List, Optional, Tuple
+from typing import Any, TYPE_CHECKING, List, Optional, Tuple, TypeVar
 from urllib.parse import urlsplit
 
 from django.conf import settings
@@ -22,7 +23,14 @@ from django.utils.translation import get_language, gettext_lazy as _
 from aplus.api import api_reverse
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
-from course.models import Enrollment, StudentGroup, CourseInstance, CourseModule, LearningObjectCategory
+from course.models import (
+    Enrollment,
+    StudentGroup,
+    CourseInstance,
+    CourseModule,
+    CourseModuleProto,
+    LearningObjectCategory,
+)
 from external_services.lti import CustomStudentInfoLTIRequest
 from external_services.models import LTIService, LTI1p3Service
 from inheritance.models import ModelWithInheritance, ModelWithInheritanceManager
@@ -82,7 +90,62 @@ class LearningObjectManager(ModelWithInheritanceManager):
         ).first()
 
 
-class LearningObject(UrlMixin, ModelWithInheritance):
+LObjProto = TypeVar("LObjProto", bound="LearningObjectProto")
+class LearningObjectProto(UrlMixin):
+    ABSOLUTE_URL_NAME = "exercise"
+    url: str
+    course_module: CourseModuleProto
+    parent: Optional[LearningObjectProto]
+    status: str
+    order: int
+    category_status: str
+    module_status: str
+
+    def get_path(self) -> str:
+        return "/".join([o.url for o in self.parent_list()])
+
+    def parent_list(self: LObjProto) -> List[LObjProto]:
+        raise NotImplementedError(f"{self.__class__} must implement parent_list")
+
+    def get_url_kwargs(self):
+        return {"exercise_path": self.get_path(), **self.course_module.get_url_kwargs()}
+
+    def get_display_url(self):
+        if self.status == LearningObject.STATUS.UNLISTED and self.parent:
+            return "{}#chapter-exercise-{:d}".format(
+                self.parent.get_absolute_url(),
+                self.order,
+            )
+        return self.get_absolute_url()
+
+    def is_visible(self) -> bool:
+        return (
+            self.category_status != LearningObjectCategory.STATUS.HIDDEN
+            and self.module_status != CourseModule.STATUS.HIDDEN
+            and self.status not in (
+                LearningObject.STATUS.HIDDEN,
+                LearningObject.STATUS.ENROLLMENT,
+                LearningObject.STATUS.ENROLLMENT_EXTERNAL,
+            )
+        )
+
+    def is_listed(self) -> bool:
+        return self.is_visible() and (
+            self.module_status != CourseModule.STATUS.UNLISTED
+            and self.status not in (
+                LearningObject.STATUS.UNLISTED,
+                LearningObject.STATUS.MAINTENANCE,
+            )
+        )
+
+    def is_in_maintenance(self) -> bool:
+        return (
+            self.module_status == CourseModule.STATUS.MAINTENANCE
+            or self.status == LearningObject.STATUS.MAINTENANCE
+        )
+
+
+class LearningObject(LearningObjectProto, ModelWithInheritance):
     """
     All learning objects inherit this model.
     """
@@ -100,7 +163,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         ('EXTERNAL_USERS', 2, _('AUDIENCE_EXTERNAL_USERS')),
         ('REGISTERED_USERS', 3, _('AUDIENCE_REGISTERED_USERS')),
     ])
-    status = models.CharField(
+    status = models.CharField( # type: ignore
         verbose_name=_('LABEL_STATUS'),
         max_length=32,
         choices=STATUS.choices, default=STATUS.READY,
@@ -115,18 +178,18 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    course_module = models.ForeignKey(CourseModule,
+    course_module: CourseModule = models.ForeignKey(CourseModule, # type: ignore
         verbose_name=_('LABEL_COURSE_MODULE'),
         on_delete=models.CASCADE,
         related_name="learning_objects",
     )
-    parent = DefaultForeignKey('self',
+    parent: Optional[LearningObject] = DefaultForeignKey('self', # type: ignore
         verbose_name=_('LABEL_PARENT'),
         on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name='children',
     )
-    order = models.IntegerField(
+    order = models.IntegerField( # type: ignore
         verbose_name=_('LABEL_ORDER'),
         default=1,
     )
@@ -179,6 +242,14 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     )
 
     objects = LearningObjectManager()
+    # Manager without prefetch/select_related or select_subclasses
+    bare_objects = models.Manager()
+
+    if TYPE_CHECKING:
+        id: int
+        parent_id: Optional[int]
+        children: RelatedManager["LearningObject"]
+        model_answer_modules: RelatedManager["CourseModule"]
 
     class Meta:
         verbose_name = _('MODEL_NAME_LEARNING_OBJECT')
@@ -273,7 +344,7 @@ class LearningObject(UrlMixin, ModelWithInheritance):
         return self._parents
 
     @property
-    def course_instance(self):
+    def course_instance(self) -> CourseInstance:
         return self.course_module.course_instance
 
     @property
@@ -302,20 +373,11 @@ class LearningObject(UrlMixin, ModelWithInheritance):
     def is_closed(self, when=None):
         return self.course_module.is_closed(when=when)
 
-    def get_path(self):
-        return "/".join([o.url for o in self.parent_list()])
-
-    ABSOLUTE_URL_NAME = "exercise"
-
-    def get_url_kwargs(self):
-        # pylint: disable-next=use-dict-literal
-        return dict(exercise_path=self.get_path(), **self.course_module.get_url_kwargs())
-
     def get_display_url(self):
         if self.status == self.STATUS.UNLISTED and self.parent:
             return "{}#chapter-exercise-{:d}".format(
-                self.parent_list()[-2].get_absolute_url(),
-                self.order
+                self.parent.get_absolute_url(),
+                self.order,
             )
         return self.get_absolute_url()
 
@@ -405,6 +467,14 @@ class LearningObject(UrlMixin, ModelWithInheritance):
                 keys.add(key)
         return keys
 
+    @property
+    def module_status(self) -> str:
+        return self.course_module.status
+
+    @property
+    def category_status(self) -> str:
+        return self.category.status
+
 
 def invalidate_exercise(sender, instance, **kwargs): # pylint: disable=unused-argument
     for language,_ in settings.LANGUAGES:
@@ -456,12 +526,9 @@ class CourseChapter(LearningObject):
         If this chapter is a model solution to modules, check if the chapter
         can be revealed to the user according to the module's reveal rule.
         """
-        from .cache.content import CachedContent # pylint: disable=import-outside-toplevel
-        from .cache.points import CachedPoints # pylint: disable=import-outside-toplevel
-        content = CachedContent(self.course_instance)
-        points = CachedPoints(self.course_instance, user, content)
-        entry, _, _, _ = points.find(self)
-        return entry['is_revealed']
+        from .cache.points import LearningObjectPoints # pylint: disable=import-outside-toplevel
+        entry = LearningObjectPoints.get(self, user)
+        return entry.is_revealed
 
     def _is_empty(self):
         return not self.generate_table_of_contents
@@ -738,11 +805,12 @@ class BaseExercise(LearningObject):
         return self.course_instance.students\
             .filter(submissions__exercise=self).distinct().count()
 
-    def get_submissions_for_student(self, user_profile, exclude_errors=False):
+    def get_submissions_for_student(self, user_profile, exclude_errors=False, exclude_unofficial=False):
+        submissions = user_profile.submissions
         if exclude_errors:
-            submissions = user_profile.submissions.exclude_errors()
-        else:
-            submissions = user_profile.submissions
+            submissions = submissions.exclude_errors()
+        if exclude_unofficial:
+            submissions = submissions.exclude_unofficial()
         return submissions.filter(exercise=self)
 
     def max_submissions_for_student(self, user_profile):
@@ -766,7 +834,7 @@ class BaseExercise(LearningObject):
             # The students are in the same group, therefore, each student should
             # have the same submission count. However, max submission deviation
             # may be set for only one group member.
-            submission_count = self.get_submissions_for_student(profile, True).count()
+            submission_count = self.get_submissions_for_student(profile, True, True).count()
             if submission_count < self.max_submissions_for_student(profile):
                 return True, []
         # Even in situations where the student could otherwise make an infinite
@@ -791,7 +859,7 @@ class BaseExercise(LearningObject):
         if self.max_submissions == 0:
             return False
         for profile in students:
-            if self.get_submissions_for_student(profile, True).count() \
+            if self.get_submissions_for_student(profile, True, True).count() \
                     <= self.max_submissions_for_student(profile):
                 return False
         return True
@@ -1427,7 +1495,13 @@ def _delete_file(sender, instance, **kwargs): # pylint: disable=unused-argument
     """
     Deletes exercise attachment file after the exercise in database is removed.
     """
-    default_storage.delete(instance.attachment.path)
+    try:
+        path = instance.attachment.path
+    except ValueError:
+        # The file doesn't exist in storage
+        pass
+    else:
+        default_storage.delete(path)
 
 
 def _clear_cache(sender, instance, **kwargs): # pylint: disable=unused-argument

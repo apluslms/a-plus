@@ -357,7 +357,7 @@ class TreeCourseModuleSerializer(serializers.Serializer):
 
     def get_children(self, obj):
         serializer = TreeExerciseSerializer(
-            instance=obj['children'],
+            instance=obj.children,
             many=True,
             context=self.context
         )

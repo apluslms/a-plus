@@ -32,7 +32,7 @@
 	{% if exercise.is_submittable %}
 		data-aplus-chapter="{{ exercise|url }}"
 		data-aplus-group="{{ exercise.min_group_size }}-{{ exercise.max_group_size }}"
-		{% if summary.get_submission_count > 0 %}
+		{% if summary.get_group_id is not None %}
 			data-aplus-group-fixed="{{ summary.get_group_id }}"
 		{% endif %}
 	{% endif %}

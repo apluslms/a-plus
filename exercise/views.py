@@ -19,6 +19,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
+from .cache.points import ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission
@@ -32,7 +33,6 @@ from .viewbase import (
 )
 
 from .exercisecollection_models import ExerciseCollection
-from .exercise_summary import UserExerciseSummary
 from django.urls import reverse
 
 
@@ -46,10 +46,6 @@ class ResultsView(TableOfContentsView):
 
 class ExerciseInfoView(ExerciseBaseView):
     ajax_template_name = "exercise/_exercise_info.html"
-
-    def get_common_objects(self):
-        super().get_common_objects()
-        self.get_summary_submissions()
 
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
@@ -87,7 +83,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
             submission_status, submission_allowed, issues, students = self.submission_check()
-            self.get_summary_submissions()
             disable_submit = submission_status in [
                 SUBMIT_STATUS.CANNOT_ENROLL,
                 SUBMIT_STATUS.NOT_ENROLLED,
@@ -214,7 +209,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             if not is_ajax(request) and "__r" in request.GET:
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
-        self.get_summary_submissions()
         return self.render_to_response(self.get_context_data(
             page=page, students=students, submission=new_submission))
 
@@ -320,7 +314,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     }),
                     "title": ex_name,
                     "max_points": t_exercise.max_points,
-                    "user_points": UserExerciseSummary(t_exercise, request.user).get_points(),
+                    "user_points": ExercisePoints.get(t_exercise, request.user).official_points(),
                     }
             target_exercises.append(data)
             target_mp += data['max_points']
@@ -336,7 +330,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             'target_max_points': target_mp,
             'user_total_points': user_tp,
             'ec_max_points': self.exercise.max_points,
-            'ec_points': UserExerciseSummary(self.exercise, request.user).best_submission.grade,
+            'ec_points': ExercisePoints.get(self.exercise, request.user).points,
             }
 
         return loaded_content
@@ -369,7 +363,6 @@ class ExerciseModelView(ExerciseModelBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.get_summary_submissions()
 
         id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.models = []
@@ -406,7 +399,6 @@ class ExerciseTemplateView(ExerciseTemplateBaseView):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.get_summary_submissions()
 
         id = self.exercise.course_instance.id # pylint: disable=redefined-builtin
         self.templates = []
@@ -445,7 +437,6 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
-        self.get_summary_submissions()
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not self.feedback_revealed:

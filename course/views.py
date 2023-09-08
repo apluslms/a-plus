@@ -160,6 +160,14 @@ class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     # in public courses. CourseVisiblePermission has more restrictions as well.
     template_name = "course/course.html"
 
+    @property
+    def instance_max_group_size(self) -> int:
+        return self.points.total().max_group_size
+
+    @property
+    def instance_min_group_size(self) -> int:
+        return self.points.total().min_group_size
+
     def get(self, request, *args, **kwargs):
         # external LTI Tool Providers may return the user to the course instance view
         # with a message given in GET query parameters
@@ -183,6 +191,7 @@ class InstanceView(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
                     return self.redirect(exercise.get_absolute_url())
 
         return super().get(request, *args, **kwargs)
+
 
 class Enroll(EnrollableViewMixin, BaseRedirectMixin, BaseTemplateView):
     permission_classes = [EnrollInfoVisiblePermission]

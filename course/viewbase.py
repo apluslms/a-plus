@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
+from django.utils.functional import cached_property
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
+from exercise.cache.points import CachedPoints
 from lib.helpers import remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
@@ -39,6 +41,52 @@ class CourseInstanceBaseMixin:
     course_permission_classes = (
         CourseVisiblePermission,
     )
+    context_properties = [
+        "course", "content", "points", "user_course_data", "taggings",
+    ]
+
+    @cached_property
+    def content_bare(self) -> CachedContent:
+        """CachedContent for the instance but doesn't necessarily have the
+        modules/exercises fetched"""
+        if "content" in self.__dict__:
+            return self.content
+
+        return CachedContent(self.instance, prefetch_children=False)
+
+    @cached_property
+    def content(self) -> CachedContent:
+        if "content_bare" in self.__dict__:
+            self.content_bare.data.populate_children()
+            return self.content_bare
+
+        return CachedContent(self.instance)
+
+    @cached_property
+    def points(self) -> CachedPoints:
+        return CachedPoints(self.instance, self.request.user, self.is_course_staff)
+
+    @property
+    def instance_max_group_size(self) -> int:
+        return self.content_bare.total().max_group_size
+
+    @property
+    def instance_min_group_size(self) -> int:
+        return self.content_bare.total().min_group_size
+
+    @property
+    def course(self) -> Course:
+        return self.instance.course
+
+    @cached_property
+    def user_course_data(self):
+        if self.instance and self.request.user.is_authenticated and not self.request.user.is_anonymous:
+            return self.instance.get_enrollment_for(self.request.user)
+        return None
+
+    @cached_property
+    def taggings(self):
+        return CachedStudent(self.instance, self.request.user.id).data['tag_slugs']
 
     def get_permissions(self):
         perms = super().get_permissions()
@@ -49,29 +97,22 @@ class CourseInstanceBaseMixin:
 
     def get_resource_objects(self):
         super().get_resource_objects()
-        user = self.request.user
         instance = self.get_course_instance_object()
         if instance is not None: # pylint: disable=too-many-nested-blocks
             self.instance = instance
-            self.course = self.instance.course
-            self.content = CachedContent(self.instance)
-            self.user_course_data = None
+            user = self.request.user
             is_real_user = user.is_authenticated and not user.is_anonymous
-            if is_real_user:
-                self.user_course_data = self.instance.get_enrollment_for(user)
             self.is_student = self.instance.is_student(user)
             self.is_assistant = self.instance.is_assistant(user)
             self.is_teacher = self.instance.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
-            self.get_taggings = lambda: CachedStudent(instance, user.id).data['tag_slugs']
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             self.query_language = None
             self.user_language = None
 
             self.note(
-                "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
-                "is_teacher", "is_course_staff", "get_taggings", "url_without_language",
-                "query_language", "user_language"
+                "instance", "is_student", "is_assistant", "is_teacher", "is_course_staff",
+                "url_without_language", "query_language", "user_language"
             )
 
             # Try to find a language that is defined for this course instance
