@@ -331,14 +331,17 @@ $(function() {
 
             hljs.highlightElement(codeBlock[0]);
 
-            // Add line numbers.
+            // Add line numbers if there are less than 5000 lines.
+            // The for-loop can freeze the page if line numbers are added to extremely long feedback/code.
             const pre = $(codeBlock);
             const lines = pre.html().split(/\r\n|\r|\n/g);
-            const list = $("<table/>").addClass("src");
-            for (var i = 1; i <= lines.length; i++) {
-                list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
+            if (lines.length < 5000) {
+              const list = $("<table/>").addClass("src");
+              for (var i = 1; i <= lines.length; i++) {
+                  list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
+              }
+              pre.html(list);
             }
-            pre.html(list);
 
             if (!options || !options.noWrap) {
               addButton(buttonContainer, {
