@@ -26,6 +26,7 @@ from lib.helpers import (
     safe_file_name,
     Enum,
 )
+from lib.localization_syntax import pick_localized
 from lib.models import UrlMixin
 from userprofile.models import UserProfile
 from aplus.celery import retry_submissions
@@ -849,7 +850,11 @@ class PendingSubmissionManager(models.Manager):
         total_retries = sum(entry['num_retries'] for entry in total_retries_per_exercise)
         # Check if the grader can be considered unstable on this course instance
         if total_retries > settings.GRADER_STABLE_THRESHOLD:
-            exercises = ", ".join(f"'{entry['submission__exercise__name']}'" for entry in total_retries_per_exercise)
+            lang = get_language()
+            exercises = ", ".join(
+                f"'{pick_localized(entry['submission__exercise__name'], lang)}'"
+                for entry in total_retries_per_exercise
+            )
             return exercises
         return ''
 
