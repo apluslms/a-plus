@@ -16,6 +16,7 @@ from course.models import LearningObjectCategory, CourseModule, CourseInstance, 
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
+from notification.cache import CachedNotifications
 from userprofile.models import UserProfile
 from course.sis import get_sis_configuration, StudentInfoSystem
 
@@ -192,6 +193,10 @@ class CourseInstanceForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         self.instance.set_assistants(self.cleaned_data['assistants'])
         self.instance.set_teachers(self.cleaned_data['teachers'])
+
+        if not self.instance.visible_to_students:
+            for userprofile in self.instance.all_students:
+                CachedNotifications.invalidate(userprofile.user)
 
         return super().save(*args, **kwargs)
 
