@@ -35,9 +35,11 @@ class CachedNotifications(CachedAbstract):
             }
 
         notifications = list(
-            user.userprofile.received_notifications\
-                .filter(seen=False)\
-                .select_related(
+            user.userprofile.received_notifications
+                .filter(
+                    seen=False,
+                    course_instance__visible_to_students=True,
+                ).select_related(
                     'submission',
                     'submission__exercise',
                     'course_instance',
