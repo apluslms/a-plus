@@ -241,8 +241,8 @@ class ModuleView(CourseModuleBaseView):
         super().get_common_objects()
         self.now = timezone.now()
         try:
-            self.children = self.content.flat_module(self.module)
-            cur, _tree, prev, nex = self.content.find(self.module)
+            self.children = self.points.flat_module(self.module)
+            cur, _tree, prev, nex = self.points.find(self.module)
             self.previous = prev
             self.current = cur
             self.next = nex
