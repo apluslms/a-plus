@@ -6,6 +6,7 @@ from aplus_auth.requests import put as aplus_put
 from django.conf import settings
 from django.contrib import messages
 from django.db import models, IntegrityError
+from django.forms import Form
 from django.http.response import Http404
 from django.utils.text import format_lazy, capfirst
 from django.utils.translation import gettext_lazy as _
@@ -264,6 +265,7 @@ class UserTagEditView(UserTagMixin, UpdateView):
     template_name = "edit_course/usertag_edit.html"
 
 class UserTagDeleteView(UserTagMixin, DeleteView):
+    form_class = Form
     template_name = "edit_course/usertag_delete.html"
 
 class UserTaggingAddView(UserTagMixin, FormView):
