@@ -885,8 +885,7 @@ class CourseInstance(UrlMixin, models.Model):
                     user_profile=user.userprofile,
                 )
                 if (
-                    enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT
-                    and enrollment.status in (
+                    enrollment.status in (
                         Enrollment.ENROLLMENT_STATUS.ACTIVE,
                         Enrollment.ENROLLMENT_STATUS.PENDING,
                     )
@@ -895,7 +894,7 @@ class CourseInstance(UrlMixin, models.Model):
                         enrollment.status = Enrollment.ENROLLMENT_STATUS.ACTIVE
                         enrollment.save()
 
-                    if not enrollment.from_sis and from_sis:
+                    if not enrollment.from_sis and from_sis and enrollment.role == Enrollment.ENROLLMENT_ROLE.STUDENT:
                         enrollment.from_sis = from_sis
                         enrollment.save()
 
