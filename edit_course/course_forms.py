@@ -13,12 +13,13 @@ from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from course.sis import get_sis_configuration, StudentInfoSystem
+from exercise.models import CourseChapter
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
 from notification.cache import CachedNotifications
 from userprofile.models import UserProfile
-from course.sis import get_sis_configuration, StudentInfoSystem
 
 
 logger = logging.getLogger("aplus.course")
@@ -87,6 +88,9 @@ class CourseModuleForm(FieldsetModelForm):
             data=kwargs.get('data'),
             instance=self.instance.active_model_solution_reveal_rule,
             prefix='model_solution',
+        )
+        self.fields['model_answer'].queryset = CourseChapter.objects.filter(
+            course_module__course_instance=self.instance.course_instance,
         )
 
     def get_fieldsets(self):
