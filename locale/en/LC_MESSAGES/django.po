@@ -770,6 +770,12 @@ msgstr ""
 "of the assignments."
 
 #: course/models.py
+msgid "MODULE_ERROR_MODEL_ANSWER_CHAPTER_IN_DIFFERENT_COURSE"
+msgstr ""
+"The model solution chapter must belong to the same course instance as the "
+"course module."
+
+#: course/models.py
 msgid "STATUS_NO_TOTAL_POINTS"
 msgstr "No total points"
 
@@ -2348,6 +2354,7 @@ msgstr ""
 "'trigger' field."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
 msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}"
 msgstr "Chapter '{value}' not found."
 
