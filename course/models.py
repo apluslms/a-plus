@@ -1330,6 +1330,8 @@ class CourseModule(UrlMixin, models.Model):
             errors['late_submission_deadline'] = _('MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME')
         if self.reading_opening_time and self.reading_opening_time > self.opening_time:
             errors['reading_opening_time'] = _('MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING')
+        if self.model_answer and self.model_answer.course_instance != self.course_instance:
+            errors['model_answer'] = _('MODULE_ERROR_MODEL_ANSWER_CHAPTER_IN_DIFFERENT_COURSE')
         if errors:
             raise ValidationError(errors)
 

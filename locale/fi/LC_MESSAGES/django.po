@@ -773,6 +773,12 @@ msgid "MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING"
 msgstr "Lukumateriaalin tulee aueta ennen tehtäviä."
 
 #: course/models.py
+msgid "MODULE_ERROR_MODEL_ANSWER_CHAPTER_IN_DIFFERENT_COURSE"
+msgstr ""
+"Moduulin esimerkkiratkaisuja esittelevän luvun täytyy kuulua samaan "
+"kurssikertaan kuin moduuli itse."
+
+#: course/models.py
 msgid "STATUS_NO_TOTAL_POINTS"
 msgstr "Ei yhteispisteitä"
 
@@ -2362,6 +2368,7 @@ msgstr ""
 "jolla on 'trigger'-kenttä."
 
 #: edit_course/operations/configure.py
+#, python-brace-format
 msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}"
 msgstr "Lukua '{value}' ei löytynyt."
 
