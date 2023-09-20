@@ -129,13 +129,20 @@ def parse_reveal_rule(rule_config: Dict[str, Any], rule_key: str, errors: List[s
     return rule
 
 
-def parse_model_solution_chapter(value: str, errors: List[str]):
+def parse_model_solution_chapter(value: str, course_module: CourseModule, errors: List[str]):
     try:
         module_key, chapter_key = value.split('/')
-        chapter = CourseChapter.objects.get(url=chapter_key, course_module__url=module_key)
-        return chapter
-    except CourseChapter.DoesNotExist:
-        errors.append(format_lazy(_('ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}'), value=value))
+        return CourseChapter.objects.get(
+            url=chapter_key,
+            course_module__url=module_key,
+            course_module__course_instance=course_module.course_instance,
+        )
+    except (ValueError, CourseChapter.DoesNotExist):
+        errors.append(format_lazy(
+            _('ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}, {module}'),
+            value=value,
+            module=str(course_module),
+        ))
         return None
 
 
@@ -900,7 +907,7 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                 if f is not None:
                     module.late_submission_penalty = f
             if "model_answer" in m:
-                module.model_answer = parse_model_solution_chapter(m["model_answer"], errors)
+                module.model_answer = parse_model_solution_chapter(m["model_answer"], module, errors)
             if "reveal_module_model_solution" in m:
                 module.model_solution_reveal_rule = parse_reveal_rule(
                     m["reveal_module_model_solution"], "reveal_module_model_solution", errors

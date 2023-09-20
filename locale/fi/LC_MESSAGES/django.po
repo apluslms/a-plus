@@ -2369,8 +2369,10 @@ msgstr ""
 
 #: edit_course/operations/configure.py
 #, python-brace-format
-msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}"
-msgstr "Lukua '{value}' ei löytynyt."
+msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}, {module}"
+msgstr ""
+"Lukua '{value}' ei löytynyt kun yritettiin asettaa kurssimoduulin '{module}' "
+"esimerkkiratkaisulukua."
 
 #: edit_course/operations/configure.py
 msgid "BUILD_LOG_ERROR_URL_BLANK"
