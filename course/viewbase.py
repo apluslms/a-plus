@@ -4,6 +4,7 @@ from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
 from exercise.cache.content import CachedContent
+from exercise.cache.points import CachedPoints
 from lib.helpers import remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseTemplateView
 from userprofile.viewbase import UserProfileMixin
@@ -67,11 +68,12 @@ class CourseInstanceBaseMixin:
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             self.query_language = None
             self.user_language = None
+            self.points = CachedPoints(self.instance, self.request.user, self.content, self.is_course_staff)
 
             self.note(
                 "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
                 "is_teacher", "is_course_staff", "get_taggings", "url_without_language",
-                "query_language", "user_language"
+                "query_language", "user_language", "points"
             )
 
             # Try to find a language that is defined for this course instance
