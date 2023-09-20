@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
 from django.utils.translation import get_language, get_language_info
@@ -7,6 +8,7 @@ from exercise.cache.content import CachedContent
 from exercise.cache.points import CachedPoints
 from lib.helpers import remove_query_param_from_url, update_url_params
 from lib.viewbase import BaseTemplateView
+from userprofile.models import GraderUser
 from userprofile.viewbase import UserProfileMixin
 from exercise.models import LearningObject
 from .cache.students import CachedStudent
@@ -68,7 +70,12 @@ class CourseInstanceBaseMixin:
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             self.query_language = None
             self.user_language = None
-            self.points = CachedPoints(self.instance, self.request.user, self.content, self.is_course_staff)
+            self.points = CachedPoints(
+                self.instance,
+                self.request.user if not isinstance(self.request.user, GraderUser) else AnonymousUser(),
+                self.content,
+                self.is_course_staff,
+            )
 
             self.note(
                 "course", "instance", "content", "user_course_data", "is_student", "is_assistant",
