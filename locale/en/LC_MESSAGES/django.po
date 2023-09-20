@@ -2355,8 +2355,10 @@ msgstr ""
 
 #: edit_course/operations/configure.py
 #, python-brace-format
-msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}"
-msgstr "Chapter '{value}' not found."
+msgid "ERROR_MODEL_SOLUTION_CHAPTER_NOT_FOUND -- {value}, {module}"
+msgstr ""
+"Chapter '{value}' not found when setting the model answer for the course "
+"module '{module}'."
 
 #: edit_course/operations/configure.py
 msgid "BUILD_LOG_ERROR_URL_BLANK"
