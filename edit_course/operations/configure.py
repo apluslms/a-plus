@@ -106,7 +106,12 @@ def parse_choices(value, choices, field_name, errors):
     return parsed_value
 
 
-def parse_reveal_rule(rule_config: Dict[str, Any], rule_key: str, errors: List[str]):
+def parse_reveal_rule(
+        rule_config: Dict[str, Any],
+        rule_key: str,
+        current_rule: Optional[RevealRule],
+        errors: List[str],
+        ):
     if not isinstance(rule_config, dict) or "trigger" not in rule_config:
         errors.append(format_lazy(_('REVEAL_RULE_ERROR_INVALID_JSON -- {key}'), key=rule_key))
         return None
@@ -119,7 +124,9 @@ def parse_reveal_rule(rule_config: Dict[str, Any], rule_key: str, errors: List[s
         "deadline_or_full_points": RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS,
         "completion": RevealRule.TRIGGER.COMPLETION,
     }, "trigger", errors)
-    rule = RevealRule()
+    rule = current_rule
+    if not rule:
+        rule = RevealRule()
     rule.trigger = trigger
     if "time" in rule_config:
         rule.time = parse_date(rule_config["time"], errors)
@@ -305,10 +312,8 @@ def update_learning_objects( # noqa: MC0001
                 if not rule_config:
                     continue
                 rule = getattr(lobject, lobject_key)
-                if not rule:
-                    rule = parse_reveal_rule(rule_config, config_key, errors)
-                if rule:
-                    setattr(lobject, lobject_key, rule)
+                rule = parse_reveal_rule(rule_config, config_key, rule, errors)
+                setattr(lobject, lobject_key, rule)
             if "grading_mode" in o:
                 grading_mode = parse_choices(o["grading_mode"], {
                     "best": BaseExercise.GRADING_MODE.BEST,
@@ -910,7 +915,10 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                 module.model_answer = parse_model_solution_chapter(m["model_answer"], module, errors)
             if "reveal_module_model_solution" in m:
                 module.model_solution_reveal_rule = parse_reveal_rule(
-                    m["reveal_module_model_solution"], "reveal_module_model_solution", errors
+                    m["reveal_module_model_solution"],
+                    "reveal_module_model_solution",
+                    module.model_solution_reveal_rule,
+                    errors,
                 )
 
             module.full_clean()
