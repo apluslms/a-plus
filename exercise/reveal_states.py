@@ -147,6 +147,8 @@ class ModuleRevealState(BaseRevealState):
         self.max_deviation: Optional[DeadlineRuleDeviation] = None
 
     def get_deadline(self) -> Optional[datetime.datetime]:
+        if len(self.exercises) == 0:
+            return None
         return max(_get_exercise_deadline(exercise) for exercise in self.exercises)
 
     def get_latest_deadline(self) -> Optional[datetime.datetime]:
@@ -166,6 +168,8 @@ class ModuleRevealState(BaseRevealState):
             deadlines.append(
                 self.max_deviation.get_new_deadline(exercise_dict[self.max_deviation.exercise_id]['closing_time'])
             )
+        if len(deadlines) == 0:
+            return None
         return max(deadlines)
 
     def get_points(self) -> Optional[int]:
