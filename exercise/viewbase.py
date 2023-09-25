@@ -117,7 +117,7 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
         super().get_common_objects()
         self.get_cached_points()
         self.now = timezone.now()
-        cur, tree, prev, nex = self.content.find(self.exercise)
+        cur, tree, prev, nex = self.points.find(self.exercise)
         self.previous = prev
         self.current = cur
         self.next = nex
