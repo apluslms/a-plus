@@ -137,7 +137,8 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
             return True
 
         # Course is not visible if it's hidden
-        if not course.visible_to_students:
+        # If course is launched through LTI, it is shown even if marked as hidden in A+ UI.
+        if not request.session.get('lti-launch-id') and not course.visible_to_students:
             self.error_msg(_('COURSE_VISIBILITY_ERROR_NOT_VISIBLE'))
             return False
 
