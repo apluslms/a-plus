@@ -156,6 +156,7 @@
     quiz_attr: "data-aplus-quiz",
     ajax_attr: "data-aplus-ajax",
     autosave_attr: "data-aplus-autosave",
+    disable_duplicate_check_attr: "data-aplus-disable-duplicate-check",
     message_selector: ".progress-bar",
     content_element: '<div class="exercise-content"></div>',
     content_selector: '.exercise-content',
@@ -211,6 +212,9 @@
 
       // Enable AplusAutosave for this exercise.
       this.autosave = (this.element.attr(this.settings.autosave_attr) !== undefined);
+
+      // Disable duplicate submission check for this exercise.
+      this.disable_duplicate_check = (this.element.attr(this.settings.disable_duplicate_check_attr) !== undefined);
 
       // Check if the exercise is an active element.
       this.active_element = (this.element.attr(this.settings.active_element_attr) !== undefined);

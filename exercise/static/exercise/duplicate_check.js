@@ -1,6 +1,6 @@
 function openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback) {
   const isDuplicate = hashes.includes(hash);
-  if (isDuplicate) {
+  if (isDuplicate && !exercise.disable_duplicate_check) {
     // Set the number of the existing duplicate submission
     $("#duplicate-submission-modal").find("[data-dup-submission]").text(hashes.reverse().indexOf(hash) + 1);
     // Unbind previous event handlers and bind a new one
