@@ -42,9 +42,19 @@
 		padding-bottom: 0;
 	}
 
+	.submission-container {
+		margin-top: 6px;
+		.submitted-file-data > div > button {
+			margin-bottom: 10px;
+		}
+	}
+
 	.grader-container {
 		--sticky-top: 0;
 		flex-grow: 1;
+		.grader-tab > div > button {
+			margin-bottom: 10px;
+		}
 		.grader-tab.sticky {
 			// The assessment bar can change its size because of the resizable
 			// textarea, but the stickied grader feedback should never be obscured

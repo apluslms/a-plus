@@ -331,19 +331,47 @@ $(function() {
 
             hljs.highlightElement(codeBlock[0]);
 
-            // Add line numbers if there are less than 5000 lines.
-            // The for-loop can freeze the page if line numbers are added to extremely long feedback/code.
+            // Add line numbers
             const pre = $(codeBlock);
             const lines = pre.html().split(/\r\n|\r|\n/g);
             const table = $('<table/>').addClass('src');
-            if (lines.length < 5000) {
-              for (var i = 1; i <= lines.length; i++) {
-                table.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
+
+            const maxLinesToShow = Math.min(lines.length, 5000);
+            let currentLinesToShow = maxLinesToShow; // Initial number of lines to show
+
+            const getLines = (start, end) => {
+              const fragment = document.createDocumentFragment();
+
+              for (let i = start; i <= end; i++) {
+                const row = $('<tr>').append(
+                  '<td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td>'
+                );
+                fragment.appendChild(row[0]);
               }
-            } else {
-              table.append('<tr><td class="src">' + pre.html() + '</td></tr>');
-            }
+
+              return fragment;
+            };
+
+            const showMoreLines = (button) => {
+              const fragment = getLines(currentLinesToShow + 1, Math.min(currentLinesToShow + maxLinesToShow, lines.length));
+              table.append(fragment);
+              currentLinesToShow += maxLinesToShow;
+
+              if (currentLinesToShow >= lines.length) {
+                // All lines loaded, hide the "Load more" button
+                button.hide();
+              }
+            };
+
+            const initialLines = getLines(1, maxLinesToShow);
+            table.append(initialLines);
             pre.html(table);
+
+            if (lines.length > maxLinesToShow) {
+              const loadMoreButton = $('<button class="aplus-button--default aplus-button--sm" style="width: 100%;">').text(_('Load more'));
+              loadMoreButton.click(() => showMoreLines(loadMoreButton));
+              pre.after(loadMoreButton);
+            }
 
             if (!options || !options.noWrap) {
               addButton(buttonContainer, {
