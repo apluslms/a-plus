@@ -1,0 +1,13 @@
+@mixin sticky-submission-scroll {
+	// The assessment bar can change its size because of the resizable
+	// textarea, but the stickied grader feedback should never be obscured
+	// by it. Hence the --sticky-top variable, which is updated in
+	// Javascript with a ResizeObserver.
+	position: sticky;
+	top: calc(5px + var(--sticky-top, 0));
+	& > div {
+		max-height: calc(100vh - var(--sticky-top, 0));
+		display: flex;
+		flex-direction: column;
+	}
+}
