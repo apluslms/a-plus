@@ -329,48 +329,53 @@ $(function() {
               }
             }
 
-            hljs.highlightElement(codeBlock[0]);
-
-            // Add line numbers
             const pre = $(codeBlock);
-            const lines = pre.html().split(/\r\n|\r|\n/g);
             const table = $('<table/>').addClass('src');
 
-            const maxLinesToShow = Math.min(lines.length, 5000);
-            let currentLinesToShow = maxLinesToShow; // Initial number of lines to show
+            if (!options || !options.noHighlight) {
+              hljs.highlightElement(codeBlock[0]);
 
-            const getLines = (start, end) => {
-              const fragment = document.createDocumentFragment();
+              // Add line numbers
+              const lines = pre.html().split(/\r\n|\r|\n/g);
+              const maxLinesToShow = Math.min(lines.length, 5000);
+              let currentLinesToShow = maxLinesToShow; // Initial number of lines to show
 
-              for (let i = start; i <= end; i++) {
-                const row = $('<tr>').append(
-                  '<td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td>'
-                );
-                fragment.appendChild(row[0]);
+              const getLines = (start, end) => {
+                const fragment = document.createDocumentFragment();
+
+                for (let i = start; i <= end; i++) {
+                  const row = $('<tr>').append(
+                    '<td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td>'
+                  );
+                  fragment.appendChild(row[0]);
+                }
+
+                return fragment;
+              };
+
+              const showMoreLines = (button) => {
+                const fragment = getLines(currentLinesToShow + 1, Math.min(currentLinesToShow + maxLinesToShow, lines.length));
+                table.append(fragment);
+                currentLinesToShow += maxLinesToShow;
+
+                if (currentLinesToShow >= lines.length) {
+                  // All lines loaded, hide the "Load more" button
+                  button.hide();
+                }
+              };
+
+              const initialLines = getLines(1, maxLinesToShow);
+              table.append(initialLines);
+              pre.html(table);
+
+              if (lines.length > maxLinesToShow) {
+                const loadMoreButton = $('<button class="aplus-button--default aplus-button--sm" style="width: 100%;">').text(_('Load more'));
+                loadMoreButton.click(() => showMoreLines(loadMoreButton));
+                pre.after(loadMoreButton);
               }
-
-              return fragment;
-            };
-
-            const showMoreLines = (button) => {
-              const fragment = getLines(currentLinesToShow + 1, Math.min(currentLinesToShow + maxLinesToShow, lines.length));
-              table.append(fragment);
-              currentLinesToShow += maxLinesToShow;
-
-              if (currentLinesToShow >= lines.length) {
-                // All lines loaded, hide the "Load more" button
-                button.hide();
-              }
-            };
-
-            const initialLines = getLines(1, maxLinesToShow);
-            table.append(initialLines);
-            pre.html(table);
-
-            if (lines.length > maxLinesToShow) {
-              const loadMoreButton = $('<button class="aplus-button--default aplus-button--sm" style="width: 100%;">').text(_('Load more'));
-              loadMoreButton.click(() => showMoreLines(loadMoreButton));
-              pre.after(loadMoreButton);
+            } else if (!options || !options.noWrap) {
+              table.append('<tr><td class="src">' + pre.html() + '</td></tr>');
+              pre.html(table);
             }
 
             if (!options || !options.noWrap) {

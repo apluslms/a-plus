@@ -1,3 +1,5 @@
+@import "../mixins/sticky_submission_scroll";
+
 .assessment-panel {
 	& > .panel-heading {
 		position: sticky;
@@ -43,9 +45,14 @@
 	}
 
 	.submission-container {
+		--sticky-top: 0;
+		flex-grow: 1;
 		margin-top: 6px;
 		.submitted-file-data > div > button {
 			margin-bottom: 10px;
+		}
+		.submitted-file.sticky > div {
+			@include sticky-submission-scroll;
 		}
 	}
 
@@ -56,16 +63,10 @@
 			margin-bottom: 10px;
 		}
 		.grader-tab.sticky {
-			// The assessment bar can change its size because of the resizable
-			// textarea, but the stickied grader feedback should never be obscured
-			// by it. Hence the --sticky-top variable, which is updated in
-			// Javascript with a ResizeObserver.
-			position: sticky;
-			top: calc(5px + var(--sticky-top, 0));
-			& > div {
-				max-height: calc(100vh - var(--sticky-top, 0));
-				display: flex;
-				flex-direction: column;
+			@include sticky-submission-scroll;
+			.grader-html-output {
+				overflow: auto;
+				margin-bottom: 12px;
 			}
 		}
 	}
