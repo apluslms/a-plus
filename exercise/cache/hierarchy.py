@@ -160,8 +160,17 @@ def previous_iterator(
 
     if skip_first:
         # Move the starting index to the previous element
-        if tree_indices[-1] == 0:
-            tree_indices = tree_indices[-1]
+        lastidx = len(tree_indices) - 1
+        while tree_indices[lastidx] == 0:
+            if lastidx < 1:
+                tree_indices = 0
+                break
+            if tree_indices[lastidx - 1] >= 0:
+                # if we are at the first chapter at the current level, move to previous item at
+                # next highest level (or move further up the tree, if not possible)
+                tree_indices.pop()
+                break
+            lastidx -= 1
         else:
             tree_indices[-1] -= 1
             _go_to_last(tree_indices)
