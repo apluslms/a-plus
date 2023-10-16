@@ -139,7 +139,7 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
                 Optional[Union[ModuleContent, LearningObjectContent]],
                 Optional[Union[ModuleContent, LearningObjectContent]]
             ]:
-        return self.content.find(self.exercise)
+        return self.points.find(self.exercise)
 
     @cached_property
     def current(self) -> LearningObjectContent:
