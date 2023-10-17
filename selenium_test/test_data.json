@@ -51,7 +51,7 @@
 {
   "fields": {
     "head_urls": "",
-    "ending_time": "2023-09-27T09:00:00Z",
+    "ending_time": "2030-09-27T09:00:00Z",
     "visible_to_students": true,
     "configure_url": "",
     "description": "",
@@ -77,7 +77,7 @@
 {
   "fields": {
     "head_urls": "",
-    "ending_time": "2023-09-27T09:00:00Z",
+    "ending_time": "2030-09-27T09:00:00Z",
     "visible_to_students": true,
     "configure_url": "",
     "description": "",
@@ -108,8 +108,8 @@
     "name": "First Exercise Round",
     "course_instance": 1,
     "late_submissions_allowed": false,
-    "closing_time": "2023-09-27T09:00:00Z",
-    "late_submission_deadline": "2024-09-27T09:00:00Z",
+    "closing_time": "2030-09-27T09:00:00Z",
+    "late_submission_deadline": "2031-09-27T09:00:00Z",
     "introduction": "",
     "opening_time": "2020-09-27T09:00:00Z",
     "url": "first-exercise-round",
@@ -126,8 +126,8 @@
     "name": "Exercises with Hook",
     "course_instance": 2,
     "late_submissions_allowed": false,
-    "closing_time": "2023-09-27T09:00:00Z",
-    "late_submission_deadline": "2024-09-27T09:00:00Z",
+    "closing_time": "2030-09-27T09:00:00Z",
+    "late_submission_deadline": "2031-09-27T09:00:00Z",
     "introduction": "",
     "opening_time": "2020-09-27T09:00:00Z",
     "url": "exercises-with-hook",

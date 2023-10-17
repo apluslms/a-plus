@@ -66,14 +66,14 @@ class TeacherListTest(unittest.TestCase):
                 '',
                 'aplus-001 My test course: A+ Test Course Instance',
                 '2020-09-27 09:00:00+00:00',
-                '2023-09-27 09:00:00+00:00'
+                '2030-09-27 09:00:00+00:00'
             ],
             [
                 'Teacher User',
                 '',
                 'aplus-001 My test course: Hook Example',
                 '2020-09-27 09:00:00+00:00',
-                '2023-09-27 09:00:00+00:00'
+                '2030-09-27 09:00:00+00:00'
             ],
         ]
         list_data_with_assistants = [
@@ -82,25 +82,25 @@ class TeacherListTest(unittest.TestCase):
                 '',
                 'aplus-001 My test course: A+ Test Course Instance',
                 '2020-09-27 09:00:00+00:00',
-                '2023-09-27 09:00:00+00:00'
+                '2030-09-27 09:00:00+00:00'
             ],
             [
                 'Assistant User',
                 '',
                 'aplus-001 My test course: A+ Test Course Instance',
                 '2020-09-27 09:00:00+00:00',
-                '2023-09-27 09:00:00+00:00'
+                '2030-09-27 09:00:00+00:00'
             ],
             [
                 'Teacher User',
                 '',
                 'aplus-001 My test course: Hook Example',
                 '2020-09-27 09:00:00+00:00',
-                '2023-09-27 09:00:00+00:00'
+                '2030-09-27 09:00:00+00:00'
             ],
         ]
 
-        ending_time = date.fromisoformat("2023-09-27")
+        ending_time = date.fromisoformat("2030-09-27")
         starting_time = date.fromisoformat("2020-09-27")
 
         early = starting_time - timedelta(days=1)
