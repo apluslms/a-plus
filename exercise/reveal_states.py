@@ -12,10 +12,12 @@ if TYPE_CHECKING:
     from .cache.points import LearningObjectPoints, ModulePoints, ExercisePoints
 
 
-def _get_exercise_common_deadlines(exercise: ExercisePoints) -> List[datetime.datetime]:
-    deadlines = [exercise.closing_time]
-    if exercise.late_allowed and exercise.late_percent > 0:
-        deadlines.append(exercise.late_time)
+def _get_exercise_common_deadlines(
+        exercise_or_module: Union[ExercisePoints, ModulePoints],
+        ) -> List[datetime.datetime]:
+    deadlines = [exercise_or_module.closing_time]
+    if exercise_or_module.late_allowed and exercise_or_module.late_percent > 0:
+        deadlines.append(exercise_or_module.late_time)
     return deadlines
 
 
@@ -148,17 +150,16 @@ class ModuleRevealState(BaseRevealState):
         self.max_deviation: Optional[DeadlineRuleDeviation] = None
 
     def get_deadline(self) -> Optional[datetime.datetime]:
-        if len(self.exercises) == 0:
-            return None
+        if not self.exercises:
+            return max(_get_exercise_common_deadlines(self.module))
         return max(_get_exercise_deadline(exercise) for exercise in self.exercises)
 
     def get_latest_deadline(self) -> Optional[datetime.datetime]:
-        deadlines = []
+        deadlines = _get_exercise_common_deadlines(self.module)
         exercise_dict = {}
         for exercise in self.exercises:
-            deadlines.extend(_get_exercise_common_deadlines(exercise))
             exercise_dict[exercise.id] = exercise
-        if not self.max_deviation_fetched:
+        if not self.max_deviation_fetched and self.exercises:
             self.max_deviation = (
                 DeadlineRuleDeviation.objects
                 .filter(exercise__course_module_id=self.module_id)
@@ -169,8 +170,6 @@ class ModuleRevealState(BaseRevealState):
             deadlines.append(
                 self.max_deviation.get_new_deadline(exercise_dict[self.max_deviation.exercise_id].closing_time)
             )
-        if len(deadlines) == 0:
-            return None
         return max(deadlines)
 
     def get_points(self) -> Optional[int]:
