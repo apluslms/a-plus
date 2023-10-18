@@ -99,7 +99,31 @@
 		div.dropdown-backdrop {
 			display: none;
 		}
-		@media (max-width: $grid-float-breakpoint-max) {
+
+		li.dropdown > a.dropdown-toggle {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 70vw;
+		}
+
+		@media (max-width: $screen-md-max) {
+			li.dropdown > a.dropdown-toggle {
+				max-width: 65vw;
+			}
+		}
+
+		@media (max-width: $screen-sm-max) {
+			li.dropdown > a.dropdown-toggle {
+				max-width: 55vw;
+			}
+		}
+
+		@media (max-width: $screen-xs-max) {
+			li.dropdown > a.dropdown-toggle {
+				max-width: 45vw;
+			}
+
 			li.open > ul.dropdown-menu {
 				& > li > a{
 					color: #dadada;
