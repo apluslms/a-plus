@@ -335,18 +335,20 @@ $(function() {
             // The for-loop can freeze the page if line numbers are added to extremely long feedback/code.
             const pre = $(codeBlock);
             const lines = pre.html().split(/\r\n|\r|\n/g);
+            const table = $('<table/>').addClass('src');
             if (lines.length < 5000) {
-              const list = $("<table/>").addClass("src");
               for (var i = 1; i <= lines.length; i++) {
-                  list.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
+                table.append('<tr><td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td></tr>');
               }
-              pre.html(list);
+            } else {
+              table.append('<tr><td class="src">' + pre.html() + '</td></tr>');
             }
+            pre.html(table);
 
             if (!options || !options.noWrap) {
               addButton(buttonContainer, {
                 action: function() {
-                  list.toggleClass('no-wrap');
+                  table.toggleClass('no-wrap');
                 },
                 icon: 'check',
                 text: _('Word wrap'),
