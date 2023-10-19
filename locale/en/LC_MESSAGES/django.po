@@ -266,6 +266,10 @@ msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "The group already exists."
 
 #: course/forms.py
+msgid "MUST_HAVE_TWO_MEMBERS"
+msgstr "A group must have at least two members"
+
+#: course/forms.py
 msgid "LABEL_USERS"
 msgstr "Users"
 
