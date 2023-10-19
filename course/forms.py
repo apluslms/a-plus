@@ -5,6 +5,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Count
 
 from aplus.api import api_reverse
 from exercise.models import SubmissionDraft
@@ -114,6 +115,30 @@ class GroupEditForm(forms.ModelForm):
         # set to the initial queryset.
         if self.instance.id:
             self.fields["members"].initial_queryset = self.instance.members.all()
+
+    def clean(self):
+        super().clean()
+        members = self.cleaned_data.get('members')
+        if members:
+            if len(members) == 1:
+                self.add_error('members', _('MUST_HAVE_TWO_MEMBERS'))
+            course_instance = self.instance.course_instance
+            # Filter all groups with course instance and that have one or more similar members as in the members list
+            filtered_groups = StudentGroup.objects.filter(course_instance=course_instance, members__in=members)
+            # Count number of members in each group
+            groups_with_member_count = filtered_groups.annotate(member_count=Count('members'))
+            # Filter only those groups that have same number of members
+            groups_with_exact_member_count = groups_with_member_count.filter(member_count=len(members))
+            # Loop through the returned groups and check if any group with exact same members exist
+            group_exists = False
+            for group in groups_with_exact_member_count:
+                group_members = group.members.all()
+                if list(group_members) == list(members):
+                    group_exists = True
+            if group_exists:
+                self.add_error('members', _('ERROR_GROUP_ALREADY_EXISTS'))
+        return self.cleaned_data
+
 
     class Meta:
         model = StudentGroup
