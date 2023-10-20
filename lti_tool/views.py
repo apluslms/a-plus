@@ -6,9 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
 from pylti1p3.contrib.django import DjangoOIDCLogin, DjangoMessageLaunch
 from pylti1p3.deep_link_resource import DeepLinkResource
 from pylti1p3.lineitem import LineItem
@@ -194,7 +194,7 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
         # Edit links to point to LTI views
         module_model_objs = CourseModule.objects.filter(course_instance=self.instance)
         learningobjects = LearningObject.objects.filter(course_module__course_instance=self.instance)
-        for module in self.content.data['modules']:
+        for module in self.modules:
             module_model_obj = next((x for x in module_model_objs if x.id == module['id']), None)
             module.update({'link': module_model_obj.get_url("lti-module")})
             for exercise in module['children']:
@@ -221,7 +221,7 @@ class LtiModuleView(LtiSessionMixin, ModuleView):
         learningobjects = LearningObject.objects.filter(course_module=self.module)
         learningobjects_dict = { obj.id: obj for obj in learningobjects }
         # Can't use self.children for iteration, so this instead
-        flat_module = self.content.flat_module(self.module)
+        flat_module = self.points.flat_module(self.module)
         exercises = [entry for entry in flat_module if entry['type'] == 'exercise']
         for exercise in exercises:
             learningobj = learningobjects_dict[exercise['id']]
@@ -252,6 +252,9 @@ class LtiExerciseView(LtiSessionMixin, ExerciseView):
         if upp:
             self.upper_name = upp['name']
             self.upper_link = upp['link']
+        else:
+            self.upper_name = None
+            self.upper_link = None
         self.previous = self.adjust_visibility(self.previous)
         self.next = self.adjust_visibility(self.next)
         self.note('upper_name', 'upper_link')
@@ -292,7 +295,6 @@ class LtiSelectContentMixin(LtiSessionMixin):
 
     def get_common_objects(self):
         super().get_common_objects()
-        self.parse_lti_session_params()
         #FIXME do not include old, closed courses so that the course lists are reasonable
         if self.request.user.is_superuser:
             self.teaching_courses = CourseInstance.objects.all()
