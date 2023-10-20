@@ -1,11 +1,17 @@
 import logging
+from typing import Any, Optional, Tuple
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.http.request import HttpRequest
 from pylti1p3.grade import Grade
 from pylti1p3.contrib.django import DjangoMessageLaunch, DjangoCacheDataStorage, DjangoDbToolConf
 from pylti1p3.lineitem import LineItem
+from pylti1p3.message_launch import TLaunchData
 from pylti1p3.exception import LtiException, LtiServiceException
+
+from course.models import CourseInstance
+
 
 logger = logging.getLogger('aplus.lti_tool')
 
@@ -24,6 +30,41 @@ def get_tool_conf():
 
 def get_launch_data_storage():
     return DjangoCacheDataStorage()
+
+def parse_lti_session_params(
+        request: HttpRequest,
+        ) -> Tuple[Optional[DjangoMessageLaunch], Optional[TLaunchData]]:
+    launch_id = request.session.get("lti-launch-id", None)
+    if not launch_id:
+        return None, None
+    tool_conf = get_tool_conf()
+    message_launch = DjangoMessageLaunch.from_cache(
+        launch_id,
+        request,
+        tool_conf,
+        launch_data_storage=get_launch_data_storage(),
+    )
+    message_launch_data = message_launch.get_launch_data()
+    return message_launch, message_launch_data
+
+def has_lti_access_to_course(
+        request: HttpRequest,
+        view: Any,
+        target_course_instance: CourseInstance,
+        ) -> bool:
+    lti_scope = getattr(view, 'lti_scope', None)
+    if not lti_scope:
+        _message_launch, message_launch_data = parse_lti_session_params(request)
+        if message_launch_data:
+            lti_scope = message_launch_data.get("https://purl.imsglobal.org/spec/lti/claim/custom")
+            if not lti_scope:
+                return False
+        else:
+            return False
+    return (
+        lti_scope.get('course_slug') == target_course_instance.course.url
+        and lti_scope.get('instance_slug') == target_course_instance.url
+    )
 
 def send_lti_points(request, submission):
     from exercise.exercise_summary import UserExerciseSummary # pylint: disable=import-outside-toplevel

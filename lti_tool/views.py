@@ -23,7 +23,12 @@ from exercise.views import ExerciseView, SubmissionView
 from lib.localization_syntax import pick_localized
 from lib.viewbase import BaseTemplateView, BaseRedirectView, BaseMixin
 from authorization.permissions import ACCESS
-from .utils import get_tool_conf, get_launch_data_storage, get_launch_url
+from .utils import (
+    get_tool_conf,
+    get_launch_data_storage,
+    get_launch_url,
+    parse_lti_session_params,
+)
 
 
 logger = logging.getLogger('aplus.lti_tool')
@@ -120,18 +125,6 @@ class LtiSessionMixin(BaseMixin):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def parse_lti_session_params(self):
-        launch_id = self.request.session.get("lti-launch-id", None)
-        tool_conf = get_tool_conf()
-        if launch_id:
-            self.message_launch = DjangoMessageLaunch.from_cache(
-                launch_id,
-                self.request,
-                tool_conf,
-                launch_data_storage=get_launch_data_storage()
-            )
-            self.message_launch_data = self.message_launch.get_launch_data()
-
     def adjust_visibility(self, content):
         """
         Check whether given navigation link in ContentCache should be shown in LTI view.
@@ -168,12 +161,15 @@ class LtiSessionMixin(BaseMixin):
             return self.adjust_visibility(upper)
         return None
 
+    def get_resource_objects(self):
+        super().get_resource_objects()
+        self.message_launch, self.message_launch_data = parse_lti_session_params(self.request)
+        self.lti_scope = self.message_launch_data.get("https://purl.imsglobal.org/spec/lti/claim/custom")
+
     def get_common_objects(self):
         super().get_common_objects()
         self.disable_staff_nav = True
         self.submission_poll_ready_url_name = "lti-submission"
-        self.parse_lti_session_params()
-        self.lti_scope = self.message_launch_data.get("https://purl.imsglobal.org/spec/lti/claim/custom")
         self.note(
             "disable_staff_nav",
             "submission_poll_ready_url_name",
