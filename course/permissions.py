@@ -22,6 +22,7 @@ from .models import (
     CourseModule,
     CourseInstance,
 )
+from lti_tool.utils import has_lti_access_to_course
 
 
 class JWTObjectPermission(Permission):
@@ -138,7 +139,7 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
 
         # Course is not visible if it's hidden
         # If course is launched through LTI, it is shown even if marked as hidden in A+ UI.
-        if not request.session.get('lti-launch-id') and not course.visible_to_students:
+        if not course.visible_to_students and not has_lti_access_to_course(request, view, course):
             self.error_msg(_('COURSE_VISIBILITY_ERROR_NOT_VISIBLE'))
             return False
 
