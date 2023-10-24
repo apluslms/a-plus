@@ -3,6 +3,16 @@ $(function() {
 
   $('.search-select').aplusSearchSelect();
   $('.search-select-ajax').aplusSearchSelectAjax();
+
+  jQuery.expr[':'].icontains = function(element, index, match) {
+    /**
+    * - 'element' represents the current DOM element that the filter is applied to.
+    * - 'index' represents the index of the current element in the set of matched elements.
+    * - 'match' is an array containing information about the filter, where match[3] is the search
+    *    string provided in the filter.
+    */
+    return jQuery(element).text().toUpperCase().indexOf(match[3].toUpperCase()) >= 0;
+  };
 });
 
 (function($) {
@@ -284,6 +294,7 @@ $(function() {
   * building selectors that return <option> elements matching the user's
   * queries.
   */
+
   function AplusSearchSelect(element, options) {
     AplusSearchSelectBase.call(this, element, options);
   }
@@ -301,7 +312,7 @@ $(function() {
     getSearchResults: function(query, callback) {
       let selector = "option";
       if (query.length > 0) {
-        selector += ":contains(" + this.field.val() + ")";
+        selector += ":icontains(" + this.field.val() + ")";
       }
       const options = this.inner_element.find(selector);
       callback(options);
