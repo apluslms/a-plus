@@ -379,13 +379,56 @@ $(function () {
       }
 
       if (!options || !options.noWrap) {
-        addButton(buttonContainer, {
-          action: function () {
+        const toggleWrap = function (parent, iconSelector, localStorageKey) {
+          const doWrap = localStorage.getItem(localStorageKey) === 'true';
+          localStorage.setItem(localStorageKey, !doWrap);
+
+          const tabPanes = parent.children('.tab-pane');
+          tabPanes.each(function () {
+            const element = $(this);
+            element.find('table.src').toggleClass('no-wrap');
+
+            // 'Word wrap' buttons for other tabs will be out of sync unless we manually sync their state
+            if (!element.hasClass('active')) {
+              element
+                .find(iconSelector)
+                .toggleClass('glyphicon-unchecked')
+                .toggleClass('glyphicon-check');
+            }
+          });
+        };
+
+        let action, iconSelector, localStorageKey;
+        if ($('.submission-container').find(buttonContainer).length > 0) {
+          // buttonContainer is related to submitted files on inspect submission page
+          iconSelector = `.submitted-file-data > div > p > button:contains(${_("Word wrap")}) > .glyphicon`;
+          localStorageKey = 'fileWrap';
+          action = () => toggleWrap($('.submission-container'), iconSelector, localStorageKey);
+        } else if ($('.grader-container').find(buttonContainer).length > 0) {
+          // buttonContainer is related to feedback and errors on inspect submission page
+          iconSelector = `div > p > button:contains(${_("Word wrap")}) > .glyphicon`;
+          localStorageKey = 'graderFeedbackWrap';
+          action = () => toggleWrap($('.grader-container'), iconSelector, localStorageKey);
+        } else {
+          // buttonContainer is not on inspect submission page
+          localStorageKey = 'fileWrap';
+          action = () => {
+            const doWrap = localStorage.getItem('fileWrap') === 'true';
+            localStorage.setItem(localStorageKey, !doWrap);
             table.toggleClass('no-wrap');
-          },
-          icon: 'check',
+          };
+        }
+
+        const doWrap = localStorage.getItem(localStorageKey) === 'true';
+        if (!doWrap) {
+          table.addClass('no-wrap');
+        }
+
+        addButton(buttonContainer, {
+          action: action,
+          icon: doWrap ? 'check' : 'unchecked',
           text: _('Word wrap'),
-          toggle: true
+          toggle: true,
         });
       }
 
