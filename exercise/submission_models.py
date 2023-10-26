@@ -28,6 +28,7 @@ from lib.helpers import (
 )
 from lib.localization_syntax import pick_localized
 from lib.models import UrlMixin
+from lti_tool.utils import has_lti_access_to_course
 from userprofile.models import UserProfile
 from aplus.celery import retry_submissions
 from . import exercise_models
@@ -255,10 +256,11 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             meta_data_dict['lang'] = get_language()
 
         try:
-            if 'lti-launch-id' in request.session:
+            if ('lti-launch-id' in request.session
+                    and has_lti_access_to_course(request, None, exercise.course_instance)):
                 meta_data_dict['lti-launch-id'] = request.session.get('lti-launch-id')
-            if 'lti1p3-session-id' in request.COOKIES:
-                meta_data_dict['lti-session-id'] = request.COOKIES.get('lti1p3-session-id')
+                if 'lti1p3-session-id' in request.COOKIES:
+                    meta_data_dict['lti-session-id'] = request.COOKIES.get('lti1p3-session-id')
 
             new_submission = Submission.objects.create(
                 exercise=exercise,
