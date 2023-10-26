@@ -124,4 +124,15 @@ def send_lti_points(request, submission):
             if exc.response.status_code == 409:
                 logger.info("Grade for submission has already been saved through LTI; continuing")
             else:
-                raise exc
+                logger.exception(
+                    "LTI Tool could not send grade to the Platform. "
+                    "Tool user id: %s. Tool exercise id: %s. "
+                    "Grade userId: %s. Grade timestamp: %s. "
+                    "Line item id: %s. Line item tag: %s. ",
+                    str(user.pk),
+                    str(exercise.pk),
+                    str(grade.get_user_id()),
+                    str(grade.get_timestamp()),
+                    str(line_item.get_id()),
+                    str(line_item.get_tag()),
+                )
