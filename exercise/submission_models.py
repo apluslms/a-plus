@@ -808,6 +808,9 @@ class SubmittedFile(UrlMixin, models.Model):
         return guess_type(self.file_object.path)[0]
 
     def is_passed(self):
+        if self.file_object.path.endswith(".pdf"):
+            # PDF files are sometimes incorrectly classified as non-binary by the 'binaryornot' library
+            return True
         return is_binary(self.file_object.path)
 
 
