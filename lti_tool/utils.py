@@ -38,12 +38,15 @@ def parse_lti_session_params(
     if not launch_id:
         return None, None
     tool_conf = get_tool_conf()
-    message_launch = DjangoMessageLaunch.from_cache(
-        launch_id,
-        request,
-        tool_conf,
-        launch_data_storage=get_launch_data_storage(),
-    )
+    try:
+        message_launch = DjangoMessageLaunch.from_cache(
+            launch_id,
+            request,
+            tool_conf,
+            launch_data_storage=get_launch_data_storage(),
+        )
+    except LtiException:
+        return None, None
     message_launch_data = message_launch.get_launch_data()
     return message_launch, message_launch_data
 

@@ -1,5 +1,7 @@
 import logging
 
+from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
@@ -164,6 +166,9 @@ class LtiSessionMixin(BaseMixin):
     def get_resource_objects(self):
         super().get_resource_objects()
         self.message_launch, self.message_launch_data = parse_lti_session_params(self.request)
+        if self.message_launch is None:
+            messages.error(self.request, _("LTI_TOOL_ERROR_NO_SESSION_OR_LAUNCH_FOUND"))
+            raise PermissionDenied("No LTI session/launch found.")
         self.lti_scope = self.message_launch_data.get("https://purl.imsglobal.org/spec/lti/claim/custom")
 
     def get_common_objects(self):

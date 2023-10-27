@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-31 15:24+0300\n"
+"POT-Creation-Date: 2023-10-27 20:01+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -5329,6 +5329,10 @@ msgstr "Valitse moduuli"
 #: lti_tool/templates/lti_tool/module_list.html
 msgid "LTI_USE_WHOLE_MODULE"
 msgstr "Valitse koko moduuli"
+
+#: lti_tool/views.py
+msgid "LTI_TOOL_ERROR_NO_SESSION_OR_LAUNCH_FOUND"
+msgstr "LTI-istuntoa ei löytynyt. Yritä käynnistää yhteys uudelleen alustasta."
 
 #: news/forms.py
 msgid "SEND_EMAIL_TO_STUDENTS"
