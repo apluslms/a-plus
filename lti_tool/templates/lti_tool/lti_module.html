@@ -13,6 +13,7 @@
 {% block sidecontent %}{% endblock %}
 
 {% block coursecontent %}
+	<h1>{{ current.name|parse_localization }}</h1>
 	<p>
 		<span class="small">
 			{{ current.opening_time }}
