@@ -157,10 +157,10 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
         learningobjects = LearningObject.objects.filter(course_module__course_instance=self.instance)
         for module in self.content.data.modules:
             module_model_obj = next((x for x in module_model_objs if x.id == module.id), None)
-            module.update({'link': module_model_obj.get_url("lti-module")})
+            module.link = module_model_obj.get_url('lti-module')
             for exercise in module.children:
                 lo_model_obj = next((x for x in learningobjects if x.id == exercise.id), None)
-                exercise.update({'link': lo_model_obj.get_url("lti-exercise")})
+                exercise.link = lo_model_obj.get_url('lti-exercise')
         return super().get(request, *args, **kwargs)
 
 
