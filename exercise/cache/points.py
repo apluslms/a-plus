@@ -104,15 +104,14 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 MaxSubmissionsRuleDeviation.objects
                 .get_max_deviations(user.userprofile, exercises)
             )
-            module_instances = list(
-                instance.course_modules.all()
-            )
         else:
             submissions = []
             deadline_deviations = []
             submission_deviations = []
-            module_instances = []
 
+        module_instances = list(
+            instance.course_modules.all()
+        )
         # Generate the staff and student version of the cache, and merge them.
         generate_args = (
             user.is_authenticated, submissions, deadline_deviations, submission_deviations, module_instances
@@ -156,6 +155,17 @@ class CachedPoints(ContentMixin, CachedAbstract):
         categories = data['categories']
         total = data['total']
         data['invalidate_time'] = None
+
+        def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
+            if (
+                invalidate_time is not None
+                and invalidate_time > timezone.now()
+                and (
+                    data['invalidate_time'] is None
+                    or invalidate_time < data['invalidate_time']
+                )
+            ):
+                data['invalidate_time'] = invalidate_time
 
         # Augment submission parameters.
         def r_augment(children: List[Dict[str, Any]]) -> None:
@@ -241,17 +251,6 @@ class CachedPoints(ContentMixin, CachedAbstract):
             is_better_than = None
             final_submission = None
             last_submission = None
-
-            def update_invalidation_time(invalidate_time: Optional[datetime.datetime]) -> None:
-                if (
-                    invalidate_time is not None
-                    and invalidate_time > timezone.now()
-                    and (
-                        data['invalidate_time'] is None
-                        or invalidate_time < data['invalidate_time']
-                    )
-                ):
-                    data['invalidate_time'] = invalidate_time
 
             def check_reveal_rule() -> None:
                 """
