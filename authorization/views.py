@@ -3,6 +3,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
 from django.shortcuts import render
 from django.views.defaults import ERROR_403_TEMPLATE_NAME
+from rest_framework import permissions as drf_permissions
 
 from .exceptions import ValidationFailed
 from .permissions import NoPermission
@@ -114,6 +115,14 @@ class AuthorizationMixin:
         for permission in self.get_permissions():
             if not permission.has_permission(request, self):
                 message = getattr(permission, 'message', None)
+                if (
+                        message is None
+                        and isinstance(
+                            permission,
+                            (drf_permissions.AND, drf_permissions.OR, drf_permissions.NOT),
+                        )
+                        ):
+                    message = getattr(permission.op1, 'message', None)
                 self.permission_denied(message)
 
     def check_object_permissions(self, request, obj):
