@@ -3517,9 +3517,7 @@ msgstr "The assignment is only for external users."
 
 #: exercise/permissions.py
 msgid "MODULE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr ""
-"Unfortunately you are not permitted to view this content, since it contains "
-"model answers to assignments whose deadline has not yet passed."
+msgstr "It contains model answers that have not been published yet."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
@@ -4108,8 +4106,8 @@ msgstr "Inspect"
 #: exercise/templates/exercise/_user_results.html
 msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
 msgstr ""
-"This chapter is hidden, since it contains model answers to assignments whose "
-"deadline has not yet passed."
+"This chapter is hidden, since it contains model answers that have not been "
+"published yet."
 
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html
