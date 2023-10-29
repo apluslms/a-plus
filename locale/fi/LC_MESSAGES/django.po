@@ -3528,10 +3528,7 @@ msgstr "Tämä tehtävä on vain oppilaitoksen ulkopuolisille opiskelijoille."
 
 #: exercise/permissions.py
 msgid "MODULE_MODEL_ANSWER_VISIBILITY_PERMISSION_DENIED_MSG"
-msgstr ""
-"Valitettavasti sinulla ei ole oikeutta nähdä tätä sisältöä, sillä se "
-"sisältää esimerkkiratkaisuja tehtäviin, joiden määräaika ei ole vielä "
-"umpeutunut."
+msgstr "Se sisältää esimerkkiratkaisuja, joita ei ole vielä julkaistu."
 
 #: exercise/permissions.py
 msgid "EXERCISE_ASSISTANT_PERMISSION_DENIED_MSG"
@@ -4121,8 +4118,8 @@ msgstr "Tutki"
 #: exercise/templates/exercise/_user_results.html
 msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
 msgstr ""
-"Tämä luku on piilotettu, sillä se sisältää esimerkkiratkaisuja tehtäviin, "
-"joiden määräaika ei ole vielä umpeutunut."
+"Tämä luku on piilotettu, sillä se sisältää esimerkkiratkaisuja, joita ei ole "
+"vielä julkaistu."
 
 #: exercise/templates/exercise/_user_toc.html
 #: lti_tool/templates/lti_tool/lti_course.html
