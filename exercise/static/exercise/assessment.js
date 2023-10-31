@@ -1,5 +1,10 @@
 $(function () {
   $(document).on('aplus:translation-ready', function() {
+    const currentPath = window.location.pathname;
+    $("a.deviations-link").attr("href", function(i, href) {
+      return `${href}&previous=${currentPath}`;
+    });
+
     // Activate the first tab
     $('.grader-container-tabs').find('li a').first().tab('show');
 
