@@ -28,6 +28,11 @@ function collapseModules() {
 }
 
 function startListen(course) {
+  const currentPath = window.location.pathname;
+  $("a.deviations-link").attr("href", function(i, href) {
+    return `${href}&previous=${currentPath}`;
+  });
+
   $(".filter-categories button").on("click", function(event) {
     const button = $(this);
     const id = button.attr("data-category");
