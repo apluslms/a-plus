@@ -36,6 +36,14 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
     deviation_model: Type[SubmissionRuleDeviation]
     session_key: str
 
+    def get_context_data(self, **kwargs: Any) -> dict:
+        context = super().get_context_data(**kwargs)
+        if self.request.GET.get('previous'):
+            context.update({'cancel_action': self.request.GET.get('previous')})
+        else:
+            context.update({'cancel_action': self.instance.get_url('deviations-list-dl')})
+        return context
+
     def get_form_kwargs(self) -> Dict[str, Any]:
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.instance
