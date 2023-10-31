@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load course %}
-<a class="aplus-button--secondary aplus-button--xs" href="{{ instance|url:'deviations-add-dl' }}?module={{module.id}}&exercise={{exercise.id}}&submitter={{submitters}}">
+<a class="deviations-link aplus-button--secondary aplus-button--xs" href="{{ instance|url:'deviations-add-dl' }}?module={{module.id}}&exercise={{exercise.id}}&submitter={{submitters}}">
 	<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
 	{% translate "ADD_DEADLINE_DEVIATIONS" %}
 </a>
