@@ -257,6 +257,12 @@ def get_deviation_groups(
             'submitter', 'submitter__user',
             'granter', 'granter__user',
             'exercise', 'exercise__course_module',
+            'exercise__course_module__course_instance',
+        )
+        .defer(
+            'exercise__exercise_info',
+            'exercise__description',
+            'exercise__course_module__course_instance__description',
         )
         # parent is prefetched because there may be multiple ancestors, and
         # they are needed for building the deviation's URL.
