@@ -4544,8 +4544,7 @@ msgstr "Toinen palautus on merkitty opiskelijan lopulliseksi palautukseksi."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_BETTER_SUBMISSIONS"
-msgstr ""
-"Opiskelijalla on tätä palautusta paremman arvosanan saaneita palautuksia."
+msgstr "Toinen palautus määrittää tämän tehtävän arvosanan."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_LATER_SUBMISSIONS"
