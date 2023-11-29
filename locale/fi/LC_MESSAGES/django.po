@@ -267,6 +267,10 @@ msgid "ERROR_GROUP_ALREADY_EXISTS"
 msgstr "Tämä ryhmä on jo olemassa."
 
 #: course/forms.py
+msgid "MUST_HAVE_TWO_MEMBERS"
+msgstr "Ryhmässä tulee olla vähintään kaksi jäsentä"
+
+#: course/forms.py
 msgid "LABEL_USERS"
 msgstr "Käyttäjät"
 
@@ -4540,8 +4544,7 @@ msgstr "Toinen palautus on merkitty opiskelijan lopulliseksi palautukseksi."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_BETTER_SUBMISSIONS"
-msgstr ""
-"Opiskelijalla on tätä palautusta paremman arvosanan saaneita palautuksia."
+msgstr "Toinen palautus määrittää tämän tehtävän arvosanan."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_LATER_SUBMISSIONS"
