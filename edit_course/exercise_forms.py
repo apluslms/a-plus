@@ -55,6 +55,8 @@ class LearningObjectMixin:
         self.fields["parent"].queryset = LearningObject.objects\
             .exclude(id=self.lobject.id)\
             .filter(course_module=self.lobject.course_module)
+        self.fields['parent'].widget.attrs.update(
+            {'readonly': True, 'disabled': True})
 
     @property
     def remote_service_head(self):
