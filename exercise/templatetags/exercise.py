@@ -7,6 +7,7 @@ from django.db import models
 from django.template.context import Context
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -71,6 +72,23 @@ def _is_accessible(context, entry, t):
         module = CourseModule.objects.get(id=entry['id'])
         return module.are_requirements_passed(points)
     return True
+
+
+@register.simple_tag
+def check_exercise_deadline_extensions(children, entry_name, is_module_specific=None):
+    output = ''
+    exercise_count = 0
+    for exercise in children:
+        # Module specific ToC page
+        if is_module_specific and exercise.parent.name == entry_name and exercise.personal_deadline:
+            exercise_count += 1
+        # ToC page
+        elif exercise.type != 'level' and not exercise.is_empty and exercise.submittable:
+            if exercise.parent.name == entry_name and exercise.personal_deadline:
+                exercise_count += 1
+    if exercise_count > 0:
+        output = format_lazy(_('PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}'), count=exercise_count)
+    return mark_safe(output)
 
 
 @register.inclusion_tag("exercise/_user_results.html", takes_context=True)

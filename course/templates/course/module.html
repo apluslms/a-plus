@@ -43,7 +43,7 @@
 	</p>
 	{% endif %}
 
-  {% include "exercise/_children.html" with children=children accessible=True exercise_accessible=current|exercises_submittable:now %}
+  {% include "exercise/_children.html" with module_specific=True children=children accessible=True exercise_accessible=current|exercises_submittable:now %}
 {% endblock %}
 
 {% block sidecontent %}
