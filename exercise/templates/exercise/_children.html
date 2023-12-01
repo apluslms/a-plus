@@ -15,6 +15,11 @@
 				{{ entry.name|parse_localization }}
 			{% else %}
 				<a href="{{ entry.link }}">{{ entry.name|parse_localization }}</a>
+				{% if module_specific %}
+					{% check_exercise_deadline_extensions entry.children entry.name module_specific %}
+				{% else %}
+					{% check_exercise_deadline_extensions children entry.name %}
+				{% endif %}
 			{% endif %}
 			{% if entry.submission_count %}
 				{% points_badge entry %}
