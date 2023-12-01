@@ -11,6 +11,11 @@
     {% if accessible %}
     <h3>
       <a href="{{ module.link }}" class="{% if module.is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
+      {% if module|deadline_extended_exercises_open:now %}
+        <span class="badge">
+          {% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+        </span>
+      {% endif %}
     </h3>
     <h4>
       {% if module.requirements|length > 0 %}

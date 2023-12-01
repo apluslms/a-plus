@@ -4065,6 +4065,7 @@ msgid "OPEN_FOR_READING"
 msgstr "Open for reading"
 
 #: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/_user_toc.html
 msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
 msgstr "Assignments with personal deadline extensions"
 
@@ -4711,6 +4712,15 @@ msgstr "Date"
 #: exercise/templates/exercise/submission_plain.html
 msgid "FILES"
 msgstr "Files"
+
+#: exercise/templatetags/exercise.py
+#, python-brace-format
+msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
+msgstr ""
+"<span data-toggle=\"tooltip\" title=\"Personal extended deadlines: "
+"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
+"span><span class=\"sr-only\">Personal extended deadlines: {count}</span></"
+"span>"
 
 #: exercise/templatetags/exercise.py
 msgid "LATEST_SUBMISSIONS"
