@@ -64,6 +64,16 @@ $(function() {
 
     init: function() {
       const self = this;
+
+      const dataDefaultSortColumn = self.element.data('default-sort-column');
+      const dataDefaultSortOrder = self.element.data('default-sort-order');
+      if (dataDefaultSortColumn && dataDefaultSortOrder) {
+        const defaultColumnHeader = self.element.find('thead > tr > th').eq(dataDefaultSortColumn);
+        const orderMarker = $('<span class="glyphicon order-marker glyphicon-triangle-bottom" aria-hidden="true"></span>');
+        defaultColumnHeader.append(orderMarker);
+        self.orderTable(dataDefaultSortColumn, dataDefaultSortOrder === 'desc' ? true : false);
+      }
+
       function filterDelay(event) {
         const input = $(this);
         clearTimeout(self.timeout);
@@ -83,11 +93,17 @@ $(function() {
 
       function orderColumn(event) {
         event.preventDefault();
+        const isDescending = $(this).hasClass('desc');
         self.element.find('thead > tr > th > a > .order-marker').remove();
-        $(this).append(
-          $('<span class="glyphicon glyphicon-triangle-bottom order-marker" aria-hidden="true"></span>')
-        );
-        self.orderTable($(this).data('column'));
+        const orderMarker = $('<span class="glyphicon order-marker glyphicon-triangle-top" aria-hidden="true"></span>');
+        if (isDescending) {
+          $(this).removeClass('desc');
+        } else {
+          $(this).addClass('desc');
+          orderMarker.removeClass('glyphicon-triangle-top').addClass('glyphicon-triangle-bottom');
+        }
+        $(this).append(orderMarker);
+        self.orderTable($(this).data('column'), !isDescending);
       };
 
       function expandRow(event) {
@@ -196,12 +212,12 @@ $(function() {
             filterRow.append(filterCell);
           }
         }
-
         if (self.enable_order && !column.data('order-disable')) {
-          column.wrapInner(
-            $('<a href="#" data-column="' + i + '"></a>')
-            .on('click', orderColumn)
-          );
+          if (dataDefaultSortColumn === i - 1 && dataDefaultSortOrder === 'desc') {
+            column.wrapInner($('<a href="#" data-column="' + i + '" class="desc"></a>').on('click', orderColumn));
+          } else {
+            column.wrapInner($('<a href="#" data-column="' + i + '"></a>').on('click', orderColumn));
+          }
         }
 
         if (self.enable_group && column.data('group-checkbox')) {
@@ -388,23 +404,23 @@ $(function() {
       }
     },
 
-    orderTable: function(index) {
+    orderTable: function(index, isDescending) {
       function compareRows(aRow, bRow) {
         const aCell = $(aRow).find('td').eq(index);
         const bCell = $(bRow).find('td').eq(index);
         const aDate = aCell.data('datetime');
         const bDate = bCell.data('datetime');
         if (aDate && bDate) {
-          return aDate.localeCompare(bDate);
+          return isDescending ? bDate.localeCompare(aDate) : aDate.localeCompare(bDate);
         }
         const aText = aCell.text().trim();
         const bText = bCell.text().trim();
         const aNumber = Number(aText);
         const bNumber = Number(bText);
         if (!isNaN(aNumber) && !isNaN(bNumber)) {
-          return aNumber - bNumber;
+          return isDescending ? bNumber - aNumber : aNumber - bNumber;
         }
-        return aText.localeCompare(bText);
+        return isDescending ? bText.localeCompare(aText) : aText.localeCompare(bText);
       }
 
       // Order the top-level rows first.
