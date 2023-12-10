@@ -39,9 +39,12 @@
 <li class="header">
 	{% if instance.language|first == "|" %}
 	<div class="course-sidebar-button pull-right hidden-xs dropdown">
-		<input type="image" src="{% static 'images/uls.svg' %}" alt="{% translate 'LANGUAGE' %}"
-			class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
-			data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" />
+		<button class="aplus-button--secondary aplus-button--xs" id="lang-dropdown-desktop" type="button"
+			data-toggle="dropdown" title="{% translate "CHANGE_LANGUAGE" %}"
+			aria-label="{% translate "CHANGE_LANGUAGE" %}" aria-haspopup="true" aria-expanded="false"
+		>
+			<span>{% translate "LANGUAGE" %}</span>
+		</button>
 		<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
 			{% for language in instance.language|list_unselected %}
 			<li>
