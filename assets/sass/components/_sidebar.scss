@@ -21,14 +21,16 @@
 
 .course-sidebar-collapser {
 	span {
-		width: 20px;
-		height: 20px;
 		margin: 0;
 		color: #54595d;
-		font-size: 16px;
 	}
 }
 
 .course-sidebar-button {
+	span {
+		width: 20px;
+		height: 20px;
+		font-size: 14px;
+	}
 	margin-left: 5px;
 }
