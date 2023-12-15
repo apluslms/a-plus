@@ -197,6 +197,7 @@ iframe {
 /* panels */
 .module-panel .panel-heading {
     display: block;
+    overflow: auto;
 }
 .module-panel .panel-title .caret {
     margin-right: 0.5em;
@@ -208,6 +209,18 @@ iframe {
 }
 .module-panel table {
     margin: 0;
+}
+@media (max-width: $screen-xs-max) {
+    .module-panel .panel-heading {
+        padding-bottom: 5px;
+    }
+    .module-panel .panel-title .badge {
+        text-wrap: wrap;
+        margin-bottom: 5px;
+    }
+    .module-panel .panel-title .module-name {
+        display: inline-block;
+    }
 }
 
 /* point progress */
