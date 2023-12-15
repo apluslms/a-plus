@@ -71,8 +71,10 @@
 			{% if not module.is_visible and is_teacher %}
 			<span class="label label-danger pull-right">{% translate "HIDDEN_capitalized" %}</span>
 			{% endif %}
-			<span class="caret" aria-hidden="true"></span>
-			{{ module.name|parse_localization }}
+			<div class="module-name">
+				<span class="caret" aria-hidden="true"></span>
+				{{ module.name|parse_localization }}
+			</div>
 		</h3>
 	</a>
 	<div class="collapse{% if accessible and not after_open or open %} in{% endif %}" id="module{{ module.id }}">
@@ -114,145 +116,147 @@
 	</div>
 	{% endif %}
 	{% if module.children|length > 0 %}
-	<table class="table table-striped table-condensed results-table">
-		<tbody>
-			<tr class="category-row">
-				<th>{% translate "EXERCISE" %}</th>
-				<th>{% translate "CATEGORY_capitalized" %}</th>
-				<th>{% translate "SUBMISSIONS" %}</th>
-				<th>{% translate "POINTS" %}</th>
-				{% if is_course_staff %}
-				<th colspan="3">{% translate "COURSE_STAFF" %}</th>
-				{% endif %}
-			</tr>
-			{% for entry in module.flatted %}
+	<div class="table-responsive">
+		<table class="table table-striped table-condensed results-table">
+			<tbody>
+				<tr class="category-row">
+					<th>{% translate "EXERCISE" %}</th>
+					<th>{% translate "CATEGORY_capitalized" %}</th>
+					<th>{% translate "SUBMISSIONS" %}</th>
+					<th>{% translate "POINTS" %}</th>
+					{% if is_course_staff %}
+					<th colspan="3">{% translate "COURSE_STAFF" %}</th>
+					{% endif %}
+				</tr>
+				{% for entry in module.flatted %}
 
-			{% if entry.submittable and entry.is_visible or entry.submittable and is_teacher %}
-			<tr data-category="{{ entry.category_id }}">
-				<td>
-					{% if exercise_accessible and entry.is_revealed or is_course_staff %}
-					<a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
-					{% if entry|deadline_extended_exercise_open:now %}
+				{% if entry.submittable and entry.is_visible or entry.submittable and is_teacher %}
+				<tr data-category="{{ entry.category_id }}">
+					<td>
+						{% if exercise_accessible and entry.is_revealed or is_course_staff %}
+						<a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
+						{% if entry|deadline_extended_exercise_open:now %}
+							<span
+								data-toggle="tooltip"
+								title="{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}"
+							>
+								<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+								<span class="sr-only">{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}</span>
+							</span>
+						{% endif %}
+						{% else %}
+						{{ entry.name|parse_localization }}
+						{% endif %}
+					</td>
+					<td>
+						<small>{{ entry.category|parse_localization }}</small>
+					</td>
+					<td class="submissions-dropdown dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+							<span class="badge">
+								{% if entry.notified %}
+								<span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
+								{% endif %}
+								{{ entry.submission_count }}
+								{% if entry.max_submissions > 0 %}
+								/ {{ entry.personal_max_submissions|default_if_none:entry.max_submissions }}
+								{% endif %}
+							</span><b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu">
+							{% for submission in entry.submissions %}
+							<li>
+								<a href="{{ submission.url }}" class="page-modal">
+									{{ forloop.revcounter }}.
+									{{ submission.date }}
+									{% points_badge submission %}
+								</a>
+							</li>
+							{% empty %}
+							<li>
+								<a href="#" class="page-modal">{% translate "NO_SUBMISSIONS_YET" %}</a>
+							</li>
+							{% endfor %}
+						</ul>
+					</td>
+					<td>
+						{% points_badge entry %}
+					</td>
+					{% if is_course_staff %}
+					<td>
+						{% if entry.submissions and student.id %}
+						{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=entry.get_path user_id=student.id as inspect_url %}
+						<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
+							<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+							{% translate "INSPECT" %}
+						</a>
+						{% endif %}
+						{% if student %}
+							{% adddeviationsbutton instance exercise=entry submitters=student %}
+						{% endif %}
+					</td>
+					<td>
+						{% if not accessible %}
+						<a href="{{ entry.link }}">
+							<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+							{% translate "EARLY_ACCESS" %}
+						</a>
+						{% else %}
+						{% exercise_text_stats entry.id %}
+						{% endif %}
+						<a class="aplus-button--secondary aplus-button--xs" href="{{ entry.submissions_link }}">
+							<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+							{% translate "VIEW_SUBMISSIONS" %}
+						</a>
+					</td>
+					<td>
+						{% if not entry.is_visible and is_teacher %}
+						<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
+						{% endif %}
+					</td>
+					{% endif %}
+				</tr>
+
+				{% elif entry.type == 'exercise' and entry.is_visible or entry.type == 'exercise' and is_teacher %}
+				<tr>
+					<td colspan="5">
+						{% if accessible and entry.is_revealed %}
+						<strong><a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
+						{% else %}
+						<strong>{{ entry.name|parse_localization }}</strong>
+						{% if not entry.is_revealed and accessible %}
 						<span
 							data-toggle="tooltip"
-							title="{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}"
+							title="{% translate 'MODULE_MODEL_ANSWER_NOT_VISIBLE' %}"
 						>
-							<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-							<span class="sr-only">{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}</span>
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+							<span class="sr-only">{% translate "MODULE_MODEL_ANSWER_NOT_VISIBLE" %}</span>
 						</span>
+						{% endif %}
+						{% endif %}
+					</td>
+					{% if is_course_staff %}
+					<td>
+						{% if not accessible %}
+						<a href="{{ entry.link }}">
+							<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+							{% translate "EARLY_ACCESS" %}
+						</a>
+						{% endif %}
+					</td>
+					<td>
+						{% if not entry.is_visible and is_teacher %}
+						<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
+						{% endif %}
+					</td>
 					{% endif %}
-					{% else %}
-					{{ entry.name|parse_localization }}
-					{% endif %}
-				</td>
-				<td>
-					<small>{{ entry.category|parse_localization }}</small>
-				</td>
-				<td class="submissions-dropdown dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-						<span class="badge">
-							{% if entry.notified %}
-							<span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
-							{% endif %}
-							{{ entry.submission_count }}
-							{% if entry.max_submissions > 0 %}
-							/ {{ entry.personal_max_submissions|default_if_none:entry.max_submissions }}
-							{% endif %}
-						</span><b class="caret"></b>
-					</a>
-					<ul class="dropdown-menu">
-						{% for submission in entry.submissions %}
-						<li>
-							<a href="{{ submission.url }}" class="page-modal">
-								{{ forloop.revcounter }}.
-								{{ submission.date }}
-								{% points_badge submission %}
-							</a>
-						</li>
-						{% empty %}
-						<li>
-							<a href="#" class="page-modal">{% translate "NO_SUBMISSIONS_YET" %}</a>
-						</li>
-						{% endfor %}
-					</ul>
-				</td>
-				<td>
-					{% points_badge entry %}
-				</td>
-				{% if is_course_staff %}
-				<td>
-					{% if entry.submissions and student.id %}
-					{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=entry.get_path user_id=student.id as inspect_url %}
-					<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
-						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-						{% translate "INSPECT" %}
-					</a>
-					{% endif %}
-					{% if student %}
-						{% adddeviationsbutton instance exercise=entry submitters=student %}
-					{% endif %}
-				</td>
-				<td>
-					{% if not accessible %}
-					<a href="{{ entry.link }}">
-						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-						{% translate "EARLY_ACCESS" %}
-					</a>
-					{% else %}
-					{% exercise_text_stats entry.id %}
-					{% endif %}
-					<a class="aplus-button--secondary aplus-button--xs" href="{{ entry.submissions_link }}">
-						<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-						{% translate "VIEW_SUBMISSIONS" %}
-					</a>
-				</td>
-				<td>
-					{% if not entry.is_visible and is_teacher %}
-					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
-					{% endif %}
-				</td>
+				</tr>
 				{% endif %}
-			</tr>
 
-			{% elif entry.type == 'exercise' and entry.is_visible or entry.type == 'exercise' and is_teacher %}
-			<tr>
-				<td colspan="5">
-					{% if accessible and entry.is_revealed %}
-					<strong><a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
-					{% else %}
-					<strong>{{ entry.name|parse_localization }}</strong>
-					{% if not entry.is_revealed and accessible %}
-					<span
-						data-toggle="tooltip"
-						title="{% translate 'MODULE_MODEL_ANSWER_NOT_VISIBLE' %}"
-					>
-						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-						<span class="sr-only">{% translate "MODULE_MODEL_ANSWER_NOT_VISIBLE" %}</span>
-					</span>
-					{% endif %}
-					{% endif %}
-				</td>
-				{% if is_course_staff %}
-				<td>
-					{% if not accessible %}
-					<a href="{{ entry.link }}">
-						<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-						{% translate "EARLY_ACCESS" %}
-					</a>
-					{% endif %}
-				</td>
-				<td>
-					{% if not entry.is_visible and is_teacher %}
-					<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
-					{% endif %}
-				</td>
-				{% endif %}
-			</tr>
-			{% endif %}
-
-			{% endfor %}
-		</tbody>
-	</table>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 	{% endif %}
 	</div>
 </div>
