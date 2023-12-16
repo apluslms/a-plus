@@ -204,15 +204,18 @@
 {% endcomment %}
 
 <script>
-$(function() {
-	const hash = window.location.hash;
-	const target = $(hash);
-	const stickyAlert = $('.sticky-alert');
-	if (target.length > 0 && stickyAlert.length > 0) {
-		const alertHeight = stickyAlert[0].offsetHeight;
-		target.css('padding-top', alertHeight + 'px');
-	}
-});
+	$(document).ajaxStop(function(e) {
+		const stickyAlert = $('.sticky-alert');
+		if (stickyAlert.length > 0) {
+			const currentOffset = $(document).scrollTop();
+			const alertHeight = stickyAlert[0].offsetHeight;
+			if (currentOffset > alertHeight) {
+				const offset = currentOffset - alertHeight;
+				window.scrollTo({ top: offset });
+			}
+		}
+		$(this).unbind('ajaxStop');
+	});
 </script>
 
 {% endblock %}
