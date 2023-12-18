@@ -235,9 +235,6 @@
 		<main class="site-content container-fluid" id="content">
 			{% endblock %}
 			{% site_alert %}
-			{% if instance %}
-			{% course_alert instance %}
-			{% endif %}
 			{% include "_messages.html" %}
 			{% block content %}
 			<div class="error">
