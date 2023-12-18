@@ -51,7 +51,7 @@ def course_alert(instance):
             _('GRADER_PROBLEMS_ALERT -- {exercises}'),
             exercises=exercises,
         )
-        return mark_safe(format_lazy('<div class="alert alert-danger">{message}</div>', message=message))
+        return mark_safe(format_lazy('<div class="alert alert-danger sticky-alert">{message}</div>', message=message))
     return ''
 
 

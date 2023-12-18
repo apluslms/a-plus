@@ -75,6 +75,9 @@
 	</div>
 	{% endblock course_sidebar %}
 	<div class="col-sm-10" id="course-content">
+		{% if instance %}
+		{% course_alert instance %}
+		{% endif %}
 		{% if instance.is_past and instance.has_enrollment_closed %}
 			<div class="alert sticky-alert alert-default">
 				{% translate "COURSE_HAS_ALREADY_ENDED" %}
