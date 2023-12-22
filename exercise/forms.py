@@ -21,6 +21,7 @@ class SubmissionCallbackForm(forms.Form):
     notify = forms.CharField(required=False)
     grading_payload = forms.CharField(required=False)
     lti_launch_id = forms.CharField(required=False)
+    lti_session_id = forms.CharField(required=False)
     error = forms.BooleanField(required=False)
 
     def clean(self):

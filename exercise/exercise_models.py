@@ -977,7 +977,8 @@ class BaseExercise(LearningObject):
             )
             return self._build_service_url(
                 language, students,
-                ordinal, url_name, submission_url, lti_launch_id=request.session.get("lti-launch-id")
+                ordinal, url_name, submission_url, lti_launch_id=request.session.get("lti-launch-id"),
+                lti_session_id=request.COOKIES.get("lti1p3-session-id")
             )
         return super().get_load_url(language, request, students, url_name, ordinal)
 
@@ -1016,7 +1017,8 @@ class BaseExercise(LearningObject):
         """
 
     # pylint: disable-next=too-many-arguments
-    def _build_service_url(self, language, students, ordinal_number, url_name, submission_url, lti_launch_id=None):
+    def _build_service_url(self, language, students, ordinal_number, url_name, submission_url,
+                           lti_launch_id=None, lti_session_id=None):
         """
         Generates complete URL with added parameters to the exercise service.
         """
@@ -1032,6 +1034,8 @@ class BaseExercise(LearningObject):
         }
         if lti_launch_id:
             params["lti_launch_id"] = lti_launch_id
+        if lti_session_id:
+            params["lti_session_id"] = lti_session_id
         return update_url_params(self.get_service_url(language), params)
 
     @property
