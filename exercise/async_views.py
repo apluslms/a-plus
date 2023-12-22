@@ -61,6 +61,9 @@ def _post_async_submission(request, exercise, submission, errors=None):
         if (form.cleaned_data["lti_launch_id"]
                 and submission.meta_data.get("lti-launch-id") is None):
             submission.meta_data["lti-launch-id"] = form.cleaned_data["lti_launch_id"]
+        if (form.cleaned_data["lti_session_id"]
+                and submission.meta_data.get("lti-session-id") is None):
+            submission.meta_data["lti-session-id"] = form.cleaned_data["lti_session_id"]
 
         if form.cleaned_data["error"]:
             submission.set_error()
