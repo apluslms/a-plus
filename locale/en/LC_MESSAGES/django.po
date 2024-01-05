@@ -336,11 +336,11 @@ msgstr "Assistant"
 msgid "TEACHER"
 msgstr "Teacher"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "ACTIVE"
 msgstr "Active"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "REMOVED"
 msgstr "Removed"
 
@@ -381,7 +381,7 @@ msgid "LABEL_ROLE"
 msgstr "role"
 
 #: course/models.py exercise/admin.py exercise/exercise_models.py
-#: exercise/submission_models.py
+#: exercise/submission_models.py site_alert/models.py
 msgid "LABEL_STATUS"
 msgstr "status"
 
@@ -5453,6 +5453,18 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "The user account has been disabled."
+
+#: site_alert/models.py
+msgid "LABEL_ALERT"
+msgstr "alert"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT"
+msgstr "site alert"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT_PLURAL"
+msgstr "site alerts"
 
 #: templates/403.html
 msgid "ACCESS_RESTRICTED_403"

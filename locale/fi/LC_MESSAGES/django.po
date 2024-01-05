@@ -337,11 +337,11 @@ msgstr "Assistentti"
 msgid "TEACHER"
 msgstr "Opettaja"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "ACTIVE"
 msgstr "Aktiivinen"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "REMOVED"
 msgstr "Poistettu"
 
@@ -382,7 +382,7 @@ msgid "LABEL_ROLE"
 msgstr "rooli"
 
 #: course/models.py exercise/admin.py exercise/exercise_models.py
-#: exercise/submission_models.py
+#: exercise/submission_models.py site_alert/models.py
 msgid "LABEL_STATUS"
 msgstr "tila"
 
@@ -5473,6 +5473,18 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "Käyttäjätili on poistettu käytöstä."
+
+#: site_alert/models.py
+msgid "LABEL_ALERT"
+msgstr "varoitus"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT"
+msgstr "sivustovaroitus"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT_PLURAL"
+msgstr "sivustovaroitukset"
 
 #: templates/403.html
 msgid "ACCESS_RESTRICTED_403"
