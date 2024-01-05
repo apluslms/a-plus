@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     'apps',
     'redirect_old_urls',
     'lti_tool',
+    'site_alert',
 
     'js_jquery_toggle',
     'django_colortag',
