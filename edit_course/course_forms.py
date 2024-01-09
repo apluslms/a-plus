@@ -191,8 +191,11 @@ class CourseInstanceForm(forms.ModelForm):
         # crash due to invalid data if this method returned an invalid value.
         # Raising a ValidationError here prevents the course instance from
         # having invalid values.
-        generate_url_key_validator()(self.cleaned_data["url"])
-        return self.cleaned_data["url"]
+        generate_url_key_validator()(self.cleaned_data['url'])
+        url = self.cleaned_data['url']
+        if url != self.instance.url and CourseInstance.objects.filter(course=self.instance.course, url=url).exists():
+            raise ValidationError(_('ERROR_URL_ALREADY_TAKEN'))
+        return url
 
     def save(self, *args, **kwargs):
         self.instance.set_assistants(self.cleaned_data['assistants'])
