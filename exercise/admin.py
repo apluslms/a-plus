@@ -164,6 +164,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         course_wrapper,
         submitters_wrapper,
         'status',
+        'unofficial_submission_type',
         'grade',
         'submission_time',
     )
