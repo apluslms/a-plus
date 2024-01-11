@@ -199,6 +199,7 @@ def _points_data(
         'graded': getattr(obj, 'graded',  True),
         'unconfirmed': getattr(obj, 'unconfirmed',  False),
         'official': not getattr(obj, 'unofficial',  False),
+        'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
     }

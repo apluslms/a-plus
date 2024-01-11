@@ -364,6 +364,10 @@ class Submission(SubmissionProto, models.Model):
         ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
+    UNOFFICAL_SUBMISSION_TYPE = Enum([
+        ('DEADLINE_PASSED', 'deadline_passed', _('DEADLINE_PASSED')),
+        ('LIMIT_EXCEEDED', 'limit_exceeded', _('LIMIT_EXCEEDED'))
+    ])
     submission_time = models.DateTimeField(
         verbose_name=_('LABEL_SUBMISSION_TIME'),
         auto_now_add=True,
@@ -402,6 +406,13 @@ class Submission(SubmissionProto, models.Model):
         verbose_name=_('LABEL_STATUS'),
         max_length=32,
         choices=STATUS.choices, default=STATUS.INITIALIZED,
+    )
+    unofficial_submission_type = models.CharField(
+        verbose_name=_('LABEL_UNOFFICIAL_SUBMISSION_TYPE'),
+        max_length=64,
+        choices=UNOFFICAL_SUBMISSION_TYPE.choices,
+        default=None,
+        blank=True, null=True,
     )
     grade = models.IntegerField(
         verbose_name=_('LABEL_GRADE'),
@@ -606,8 +617,10 @@ class Submission(SubmissionProto, models.Model):
                 adjusted_grade -= (adjusted_grade * self.late_penalty_applied)
             elif timing == exercise.TIMING.UNOFFICIAL:
                 self.status = self.STATUS.UNOFFICIAL
+                self.unofficial_submission_type = self.UNOFFICAL_SUBMISSION_TYPE.DEADLINE_PASSED
             if self.exercise.no_submissions_left(self.submitters.all()):
                 self.status = self.STATUS.UNOFFICIAL
+                self.unofficial_submission_type = self.UNOFFICAL_SUBMISSION_TYPE.LIMIT_EXCEEDED
 
         self.grade = round(adjusted_grade)
 

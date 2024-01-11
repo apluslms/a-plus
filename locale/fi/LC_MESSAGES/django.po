@@ -2044,6 +2044,10 @@ msgid "COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS"
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
 #: edit_course/course_forms.py
+msgid "ERROR_URL_ALREADY_TAKEN"
+msgstr "URL on jo käytössä."
+
+#: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "Uusi URL-osoitteessa käytettävä tunniste kurssikerralle"
 
@@ -2222,10 +2226,6 @@ msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
 "opintotietojärjestelmän kautta. Tätä valintaa sovelletaan vain, jos valitset "
 "ensin yllä olevasta valikosta kurssikerran."
-
-#: edit_course/course_forms.py
-msgid "ERROR_URL_ALREADY_TAKEN"
-msgstr "URL on jo käytössä."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SLUG"
@@ -3731,6 +3731,16 @@ msgstr "Hylätty"
 msgid "STATUS_UNOFFICIAL"
 msgstr "Ei vaikuta arvosteluun"
 
+#: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "DEADLINE_PASSED"
+msgstr "Palautettu määräajan jälkeen"
+
+#: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "LIMIT_EXCEEDED"
+msgstr "Palautuskertojen enimmäismäärä ylitetty"
+
 #: exercise/submission_models.py
 msgid "LABEL_HASH"
 msgstr "tunniste (hash)"
@@ -3742,6 +3752,10 @@ msgstr "arvostelija"
 #: exercise/submission_models.py
 msgid "LABEL_FEEDBACK"
 msgstr "Palaute"
+
+#: exercise/submission_models.py
+msgid "LABEL_UNOFFICIAL_SUBMISSION_TYPE"
+msgstr "Epävirallisen palautuksen tyyppi"
 
 #: exercise/submission_models.py
 #: exercise/templates/exercise/staff/_submission_data_modal.html

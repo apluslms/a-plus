@@ -2031,6 +2031,10 @@ msgid "COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS"
 msgstr "Students will not be able to submit answers after this time."
 
 #: edit_course/course_forms.py
+msgid "ERROR_URL_ALREADY_TAKEN"
+msgstr "The URL is already taken."
+
+#: edit_course/course_forms.py
 msgid "COURSE_NEW_URL_IDENTIFIER_COURSE_INSTANCE"
 msgstr "New URL identifier for the course instance"
 
@@ -2208,10 +2212,6 @@ msgstr ""
 "When enabled, students from local organization must enrol through SIS. This "
 "option only applies if you first select a course instance from the dropdown "
 "above."
-
-#: edit_course/course_forms.py
-msgid "ERROR_URL_ALREADY_TAKEN"
-msgstr "The URL is already taken."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SLUG"
@@ -3722,6 +3722,16 @@ msgstr "Rejected"
 msgid "STATUS_UNOFFICIAL"
 msgstr "No effect on grading"
 
+#: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "DEADLINE_PASSED"
+msgstr "Submitted after deadline"
+
+#: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "LIMIT_EXCEEDED"
+msgstr "Submission limit exceeded"
+
 #: exercise/submission_models.py
 msgid "LABEL_HASH"
 msgstr "hash"
@@ -3733,6 +3743,10 @@ msgstr "grader"
 #: exercise/submission_models.py
 msgid "LABEL_FEEDBACK"
 msgstr "Feedback"
+
+#: exercise/submission_models.py
+msgid "LABEL_UNOFFICIAL_SUBMISSION_TYPE"
+msgstr "Unofficial submission type"
 
 #: exercise/submission_models.py
 #: exercise/templates/exercise/staff/_submission_data_modal.html

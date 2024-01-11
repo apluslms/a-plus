@@ -360,6 +360,7 @@ class SubmissionEntryBase(SubmissionProto, EqById):
     graded: bool
     status: str
     unofficial: bool
+    unofficial_submission_type: Optional[str]
     date: datetime.datetime
     url: str
     hash: Optional[str]
@@ -586,6 +587,7 @@ class ExercisePoints(LearningObjectPoints):
     _best_submission: Optional[SubmissionEntry]
     graded: bool
     unofficial: bool
+    unofficial_submission_type: Optional[str]
     forced_points: bool
     notified: bool
     unseen: bool
@@ -684,6 +686,7 @@ class ExercisePoints(LearningObjectPoints):
         self.graded = False
         self.unofficial = False # TODO: this should be True,
         # but we need to ensure nothing breaks when it's changed
+        self.unofficial_submission_type = None
         self.forced_points = False
         self.notified = False
         self.unseen = False
@@ -735,6 +738,7 @@ class ExercisePoints(LearningObjectPoints):
                 graded = submission.is_graded,
                 status = submission.status,
                 unofficial = unofficial,
+                unofficial_submission_type = submission.unofficial_submission_type,
                 date = submission.submission_time,
                 url = submission.get_url('submission-plain'),
                 feedback_revealed = True,
