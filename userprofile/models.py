@@ -1,4 +1,3 @@
-import hashlib
 from typing import Any, Optional, TYPE_CHECKING
 
 from aplus_auth.payload import Permission
@@ -111,14 +110,6 @@ class UserProfile(models.Model):
         # FIXME: implement support for more than 1 token
         token, _created = Token.objects.get_or_create(user=self.user)
         return token.key
-
-    @cached_property
-    def avatar_url(self):
-        """
-        URL address for gravatar image based on the user email.
-        """
-        hash_key = hashlib.md5(self.user.email.encode('utf-8')).hexdigest()
-        return "http://www.gravatar.com/avatar/" + hash_key + "?d=identicon"
 
     @cached_property
     def shortname(self):

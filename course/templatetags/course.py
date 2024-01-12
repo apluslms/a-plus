@@ -128,11 +128,6 @@ def names(profiles):
     return ", ".join(p.user.get_full_name() for p in profiles)
 
 
-@register.inclusion_tag('course/_avatars.html')
-def avatars(profiles):
-    return { 'profiles': profiles }
-
-
 @register.inclusion_tag("course/_profiles.html")
 def profiles(
         profiles: Union[UserProfile, List[UserProfile], models.QuerySet[UserProfile]],
