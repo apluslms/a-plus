@@ -53,7 +53,6 @@
     <table class="table">
       {% for group in groups %}
       <tr>
-        <td>{% avatars group.members.all %}</td>
         <td>{{ group.members.all|names }}</td>
         <td>{{ group.timestamp|naturalday }}</td>
       </tr>
