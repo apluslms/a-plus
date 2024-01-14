@@ -55,7 +55,7 @@ class EditInstanceView(CourseInstanceMixin, BaseFormView):
     def form_valid(self, form):
         self.instance = form.save()
         SecurityLog.logevent(self.request, "course-edit", "course: {}, teachers: {}, assistants: {}".format(
-            self.get_course_instance_object().course,
+            self.instance.course,
             list(map(lambda x: str(x.user), form.instance.teachers.all())),
             list(map(lambda x: str(x.user), form.instance.assistants.all()))
         ))
