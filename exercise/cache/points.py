@@ -204,7 +204,7 @@ class PointsDBData(DBDataManager):
                 Submission.objects
                 .filter(submitters=user.userprofile, exercise_id__in=exercise_ids)
                 .prefetch_related("exercise", "notifications", "submitters")
-                .order_by('-submission_time', 'exercise_id')
+                .order_by('exercise_id', '-submission_time')
             )
             for exercise_id, exercise_submissions in groupby(submissions, key=lambda s: s.exercise_id):
                 self.submissions[(user_id, exercise_id)] = list(exercise_submissions)
