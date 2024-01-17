@@ -406,8 +406,12 @@ class CachedPoints(ContentMixin, CachedAbstract):
                 model_chapter = module.model_answer
                 if model_chapter is None:
                     continue
-                reveal_rule = module.active_model_solution_reveal_rule
                 entry = self._by_idx(modules, exercise_index[model_chapter.id])[-1]
+                if self.instance.is_on_lifesupport():
+                    update_is_revealed_recursive(entry, False)
+                    continue
+
+                reveal_rule = module.active_model_solution_reveal_rule
                 cached_module = self._by_idx(modules, module_index[module.id])[-1]
                 state = ModuleRevealState(cached_module)
                 is_revealed = reveal_rule.is_revealed(state)
