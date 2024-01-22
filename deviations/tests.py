@@ -369,7 +369,6 @@ class DeviationsTest(TestCase):
 
     def test_add_deadline_deviations(self):
         self.client.login(username="staff", password="staffPassword")
-        list_deadline_deviations_url = self.course_instance.get_url("deviations-list-dl")
         add_deadline_deviations_url = self.course_instance.get_url("deviations-add-dl")
 
         # Module and user tag provided
@@ -382,7 +381,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_1,
@@ -418,7 +417,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_1,
@@ -456,7 +455,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_1,
@@ -490,7 +489,6 @@ class DeviationsTest(TestCase):
 
     def test_override_deadline_deviations(self):
         self.client.login(username="staff", password="staffPassword")
-        list_deadline_deviations_url = self.course_instance.get_url("deviations-list-dl")
         add_deadline_deviations_url = self.course_instance.get_url("deviations-add-dl")
         override_deadline_deviations_url = self.course_instance.get_url("deviations-override-dl")
 
@@ -504,7 +502,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
@@ -547,7 +545,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
@@ -583,7 +581,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
@@ -604,7 +602,6 @@ class DeviationsTest(TestCase):
 
     def test_remove_deadline_deviations(self):
         self.client.login(username="staff", password="staffPassword")
-        list_deadline_deviations_url = self.course_instance.get_url("deviations-list-dl")
         add_deadline_deviations_url = self.course_instance.get_url("deviations-add-dl")
         remove_deadline_deviations_url = self.course_instance.get_url("deviations-remove-dl")
 
@@ -618,7 +615,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, add_deadline_deviations_url)
 
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
@@ -644,7 +641,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, remove_deadline_deviations_url)
 
         with self.assertRaises(DeadlineRuleDeviation.DoesNotExist):
             DeadlineRuleDeviation.objects.get(
@@ -661,7 +658,7 @@ class DeviationsTest(TestCase):
             }
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, list_deadline_deviations_url)
+        self.assertEqual(response.url, remove_deadline_deviations_url)
 
         with self.assertRaises(DeadlineRuleDeviation.DoesNotExist):
             DeadlineRuleDeviation.objects.get(

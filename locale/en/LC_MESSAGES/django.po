@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 20:01+0300\n"
+"POT-Creation-Date: 2024-01-20 17:06+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1846,9 +1846,17 @@ msgid "SUBMIT"
 msgstr "Submit"
 
 #: deviations/viewbase.py
+msgid "SUCCESS_ADDING_DEVIATIONS"
+msgstr "Deviations were added succesfully."
+
+#: deviations/viewbase.py
 #, python-brace-format
 msgid "INVALID_EXERCISE_OR_SUBMITTER_ID -- {id}"
 msgstr "Invalid assignment or submitter id: {id}"
+
+#: deviations/viewbase.py
+msgid "SUCCESS_OVERRIDING_DEVIATIONS"
+msgstr "Deviations were overriden succesfully."
 
 #: deviations/viewbase.py
 msgid "NOTHING_REMOVED"
