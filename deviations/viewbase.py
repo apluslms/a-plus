@@ -77,7 +77,8 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
             self.success_url = self.deviation_model.get_override_url(self.instance)
             self.request.session[self.session_key] = self.serialize_session_data(form.cleaned_data)
         else:
-            self.success_url = self.deviation_model.get_list_url(self.instance)
+            self.success_url = self.get_success_no_override_url()
+
             for exercise in exercises:
                 for submitter in submitters:
                     new_deviation = self.deviation_model(
@@ -87,7 +88,7 @@ class AddDeviationsView(CourseInstanceMixin, BaseFormView):
                     )
                     new_deviation.update_by_form(form.cleaned_data)
                     new_deviation.save()
-
+            messages.success(self.request, _("SUCCESS_ADDING_DEVIATIONS"))
         return super().form_valid(form)
 
     def serialize_session_data(self, form_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -109,9 +110,6 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
     form_class = forms.Form
     deviation_model: Type[SubmissionRuleDeviation]
     session_key: str
-
-    def get_success_url(self) -> str:
-        return self.deviation_model.get_list_url(self.instance)
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
@@ -162,6 +160,7 @@ class OverrideDeviationsView(CourseInstanceMixin, BaseFormView):
                     new_deviation.save()
 
         del self.request.session[self.session_key]
+        messages.success(self.request, _("SUCCESS_OVERRIDING_DEVIATIONS"))
         return super().form_valid(form)
 
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -203,7 +202,7 @@ class RemoveDeviationsView(CourseInstanceMixin, BaseFormView):
         return kwargs
 
     def get_success_url(self) -> str:
-        return self.deviation_model.get_list_url(self.instance)
+        return self.instance.get_url('deviations-remove-dl')
 
     def form_valid(self, form: forms.BaseForm) -> HttpResponse:
         number_of_removed = 0

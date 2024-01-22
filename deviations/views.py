@@ -28,6 +28,9 @@ class AddDeadlinesView(AddDeviationsView):
     deviation_model = DeadlineRuleDeviation
     session_key = 'add-deviations-data-dl'
 
+    def get_success_no_override_url(self) -> str:
+        return self.instance.get_url('deviations-add-dl')
+
     def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
         spec = super().get_initial_get_param_spec()
         spec.update({
@@ -51,6 +54,9 @@ class OverrideDeadlinesView(OverrideDeviationsView):
     template_name = "deviations/override_dl.html"
     deviation_model = DeadlineRuleDeviation
     session_key = 'add-deviations-data-dl'
+
+    def get_success_url(self) -> str:
+        return self.instance.get_url('deviations-add-dl')
 
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().deserialize_session_data(session_data)
@@ -83,6 +89,9 @@ class AddSubmissionsView(AddDeviationsView):
     deviation_model = MaxSubmissionsRuleDeviation
     session_key = 'add-deviations-data-submissions'
 
+    def get_success_no_override_url(self) -> str:
+        return self.instance.get_url('deviations-add-submissions')
+
     def serialize_session_data(self, form_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().serialize_session_data(form_data)
         result['extra_submissions'] = form_data['extra_submissions']
@@ -93,6 +102,9 @@ class OverrideSubmissionsView(OverrideDeviationsView):
     template_name = "deviations/override_submissions.html"
     deviation_model = MaxSubmissionsRuleDeviation
     session_key = 'add-deviations-data-submissions'
+
+    def get_success_url(self) -> str:
+        return self.instance.get_url('deviations-add-submissions')
 
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().deserialize_session_data(session_data)

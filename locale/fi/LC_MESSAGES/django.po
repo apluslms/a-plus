@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 20:01+0300\n"
+"POT-Creation-Date: 2024-01-20 17:06+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1857,9 +1857,17 @@ msgid "SUBMIT"
 msgstr "Lähetä"
 
 #: deviations/viewbase.py
+msgid "SUCCESS_ADDING_DEVIATIONS"
+msgstr "Poikkeamat lisättiin onnistuneesti."
+
+#: deviations/viewbase.py
 #, python-brace-format
 msgid "INVALID_EXERCISE_OR_SUBMITTER_ID -- {id}"
 msgstr "Virheellinen tehtävän tai palauttajan id: {id}"
+
+#: deviations/viewbase.py
+msgid "SUCCESS_OVERRIDING_DEVIATIONS"
+msgstr "Poikkeamat ylikirjoitettiin onnistuneesti."
 
 #: deviations/viewbase.py
 msgid "NOTHING_REMOVED"
