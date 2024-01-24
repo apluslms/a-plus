@@ -2,7 +2,10 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import external_services.models
+
+
+def validate_no_domain(value):
+    pass
 
 
 class Migration(migrations.Migration):
@@ -103,7 +106,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='menu_url',
-            field=models.CharField(blank=True, help_text='MENU_ITEM_MENU_URL_HELPTEXT', max_length=256, null=True, validators=[external_services.models.validate_no_domain], verbose_name='LABEL_MENU_URL'),
+            field=models.CharField(blank=True, help_text='MENU_ITEM_MENU_URL_HELPTEXT', max_length=256, null=True, validators=[validate_no_domain], verbose_name='LABEL_MENU_URL'),
         ),
         migrations.AlterField(
             model_name='menuitem',

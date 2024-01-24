@@ -4806,10 +4806,6 @@ msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
 msgstr "Kurssille ilmoittautuminen vaaditaan LTI-palveluun pääsemiseksi."
 
 #: external_services/models.py
-msgid "URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN"
-msgstr "Url ei voi sisältää skeema- tai verkkotunnusosaa."
-
-#: external_services/models.py
 msgid "DESTINATION_INTERNAL_PRIVACY_NOTICE"
 msgstr ""
 "Määränpää on ylläpidetty sisäisesti. Linkataan sisäiseen "
@@ -4998,12 +4994,12 @@ msgstr "URL"
 msgid "MENU_ITEM_MENU_URL_HELPTEXT"
 msgstr ""
 "URL joka on a) suhteellinen palvelun URL:ään tai b) tähän kurssiin, mikäli "
-"palvelua ei ole valittu.<br>\n"
+"palvelua ei ole valittu tai c) linkki ulkoiselle sivustolle.<br>\n"
 "Tilanne a: URL, joka alkaa /-merkillä ylikirjoittaa palvelun koko polun, "
 "muutoin jatkaa sitä.<br>\n"
 "Tilanne b: URL, joka alkaa /-merkillä on absoluuttinen tämän palvelun "
 "suhteen, muutoin on suhteellinen kurssin polkuun.<br>\n"
-"Huomaa ettei tämä URL voi sisältää skeemaa tai verkkotunnusta."
+"Tilanne c: Linkki, esimerkiksi https://google.com"
 
 #: external_services/models.py
 msgid "LABEL_MENU_GROUP_LABEL"
