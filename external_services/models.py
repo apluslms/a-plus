@@ -12,11 +12,6 @@ from lib.helpers import Enum
 from lib.models import UrlMixin
 
 
-def validate_no_domain(value):
-    if value and '://' in value:
-        raise ValidationError(_('URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN'))
-
-
 class LinkService(ModelWithInheritance):
     '''
     A link to an external service.
@@ -250,8 +245,7 @@ class MenuItem(UrlMixin, models.Model):
         max_length=256,
         blank=True,
         null=True,
-        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'""),
-        validators=[validate_no_domain],
+        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'),
     )
     menu_group_label = models.CharField(
         verbose_name=_('LABEL_MENU_GROUP_LABEL'),

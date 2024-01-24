@@ -4792,10 +4792,6 @@ msgid "LTI_SERVICE_COURSE_ENROLLMENT_REQUIRED_FOR_ACCESS"
 msgstr "Course enrolment required for accessing the LTI service."
 
 #: external_services/models.py
-msgid "URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN"
-msgstr "The URL cannot contain scheme or domain part."
-
-#: external_services/models.py
 msgid "DESTINATION_INTERNAL_PRIVACY_NOTICE"
 msgstr "The destination is hosted internally. Link to internal privacy notice."
 
@@ -4978,13 +4974,13 @@ msgstr "URL"
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_URL_HELPTEXT"
 msgstr ""
-"An URL that is a) relative to the service URL or b) this course if no "
-"service is selected.<br>\n"
-"Case a: An URL starting with '/' overwrites path in service URL and extends "
+"A URL that is a) relative to the service URL or b) this course if no service "
+"is selected or c) a link to some external website.<br>\n"
+"Case a: A URL starting with '/' overwrites path in service URL and extends "
 "it otherwise.<br>\n"
-"Case b: An URL starting with '/' is absolute within this service and "
-"relative to the course path otherwise.<br>\n"
-"Note that URL entered here can not include scheme or domain."
+"Case b: A URL starting with '/' is absolute within this service and relative "
+"to the course path otherwise.<br>\n"
+"Case c: A link, for example https://google.com"
 
 #: external_services/models.py
 msgid "LABEL_MENU_GROUP_LABEL"
