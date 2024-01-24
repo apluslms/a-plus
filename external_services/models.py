@@ -13,8 +13,7 @@ from lib.models import UrlMixin
 
 
 def validate_no_domain(value):
-    if value and '://' in value:
-        raise ValidationError(_('URL_CANNOT_CONTAIN_SCHEME_OR_DOMAIN'))
+    pass
 
 
 class LinkService(ModelWithInheritance):
@@ -250,7 +249,7 @@ class MenuItem(UrlMixin, models.Model):
         max_length=256,
         blank=True,
         null=True,
-        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'""),
+        help_text=_('MENU_ITEM_MENU_URL_HELPTEXT'),
         validators=[validate_no_domain],
     )
     menu_group_label = models.CharField(
