@@ -1012,6 +1012,13 @@ class ExerciseTest(TestCase):
         self.assertTrue(self.base_exercise.can_be_shown_as_module_model_solution(self.user))
         self.assertTrue(self.static_exercise.can_be_shown_as_module_model_solution(self.user))
 
+        self.course_instance.ending_time = self.today - timedelta(days=2)
+        self.course_instance.lifesupport_time = self.yesterday
+        self.course_instance.save()
+        # Model answer chapters not visible after lifesupport time
+        self.assertFalse(chapter.can_be_shown_as_module_model_solution(self.user))
+        self.assertFalse(self.base_exercise.can_be_shown_as_module_model_solution(self.user2))
+
     def test_reveal_rule(self):
         reveal_rule = RevealRule.objects.create(
             trigger=RevealRule.TRIGGER.MANUAL,
