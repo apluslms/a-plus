@@ -173,7 +173,7 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         verbose_name_plural = _('MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL')
 
     def get_extra_time(self):
-        return timedelta(minutes=self.extra_minutes)
+        return timedelta(minutes=self.extra_minutes+0.99)
 
     def get_new_deadline(self, normal_deadline: Optional[datetime] = None) -> datetime:
         """
