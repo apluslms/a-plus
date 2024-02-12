@@ -375,6 +375,10 @@ class CloneInstanceView(CourseInstanceMixin, BaseFormView):
             response = aplus_post(gitmanager_url, permissions=permissions, data=data)
             if response.status_code == 200:
                 new_instance.configure_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"{key}/aplus-json")
+                new_instance.build_log_url = urllib.parse.urljoin(
+                    settings.GITMANAGER_URL,
+                    f"gitmanager/{key}/build_log-json",
+                )
                 new_instance.save()
                 gitmanager_hook_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"gitmanager/{key}/hook")
                 response = aplus_post(gitmanager_hook_url, permissions=permissions, data={"key": key})
@@ -423,6 +427,10 @@ class EditGitmanagerView(CourseInstanceMixin, BaseFormView):
             if response.status_code == 200:
                 key = form.cleaned_data['key']
                 self.instance.configure_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"{key}/aplus-json")
+                self.instance.build_log_url = urllib.parse.urljoin(
+                    settings.GITMANAGER_URL,
+                    f"gitmanager/{key}/build_log-json",
+                )
                 self.instance.save()
                 gitmanager_hook_url = urllib.parse.urljoin(settings.GITMANAGER_URL, f"gitmanager/{key}/hook")
                 response = aplus_post(gitmanager_hook_url, permissions=permissions, data={"key": key})
