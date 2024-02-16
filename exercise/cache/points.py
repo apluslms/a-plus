@@ -92,8 +92,6 @@ def none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
 
 
 def _add_to(target: Union[ModulePoints, CategoryPoints, Totals], entry: ExercisePoints) -> None:
-    target._true_passed = target._true_passed and entry._true_passed
-    target._passed = target._passed and entry._passed
     target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
 
     if not entry.graded:
@@ -549,8 +547,6 @@ class LearningObjectPoints(CommonPointData, LearningObjectEntryBase["ModulePoint
                 self.max_points += entry.max_points
                 self.submission_count += entry.submission_count
                 self._expires_on = none_min(self._expires_on, entry._expires_on)
-                self._true_passed = self._true_passed and entry._true_passed
-                self._passed = self._passed and entry._passed
                 # pylint: disable-next=unidiomatic-typecheck
                 if type(entry) is LearningObjectPoints or entry.graded:
                     self._true_points += entry._true_points
@@ -678,8 +674,8 @@ class ExercisePoints(LearningObjectPoints):
             )
 
         self.submission_count = 0
-        self._true_passed = False
-        self._passed = False
+        self._true_passed = self.points_to_pass == 0
+        self._passed = self.points_to_pass == 0
         self._true_points = 0
         self.submittable = True
         self.submissions = []
