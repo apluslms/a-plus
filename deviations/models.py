@@ -186,7 +186,7 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         if normal_deadline is None:
             normal_deadline = self.get_normal_deadline()
         new_deadline=normal_deadline + self.get_extra_time()
-        if str(new_deadline).find("23:59"):
+        if str(new_deadline).find("23:59")==0:
             return new_deadline+timedelta(minutes=0.99)
         else:
             return new_deadline
