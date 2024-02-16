@@ -42,8 +42,8 @@ class DeviationsTest(TestCase):
             url="Course-Url",
         )
 
-        # Truncate the datetime to minutes to make testing deadline deviations more convenient
-        self.today = timezone.now().replace(second=0, microsecond=0)
+        # Truncate the datetime to seconds to make testing deadline deviations more convenient
+        self.today = timezone.now().replace(microsecond=0)
         self.tomorrow = self.today + timedelta(days=1)
         self.two_days_from_now = self.today + timedelta(days=2)
 
@@ -142,21 +142,21 @@ class DeviationsTest(TestCase):
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=1440, # One day
+            extra_seconds=24*60*60, # One day
         )
 
         self.deadline_rule_deviation_u1_e2 = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment_2,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=2880, # Two days
+            extra_seconds=2*24*60*60, # Two days
         )
 
         self.deadline_rule_deviation_u2_e1 = DeadlineRuleDeviation.objects.create(
             exercise=self.exercise_with_attachment,
             submitter=self.user_2.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=4320, # Three days
+            extra_seconds=3*24*60*60, # Three days
         )
 
     def test_deadline_rule_deviation_extra_time(self):
@@ -181,7 +181,7 @@ class DeviationsTest(TestCase):
         )
         self.assertIsNotNone(deviation)
         self.assertEqual(deviation.exercise.id, self.exercise_with_attachment.id)
-        self.assertEqual(deviation.extra_minutes, 1440)
+        self.assertEqual(deviation.extra_seconds, 24*60*60)
 
         deviation = DeadlineRuleDeviation.objects.get_max_deviation(
             self.user_2.userprofile,
@@ -189,7 +189,7 @@ class DeviationsTest(TestCase):
         )
         self.assertIsNotNone(deviation)
         self.assertEqual(deviation.exercise.id, self.exercise_with_attachment.id)
-        self.assertEqual(deviation.extra_minutes, 4320)
+        self.assertEqual(deviation.extra_seconds, 3*24*60*60)
 
     def test_get_max_deviations_multiple(self):
         # Test that the get_max_deviations method returns the correct deviation
@@ -203,9 +203,9 @@ class DeviationsTest(TestCase):
         for deviation in deviations:
             counter += 1
             if deviation.exercise.id == self.exercise_with_attachment.id:
-                self.assertEqual(deviation.extra_minutes, 1440)
+                self.assertEqual(deviation.extra_seconds, 24*60*60)
             elif deviation.exercise.id == self.exercise_with_attachment_2.id:
-                self.assertEqual(deviation.extra_minutes, 2880)
+                self.assertEqual(deviation.extra_seconds, 2*24*60*60)
             else:
                 raise self.failureException('Unexpected exercise returned')
         self.assertEqual(counter, 2)
@@ -218,7 +218,7 @@ class DeviationsTest(TestCase):
         for deviation in deviations:
             counter += 1
             if deviation.exercise.id == self.exercise_with_attachment.id:
-                self.assertEqual(deviation.extra_minutes, 4320)
+                self.assertEqual(deviation.extra_seconds, 3*24*60*60)
             else:
                 raise self.failureException('Unexpected exercise returned')
         self.assertEqual(counter, 1)
@@ -240,7 +240,7 @@ class DeviationsTest(TestCase):
         )
         self.assertIsNotNone(deviation)
         self.assertEqual(deviation.exercise.id, self.exercise_with_attachment.id)
-        self.assertEqual(deviation.extra_minutes, 4320)
+        self.assertEqual(deviation.extra_seconds, 3*24*60*60)
 
         deviation = DeadlineRuleDeviation.objects.get_max_deviation(
             self.user_2.userprofile,
@@ -248,7 +248,7 @@ class DeviationsTest(TestCase):
         )
         self.assertIsNotNone(deviation)
         self.assertEqual(deviation.exercise.id, self.exercise_with_attachment.id)
-        self.assertEqual(deviation.extra_minutes, 4320)
+        self.assertEqual(deviation.extra_seconds, 3*24*60*60)
 
     def test_update_by_form(self):
         deviation = DeadlineRuleDeviation(
@@ -256,17 +256,17 @@ class DeviationsTest(TestCase):
             submitter=self.user.userprofile,
         )
         deviation.update_by_form({
-            'minutes': 60,
+            'seconds': 60*60,
             'without_late_penalty': False,
         })
-        self.assertEqual(deviation.extra_minutes, 60)
+        self.assertEqual(deviation.extra_seconds, 60*60)
         self.assertEqual(deviation.without_late_penalty, False)
 
         deviation.update_by_form({
             'new_date': timezone.make_naive(self.two_days_from_now),
             'without_late_penalty': True,
         })
-        self.assertEqual(deviation.extra_minutes, 1440)
+        self.assertEqual(deviation.extra_seconds, 24*60*60)
         self.assertEqual(deviation.without_late_penalty, True)
         deviation = MaxSubmissionsRuleDeviation(
             exercise=self.exercise_with_attachment,
@@ -282,21 +282,21 @@ class DeviationsTest(TestCase):
         deviation_1 = DeadlineRuleDeviation(
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
-            extra_minutes=60,
+            extra_seconds=60*60,
             without_late_penalty=False,
         )
         deviation_2 = DeadlineRuleDeviation(
             exercise=self.exercise_with_attachment_2,
             submitter=self.user_2.userprofile,
-            extra_minutes=60,
+            extra_seconds=60*60,
             without_late_penalty=False,
         )
         self.assertTrue(deviation_1.is_groupable(deviation_2))
 
-        deviation_2.extra_minutes = 120
+        deviation_2.extra_seconds = 120*60
         self.assertFalse(deviation_1.is_groupable(deviation_2))
 
-        deviation_2.extra_minutes = 60
+        deviation_2.extra_seconds = 60*60
         deviation_2.without_late_penalty = True
         self.assertFalse(deviation_1.is_groupable(deviation_2))
 
@@ -316,7 +316,7 @@ class DeviationsTest(TestCase):
         self.assertFalse(deviation_1.is_groupable(deviation_2))
 
     def test_get_deviation_groups(self):
-        # The deviations of user 1 can't be grouped because of different extra minutes
+        # The deviations of user 1 can't be grouped because of different extra seconds
         # The deviations of user 2 can't be grouped because there is only one deviation
         groups = list(get_deviation_groups(DeadlineRuleDeviation.objects.all()))
         deviations, can_group, group_id, _ = groups[0]
@@ -328,11 +328,11 @@ class DeviationsTest(TestCase):
         self.assertFalse(can_group)
         self.assertIsNone(group_id)
 
-        self.deadline_rule_deviation_u1_e1.extra_minutes = 60
+        self.deadline_rule_deviation_u1_e1.extra_seconds = 60*60
         self.deadline_rule_deviation_u1_e1.save()
-        self.deadline_rule_deviation_u1_e2.extra_minutes = 60
+        self.deadline_rule_deviation_u1_e2.extra_seconds = 60*60
         self.deadline_rule_deviation_u1_e2.save()
-        self.deadline_rule_deviation_u2_e1.extra_minutes = 60
+        self.deadline_rule_deviation_u2_e1.extra_seconds = 60*60
         self.deadline_rule_deviation_u2_e1.save()
 
         # The deviations of user 1 can now be grouped
@@ -359,11 +359,11 @@ class DeviationsTest(TestCase):
         self.assertIsNone(group_id)
 
         # Reset original values
-        self.deadline_rule_deviation_u1_e1.extra_minutes = 1440
+        self.deadline_rule_deviation_u1_e1.extra_seconds = 24*60*60
         self.deadline_rule_deviation_u1_e1.save()
-        self.deadline_rule_deviation_u1_e2.extra_minutes = 2880
+        self.deadline_rule_deviation_u1_e2.extra_seconds = 2*24*60*60
         self.deadline_rule_deviation_u1_e2.save()
-        self.deadline_rule_deviation_u2_e1.extra_minutes = 4320
+        self.deadline_rule_deviation_u2_e1.extra_seconds = 3*24*60*60
         self.deadline_rule_deviation_u2_e1.save()
         extra_exercise.delete()
 
@@ -377,7 +377,7 @@ class DeviationsTest(TestCase):
             {
                 'module': [self.course_module_2.id],
                 'submitter_tag': [self.user_tag.id],
-                'minutes': 60,
+                'seconds': 60*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -387,13 +387,13 @@ class DeviationsTest(TestCase):
             exercise=self.module_2_exercise_1,
             submitter=self.user.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 60)
+        self.assertEqual(deviation.extra_seconds, 60*60)
         deviation.delete()
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_2,
             submitter=self.user.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 60)
+        self.assertEqual(deviation.extra_seconds, 60*60)
         deviation.delete()
 
         with self.assertRaises(DeadlineRuleDeviation.DoesNotExist):
@@ -413,7 +413,7 @@ class DeviationsTest(TestCase):
             {
                 'exercise': [self.module_2_exercise_1.id],
                 'submitter': [self.user.userprofile.id, self.user_2.userprofile.id],
-                'minutes': 120,
+                'seconds': 120*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -423,13 +423,13 @@ class DeviationsTest(TestCase):
             exercise=self.module_2_exercise_1,
             submitter=self.user.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 120)
+        self.assertEqual(deviation.extra_seconds, 120*60)
         deviation.delete()
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_1,
             submitter=self.user_2.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 120)
+        self.assertEqual(deviation.extra_seconds, 120*60)
         deviation.delete()
 
         with self.assertRaises(DeadlineRuleDeviation.DoesNotExist):
@@ -451,7 +451,7 @@ class DeviationsTest(TestCase):
                 'exercise': [self.module_2_exercise_1.id],
                 'submitter_tag': [self.user_tag.id],
                 'submitter': [self.user_2.userprofile.id],
-                'minutes': 180,
+                'seconds': 180*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -461,25 +461,25 @@ class DeviationsTest(TestCase):
             exercise=self.module_2_exercise_1,
             submitter=self.user.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 180)
+        self.assertEqual(deviation.extra_seconds, 180*60)
         deviation.delete()
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_1,
             submitter=self.user_2.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 180)
+        self.assertEqual(deviation.extra_seconds, 180*60)
         deviation.delete()
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_2,
             submitter=self.user.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 180)
+        self.assertEqual(deviation.extra_seconds, 180*60)
         deviation.delete()
         deviation = DeadlineRuleDeviation.objects.get(
             exercise=self.module_2_exercise_2,
             submitter=self.user_2.userprofile,
         )
-        self.assertEqual(deviation.extra_minutes, 180)
+        self.assertEqual(deviation.extra_seconds, 180*60)
         deviation.delete()
 
         # No extra deviations should have been created
@@ -498,7 +498,7 @@ class DeviationsTest(TestCase):
             {
                 'exercise': [self.module_2_exercise_1.id],
                 'submitter': [self.user.userprofile.id],
-                'minutes': 30,
+                'seconds': 30*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -508,8 +508,8 @@ class DeviationsTest(TestCase):
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_1,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            30,
+            ).extra_seconds,
+            30*60,
         )
 
         # Create new deviations, one overlapping the initial deviation
@@ -518,7 +518,7 @@ class DeviationsTest(TestCase):
             {
                 'exercise': [self.module_2_exercise_1.id, self.module_2_exercise_2.id],
                 'submitter': [self.user.userprofile.id],
-                'minutes': 60,
+                'seconds': 60*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -528,8 +528,8 @@ class DeviationsTest(TestCase):
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_1,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            30,
+            ).extra_seconds,
+            30*60,
         )
         with self.assertRaises(DeadlineRuleDeviation.DoesNotExist):
             DeadlineRuleDeviation.objects.get(
@@ -551,15 +551,15 @@ class DeviationsTest(TestCase):
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_1,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            60,
+            ).extra_seconds,
+            60*60,
         )
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_2,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            60,
+            ).extra_seconds,
+            60*60,
         )
 
         # Create deviations overlapping both deviations, override 2nd one
@@ -568,7 +568,7 @@ class DeviationsTest(TestCase):
             {
                 'exercise': [self.module_2_exercise_1.id, self.module_2_exercise_2.id],
                 'submitter': [self.user.userprofile.id],
-                'minutes': 120,
+                'seconds': 120*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -587,15 +587,15 @@ class DeviationsTest(TestCase):
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_1,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            60,
+            ).extra_seconds,
+            60*60,
         )
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_2,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            120,
+            ).extra_seconds,
+            120*60,
         )
 
         DeadlineRuleDeviation.objects.filter(exercise__course_module=self.course_module_2).delete()
@@ -611,7 +611,7 @@ class DeviationsTest(TestCase):
             {
                 'exercise': [self.module_2_exercise_1.id, self.module_2_exercise_2.id],
                 'submitter': [self.user.userprofile.id],
-                'minutes': 45,
+                'seconds': 45*60,
             }
         )
         self.assertEqual(response.status_code, 302)
@@ -621,15 +621,15 @@ class DeviationsTest(TestCase):
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_1,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            45,
+            ).extra_seconds,
+            45*60,
         )
         self.assertEqual(
             DeadlineRuleDeviation.objects.get(
                 exercise=self.module_2_exercise_2,
                 submitter=self.user.userprofile,
-            ).extra_minutes,
-            45,
+            ).extra_seconds,
+            45*60,
         )
 
         # Remove one deviation

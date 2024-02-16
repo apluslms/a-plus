@@ -730,18 +730,18 @@ class BaseExercise(LearningObject):
 
         return self.TIMING.CLOSED_AFTER, dl
 
-    def delta_in_minutes_from_closing_to_date(self, future_date):
+    def delta_in_seconds_from_closing_to_date(self, future_date):
         module_close = self.course_module.closing_time
         # module_close is in utc format 2018-04-10 23:59:00+00:00
         # while future_date from the teacher submitted form might
-        # be in different formet, eg. 2018-05-15 23:59:00+03:00
+        # be in a different format, e.g., 2018-05-15 23:59:00+03:00
         # -> convert future_date to same format as module_close
-        string_date = str(future_date)[:16]
+        string_date = str(future_date)[:19]
         converted = timezone.make_aware(
                 parse_datetime(string_date),
                 timezone.get_current_timezone())
         delta = converted - module_close
-        return delta.days * 24 * 60 + delta.seconds // 60
+        return delta.days * 24 * 60 * 60 + delta.seconds
 
     def one_has_access(self, students, when=None):
         """

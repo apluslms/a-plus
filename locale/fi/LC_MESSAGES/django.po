@@ -1533,11 +1533,11 @@ msgid "SUBMITTERS_AND_TAGS_MISSING"
 msgstr "Valitse opiskelijat tai merkinnät."
 
 #: deviations/forms.py
-msgid "LABEL_MINUTES"
+msgid "LABEL_SECONDS"
 msgstr "Ylimääräistä palautusaikaa"
 
 #: deviations/forms.py
-msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
+msgid "DEVIATION_EXTRA_SECONDS_HELPTEXT"
 msgstr ""
 "Annettu ylimääräinen palautusaika. Jätä tyhjäksi mikäli ilmoitat määräajan "
 "alempana."
@@ -1582,7 +1582,7 @@ msgstr ""
 "joilla on kyseiset merkinnät."
 
 #: deviations/forms.py
-msgid "MINUTES_AND_DATE_MISSING"
+msgid "SECONDS_AND_DATE_MISSING"
 msgstr "Syötä joko ylimääräinen palautusaika tai uusi määräaika."
 
 #: deviations/forms.py deviations/models.py
@@ -1633,8 +1633,8 @@ msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION_PLURAL"
 msgstr "palautusääntöjen poikkeamat"
 
 #: deviations/models.py
-msgid "LABEL_EXTRA_MINUTES"
-msgstr "ylimääräiset minuutit"
+msgid "LABEL_EXTRA_SECONDS"
+msgstr "ylimääräiset sekunnit"
 
 #: deviations/models.py
 msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION"
@@ -1738,7 +1738,7 @@ msgstr "Tehtävä"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
-msgid "EXTRA_MINUTES"
+msgid "EXTRA_SECONDS"
 msgstr "Ylimääräiset minuutit"
 
 #: deviations/templates/deviations/list_dl.html
@@ -5301,6 +5301,10 @@ msgstr "tunnit"
 #: lib/fields.py
 msgid "DURATION_UNIT_MINUTES"
 msgstr "minuutit"
+
+#: lib/fields.py
+msgid "DURATION_UNIT_SECONDS"
+msgstr "sekunnit"
 
 #: lib/fields.py
 msgid "CLIPBOARD_STUDENT_IDS"

@@ -154,12 +154,12 @@ class SubmissionRuleDeviation(UrlMixin, models.Model):
 
 
 class DeadlineRuleDeviationManager(SubmissionRuleDeviationManager['DeadlineRuleDeviation']):
-    max_order_by = "-extra_minutes"
+    max_order_by = "-extra_seconds"
 
 
 class DeadlineRuleDeviation(SubmissionRuleDeviation):
-    extra_minutes = models.IntegerField(
-        verbose_name=_('LABEL_EXTRA_MINUTES'),
+    extra_seconds = models.IntegerField(
+        verbose_name=_('LABEL_EXTRA_SECONDS'),
     )
     without_late_penalty = models.BooleanField(
         verbose_name=_('LABEL_WITHOUT_LATE_PENALTY'),
@@ -173,7 +173,7 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         verbose_name_plural = _('MODEL_NAME_DEADLINE_RULE_DEVIATION_PLURAL')
 
     def get_extra_time(self):
-        return timedelta(minutes=self.extra_minutes)
+        return timedelta(seconds=self.extra_seconds)
 
     def get_new_deadline(self, normal_deadline: Optional[datetime] = None) -> datetime:
         """
@@ -191,18 +191,18 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         return self.exercise.course_module.closing_time
 
     def update_by_form(self, form_data: Dict[str, Any]) -> None:
-        minutes = form_data.get('minutes')
+        seconds = form_data.get('seconds')
         new_date = form_data.get('new_date')
         if new_date:
-            minutes = self.exercise.delta_in_minutes_from_closing_to_date(new_date)
+            seconds = self.exercise.delta_in_seconds_from_closing_to_date(new_date)
         else:
-            minutes = int(minutes)
-        self.extra_minutes = minutes
+            seconds = int(seconds)
+        self.extra_seconds = seconds
         self.without_late_penalty = bool(form_data.get('without_late_penalty'))
 
     def is_groupable(self, other: 'DeadlineRuleDeviation') -> bool:
         return (
-            self.extra_minutes == other.extra_minutes
+            self.extra_seconds == other.extra_seconds
             and self.without_late_penalty == other.without_late_penalty
         )
 

@@ -75,11 +75,13 @@ class RevealRule(models.Model):
         if self.trigger in [RevealRule.TRIGGER.DEADLINE, RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS]:
             deadline = state.get_deadline()
             if deadline is not None:
-                return deadline + datetime.timedelta(minutes=self.delay_minutes or 0)
+                seconds = self.delay_minutes * 60 if self.delay_minutes else 0
+                return deadline + datetime.timedelta(seconds=seconds)
         elif self.trigger == RevealRule.TRIGGER.DEADLINE_ALL:
             latest_deadline = state.get_latest_deadline()
             if latest_deadline is not None:
-                return latest_deadline + datetime.timedelta(minutes=self.delay_minutes or 0)
+                seconds = self.delay_minutes * 60 if self.delay_minutes else 0
+                return latest_deadline + datetime.timedelta(seconds=seconds)
 
         return None
 
