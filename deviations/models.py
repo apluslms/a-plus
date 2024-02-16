@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,time
 from typing import TYPE_CHECKING, Any, Dict, Generic, Iterable, Optional, TypeVar, Union
 
 from django.db import models
@@ -185,7 +185,11 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
         """
         if normal_deadline is None:
             normal_deadline = self.get_normal_deadline()
-        return normal_deadline + self.get_extra_time()
+        new_deadline=normal_deadline + self.get_extra_time()
+        if str(new_deadline).find("23:59"):
+            return new_deadline+timedelta(minutes=0.99)
+        else:
+            return new_deadline
 
     def get_normal_deadline(self):
         return self.exercise.course_module.closing_time
