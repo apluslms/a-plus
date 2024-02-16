@@ -31,14 +31,15 @@ class DurationField(forms.MultiValueField):
     boxes, one for each given unit of time. The units of time are, by default,
     days, hours and minutes, but they can also be customized by passing a list
     of tuples where the first item is the name of the unit and the second item
-    is its factor relative to minutes (e.g. 60 for hours).
+    is its factor relative to seconds (e.g. 3600 for hours).
     """
-    DAYS = (_('DURATION_UNIT_DAYS'), 60 * 24)
-    HOURS = (_('DURATION_UNIT_HOURS'), 60)
-    MINUTES = (_('DURATION_UNIT_MINUTES'), 1)
+    DAYS = (_('DURATION_UNIT_DAYS'), 60 * 60 * 24)
+    HOURS = (_('DURATION_UNIT_HOURS'), 60 * 60)
+    MINUTES = (_('DURATION_UNIT_MINUTES'), 60)
+    SECONDS = (_('DURATION_UNIT_SECONDS'), 1)
 
     # Default units
-    units: List[Tuple[str, int]] = [DAYS, HOURS, MINUTES]
+    units: List[Tuple[str, int]] = [DAYS, HOURS, MINUTES, SECONDS]
 
     def __init__( # pylint: disable=keyword-arg-before-vararg
             self,
@@ -62,16 +63,16 @@ class DurationField(forms.MultiValueField):
 
     def compress(self, data_list: List[Optional[int]]) -> Optional[int]:
         """
-        Convert the values given in different units into minutes.
+        Convert the values given in different units into seconds.
         """
-        total_minutes = None
+        total_seconds = None
         for value, (_name, factor) in zip(data_list, self.units):
             if value is None:
                 continue
-            if total_minutes is None:
-                total_minutes = 0
-            total_minutes += value * factor
-        return total_minutes
+            if total_seconds is None:
+                total_seconds = 0
+            total_seconds += value * factor
+        return total_seconds
 
 
 class SearchSelectField(forms.ModelMultipleChoiceField):

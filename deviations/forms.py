@@ -80,11 +80,11 @@ class BaseDeviationForm(forms.Form):
 
 
 class DeadlineRuleDeviationForm(BaseDeviationForm):
-    minutes = DurationField(
+    seconds = DurationField(
         required=False,
         min_value=1,
-        label=_('LABEL_MINUTES'),
-        help_text=_('DEVIATION_EXTRA_MINUTES_HELPTEXT'),
+        label=_('LABEL_SECONDS'),
+        help_text=_('DEVIATION_EXTRA_SECONDS_HELPTEXT'),
     )
     new_date = forms.DateTimeField(
         required=False,
@@ -108,10 +108,10 @@ class DeadlineRuleDeviationForm(BaseDeviationForm):
     def clean(self) -> Dict[str, Any]:
         cleaned_data = super().clean()
         new_date = cleaned_data.get("new_date")
-        minutes = cleaned_data.get("minutes")
-        if minutes and new_date or not minutes and not new_date:
+        seconds = cleaned_data.get("seconds")
+        if seconds and new_date or not seconds and not new_date:
             raise forms.ValidationError(
-                _("MINUTES_AND_DATE_MISSING"))
+                _("SECONDS_AND_DATE_MISSING"))
         return cleaned_data
 
 

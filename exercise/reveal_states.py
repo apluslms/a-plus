@@ -117,7 +117,7 @@ class ExerciseRevealState(BaseRevealState):
             self.max_deviation = (
                 DeadlineRuleDeviation.objects
                 .filter(exercise_id=self.cache.id)
-                .order_by('-extra_minutes').first()
+                .order_by('-extra_seconds').first()
             )
             self.max_deviation_fetched = True
         if self.max_deviation is not None:
@@ -163,7 +163,7 @@ class ModuleRevealState(BaseRevealState):
             self.max_deviation = (
                 DeadlineRuleDeviation.objects
                 .filter(exercise__course_module_id=self.module_id)
-                .order_by('-extra_minutes').first()
+                .order_by('-extra_seconds').first()
             )
             self.max_deviation_fetched = True
         if self.max_deviation is not None:

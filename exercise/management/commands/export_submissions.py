@@ -270,7 +270,7 @@ class Command(BaseCommand):
                     'exercise__course_module__closing_time',
                     'exercise__course_module__course_instance__id',
                     'submitter__user__id',
-                    'extra_minutes',
+                    'extra_seconds',
                 )
 
                 for dl_dev in all_deadline_deviations_queryset:

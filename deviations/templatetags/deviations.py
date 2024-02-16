@@ -10,23 +10,23 @@ register = template.Library()
 
 
 @register.simple_tag
-def new_deviation_minutes(
+def new_deviation_seconds(
         deviation: DeadlineRuleDeviation,
-        minutes: Optional[int],
+        seconds: Optional[int],
         date: Optional[datetime.datetime]
         ) -> int:
     """
-    Get the extra minutes for a deadline deviation after being overridden.
+    Get the extra seconds for a deadline deviation after being overridden.
     """
     if date:
-        return deviation.exercise.delta_in_minutes_from_closing_to_date(date)
-    return minutes
+        return deviation.exercise.delta_in_seconds_from_closing_to_date(date)
+    return seconds
 
 
 @register.simple_tag
 def new_deviation_date(
         deviation: DeadlineRuleDeviation,
-        minutes: Optional[int],
+        seconds: Optional[int],
         date: Optional[datetime.datetime]
         ) -> datetime.datetime:
     """
@@ -34,4 +34,4 @@ def new_deviation_date(
     """
     if date:
         return date
-    return deviation.exercise.course_module.closing_time + datetime.timedelta(minutes=minutes)
+    return deviation.exercise.course_module.closing_time + datetime.timedelta(seconds=seconds)

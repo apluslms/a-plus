@@ -665,7 +665,7 @@ class ExercisePoints(LearningObjectPoints):
         self.personal_deadline_has_penalty = None
         for deviation in deadline_deviations:
             self.personal_deadline = (
-                self.closing_time + datetime.timedelta(minutes=deviation.extra_minutes)
+                self.closing_time + datetime.timedelta(seconds=deviation.extra_seconds)
             )
             self.personal_deadline_has_penalty = not deviation.without_late_penalty
 
