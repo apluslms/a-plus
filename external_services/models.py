@@ -13,6 +13,7 @@ from lib.models import UrlMixin
 
 
 def validate_no_domain(value):
+    # pylint: disable=unused-argument
     pass
 
 
