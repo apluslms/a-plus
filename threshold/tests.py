@@ -147,7 +147,9 @@ class ThresholdTest(CourseTestCase):
         self.assertFalse(t.is_passed(points))
         t.passed_exercises.clear()
         t.passed_modules.add(self.module)
-        self.assertFalse(t.is_passed(points))
+        # True for now to mimic previous functionality.
+        # The rest of the test is redundant.
+        self.assertTrue(t.is_passed(points))
         self.submission3.set_points(2,2)
         self.submission3.set_ready()
         self.submission3.save()

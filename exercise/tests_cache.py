@@ -508,7 +508,9 @@ class CachedPointsTest(CourseTestCase):
         self.assertEqual(module.submission_count, 2)
         self.assertEqual(module.points, 50)
         self.assertEqual(module.points_by_difficulty.get('',0), 50)
-        self.assertFalse(module.passed)
+        # True for now; passing individual exercises should have no bearing
+        # on passing a module, to mimic previous functionality
+        self.assertTrue(module.passed)
         category = p.categories()[0]
         self.assertTrue(category.passed)
 
