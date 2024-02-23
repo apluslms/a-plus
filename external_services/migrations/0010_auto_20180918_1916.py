@@ -4,8 +4,10 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import external_services.models
 
+
+def validate_no_domain(value):
+    pass
 
 class Migration(migrations.Migration):
 
@@ -27,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='menuitem',
             name='menu_url',
-            field=models.CharField(blank=True, help_text='URL that is a) relative to the service URL or b) this course if no service is selected.\nCase a: url starting with / overwrites path in service url and extends it otherwise.\ncase b: url starting with / is absolute within this service and relative to the course path otherwise.\nNote that URL entered here can not include scheme or domain.', max_length=256, null=True, validators=[external_services.models.validate_no_domain]),
+            field=models.CharField(blank=True, help_text='URL that is a) relative to the service URL or b) this course if no service is selected.\nCase a: url starting with / overwrites path in service url and extends it otherwise.\ncase b: url starting with / is absolute within this service and relative to the course path otherwise.\nNote that URL entered here can not include scheme or domain.', max_length=256, null=True, validators=[validate_no_domain]),
         ),
         migrations.AlterField(
             model_name='menuitem',
