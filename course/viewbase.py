@@ -42,7 +42,7 @@ class CourseInstanceBaseMixin:
         CourseVisiblePermission,
     )
     context_properties = [
-        "course", "content", "points", "user_course_data", "taggings",
+        "course", "content", "points", "user_course_data", "taggings", "instance_max_group_size"
     ]
 
     @cached_property
