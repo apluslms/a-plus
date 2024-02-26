@@ -987,6 +987,9 @@ class CourseInstance(CourseInstanceProto, models.Model):
                 if self.enroll_student(profile.user, from_sis=True, use_pending=use_pending):
                     addcount += 1
 
+            except UserProfile.MultipleObjectsReturned:
+                # Temporary fix for duplicate student IDs
+                pass
             except UserProfile.DoesNotExist:
                 # This is a common scenario, if the user has enrolled in SIS, but not
                 # yet logged in to A+, then the user profile does not exist yet.
