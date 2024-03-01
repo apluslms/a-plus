@@ -1000,11 +1000,10 @@ class CourseInstance(CourseInstanceProto, models.Model):
             # Remove SIS-enrolled students who are not anymore in SIS participants,
             # for example, because they have first enrolled in SIS, but then
             # unenrolled themselves.
-            students = self.all_students.filter(enrollment__from_sis=True)
-            to_remove = students.exclude(student_id__in=participants)
             qs = (Enrollment.objects
-                  .filter(user_profile__in=to_remove, course_instance=self)
+                  .filter(course_instance=self, from_sis=True)
                   .exclude(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+                  .exclude(user_profile__student_id__in=participants)
             )
             for e in qs:
                 invalidate_content(Enrollment, e)

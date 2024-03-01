@@ -59,7 +59,8 @@ class CourseTest(TestCase):
             starting_time=self.yesterday,
             ending_time=self.today,
             course=self.course,
-            url="T-00.1000_d0"
+            url="T-00.1000_d0",
+            sis_id=456
         )
 
         self.current_course_instance = CourseInstance.objects.create(
@@ -405,6 +406,33 @@ class CourseTest(TestCase):
         )
         self.assertTrue(self.current_course_instance.is_student(self.user1))
         self.assertTrue(self.current_course_instance.is_student(self.user2))
+
+        # Sisu import should not remove manually enrolled students
+        self.past_course_instance.enroll_student(self.user1)
+        self.assertTrue(self.past_course_instance.is_student(self.user1))
+        response = self.client.post( # pylint: disable=unused-variable
+            reverse("enroll-students", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.past_course_instance.url,
+            }),
+            {'user_profiles': [ ], 'sis': '456'}
+        )
+        self.assertTrue(self.past_course_instance.is_student(self.user1))
+
+        # Test unenroll
+        self.past_course_instance.enroll_student(self.user1, from_sis=True)
+        self.past_course_instance.enroll_student(self.user2, from_sis=True)
+        self.assertTrue(self.past_course_instance.is_student(self.user1))
+        self.assertTrue(self.past_course_instance.is_student(self.user2))
+        response = self.client.post( # pylint: disable=unused-variable
+            reverse("enroll-students", kwargs={
+                'course_slug': self.course.url,
+                'instance_slug': self.past_course_instance.url,
+            }),
+            {'user_profiles': [ ], 'sis': '456'}
+        )
+        self.assertFalse(self.past_course_instance.is_student(self.user1))
+        self.assertFalse(self.past_course_instance.is_student(self.user2))
 
     def test_last_instance_view_hidden_module(self):
         course = Course.objects.create(

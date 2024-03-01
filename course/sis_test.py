@@ -34,6 +34,15 @@ origdata = [
         "teachers": [ "teacher-A", "testTeacher" ],
         "participants": [ "123TEST", "333333", "555555" ],
     },
+    {
+        "code": "123456",
+        "id": "456",
+        "instance": "fall-2022",
+        "starting_time": "2022-09-01",
+        "ending_time": "2022-12-20",
+        "teachers": [ "teacher-A", "testTeacher" ],
+        "participants": [ "123TEST" ],
+    },
 ]
 
 class SisTest(StudentInfoSystem):
