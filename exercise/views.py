@@ -145,7 +145,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         new_submission = None
         page = ExercisePage(self.exercise)
         _submission_status, submission_allowed, _issues, students = (
-            self.submission_check(True, request)
+            self.submission_check(request)
         )
         if submission_allowed:
             try:
@@ -212,7 +212,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         return self.render_to_response(self.get_context_data(
             page=page, students=students, submission=new_submission))
 
-    def submission_check(self, error=False, request=None):
+    def submission_check(self, request=None):
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             # Add warning about the grading mode.
             messages.warning(self.request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
@@ -224,10 +224,13 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.exercise.check_submission_allowed(self.profile, request)
         )
         if len(issues) > 0:
-            if error:
-                messages.error(self.request, "\n".join(issues))
-            else:
-                messages.warning(self.request, "\n".join(issues))
+            for i in issues:
+                if 'WARNING' in i:
+                    messages.warning(self.request, i)
+                elif 'ERROR' in i:
+                    messages.error(self.request, i)
+                else:
+                    messages.info(self.request, i)
         submission_allowed = (
             submission_status == self.exercise.SUBMIT_STATUS.ALLOWED
         )

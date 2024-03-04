@@ -895,7 +895,7 @@ class BaseExercise(LearningObject):
                         students)
             if not self.course_instance.is_enrollable(profile.user):
                 return (self.SUBMIT_STATUS.CANNOT_ENROLL,
-                        [_('CANNOT_ENROLL_IN_COURSE')],
+                        [_('CANNOT_ENROLL_IN_COURSE_ERROR')],
                         students)
         elif not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
             if self.course_instance.is_course_staff(profile.user):
@@ -903,7 +903,7 @@ class BaseExercise(LearningObject):
                         [_('STAFF_CAN_SUBMIT_WITHOUT_ENROLLING')],
                         students)
             return (self.SUBMIT_STATUS.NOT_ENROLLED,
-                    [_('MUST_ENROLL_TO_SUBMIT_EXERCISES')],
+                    [_('MUST_ENROLL_TO_SUBMIT_EXERCISES_WARNING')],
                     students)
 
         # Support group id from post or currently selected group.
@@ -913,7 +913,7 @@ class BaseExercise(LearningObject):
             try:
                 group_id = json.loads(request.POST.get('__aplus__', '{}')).get('group')
             except json.JSONDecodeError:
-                warnings.append(_('EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST'))
+                warnings.append(_('EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST'))
                 return self.SUBMIT_STATUS.INVALID, warnings, students
             if group_id is None:
                 group_id = request.POST.get("_aplus_group")
