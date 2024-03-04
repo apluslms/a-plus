@@ -383,11 +383,11 @@ class ExerciseTest(ExerciseTestBase):
         self.assertTrue(self.exercise_in_reading_time.one_has_access([self.user.userprofile], self.tomorrow)[0])
 
     def test_base_exercise_submission_allowed(self):
-        status, errors, _students = (
+        status, alerts, _students = (
             self.base_exercise.check_submission_allowed(self.user.userprofile))
         self.assertNotEqual(status, self.base_exercise.SUBMIT_STATUS.ALLOWED)
-        self.assertEqual(len(errors), 1)
-        json.dumps(errors)
+        self.assertEqual(len(alerts['error_messages'] + alerts['warning_messages'] + alerts['info_messages']), 1)
+        json.dumps(str(alerts))
         self.assertNotEqual(
             self.static_exercise.check_submission_allowed(self.user.userprofile)[0],
             self.static_exercise.SUBMIT_STATUS.ALLOWED)

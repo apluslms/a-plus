@@ -723,9 +723,9 @@ class CourseVisibilityTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # Since there is no exercise service running in the unit test environment,
         # we can not make test submissions to the exercise.
-        success_flag, warnings, _students = enroll_exercise.check_submission_allowed(self.user.userprofile)
+        success_flag, alerts, _students = enroll_exercise.check_submission_allowed(self.user.userprofile)
         self.assertEqual(success_flag, BaseExercise.SUBMIT_STATUS.ALLOWED)
-        self.assertEqual(len(warnings), 0)
+        self.assertEqual(len(alerts['error_messages'] + alerts['warning_messages'] + alerts['info_messages']), 0)
         instance.enroll_student(self.user)
         self.assertEqual(instance.students.count(), 2)
         self.assertTrue(instance.is_student(self.user))

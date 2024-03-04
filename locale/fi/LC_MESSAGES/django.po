@@ -3229,6 +3229,12 @@ msgstr "Tehtävän määräaika on mennyt ({date})."
 msgid "EXERCISE_TIMING_ARCHIVED -- {date}"
 msgstr "Tämä kurssi on arkistoitu ({date})."
 
+#: exercise/exercise_models.py templates/500.html
+msgid "SOMETHING_WENT_WRONG"
+msgstr ""
+"Jokin meni pahasti pieleen, eikä pyyntöäsi onnistuttu käsittelemään. "
+"Pahoittelut!"
+
 #: exercise/exercise_models.py
 msgid "EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED"
 msgstr ""
@@ -3240,7 +3246,7 @@ msgid "EXERCISE_MAX_SUBMISSIONS_USED"
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
 #: exercise/exercise_models.py
-msgid "CANNOT_ENROLL_IN_COURSE"
+msgid "CANNOT_ENROLL_IN_COURSE_ERROR"
 msgstr "Et voi ilmoittautua kurssille."
 
 #: exercise/exercise_models.py
@@ -3248,25 +3254,24 @@ msgid "STAFF_CAN_SUBMIT_WITHOUT_ENROLLING"
 msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 
 #: exercise/exercise_models.py
-msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES"
+msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES_ERROR"
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
 msgstr "Tehtävää ei voitu palauttaa, POST pyyntö sisälsi virheellistä JSON:nia"
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_NO_GROUP_WITH_ID"
+msgid "EXERCISE_ERROR_NO_GROUP_WITH_ID"
 msgstr "Ryhmää ei löytynyt annetulla ID:llä"
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG"
+msgid "EXERCISE_ERROR_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG"
 msgstr "Ryhmää voi vaihtaa vain eri tehtävien välissä."
 
 #: exercise/exercise_models.py
 #, python-brace-format
-msgid ""
-"EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}"
+msgid "EXERCISE_ERROR_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}"
 msgstr "Olet palauttanut tämän tehtävän aiemmin {with_group}. {msg}"
 
 #: exercise/exercise_models.py
@@ -3280,17 +3285,17 @@ msgstr "ryhmässä {}"
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid ""
-"EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- "
+"EXERCISE_ERROR_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- "
 "{collaborators}"
 msgstr "{collaborators} palautti jo tämän tehtävän eri ryhmässä."
 
 #: exercise/exercise_models.py
 #, python-brace-format
-msgid "EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}"
+msgid "EXERCISE_ERROR_REQUIRES_GROUP_SIZE -- {size}"
 msgstr "Tämä tehtävä täytyy palauttaa {size} opiskelijan ryhmässä."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_UNKNOWN_REASON"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_UNKNOWN_REASON"
 msgstr ""
 "Tehtävää ei voitu palauttaa tuntemattomasta syystä. Jos uskot tämän olevan "
 "virhe, ota ystävällisesti yhteyttä kurssihenkilökuntaan."
@@ -5560,12 +5565,6 @@ msgstr ""
 #: templates/500.html
 msgid "INTERNAL_SERVER_ERROR_500"
 msgstr "Palvelimen sisäinen virhe"
-
-#: templates/500.html
-msgid "SOMETHING_WENT_WRONG"
-msgstr ""
-"Jokin meni pahasti pieleen, eikä pyyntöäsi onnistuttu käsittelemään. "
-"Pahoittelut!"
 
 #: templates/ajax_search_select.html
 msgid "SEARCH"

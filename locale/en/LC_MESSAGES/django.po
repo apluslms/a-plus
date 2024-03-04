@@ -3214,6 +3214,11 @@ msgstr "The deadline for the assignment has passed ({date})."
 msgid "EXERCISE_TIMING_ARCHIVED -- {date}"
 msgstr "This course has been archived ({date})."
 
+#: exercise/exercise_models.py templates/500.html
+msgid "SOMETHING_WENT_WRONG"
+msgstr ""
+"Something went terribly wrong and your request could not be processed. Sorry!"
+
 #: exercise/exercise_models.py
 msgid "EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED"
 msgstr ""
@@ -3225,7 +3230,7 @@ msgid "EXERCISE_MAX_SUBMISSIONS_USED"
 msgstr "You have used the allowed amount of submissions for this assignment."
 
 #: exercise/exercise_models.py
-msgid "CANNOT_ENROLL_IN_COURSE"
+msgid "CANNOT_ENROLL_IN_COURSE_ERROR"
 msgstr "You cannot enroll in the course."
 
 #: exercise/exercise_models.py
@@ -3233,25 +3238,24 @@ msgid "STAFF_CAN_SUBMIT_WITHOUT_ENROLLING"
 msgstr "Staff can submit assignments without enrolling."
 
 #: exercise/exercise_models.py
-msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES"
+msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES_ERROR"
 msgstr "You must enroll in the course to submit assignments."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
 msgstr "Cannot submit assignment because of invalid JSON in POST data"
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_NO_GROUP_WITH_ID"
+msgid "EXERCISE_ERROR_NO_GROUP_WITH_ID"
 msgstr "No group found with the given ID"
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG"
+msgid "EXERCISE_ERROR_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG"
 msgstr "Group can only change between different assignments."
 
 #: exercise/exercise_models.py
 #, python-brace-format
-msgid ""
-"EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}"
+msgid "EXERCISE_ERROR_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}"
 msgstr "You have previously submitted this assignment {with_group}. {msg}"
 
 #: exercise/exercise_models.py
@@ -3265,18 +3269,18 @@ msgstr "with {}"
 #: exercise/exercise_models.py
 #, python-brace-format
 msgid ""
-"EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- "
+"EXERCISE_ERROR_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- "
 "{collaborators}"
 msgstr ""
 "{collaborators} already submitted to this assignment in a different group."
 
 #: exercise/exercise_models.py
 #, python-brace-format
-msgid "EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}"
+msgid "EXERCISE_ERROR_REQUIRES_GROUP_SIZE -- {size}"
 msgstr "This assignment must be submitted in groups of {size} students."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_UNKNOWN_REASON"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_UNKNOWN_REASON"
 msgstr ""
 "Cannot submit assignment due to unknown reason. If you think this is an "
 "error, please contact course staff."
@@ -5540,11 +5544,6 @@ msgstr ""
 #: templates/500.html
 msgid "INTERNAL_SERVER_ERROR_500"
 msgstr "Internal server error"
-
-#: templates/500.html
-msgid "SOMETHING_WENT_WRONG"
-msgstr ""
-"Something went terribly wrong and your request could not be processed. Sorry!"
 
 #: templates/ajax_search_select.html
 msgid "SEARCH"
