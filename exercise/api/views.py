@@ -132,7 +132,9 @@ class ExerciseViewSet(mixins.RetrieveModelMixin,
             )
 
         # find out if student can submit new exercise and if ok create submission template
-        status, errors, students = self.exercise.check_submission_allowed(student)
+        status, alerts, students = self.exercise.check_submission_allowed(student)
+        errors = alerts['error_messages'] + alerts['warning_messages']
+
         if status != self.exercise.SUBMIT_STATUS.ALLOWED:
             return Response({'success': False, 'errors': errors})
         submission = Submission.objects.create(exercise=self.exercise)
@@ -279,7 +281,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         data = None
         status_code = None
         headers = None
-        submission_status, issues, students = (
+        submission_status, alerts, students = (
             self.exercise.check_submission_allowed(request.user.userprofile, request)
         )
         if submission_status == self.exercise.SUBMIT_STATUS.ALLOWED:
@@ -315,7 +317,8 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                 if page.errors:
                     data = {'errors': page.errors}
         else:
-            data = {'errors': issues}
+            errors = alerts['error_messages'] + alerts['warning_messages'] + alerts['info_messages']
+            data = {'errors': errors}
             status_code = status.HTTP_400_BAD_REQUEST
 
         return Response(data, status=status_code, headers=headers)

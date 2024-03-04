@@ -145,7 +145,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         new_submission = None
         page = ExercisePage(self.exercise)
         _submission_status, submission_allowed, _issues, students = (
-            self.submission_check(True, request)
+            self.submission_check(request)
         )
         if submission_allowed:
             try:
@@ -212,7 +212,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         return self.render_to_response(self.get_context_data(
             page=page, students=students, submission=new_submission))
 
-    def submission_check(self, error=False, request=None):
+    def submission_check(self, request=None):
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             # Add warning about the grading mode.
             messages.warning(self.request, _('ONLY_YOUR_LAST_SUBMISSION_WILL_BE_GRADED'))
@@ -220,14 +220,20 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             issue = _('SUBMISSION_MUST_SIGN_IN_AND_ENROLL_TO_SUBMIT_EXERCISES')
             messages.error(self.request, issue)
             return self.exercise.SUBMIT_STATUS.INVALID, False, [issue], []
-        submission_status, issues, students = (
+        submission_status, alerts, students = (
             self.exercise.check_submission_allowed(self.profile, request)
         )
-        if len(issues) > 0:
-            if error:
-                messages.error(self.request, "\n".join(issues))
-            else:
-                messages.warning(self.request, "\n".join(issues))
+
+        issues = []
+        for msg in alerts['error_messages']:
+            issues.append(msg)
+            messages.error(self.request, msg)
+        for msg in alerts['warning_messages']:
+            issues.append(msg)
+            messages.warning(self.request, msg)
+        for msg in alerts['info_messages']:
+            messages.info(self.request, msg)
+
         submission_allowed = (
             submission_status == self.exercise.SUBMIT_STATUS.ALLOWED
         )

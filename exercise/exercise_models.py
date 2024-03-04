@@ -748,49 +748,60 @@ class BaseExercise(LearningObject):
         Checks if any of the users can submit taking the granted extra time
         in consideration.
         """
+        alerts = {
+            'error_messages': [],
+            'warning_messages': [],
+            'info_messages': []
+        }
         timing,d = self.get_timing(students, when or timezone.now())
 
         formatted_time = date_format(timezone.localtime(d), "DATETIME_FORMAT")
         if timing == self.TIMING.OPEN:
-            return True,[]
+            return True, alerts
         if timing == self.TIMING.LATE:
-            return True,[
+            alerts['warning_messages'].append(
                 format_lazy(
                     # xgettext:no-python-format
                     _('EXERCISE_TIMING_LATE -- {date}, {percent:d}'),
                     date=formatted_time,
                     percent=self.course_module.get_late_submission_point_worth(),
                 )
-            ]
+            )
+            return True, alerts
         if timing == self.TIMING.UNOFFICIAL:
-            return True,[
+            alerts['warning_messages'].append(
                 format_lazy(
                     _('EXERCISE_TIMING_UNOFFICIAL -- {date}'),
                     date=formatted_time,
                 )
-            ]
+            )
+            return True, alerts
         if timing == self.TIMING.CLOSED_BEFORE:
-            return False,[
+            alerts['info_messages'].append(
                 format_lazy(
                     _('EXERCISE_TIMING_CLOSED_BEFORE -- {date}'),
                     date=formatted_time,
                 )
-            ]
+            )
+            return False, alerts
         if timing == self.TIMING.CLOSED_AFTER:
-            return False,[
+            alerts['info_messages'].append(
                 format_lazy(
                     _('EXERCISE_TIMING_CLOSED_AFTER -- {date}'),
                     date=formatted_time,
                 )
-            ]
+            )
+            return False, alerts
         if timing == self.TIMING.ARCHIVED:
-            return False,[
+            alerts['error_messages'].append(
                 format_lazy(
                     _('EXERCISE_TIMING_ARCHIVED -- {date}'),
                     date=formatted_time,
                 )
-            ]
-        return False,["ERROR"]
+            )
+            return False, alerts
+        alerts['error_messages'].append(_('SOMETHING_WENT_WRONG'))
+        return False, alerts
 
     def one_has_deadline_deviation(self, students):
         deviation = None
@@ -825,10 +836,16 @@ class BaseExercise(LearningObject):
         return self.max_submissions
 
     def one_has_submissions(self, students: List[UserProfile]) -> Tuple[bool, List[str]]:
+        alerts = {
+            'error_messages': [],
+            'warning_messages': [],
+            'info_messages': []
+        }
+
         if len(students) == 1 and self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
             enrollment = self.course_instance.get_enrollment_for(students[0].user)
             if not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
-                return True, []
+                return True, alerts
         submission_count = 0
         for profile in students:
             # The students are in the same group, therefore, each student should
@@ -836,20 +853,22 @@ class BaseExercise(LearningObject):
             # may be set for only one group member.
             submission_count = self.get_submissions_for_student(profile, True, True).count()
             if submission_count < self.max_submissions_for_student(profile):
-                return True, []
+                return True, alerts
         # Even in situations where the student could otherwise make an infinite
         # number of submissions, there is still a hard limit.
         max_unofficial_submissions = settings.MAX_UNOFFICIAL_SUBMISSIONS
         if max_unofficial_submissions == 0 or submission_count < max_unofficial_submissions:
             if self.max_submissions == 0:
                 # If max_submissions is 0, the submission limit is "infinite".
-                return True, []
+                return True, alerts
             if self.category.accept_unofficial_submits:
                 # Note: time is not checked here, but unofficial submissions are
                 # not allowed if the course archive time has passed.
                 # The caller must check the time limits too.
-                return True, [_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED')]
-        return False, [_('EXERCISE_MAX_SUBMISSIONS_USED')]
+                alerts['warning_messages'].append(_('EXERCISE_MAX_SUBMISSIONS_USED_UNOFFICIAL_ALLOWED'))
+                return True, alerts
+        alerts['error_messages'].append(_('EXERCISE_MAX_SUBMISSIONS_USED'))
+        return False, alerts
 
     def no_submissions_left(self, students):
         if len(students) == 1 and self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
@@ -867,21 +886,27 @@ class BaseExercise(LearningObject):
     def check_submission_allowed(self, profile, request=None):
         """
         Checks whether the submission to this exercise is allowed for the given
-        user and generates a list of warnings.
+        user and generates a list of alerts.
 
         @return: (success_flag, warning_message_list)
         """
-        success, warnings, students = self._check_submission_allowed(profile, request)
-        return success, list(str(w) for w in warnings), students
+        success, alerts, students = self._check_submission_allowed(profile, request)
+        for key in alerts:
+            alerts[key] = [str(msg) for msg in alerts[key]]
+        return success, alerts, students
 
     def _check_submission_allowed(self, profile, request=None): # noqa: MC0001
         students = [profile]
-        warnings = []
+        alerts = {
+            'error_messages' : [],
+            'warning_messages': [],
+            'info_messages': [],
+        }
 
         # Let course module settings decide submissionable state.
         #if self.course_instance.ending_time < timezone.now():
-        #    warnings.append(_('The course is archived. Exercises are offline.'))
-        #    return False, warnings, students
+        #    alerts['warning_messages'].append(_('The course is archived. Exercises are offline.'))
+        #    return False, alerts, students
 
         # Check enrollment requirements.
         enrollment = self.course_instance.get_enrollment_for(profile.user)
@@ -890,21 +915,17 @@ class BaseExercise(LearningObject):
             LearningObject.STATUS.ENROLLMENT_EXTERNAL,
         ):
             if not self.course_instance.is_enrollment_open():
-                return (self.SUBMIT_STATUS.CANNOT_ENROLL,
-                        [_('ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN')],
-                        students)
+                alerts['error_messages'].append(_('ENROLLMENT_ERROR_ENROLLMENT_NOT_OPEN'))
+                return self.SUBMIT_STATUS.CANNOT_ENROLL, alerts, students
             if not self.course_instance.is_enrollable(profile.user):
-                return (self.SUBMIT_STATUS.CANNOT_ENROLL,
-                        [_('CANNOT_ENROLL_IN_COURSE')],
-                        students)
+                alerts['error_messages'].append(_('CANNOT_ENROLL_IN_COURSE_ERROR'))
+                return self.SUBMIT_STATUS.CANNOT_ENROLL, alerts, students
         elif not enrollment or enrollment.status != Enrollment.ENROLLMENT_STATUS.ACTIVE:
             if self.course_instance.is_course_staff(profile.user):
-                return (self.SUBMIT_STATUS.ALLOWED,
-                        [_('STAFF_CAN_SUBMIT_WITHOUT_ENROLLING')],
-                        students)
-            return (self.SUBMIT_STATUS.NOT_ENROLLED,
-                    [_('MUST_ENROLL_TO_SUBMIT_EXERCISES')],
-                    students)
+                alerts['info_messages'].append(_('STAFF_CAN_SUBMIT_WITHOUT_ENROLLING'))
+                return self.SUBMIT_STATUS.ALLOWED, alerts, students
+            alerts['error_messages'].append(_('MUST_ENROLL_TO_SUBMIT_EXERCISES_ERROR'))
+            return self.SUBMIT_STATUS.NOT_ENROLLED, alerts, students
 
         # Support group id from post or currently selected group.
         group = None
@@ -913,8 +934,8 @@ class BaseExercise(LearningObject):
             try:
                 group_id = json.loads(request.POST.get('__aplus__', '{}')).get('group')
             except json.JSONDecodeError:
-                warnings.append(_('EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST'))
-                return self.SUBMIT_STATUS.INVALID, warnings, students
+                alerts['error_messages'].append(_('EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST'))
+                return self.SUBMIT_STATUS.INVALID, alerts, students
             if group_id is None:
                 group_id = request.POST.get("_aplus_group")
 
@@ -926,8 +947,8 @@ class BaseExercise(LearningObject):
                         course_instance=self.course_instance,
                         id=gid).first()
                     if group is None:
-                        warnings.append(_('EXERCISE_WARNING_NO_GROUP_WITH_ID'))
-                        return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+                        alerts['error_messages'].append(_('EXERCISE_ERROR_NO_GROUP_WITH_ID'))
+                        return self.SUBMIT_STATUS.INVALID_GROUP, alerts, students
             except ValueError:
                 pass
         elif enrollment and enrollment.status == Enrollment.ENROLLMENT_STATUS.ACTIVE and enrollment.selected_group:
@@ -938,26 +959,26 @@ class BaseExercise(LearningObject):
             submission = self.get_submissions_for_student(profile).first()
             if submission:
                 if self._detect_group_changes(profile, group, submission):
-                    msg = _('EXERCISE_WARNING_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG')
-                    warning = _('EXERCISE_WARNING_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}')
+                    msg = _('EXERCISE_ERROR_GROUP_CANNOT_CHANGE_FOR_SAME_EXERCISE_MSG')
+                    error_msg = _('EXERCISE_ERROR_HAS_PREVIOUSLY_SUBMITTED_EXERCISE -- {with_group}, {msg}')
                     if submission.submitters.count() == 1:
-                        warning = format_lazy(warning, with_group=_('ALONE'), msg=msg)
+                        error_msg = format_lazy(error_msg, with_group=_('ALONE'), msg=msg)
                     else:
                         collaborators = StudentGroup.format_collaborator_names(
                                 submission.submitters.all(), profile)
                         with_group = format_lazy(_('WITH -- {}'), collaborators)
-                        warning = format_lazy(warning, with_group=with_group, msg=msg)
-                    warnings.append(warning)
-                    return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+                        error_msg = format_lazy(error_msg, with_group=with_group, msg=msg)
+                    alerts['error_messages'].append(error_msg)
+                    return self.SUBMIT_STATUS.INVALID_GROUP, alerts, students
 
             elif self._detect_submissions(profile, group):
-                warnings.append(
+                alerts['error_messages'].append(
                     format_lazy(
-                        _('EXERCISE_WARNING_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- {collaborators}'),
+                        _('EXERCISE_ERROR_COLLABS_HAVE_SUBMITTED_EXERCISE_WITH_DIFF_GROUP -- {collaborators}'),
                         collaborators=group.collaborator_names(profile),
                     )
                 )
-                return self.SUBMIT_STATUS.INVALID_GROUP, warnings, students
+                return self.SUBMIT_STATUS.INVALID_GROUP, alerts, students
 
         # Get submitters.
         if group:
@@ -969,33 +990,42 @@ class BaseExercise(LearningObject):
                 size = "{:d}".format(self.min_group_size)
             else:
                 size = "{:d}-{:d}".format(self.min_group_size, self.max_group_size)
-            warnings.append(
+            alerts['error_messages'].append(
                 format_lazy(
-                    _('EXERCISE_WARNING_REQUIRES_GROUP_SIZE -- {size}'),
+                    _('EXERCISE_ERROR_REQUIRES_GROUP_SIZE -- {size}'),
                     size=size
                 )
             )
         if self.status in (self.STATUS.ENROLLMENT, self.STATUS.ENROLLMENT_EXTERNAL):
-            access_ok, access_warnings = True, []
+            access_ok, access_alerts = True, {'error_messages': [], 'warning_messages': [], 'info_messages': []}
         else:
-            access_ok, access_warnings = self.one_has_access(students)
+            access_ok, access_alerts = self.one_has_access(students)
         is_staff = all(self.course_instance.is_course_staff(p.user) for p in students)
-        ok = (access_ok and len(warnings) == 0) or is_staff # pylint: disable=consider-using-ternary
-        all_warnings = warnings + access_warnings
+        # pylint: disable-next=consider-using-ternary
+        ok = (access_ok and len(alerts['error_messages'] + alerts['warning_messages']) == 0) or is_staff
+        # Combine alerts dict with access_alerts dict
+        all_alerts = {
+            key: alerts.get(key, []) + access_alerts.get(key, [])
+            for key in set(alerts) | set(access_alerts)
+        }
         if not ok:
-            if len(all_warnings) == 0:
-                all_warnings.append(_(
-                    'EXERCISE_WARNING_CANNOT_SUBMIT_UNKNOWN_REASON'))
-            return self.SUBMIT_STATUS.INVALID, all_warnings, students
+            if len(all_alerts['error_messages'] + all_alerts['warning_messages'] + all_alerts['info_messages']) == 0:
+                all_alerts['error_messages'].append(_('EXERCISE_ERROR_CANNOT_SUBMIT_UNKNOWN_REASON'))
+            return self.SUBMIT_STATUS.INVALID, all_alerts, students
 
-        submit_limit_ok, submit_limit_warnings = self.one_has_submissions(students)
+        submit_limit_ok, submit_limit_alerts = self.one_has_submissions(students)
         if not submit_limit_ok and not is_staff:
-            # access_warnings are not needed here
+            # access_alerts are not needed here
             return (self.SUBMIT_STATUS.AMOUNT_EXCEEDED,
-                    submit_limit_warnings,
+                    submit_limit_alerts,
                     students)
 
-        return self.SUBMIT_STATUS.ALLOWED, all_warnings + submit_limit_warnings, students
+        # Combine all_alerts dict with submit_limit_alerts dict
+        all_alerts = {
+            key: all_alerts.get(key, []) + submit_limit_alerts.get(key, [])
+            for key in set(all_alerts) | set(submit_limit_alerts)
+        }
+        return self.SUBMIT_STATUS.ALLOWED, all_alerts, students
 
     def _detect_group_changes(self, profile, group, submission):
         submitters = list(submission.submitters.all())
