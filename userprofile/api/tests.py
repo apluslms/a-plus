@@ -83,6 +83,7 @@ class UserProfileAPITest(TestCase):
             'student_id':'12345X',
             'is_external': False,
             'enrolled_courses': [],
+            'staff_courses': [],
             'full_name':'Superb Student',
             'first_name':'Superb',
             'last_name':'Student',
