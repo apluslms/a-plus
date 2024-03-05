@@ -21,10 +21,12 @@ class UserSerializer(UserBriefSerializer):
     last_name = serializers.CharField(source='user.last_name')
     email = serializers.CharField(source='user.email')
     enrolled_courses = SerializerMethodField()
+    staff_courses = SerializerMethodField()
 
     class Meta(UserBriefSerializer.Meta):
         fields = (
             'enrolled_courses',
+            'staff_courses',
             'student_id',
             'full_name',
             'first_name',
@@ -35,4 +37,9 @@ class UserSerializer(UserBriefSerializer):
     def get_enrolled_courses(self, obj):
         courses = CourseInstance.objects.get_enrolled(obj)
         serializer = CourseBriefSerializer(instance=courses, many=True, context=self.context)
+        return serializer.data
+
+    def get_staff_courses(self, obj):
+        staff_courses = CourseInstance.objects.get_teaching(obj)
+        serializer = CourseBriefSerializer(instance=staff_courses, many=True, context=self.context)
         return serializer.data
