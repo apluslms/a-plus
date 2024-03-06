@@ -28,7 +28,7 @@ from .viewbase import CourseInstanceBaseView, CourseInstanceMixin
 def format_group(group: StudentGroup, pseudonymized: bool):
     if pseudonymized:
         for member in group.members.all():
-            format_user(member.user, True)
+            format_user(member.user, True, member)
     return group
 
 
@@ -71,7 +71,7 @@ class ParticipantsView(CourseInstanceBaseView):
         participants = ci.all_students.prefetch_tags(ci)
         data = []
         for participant in participants:
-            format_user(participant.user, self.pseudonymize)
+            format_user(participant.user, self.pseudonymize, participant)
             user_id = participant.user.id
             user_tags = CachedStudent(ci, participant.user).data
             user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
@@ -124,7 +124,7 @@ class GroupsEditView(CourseInstanceMixin, BaseFormView):
             )
         else:
             group = StudentGroup(course_instance=self.instance)
-        self.group = format_group(group, self.pseudonymize)
+        self.group = group
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

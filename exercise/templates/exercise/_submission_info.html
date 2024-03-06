@@ -33,14 +33,18 @@
 				{% translate "SUBMITTERS" %}
 			</dt>
 			<dd>
-			  {% if is_course_staff %}
-			  {% if is_teacher %}
-			  <script src="{% static 'django_colortag.js' %}"></script>
-			  <script src="{% static 'add_tagging_dropdown.js' %}"></script>
-			  {% endif %}
-			  {% profiles submission.submitters.all instance is_teacher %}
+			  {% if not pseudonymize %}
+				  {% if is_course_staff %}
+					  {% if is_teacher %}
+					  <script src="{% static 'django_colortag.js' %}"></script>
+					  <script src="{% static 'add_tagging_dropdown.js' %}"></script>
+					  {% endif %}
+					  {% profiles submission.submitters.all instance is_teacher %}
+					  {% else %}
+					  {{ submission.submitters.all|names }}
+				  {% endif %}
 			  {% else %}
-			  {{ submission.submitters.all|names }}
+				Somebody
 			  {% endif %}
 			</dd>
 		</dl>

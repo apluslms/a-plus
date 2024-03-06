@@ -1017,6 +1017,19 @@ msgstr "Deadline deviations"
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Submission deviations"
 
+#: exercise/templates/exercise/staff/results.html
+#: exercise/templates/exercise/staff/analytics.html
+msgid "PSEUDONYMIZATION_ERROR_MSG"
+msgstr "This view is not available when pseudonymization is enabled!"
+
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Depseudonymize"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymize"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr ""

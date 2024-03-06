@@ -284,7 +284,7 @@ def get_deviation_groups(
         lambda obj: (obj.submitter, obj.exercise.course_module),
     )
     for (submitter, module), deviations_iter in deviation_groups:
-        format_user(submitter.user, pseudonymize)
+        format_user(submitter.user, pseudonymize, submitter)
         deviations = list(deviations_iter)
         can_group = True
         show_granter = True

@@ -12,6 +12,12 @@
 {% endblock %}
 
 {% block columns %}
+{% if pseudonymize %}
+<div class="alert alert-warning clearfix site-message">
+	{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+</div>
+{% endif %}
+
 <div class="col-md-12 llama-client">
 
 	<div id="llama-unit-select" role="navigation" aria-label="{% translate 'MODULE_SELECTION' %}">
@@ -107,41 +113,44 @@
 {% endblock %}
 
 {% block scripts %}
+
 {{ block.super }}
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="{% static 'js/d3Stream.min.js' %}"></script>
 <script src="{% static 'js/llama.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/d3Stream.min.css' %}" />
 <link rel="stylesheet" href="{% static 'css/llama.min.css' %}" />
-<script>
-$(function () {
-	new LlamaClient({
+{% if not pseudonymize %}
+	<script>
+	$(function () {
+		new LlamaClient({
 
-		apiUrl: function (filter, download) {
-			var url = '{% url "api:course-aggregatedata-list" version=2 course_id=instance.id %}';
-			var a = '?';
-			if (filter && filter != '#all') {
-				url += '?filter=' + filter.substr(1);
-				a = '&';
-			}
-			if (download) {
-				url += a + 'format=csv';
-			}
-			return url;
-		},
+			apiUrl: function (filter, download) {
+				var url = '{% url "api:course-aggregatedata-list" version=2 course_id=instance.id %}';
+				var a = '?';
+				if (filter && filter != '#all') {
+					url += '?filter=' + filter.substr(1);
+					a = '&';
+				}
+				if (download) {
+					url += a + 'format=csv';
+				}
+				return url;
+			},
 
-		userUrl: function (uid) {
-			var url = '{% url "user-results" course_slug=course.url instance_slug=instance.url user_id=0 %}';
-			return url.substr(0, url.length - 1) + uid;
-		},
+			userUrl: function (uid) {
+				var url = '{% url "user-results" course_slug=course.url instance_slug=instance.url user_id=0 %}';
+				return url.substr(0, url.length - 1) + uid;
+			},
 
-		progressLabels: [
-			'{% translate "NOT_SUBMITTED" %}',
-			'{% translate "PROGRESS_LABEL_<90%_POINTS" %}',
-			'{% translate "PROGRESS_LABEL_>=90%_POINTS" %}'
-		],
+			progressLabels: [
+				'{% translate "NOT_SUBMITTED" %}',
+				'{% translate "PROGRESS_LABEL_<90%_POINTS" %}',
+				'{% translate "PROGRESS_LABEL_>=90%_POINTS" %}'
+			],
 
+		});
 	});
-});
-</script>
+	</script>
+{% endif %}
 {% endblock %}

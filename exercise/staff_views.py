@@ -52,7 +52,8 @@ logger = logging.getLogger('aplus.exercise')
 def format_submission(submission: Submission, pseudonymized: bool):
     if pseudonymized:
         for submitter in submission.submitters.all():
-            submitter.user = format_user(submitter.user, pseudonymized=True)
+            pseudo = True
+            format_user(submitter.user, pseudo, submitter)
     return submission
 
 
@@ -76,6 +77,7 @@ class ListSubmissionsView(ExerciseListBaseView):
         )
         for submission in qs:
             format_submission(submission, self.pseudonymize)
+            print(submission.submitters)
         self.all = self.request.GET.get('all', None)
         self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
         self.submissions = qs if self.all else qs[:self.default_limit]
@@ -127,7 +129,8 @@ class ListSubmittersView(ExerciseListBaseView):
         )
         if self.pseudonymize:
             for profile in profiles.values():
-                format_user(profile.user, pseudonymized=True)
+                pseudo = True
+                format_user(profile.user, pseudo, profile)
         # Add UserProfile instances to the dicts in submitter_summaries, so we can
         # use the 'profiles' template tag.
         for submitter_summary in submitter_summaries:
@@ -173,7 +176,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.files = list(self.submission.files.all())
-
+        self.pseudonymize = self.request.session.get('pseudonymize', False)
         self.lowest_visible_index = self.index - 10
         self.highest_visible_index = self.index + 10
 
@@ -184,7 +187,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.not_best = False
         self.not_last = False
         for submission in self.submissions:
-            format_submission(submission, self.pseudonymize)
+            format_submission(self.submission, self.pseudonymize)
             if submission.id != self.submission.id:
                 if submission.force_exercise_points:
                     self.not_final = True
@@ -407,8 +410,9 @@ class AllResultsView(CourseInstanceBaseView):
         super().get_common_objects()
         self.tags = [USERTAG_INTERNAL, USERTAG_EXTERNAL]
         self.tags.extend(self.instance.usertags.all())
+        self.pseudonymize = self.request.session.get("pseudonymize", False)
         self.note(
-            'tags',
+            'tags', 'pseudonymize',
         )
 
 
@@ -421,8 +425,9 @@ class AnalyticsView(CourseInstanceBaseView):
         self.tags = list(self.instance.usertags.all())
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.pseudonymize = self.request.session.get("pseudonymize", False)
         self.note(
-            'tags', 'internal_user_label', 'external_user_label',
+            'tags', 'internal_user_label', 'external_user_label', 'pseudonymize',
         )
 
 
@@ -442,7 +447,7 @@ class UserResultsView(CourseInstanceBaseView):
             User,
             id=self.kwargs[self.user_kw],
         )
-        self.student = format_user(student, self.pseudonymize)
+        self.student = format_user(student, self.pseudonymize, student.userprofile)
         self.note('student')
 
     def get_common_objects(self):

@@ -1,4 +1,5 @@
 import string
+
 from django import template
 
 from lib.errors import TagUsageError

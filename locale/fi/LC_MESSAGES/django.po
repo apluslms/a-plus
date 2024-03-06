@@ -1023,6 +1023,15 @@ msgstr "Määräaikojen poikkeamat"
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Palautuskertojen poikkeamat"
 
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Pseudonymisointi pois päältä"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymisointi päälle"
+
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr ""
