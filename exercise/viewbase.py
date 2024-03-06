@@ -256,7 +256,7 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
 
     @cached_property
     def submission_entry(self) -> int:
-        return next(s for s in self.submissions if s.id == self.submission.id)
+            return next(s for s in self.submissions if s.id == self.submission.id)
 
     @cached_property
     def index(self) -> int:
