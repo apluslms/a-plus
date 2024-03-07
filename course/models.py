@@ -592,6 +592,7 @@ class CourseInstance(CourseInstanceProto, models.Model):
         ('ROMAN', 2, _('NUMBERING_ROMAN')),
         ('HIDDEN', 3, _('NUMBERING_HIDDEN_ARABIC')),
     ])
+    RESERVED_URLS = ("instances",) # strings which cannot be used as course instance URL identifiers
 
     course = models.ForeignKey(Course,
         verbose_name=_('LABEL_COURSE'),
@@ -735,10 +736,9 @@ class CourseInstance(CourseInstanceProto, models.Model):
     def clean(self):
         super().clean()
         errors = {}
-        RESERVED = ("instances",)
-        if self.instance_name in RESERVED:
+        if self.instance_name in self.RESERVED_URLS:
             errors['instance_name'] = format_lazy(_('COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}'), self.instance_name)
-        if self.url in RESERVED:
+        if self.url in self.RESERVED_URLS:
             errors['url'] = format_lazy(_('COURSE_INSTANCE_ERROR_URL -- {}'), self.url)
         if self.ending_time and self.starting_time and self.ending_time <= self.starting_time:
             errors['ending_time'] = _('COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING')
