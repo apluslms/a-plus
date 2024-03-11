@@ -336,11 +336,11 @@ msgstr "Assistant"
 msgid "TEACHER"
 msgstr "Teacher"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "ACTIVE"
 msgstr "Active"
 
-#: course/models.py
+#: course/models.py site_alert/models.py
 msgid "REMOVED"
 msgstr "Removed"
 
@@ -381,7 +381,7 @@ msgid "LABEL_ROLE"
 msgstr "role"
 
 #: course/models.py exercise/admin.py exercise/exercise_models.py
-#: exercise/submission_models.py
+#: exercise/submission_models.py site_alert/models.py
 msgid "LABEL_STATUS"
 msgstr "status"
 
@@ -1524,11 +1524,11 @@ msgid "SUBMITTERS_AND_TAGS_MISSING"
 msgstr "You have to define submitters or tags."
 
 #: deviations/forms.py
-msgid "LABEL_MINUTES"
+msgid "LABEL_SECONDS"
 msgstr "Extra time"
 
 #: deviations/forms.py
-msgid "DEVIATION_EXTRA_MINUTES_HELPTEXT"
+msgid "DEVIATION_EXTRA_SECONDS_HELPTEXT"
 msgstr "Amount of extra time given. Leave blank if you fill in the date below."
 
 #: deviations/forms.py
@@ -1571,7 +1571,7 @@ msgstr ""
 "granted to these students IN ADDITION to the ones with the tags."
 
 #: deviations/forms.py
-msgid "MINUTES_AND_DATE_MISSING"
+msgid "SECONDS_AND_DATE_MISSING"
 msgstr "You have to provide either the extra time or a date in the future."
 
 #: deviations/forms.py deviations/models.py
@@ -1622,8 +1622,8 @@ msgid "MODEL_NAME_SUBMISSION_RULE_DEVIATION_PLURAL"
 msgstr "submission rule deviations"
 
 #: deviations/models.py
-msgid "LABEL_EXTRA_MINUTES"
-msgstr "extra minutes"
+msgid "LABEL_EXTRA_SECONDS"
+msgstr "extra seconds"
 
 #: deviations/models.py
 msgid "MODEL_NAME_DEADLINE_RULE_DEVIATION"
@@ -1727,8 +1727,8 @@ msgstr "Assignment"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
-msgid "EXTRA_MINUTES"
-msgstr "Extra minutes"
+msgid "EXTRA_SECONDS"
+msgstr "Extra seconds"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
@@ -5282,6 +5282,10 @@ msgid "DURATION_UNIT_MINUTES"
 msgstr "minutes"
 
 #: lib/fields.py
+msgid "DURATION_UNIT_SECONDS"
+msgstr "seconds"
+
+#: lib/fields.py
 msgid "CLIPBOARD_STUDENT_IDS"
 msgstr "Student IDs"
 
@@ -5453,6 +5457,18 @@ msgstr ""
 #: shibboleth_login/views.py
 msgid "SHIBBOLETH_ERROR_USER_ACCOUNT_DISABLED"
 msgstr "The user account has been disabled."
+
+#: site_alert/models.py
+msgid "LABEL_ALERT"
+msgstr "alert"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT"
+msgstr "site alert"
+
+#: site_alert/models.py
+msgid "MODEL_NAME_SITEALERT_PLURAL"
+msgstr "site alerts"
 
 #: templates/403.html
 msgid "ACCESS_RESTRICTED_403"

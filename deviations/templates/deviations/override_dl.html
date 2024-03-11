@@ -22,8 +22,8 @@
 					<tr>
 						<th>{% translate "SUBMITTER" %}</th>
 						<th>{% translate "EXERCISE" %}</th>
-						<th>{% translate "EXTRA_MINUTES" %} ({% translate "OVERRIDE_BEFORE" %})</th>
-						<th>{% translate "EXTRA_MINUTES" %} ({% translate "OVERRIDE_AFTER" %})</th>
+						<th>{% translate "EXTRA_SECONDS" %} ({% translate "OVERRIDE_BEFORE" %})</th>
+						<th>{% translate "EXTRA_SECONDS" %} ({% translate "OVERRIDE_AFTER" %})</th>
 						<th>{% translate "DEADLINE" %} ({% translate "OVERRIDE_BEFORE" %})</th>
 						<th>{% translate "DEADLINE" %} ({% translate "OVERRIDE_AFTER" %})</th>
 						<th
@@ -46,8 +46,8 @@
 				<tbody>
 				{% translate "UNKNOWN" as unknown %}
 				{% for deviations, can_group, group_id, _ in deviation_groups %}
-				{% new_deviation_minutes deviations.0 session_data.minutes session_data.new_date as new_deviation_minutes %}
-				{% new_deviation_date deviations.0 session_data.minutes session_data.new_date as new_deviation_date %}
+				{% new_deviation_seconds deviations.0 session_data.seconds session_data.new_date as new_deviation_seconds %}
+				{% new_deviation_date deviations.0 session_data.seconds session_data.new_date as new_deviation_date %}
 				{% if can_group %}
 				<tr data-group-parent="{{ group_id }}">
 					<td>
@@ -63,8 +63,8 @@
 							{% endblocktranslate %})
 						</strong>
 					</td>
-					<td>{{ deviations.0.extra_minutes }}</td>
-					<td>{{ new_deviation_minutes }}</td>
+					<td>{{ deviations.0.extra_seconds }}</td>
+					<td>{{ new_deviation_seconds }}</td>
 					<td data-datetime="{{ deviations.0.get_new_deadline|date:'Y-m-d H:i:s' }}">
 						{{ deviations.0.get_new_deadline|date:'SHORT_DATETIME_FORMAT' }}
 					</td>
@@ -102,8 +102,8 @@
 						</a>
 					</td>
 					<td>{{ deviation.exercise.hierarchical_name }}</td>
-					<td>{{ deviation.extra_minutes }}</td>
-					<td>{{ new_deviation_minutes }}</td>
+					<td>{{ deviation.extra_seconds }}</td>
+					<td>{{ new_deviation_seconds }}</td>
 					<td data-datetime="{{ deviation.get_new_deadline|date:'Y-m-d H:i:s' }}">
 						{{ deviation.get_new_deadline|date:'SHORT_DATETIME_FORMAT' }}
 					</td>

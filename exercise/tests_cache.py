@@ -604,7 +604,7 @@ class CachedPointsTest(CourseTestCase):
             exercise=self.exercise0,
             submitter=self.student.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=2*24*60,
+            extra_seconds=2*24*60*60,
         )
         reveal_rule = RevealRule.objects.create(
             trigger=RevealRule.TRIGGER.DEADLINE,

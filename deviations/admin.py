@@ -20,7 +20,7 @@ class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
     list_display = (
         'submitter',
         'exercise',
-        'extra_minutes',
+        'extra_seconds',
         'granter',
         'grant_time',
     )

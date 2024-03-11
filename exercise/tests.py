@@ -259,7 +259,7 @@ class ExerciseTestBase(TestCase):
             exercise=self.exercise_with_attachment,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=1440  # One day
+            extra_seconds=24*60*60  # One day
         )
 
 
@@ -431,7 +431,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=10*24*60
+            extra_seconds=10*24*60*60 # Ten days
         )
         self.assertTrue(self.old_base_exercise.one_has_access([self.user.userprofile])[0])
 
@@ -557,7 +557,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.base_exercise_with_late_submission_allowed,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=10*24*60,
+            extra_seconds=10*24*60*60,
             without_late_penalty=True
         )
         self.late_late_submission_when_late_allowed.set_points(5, 10)
@@ -913,7 +913,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=1440, # One day
+            extra_seconds=24*60*60, # One day
         )
         self.assertFalse(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
         # Change the deadline extension so that it is not active anymore.
@@ -924,7 +924,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=10,
+            extra_seconds=10*60,
         )
         self.assertTrue(self.old_base_exercise.can_show_model_solutions_to_student(self.user))
 
@@ -941,7 +941,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=base_exercise_with_late_closed,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=60*24*2,
+            extra_seconds=2*24*60*60, # Two days
         )
         self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertFalse(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
@@ -951,7 +951,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=base_exercise_with_late_closed,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=10,
+            extra_seconds=10*60,
         )
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user))
         self.assertTrue(base_exercise_with_late_closed.can_show_model_solutions_to_student(self.user2))
@@ -967,7 +967,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=1440, # One day
+            extra_seconds=24*60*60, # One day
         )
         reveal_rule = RevealRule.objects.create(
             trigger=RevealRule.TRIGGER.DEADLINE,
@@ -987,7 +987,7 @@ class ExerciseTest(ExerciseTestBase):
         self.assertFalse(self.static_exercise.can_be_shown_as_module_model_solution(self.user))
         self.assertTrue(chapter.can_be_shown_as_module_model_solution(self.user2))
 
-        deadline_deviation_old_base_exercise.extra_minutes = 0
+        deadline_deviation_old_base_exercise.extra_seconds = 0
         deadline_deviation_old_base_exercise.save()
         self.assertTrue(chapter.can_be_shown_as_module_model_solution(self.user))
         self.assertTrue(self.base_exercise.can_be_shown_as_module_model_solution(self.user))
@@ -1037,7 +1037,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=30,
+            extra_seconds=30*60,
         )
         old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user)
         user2_old_reveal_state_deviation = ExerciseRevealState(self.old_base_exercise, self.user2)
@@ -1176,7 +1176,7 @@ class ExerciseTest(ExerciseTestBase):
             exercise=self.old_base_exercise,
             submitter=self.user.userprofile,
             granter=self.teacher.userprofile,
-            extra_minutes=4320,
+            extra_seconds=3*24*60*60, # Three days
         ) # this should have not effect on the module reveal state
 
         user_reveal_state = ModuleRevealState(self.course_module, self.user)

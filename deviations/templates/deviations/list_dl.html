@@ -38,7 +38,7 @@
 					<tr>
 						<th>{% translate "SUBMITTER" %}</th>
 						<th>{% translate "EXERCISE" %}</th>
-						<th>{% translate "EXTRA_MINUTES" %}</th>
+						<th>{% translate "EXTRA_SECONDS" %}</th>
 						<th>{% translate "DEADLINE" %}</th>
 						<th
 							data-filter-type="options"
@@ -70,7 +70,7 @@
 								{% endblocktranslate %})
 							</strong>
 						</td>
-						<td>{{ deviations.0.extra_minutes }}</td>
+						<td>{{ deviations.0.extra_seconds }}</td>
 						<td data-datetime="{{ deviations.0.get_new_deadline|date:'Y-m-d H:i:s' }}">
 							{{ deviations.0.get_new_deadline|date:'SHORT_DATETIME_FORMAT' }}
 						</td>
@@ -114,7 +114,7 @@
 							</a>
 						</td>
 						<td>{{ deviation.exercise.hierarchical_name }}</td>
-						<td>{{ deviation.extra_minutes }}</td>
+						<td>{{ deviation.extra_seconds }}</td>
 						<td data-datetime="{{ deviation.get_new_deadline|date:'Y-m-d H:i:s' }}">
 							{{ deviation.get_new_deadline|date:'SHORT_DATETIME_FORMAT' }}
 						</td>

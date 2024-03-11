@@ -34,7 +34,7 @@ class AddDeadlinesView(AddDeviationsView):
     def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
         spec = super().get_initial_get_param_spec()
         spec.update({
-            "minutes": int,
+            "seconds": int,
             "new_date": None,
             "without_late_penalty": lambda x: x == "true",
         })
@@ -43,7 +43,7 @@ class AddDeadlinesView(AddDeviationsView):
     def serialize_session_data(self, form_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().serialize_session_data(form_data)
         result.update({
-            'minutes': form_data['minutes'],
+            'seconds': form_data['seconds'],
             'new_date': str(form_data['new_date']) if form_data['new_date'] else None,
             'without_late_penalty': form_data['without_late_penalty'],
         })
@@ -61,7 +61,7 @@ class OverrideDeadlinesView(OverrideDeviationsView):
     def deserialize_session_data(self, session_data: Dict[str, Any]) -> Dict[str, Any]:
         result = super().deserialize_session_data(session_data)
         result.update({
-            'minutes': session_data['minutes'],
+            'seconds': session_data['seconds'],
             'new_date': parse_datetime(session_data['new_date']) if session_data['new_date'] else None,
             'without_late_penalty': session_data['without_late_penalty'],
         })
