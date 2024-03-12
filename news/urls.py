@@ -17,4 +17,8 @@ urlpatterns = [
     re_path(EDIT_URL_PREFIX + r'news/(?P<news_id>\d+)/remove/$',
         views.RemoveNewsView.as_view(),
         name="news-remove"),
+    re_path(EDIT_URL_PREFIX + r'news/remove-selected-news/$',
+            views.RemoveSelectedNewsView.as_view(),
+            name="remove-selected-news"),
+
 ]

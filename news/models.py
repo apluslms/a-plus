@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from aplus import settings
 
 from course.models import CourseInstance
 from lib.models import UrlMixin
@@ -21,6 +22,11 @@ class News(models.Model, UrlMixin):
         verbose_name=_('LABEL_PUBLISH'),
         default=timezone.now,
     )
+    language = models.CharField(
+        verbose_name=_('LANGUAGE'),
+        max_length=30,
+        choices=([('-', 'All')] + settings.LANGUAGES), default='-',
+    )
     title = models.CharField(
         verbose_name=_('LABEL_TITLE'),
         max_length=255,
@@ -39,7 +45,7 @@ class News(models.Model, UrlMixin):
         ordering = ['course_instance', '-pin', '-publish']
 
     def __str__(self):
-        return "{} {}".format(str(self.publish), self.title)
+        return "{} {} {}".format(str(self.publish), self.title, str(self.language))
 
     def get_url_kwargs(self):
         return dict(news_id=self.id, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal

@@ -18,12 +18,14 @@ class CachedNews(CachedAbstract):
                 'id': item.id,
                 'audience': item.audience,
                 'publish': item.publish,
+                'language': item.language,
                 'title': item.title,
                 'body': item.body,
                 'pin': item.pin,
             }
             for item in instance.news.all()
         ]
+
         return {
             'news': news,
         }

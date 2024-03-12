@@ -129,6 +129,7 @@ class CourseNewsBriefSerializer(AplusModelSerializer):
             'title',
             'audience',
             'publish',
+            'language',
             'body',
             'pin',
         )

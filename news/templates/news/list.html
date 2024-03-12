@@ -15,14 +15,21 @@
 <br />
 <table class="table">
 	<tr>
+		<th>{% translate "SELECT" %}</th>
 		<th>{% translate "PUBLISH" %}</th>
 		<th>{% translate "AUDIENCE" %}</th>
 		<th>{% translate "TITLE" %}</th>
+		<th>{% translate "LANGUAGE" %}</th>
 		<th></th>
 		<th></th>
 	</tr>
+	<form method="post" action="{{ instance|url:'remove-selected-news' }}">
 	{% for item in news %}
 	<tr>
+		<td id={{item.id}}>
+			<input type="checkbox" name="selection" value="{{item.id}}">
+		</td>
+
 		<td>
 			{% if item.pin %}
 			<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
@@ -36,22 +43,31 @@
 			{{ item.title|safe }}
 		</td>
 		<td>
+			{{ item.language|safe }}
+		</td>
+
+		<td>
 			<a href="{{ item|url:'news-edit' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
 				{% translate "EDIT" %}
 			</a>
 		</td>
 		<td>
-			<form method="post" action="{{ item|url:'news-remove' }}">
-				{% csrf_token %}
-				<button type="submit" class="aplus-button--danger aplus-button--xs">
-					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-					{% translate "REMOVE" %}
-				</button>
-			</form>
+			<a href="{{ item|url:'news-remove' }}" role="button" class="aplus-button--danger aplus-button--xs">
+				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				{% translate "REMOVE" %}
+			</a>
 		</td>
 	</tr>
 	{% endfor %}
+	{% csrf_token %}
+	<button type="submit" class="aplus-button--danger aplus-button--sm">
+		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+		{% translate "REMOVE_SELECTED_NEWS_ITEMS" %}
+	</button>
+	</form>
+
+
 </table>
 <br />
 <p>
