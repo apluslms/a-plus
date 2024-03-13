@@ -1,11 +1,9 @@
 from typing import Set
-from django.test import TestCase
 from rest_framework.test import APIClient
+from ..tests import UserProfileTestCase
 
-class UserProfileAPITest(TestCase):
+class UserProfileAPITest(UserProfileTestCase):
     # use same setUp as for normal tests
-    from ..tests import UserProfileTest # pylint: disable=import-outside-toplevel
-    setUp = UserProfileTest.setUp
 
     def test_get_userlist(self):
         """

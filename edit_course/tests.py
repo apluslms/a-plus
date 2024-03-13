@@ -128,8 +128,9 @@ class CourseCloneTest(CourseTestCase):
 
 class BatchAssessTest(CourseTestCase):
 
-    def setUp(self):
-        self.setUpCourse()
+    @classmethod
+    def setUpTestData(cls):
+        cls.setUpCourse()
 
     def test_batch_assess(self):
 

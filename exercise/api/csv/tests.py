@@ -11,104 +11,105 @@ from exercise.submission_models import Submission
 from .views import CourseResultsDataViewSet
 
 class CourseResultsDataViewSetTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Make a student
-        self.student = User(username="testUser", first_name="Superb",
+        cls.student = User(username="testUser", first_name="Superb",
                             last_name="Student", email="test@aplus.com")
-        self.student.set_password("testPassword")
-        self.student.save()
-        self.student_profile = self.student.userprofile
-        self.student_profile.student_id = "12345X"
-        self.student_profile.save()
+        cls.student.set_password("testPassword")
+        cls.student.save()
+        cls.student_profile = cls.student.userprofile
+        cls.student_profile.student_id = "12345X"
+        cls.student_profile.save()
 
-        self.student2 = User(username="testUser2", first_name="Superb",
+        cls.student2 = User(username="testUser2", first_name="Superb",
                             last_name="Student", email="test@aplus.com")
-        self.student2.set_password("testPassword")
-        self.student2.save()
-        self.student_profile2 = self.student2.userprofile
-        self.student_profile2.student_id = "12345Y"
-        self.student_profile2.save()
+        cls.student2.set_password("testPassword")
+        cls.student2.save()
+        cls.student_profile2 = cls.student2.userprofile
+        cls.student_profile2.student_id = "12345Y"
+        cls.student_profile2.save()
 
         # Make a course and course instance
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
 
-        self.today = timezone.now()
-        self.tomorrow = self.today + timedelta(days=1)
+        cls.today = timezone.now()
+        cls.tomorrow = cls.today + timedelta(days=1)
 
-        self.course_instance1 = CourseInstance.objects.create(
+        cls.course_instance1 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            starting_time=self.today,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.today,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="T-00.1000_d1"
         )
 
         # Add learning object categories to course
-        self.chapter_category = LearningObjectCategory.objects.create(
+        cls.chapter_category = LearningObjectCategory.objects.create(
             name="chapter",
-            course_instance=self.course_instance1
+            course_instance=cls.course_instance1
         )
-        self.learning_object_category1 = LearningObjectCategory.objects.create(
+        cls.learning_object_category1 = LearningObjectCategory.objects.create(
             name="test category 1",
-            course_instance=self.course_instance1
+            course_instance=cls.course_instance1
         )
-        self.mandatory_category1 = LearningObjectCategory.objects.create(
+        cls.mandatory_category1 = LearningObjectCategory.objects.create(
             name="mandatory category 1",
             confirm_the_level=True,
-            course_instance=self.course_instance1
+            course_instance=cls.course_instance1
         )
 
-        self.module1 = CourseModule.objects.create(
+        cls.module1 = CourseModule.objects.create(
             name="module1",
             url="module1",
-            course_instance=self.course_instance1,
+            course_instance=cls.course_instance1,
         )
 
         # Add learning objects to module1
-        self.learning_object1 = BaseExercise.objects.create(
+        cls.learning_object1 = BaseExercise.objects.create(
             name="learning object 1",
             url="lo1",
-            course_module=self.module1,
-            category=self.learning_object_category1,
+            course_module=cls.module1,
+            category=cls.learning_object_category1,
         )
-        self.mandatory_learning_object1 = BaseExercise.objects.create(
+        cls.mandatory_learning_object1 = BaseExercise.objects.create(
             name="mandatory learning object 1",
             url="mlo1",
-            course_module=self.module1,
-            category=self.mandatory_category1,
+            course_module=cls.module1,
+            category=cls.mandatory_category1,
             points_to_pass=1,
         )
 
         # Add learning objects to module1
-        self.chapter1 = CourseChapter.objects.create(
+        cls.chapter1 = CourseChapter.objects.create(
             name="chapter 1",
             url="c1",
-            course_module=self.module1,
-            category=self.chapter_category,
+            course_module=cls.module1,
+            category=cls.chapter_category,
         )
-        self.c1_learning_object1 = BaseExercise.objects.create(
+        cls.c1_learning_object1 = BaseExercise.objects.create(
             name="c1 learning object 1",
             url="c1lo1",
-            course_module=self.module1,
-            parent=self.chapter1,
-            category=self.learning_object_category1,
+            course_module=cls.module1,
+            parent=cls.chapter1,
+            category=cls.learning_object_category1,
         )
-        self.c1_mandatory_learning_object1 = BaseExercise.objects.create(
+        cls.c1_mandatory_learning_object1 = BaseExercise.objects.create(
             name="c1 mandatory learning object 1",
             url="c1mlo1",
-            course_module=self.module1,
-            parent=self.chapter1,
-            category=self.mandatory_category1,
+            course_module=cls.module1,
+            parent=cls.chapter1,
+            category=cls.mandatory_category1,
             points_to_pass=1,
         )
 
         # Add a student to course instance
-        self.course_instance1.enroll_student(self.student_profile.user)
-        self.course_instance1.enroll_student(self.student_profile2.user)
+        cls.course_instance1.enroll_student(cls.student_profile.user)
+        cls.course_instance1.enroll_student(cls.student_profile2.user)
 
     def test_get_submissions_query_unconfirmed_points(self):
         def query(unconfirmed: bool):
