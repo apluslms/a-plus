@@ -45,11 +45,12 @@ class ThresholdTest(CourseTestCase):
         'points_by_difficulty':{'A':1700,'B':0,'C':1775}
     })
 
-    def setUp(self):
-        self.setUpCourse()
-        self.setUpSubmissions()
-        self.grades = list([ # pylint: disable=consider-using-generator
-            Threshold.objects.create(course_instance=self.instance, name=name)
+    @classmethod
+    def setUpTestData(cls):
+        cls.setUpCourse()
+        cls.setUpSubmissions()
+        cls.grades = list([ # pylint: disable=consider-using-generator
+            Threshold.objects.create(course_instance=cls.instance, name=name)
             for name in ["1", "2", "3", "4", "5"]
         ])
 

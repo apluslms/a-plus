@@ -10,28 +10,29 @@ from .models import LinkService, LTIService, MenuItem
 
 
 class ExternalServicesTest(TestCase):
-    def setUp(self):
-        self.user = User(username="testUser")
-        self.user.set_password("testPassword")
-        self.user.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User(username="testUser")
+        cls.user.set_password("testPassword")
+        cls.user.save()
 
-        self.assistant = User(username="testUser2")
-        self.assistant.set_password("testPassword")
-        self.assistant.save()
+        cls.assistant = User(username="testUser2")
+        cls.assistant.set_password("testPassword")
+        cls.assistant.save()
 
-        self.link_service = LinkService.objects.create(
+        cls.link_service = LinkService.objects.create(
             url="http://www.external-service.com",
             destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="External Service"
         )
 
-        self.disabled_link_service = LinkService.objects.create(
+        cls.disabled_link_service = LinkService.objects.create(
             url="http://www.disabled-external-service.com",
             destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="Disabled External Service",
             enabled=False
         )
-        self.lti_service = LTIService.objects.create(
+        cls.lti_service = LTIService.objects.create(
             url="http://www.lti-service.com",
             destination_region=LinkService.DESTINATION_REGION.INTERNAL,
             menu_label="LTI Service",
@@ -41,55 +42,55 @@ class ExternalServicesTest(TestCase):
             consumer_secret="987654321"
         )
 
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
 
-        self.today = timezone.now()
-        self.tomorrow = self.today + timedelta(days=1)
+        cls.today = timezone.now()
+        cls.tomorrow = cls.today + timedelta(days=1)
 
-        self.course_instance = CourseInstance.objects.create(
+        cls.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
-            starting_time=self.today,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.today,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="T-00.1000_2011"
         )
-        self.course_instance.enroll_student(self.user)
-        self.course_instance.add_assistant(self.assistant.userprofile)
+        cls.course_instance.enroll_student(cls.user)
+        cls.course_instance.add_assistant(cls.assistant.userprofile)
 
-        self.menu_item1 = MenuItem.objects.create(
-            service=self.link_service,
-            course_instance=self.course_instance,
+        cls.menu_item1 = MenuItem.objects.create(
+            service=cls.link_service,
+            course_instance=cls.course_instance,
             access=MenuItem.ACCESS.STUDENT,
             menu_label="Overriden Label",
             menu_icon_class="star"
         )
 
-        self.menu_item2 = MenuItem.objects.create(
-            service=self.link_service,
-            course_instance=self.course_instance,
+        cls.menu_item2 = MenuItem.objects.create(
+            service=cls.link_service,
+            course_instance=cls.course_instance,
             access=MenuItem.ACCESS.STUDENT,
             enabled=False
         )
 
-        self.menu_item3 = MenuItem.objects.create(
-            service=self.disabled_link_service,
-            course_instance=self.course_instance,
+        cls.menu_item3 = MenuItem.objects.create(
+            service=cls.disabled_link_service,
+            course_instance=cls.course_instance,
             access=MenuItem.ACCESS.STUDENT
         )
 
-        self.menu_item4 = MenuItem.objects.create(
-            service=self.lti_service,
-            course_instance=self.course_instance,
+        cls.menu_item4 = MenuItem.objects.create(
+            service=cls.lti_service,
+            course_instance=cls.course_instance,
             access=MenuItem.ACCESS.STUDENT
         )
 
-        self.menu_item5 = MenuItem.objects.create(
-            service=self.lti_service,
-            course_instance=self.course_instance,
+        cls.menu_item5 = MenuItem.objects.create(
+            service=cls.lti_service,
+            course_instance=cls.course_instance,
             access=MenuItem.ACCESS.ASSISTANT
         )
 

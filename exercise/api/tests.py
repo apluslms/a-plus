@@ -7,46 +7,47 @@ from django.utils import timezone
 from datetime import timedelta
 
 class ExerciceSubmissionAPITest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         # Make a student
-        self.student = User(username="testUser", first_name="Superb",
+        cls.student = User(username="testUser", first_name="Superb",
                             last_name="Student", email="test@aplus.com")
-        self.student.set_password("testPassword")
-        self.student.save()
-        self.student_profile = self.student.userprofile
-        self.student_profile.student_id = "12345X"
-        self.student_profile.save()
+        cls.student.set_password("testPassword")
+        cls.student.save()
+        cls.student_profile = cls.student.userprofile
+        cls.student_profile.student_id = "12345X"
+        cls.student_profile.save()
 
         # Make a course and course instance
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
 
-        self.today = timezone.now()
-        self.tomorrow = self.today + timedelta(days=1)
-        self.two_days_from_now = self.tomorrow + timedelta(days=1)
+        cls.today = timezone.now()
+        cls.tomorrow = cls.today + timedelta(days=1)
+        cls.two_days_from_now = cls.tomorrow + timedelta(days=1)
 
-        self.course_instance1 = CourseInstance.objects.create(
+        cls.course_instance1 = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            starting_time=self.today,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.today,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="T-00.1000_d1"
         )
 
         # Add learning object category to course
-        self.learning_object_category1 = LearningObjectCategory.objects.create(
+        cls.learning_object_category1 = LearningObjectCategory.objects.create(
             name="test category 1",
-            course_instance=self.course_instance1
+            course_instance=cls.course_instance1
         )
 
         # Add learning object to that category
-        #self.learning_object_category1.
+        #cls.learning_object_category1.
 
         # Add a student to course instance
-        self.course_instance1.enroll_student(self.student_profile.user)
+        cls.course_instance1.enroll_student(cls.student_profile.user)
 
     # Not finished
     def test_post_submission(self):

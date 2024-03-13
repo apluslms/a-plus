@@ -21,72 +21,73 @@ from .viewbase import get_deviation_groups
 
 
 class DeviationsTest(TestCase):
-    def setUp(self):
-        self.teacher = User(username="staff", is_staff=True)
-        self.teacher.set_password("staffPassword")
-        self.teacher.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.teacher = User(username="staff", is_staff=True)
+        cls.teacher.set_password("staffPassword")
+        cls.teacher.save()
 
-        self.client = Client()
+        cls.client = Client()
 
-        self.user = User(username="testUser", first_name="First", last_name="Last")
-        self.user.set_password("testPassword")
-        self.user.save()
+        cls.user = User(username="testUser", first_name="First", last_name="Last")
+        cls.user.set_password("testPassword")
+        cls.user.save()
 
-        self.user_2 = User(username="testUser2", first_name="First2", last_name="Last2")
-        self.user_2.set_password("testPassword2")
-        self.user_2.save()
+        cls.user_2 = User(username="testUser2", first_name="First2", last_name="Last2")
+        cls.user_2.set_password("testPassword2")
+        cls.user_2.save()
 
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url",
         )
 
         # Truncate the datetime to seconds to make testing deadline deviations more convenient
-        self.today = timezone.now().replace(microsecond=0)
-        self.tomorrow = self.today + timedelta(days=1)
-        self.two_days_from_now = self.today + timedelta(days=2)
+        cls.today = timezone.now().replace(microsecond=0)
+        cls.tomorrow = cls.today + timedelta(days=1)
+        cls.two_days_from_now = cls.today + timedelta(days=2)
 
-        self.course_instance = CourseInstance.objects.create(
+        cls.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            starting_time=self.today,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.today,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="T-00.1000_d1",
         )
 
-        self.course_instance.enroll_student(self.user)
-        self.course_instance.enroll_student(self.user_2)
-        self.course_instance.add_teacher(self.teacher.userprofile)
+        cls.course_instance.enroll_student(cls.user)
+        cls.course_instance.enroll_student(cls.user_2)
+        cls.course_instance.add_teacher(cls.teacher.userprofile)
 
-        self.course_module = CourseModule.objects.create(
+        cls.course_module = CourseModule.objects.create(
             name="test module",
             url="test-module",
             points_to_pass=15,
-            course_instance=self.course_instance,
-            opening_time=self.today,
-            closing_time=self.tomorrow,
+            course_instance=cls.course_instance,
+            opening_time=cls.today,
+            closing_time=cls.tomorrow,
         )
 
-        self.course_module_2 = CourseModule.objects.create(
+        cls.course_module_2 = CourseModule.objects.create(
             name="test module 2",
             url="test-module-2",
             points_to_pass=15,
-            course_instance=self.course_instance,
-            opening_time=self.today,
-            closing_time=self.tomorrow,
+            course_instance=cls.course_instance,
+            opening_time=cls.today,
+            closing_time=cls.tomorrow,
         )
 
-        self.learning_object_category = LearningObjectCategory.objects.create(
+        cls.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
-            course_instance=self.course_instance,
+            course_instance=cls.course_instance,
             points_to_pass=5,
         )
 
-        self.exercise_with_attachment = ExerciseWithAttachment.objects.create(
+        cls.exercise_with_attachment = ExerciseWithAttachment.objects.create(
             name="test exercise 3",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             max_points=50,
             points_to_pass=50,
             max_submissions=1,
@@ -95,10 +96,10 @@ class DeviationsTest(TestCase):
             url="test_exercise_1",
         )
 
-        self.exercise_with_attachment_2 = ExerciseWithAttachment.objects.create(
+        cls.exercise_with_attachment_2 = ExerciseWithAttachment.objects.create(
             name="test exercise 4",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             max_points=50,
             points_to_pass=50,
             max_submissions=1,
@@ -107,55 +108,55 @@ class DeviationsTest(TestCase):
             url="test_exercise_2",
         )
 
-        self.module_2_exercise_1 = BaseExercise.objects.create(
+        cls.module_2_exercise_1 = BaseExercise.objects.create(
             name="module 2 test exercise 1",
-            course_module=self.course_module_2,
-            category=self.learning_object_category,
+            course_module=cls.course_module_2,
+            category=cls.learning_object_category,
             max_points=50,
             points_to_pass=50,
             max_submissions=1,
             url="module_2_exercise_1",
         )
 
-        self.module_2_exercise_2 = BaseExercise.objects.create(
+        cls.module_2_exercise_2 = BaseExercise.objects.create(
             name="module 2 test exercise 2",
-            course_module=self.course_module_2,
-            category=self.learning_object_category,
+            course_module=cls.course_module_2,
+            category=cls.learning_object_category,
             max_points=50,
             points_to_pass=50,
             max_submissions=1,
             url="module_2_exercise_2",
         )
 
-        self.user_tag = UserTag.objects.create(
-            course_instance=self.course_instance,
+        cls.user_tag = UserTag.objects.create(
+            course_instance=cls.course_instance,
             name='tag_1',
         )
 
-        self.user_tagging = UserTagging.objects.create(
-            tag=self.user_tag,
-            user=self.user.userprofile,
-            course_instance=self.course_instance,
+        cls.user_tagging = UserTagging.objects.create(
+            tag=cls.user_tag,
+            user=cls.user.userprofile,
+            course_instance=cls.course_instance,
         )
 
-        self.deadline_rule_deviation_u1_e1 = DeadlineRuleDeviation.objects.create(
-            exercise=self.exercise_with_attachment,
-            submitter=self.user.userprofile,
-            granter=self.teacher.userprofile,
+        cls.deadline_rule_deviation_u1_e1 = DeadlineRuleDeviation.objects.create(
+            exercise=cls.exercise_with_attachment,
+            submitter=cls.user.userprofile,
+            granter=cls.teacher.userprofile,
             extra_seconds=24*60*60, # One day
         )
 
-        self.deadline_rule_deviation_u1_e2 = DeadlineRuleDeviation.objects.create(
-            exercise=self.exercise_with_attachment_2,
-            submitter=self.user.userprofile,
-            granter=self.teacher.userprofile,
+        cls.deadline_rule_deviation_u1_e2 = DeadlineRuleDeviation.objects.create(
+            exercise=cls.exercise_with_attachment_2,
+            submitter=cls.user.userprofile,
+            granter=cls.teacher.userprofile,
             extra_seconds=2*24*60*60, # Two days
         )
 
-        self.deadline_rule_deviation_u2_e1 = DeadlineRuleDeviation.objects.create(
-            exercise=self.exercise_with_attachment,
-            submitter=self.user_2.userprofile,
-            granter=self.teacher.userprofile,
+        cls.deadline_rule_deviation_u2_e1 = DeadlineRuleDeviation.objects.create(
+            exercise=cls.exercise_with_attachment,
+            submitter=cls.user_2.userprofile,
+            granter=cls.teacher.userprofile,
             extra_seconds=3*24*60*60, # Three days
         )
 

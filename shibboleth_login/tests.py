@@ -37,20 +37,21 @@ ENV_VARS = {
 @override_settings(SHIBBOLETH_ENVIRONMENT_VARS=ENV_VARS)
 class ShibbolethTest(TestCase):
 
-    def setUp(self):
-        self.user = User(
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User(
             username='meikalm8@first.invalid',
             email='matti@second.invalid',
             first_name='Matti',
             last_name='Sukunimi',
         )
-        self.user.set_unusable_password()
-        self.user.save()
-        self.user.userprofile.student_id = '000'
-        self.user.userprofile.organization = 'first.invalid'
-        self.user.userprofile.save()
+        cls.user.set_unusable_password()
+        cls.user.save()
+        cls.user.userprofile.student_id = '000'
+        cls.user.userprofile.organization = 'first.invalid'
+        cls.user.userprofile.save()
 
-        self.login_url = reverse('shibboleth-login')
+        cls.login_url = reverse('shibboleth-login')
 
     def test_permission_is_denied_when_user_id_is_missing(self):
         meta = DEF_SHIBD_META.copy()

@@ -13,25 +13,26 @@ IFRAME_PLUGIN_ADDRESS = "address13123"
 
 class AppsTest(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-        self.course = Course.objects.create(name="Test", code="test", url="test")
-        self.instance = CourseInstance.objects.create(course=self.course,
+    @classmethod
+    def setUpTestData(cls):
+        cls.client = Client()
+        cls.course = Course.objects.create(name="Test", code="test", url="test")
+        cls.instance = CourseInstance.objects.create(course=cls.course,
                                                       instance_name="Ins",
                                                       starting_time="2000-01-01T12:00:00.000Z",
                                                       ending_time="2020-01-01T12:00:00.000Z")
 
-        self.html_plugin = HTMLPlugin.objects.create(container=self.instance,
+        cls.html_plugin = HTMLPlugin.objects.create(container=cls.instance,
                                                      title="HTML Plugin",
                                                      views="exercise,course_instance",
                                                      content=HTML_PLUGIN_CONTENT)
 
-        self.rss_plugin = RSSPlugin.objects.create(container=self.instance,
+        cls.rss_plugin = RSSPlugin.objects.create(container=cls.instance,
                                                    title="RSS Plugin",
                                                    views="course_instance",
                                                    feed_url=RSS_PLUGIN_ADDRESS)
 
-        self.iframe_plugin = ExternalIFramePlugin.objects.create(container=self.instance,
+        cls.iframe_plugin = ExternalIFramePlugin.objects.create(container=cls.instance,
                                                                  title="Iframe Plugin",
                                                                  views="exercise",
                                                                  service_url=IFRAME_PLUGIN_ADDRESS,

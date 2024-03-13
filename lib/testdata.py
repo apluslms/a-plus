@@ -19,10 +19,12 @@ from exercise.models import (
 
 class CourseTestCase(TestCase):
 
-    def setUp(self):
-        self.setUpCourse()
-        self.setUpSubmissions()
+    @classmethod
+    def setUpTestData(cls):
+        cls.setUpCourse()
+        cls.setUpSubmissions()
 
+    @classmethod
     def setUpCourse(self):
 
         self.now = timezone.now()
@@ -140,6 +142,7 @@ class CourseTestCase(TestCase):
             max_group_size=2,
         )
 
+    @classmethod
     def setUpSubmissions(self):
 
         self.submission = Submission.objects.create(
