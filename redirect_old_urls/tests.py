@@ -10,43 +10,44 @@ from datetime import timedelta
 
 class RedirectTest(TestCase):
 
-    def setUp(self):
-        self.user = User(username="testUser")
-        self.user.set_password("testPassword")
-        self.user.save()
-        self.user.userprofile.student_id = '123456'
-        self.user.userprofile.organization = settings.LOCAL_ORGANIZATION
-        self.user.userprofile.save()
-        self.course = Course.objects.create(
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User(username="testUser")
+        cls.user.set_password("testPassword")
+        cls.user.save()
+        cls.user.userprofile.student_id = '123456'
+        cls.user.userprofile.organization = settings.LOCAL_ORGANIZATION
+        cls.user.userprofile.save()
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
-        self.course_instance = CourseInstance.objects.create(
+        cls.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011",
             starting_time=timezone.now(),
             ending_time=timezone.now() + timedelta(days=5),
-            course=self.course,
+            course=cls.course,
             url="T-00.1000_2011",
             view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
         )
-        self.course_module = CourseModule.objects.create(
+        cls.course_module = CourseModule.objects.create(
             name="test module",
             url="test-module",
             points_to_pass=15,
-            course_instance=self.course_instance,
+            course_instance=cls.course_instance,
             opening_time=timezone.now(),
             closing_time=timezone.now() + timedelta(days=5)
         )
-        self.learning_object_category = LearningObjectCategory.objects.create(
+        cls.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
-            course_instance=self.course_instance,
+            course_instance=cls.course_instance,
             points_to_pass=5
         )
-        self.exercise = StaticExercise.objects.create(
+        cls.exercise = StaticExercise.objects.create(
             name="test exercise",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             url='e1',
         )
 

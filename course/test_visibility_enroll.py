@@ -17,108 +17,109 @@ class CourseVisibilityTest(TestCase):
     There are also some tests about enrollment.
     """
 
-    def setUp(self):
-        self.user = User(username="testUser") # not enrolled in the course
-        self.user.set_password("testUser")
-        self.user.save()
-        self.user.userprofile.student_id = '123456'
-        self.user.userprofile.organization = settings.LOCAL_ORGANIZATION
-        self.user.userprofile.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User(username="testUser") # not enrolled in the course
+        cls.user.set_password("testUser")
+        cls.user.save()
+        cls.user.userprofile.student_id = '123456'
+        cls.user.userprofile.organization = settings.LOCAL_ORGANIZATION
+        cls.user.userprofile.save()
 
-        self.student = User(username="student") # enrolled in the course
-        self.student.set_password("student")
-        self.student.save()
-        self.student.userprofile.student_id = '654321'
-        self.student.userprofile.organization = settings.LOCAL_ORGANIZATION
-        self.student.userprofile.save()
+        cls.student = User(username="student") # enrolled in the course
+        cls.student.set_password("student")
+        cls.student.save()
+        cls.student.userprofile.student_id = '654321'
+        cls.student.userprofile.organization = settings.LOCAL_ORGANIZATION
+        cls.student.userprofile.save()
 
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="Test course",
             code="123456",
             url="Course-Url",
         )
 
-        self.today = timezone.now()
-        self.tomorrow = self.today + timedelta(days=1)
-        self.two_days_from_now = self.tomorrow + timedelta(days=1)
-        self.yesterday = self.today - timedelta(days=1)
+        cls.today = timezone.now()
+        cls.tomorrow = cls.today + timedelta(days=1)
+        cls.two_days_from_now = cls.tomorrow + timedelta(days=1)
+        cls.yesterday = cls.today - timedelta(days=1)
 
         # course instances with different view_access_to settings
-        self.public_course_instance = CourseInstance.objects.create(
+        cls.public_course_instance = CourseInstance.objects.create(
             instance_name="Public",
-            starting_time=self.yesterday,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.yesterday,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="public",
             view_content_to=CourseInstance.VIEW_ACCESS.PUBLIC,
             enrollment_audience=CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
         )
 
-        self.all_regist_course_instance = CourseInstance.objects.create(
+        cls.all_regist_course_instance = CourseInstance.objects.create(
             instance_name="All registered users",
-            starting_time=self.yesterday,
-            ending_time=self.tomorrow,
-            course=self.course,
+            starting_time=cls.yesterday,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="allregistered",
             view_content_to=CourseInstance.VIEW_ACCESS.ALL_REGISTERED,
             enrollment_audience=CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
         )
 
-        self.enroll_audience_course_instance = CourseInstance.objects.create(
+        cls.enroll_audience_course_instance = CourseInstance.objects.create(
             instance_name="Enrollment audience",
-            starting_time=self.yesterday,
-            ending_time=self.two_days_from_now,
-            course=self.course,
+            starting_time=cls.yesterday,
+            ending_time=cls.two_days_from_now,
+            course=cls.course,
             url="enrollmentaudience",
             view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
             enrollment_audience=CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
         )
 
-        self.enrolled_course_instance = CourseInstance.objects.create(
+        cls.enrolled_course_instance = CourseInstance.objects.create(
             instance_name="Enrolled",
-            starting_time=self.yesterday,
-            ending_time=self.two_days_from_now,
-            course=self.course,
+            starting_time=cls.yesterday,
+            ending_time=cls.two_days_from_now,
+            course=cls.course,
             url="enrolled",
             view_content_to=CourseInstance.VIEW_ACCESS.ENROLLED,
             enrollment_audience=CourseInstance.ENROLLMENT_AUDIENCE.INTERNAL_USERS,
         )
-        self.course_instances = [self.public_course_instance, self.all_regist_course_instance,
-            self.enroll_audience_course_instance, self.enrolled_course_instance]
+        cls.course_instances = [cls.public_course_instance, cls.all_regist_course_instance,
+            cls.enroll_audience_course_instance, cls.enrolled_course_instance]
 
         # enrollment
-        for instance in self.course_instances:
-            instance.enroll_student(self.student)
+        for instance in cls.course_instances:
+            instance.enroll_student(cls.student)
 
         # module/exercise round for each course instance
-        self.course_modules = {}
-        for instance in self.course_instances:
-            self.course_modules[instance.id] = CourseModule.objects.create(
+        cls.course_modules = {}
+        for instance in cls.course_instances:
+            cls.course_modules[instance.id] = CourseModule.objects.create(
                 name="Test module",
                 url="test-module",
                 points_to_pass=10,
                 course_instance=instance,
-                opening_time=self.today,
-                closing_time=self.tomorrow,
+                opening_time=cls.today,
+                closing_time=cls.tomorrow,
             )
 
         # category
-        self.categories = {}
-        for instance in self.course_instances:
-            self.categories[instance.id] = LearningObjectCategory.objects.create(
+        cls.categories = {}
+        for instance in cls.course_instances:
+            cls.categories[instance.id] = LearningObjectCategory.objects.create(
                 name="Test category",
                 course_instance=instance,
                 points_to_pass=0,
             )
 
         # learning objects
-        self.learning_objects = {}
-        for instance in self.course_instances:
+        cls.learning_objects = {}
+        for instance in cls.course_instances:
             lobjects = []
             chapter = CourseChapter.objects.create(
                 name="Test chapter",
-                course_module=self.course_modules[instance.id],
-                category=self.categories[instance.id],
+                course_module=cls.course_modules[instance.id],
+                category=cls.categories[instance.id],
                 url='chapter1',
             )
             lobjects.append(chapter)
@@ -126,8 +127,8 @@ class CourseVisibilityTest(TestCase):
                 name="Embedded exercise",
                 parent=chapter,
                 status=LearningObject.STATUS.UNLISTED,
-                course_module=self.course_modules[instance.id],
-                category=self.categories[instance.id],
+                course_module=cls.course_modules[instance.id],
+                category=cls.categories[instance.id],
                 url='embedexercise',
                 max_submissions=10,
                 max_points=10,
@@ -135,27 +136,27 @@ class CourseVisibilityTest(TestCase):
             ))
             lobjects.append(BaseExercise.objects.create(
                 name="Normal exercise",
-                course_module=self.course_modules[instance.id],
-                category=self.categories[instance.id],
+                course_module=cls.course_modules[instance.id],
+                category=cls.categories[instance.id],
                 url='normalexercise',
                 max_submissions=10,
                 max_points=10,
                 points_to_pass=0,
             ))
-            self.learning_objects[instance.id] = lobjects
+            cls.learning_objects[instance.id] = lobjects
 
         # submissions
-        self.submissions = {}
-        for _course_instance_id, exercises in self.learning_objects.items():
+        cls.submissions = {}
+        for _course_instance_id, exercises in cls.learning_objects.items():
             for exercise in exercises:
                 if not exercise.is_submittable:
                     continue
-                self.submissions[exercise.id] = []
+                cls.submissions[exercise.id] = []
                 submission = Submission.objects.create(
                     exercise=exercise,
                 )
-                submission.submitters.add(self.student.userprofile)
-                self.submissions[exercise.id].append(submission)
+                submission.submitters.add(cls.student.userprofile)
+                cls.submissions[exercise.id].append(submission)
 
         # disable all logging
         logging.disable(logging.CRITICAL)

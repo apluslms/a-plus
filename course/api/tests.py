@@ -1,13 +1,11 @@
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from rest_framework.test import APIClient
 
 from course.models import CourseInstance
+from ..tests import CourseTestCase
 
-
-class CourseInstanceAPITest(TestCase):
-    # use same setUp as for normal tests
-    from ..tests import CourseTest # pylint: disable=import-outside-toplevel
-    setUp = CourseTest.setUp
+class CourseInstanceAPITest(CourseTestCase):
+    # uses the same setUpTestData as for normal tests
 
     @override_settings(BASE_URL="http://testserver/")
     def test_get_courselist(self):

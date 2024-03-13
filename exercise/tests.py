@@ -27,135 +27,136 @@ from exercise.submission_models import build_upload_dir as build_upload_dir_for_
 from lib.helpers import build_aplus_url
 
 class ExerciseTestBase(TestCase):
-    def setUp(self): # pylint: disable=too-many-statements
-        self.user = User(username="testUser", first_name="First", last_name="Last")
-        self.user.set_password("testPassword")
-        self.user.save()
-        self.user.userprofile.student_id = '123456'
-        self.user.userprofile.organization = settings.LOCAL_ORGANIZATION
-        self.user.userprofile.save()
+    @classmethod
+    def setUpTestData(cls): # pylint: disable=too-many-statements
+        cls.user = User(username="testUser", first_name="First", last_name="Last")
+        cls.user.set_password("testPassword")
+        cls.user.save()
+        cls.user.userprofile.student_id = '123456'
+        cls.user.userprofile.organization = settings.LOCAL_ORGANIZATION
+        cls.user.userprofile.save()
 
-        self.grader = User(username="grader")
-        self.grader.set_password("graderPassword")
-        self.grader.save()
+        cls.grader = User(username="grader")
+        cls.grader.set_password("graderPassword")
+        cls.grader.save()
 
-        self.teacher = User(username="staff", is_staff=True)
-        self.teacher.set_password("staffPassword")
-        self.teacher.save()
+        cls.teacher = User(username="staff", is_staff=True)
+        cls.teacher.set_password("staffPassword")
+        cls.teacher.save()
 
-        self.user2 = User(username="testUser2", first_name="Strange", last_name="Fellow")
-        self.user2.set_password("testPassword2")
-        self.user2.save()
-        self.user2.userprofile.student_id = '654321'
-        self.user2.userprofile.organization = settings.LOCAL_ORGANIZATION
-        self.user2.userprofile.save()
+        cls.user2 = User(username="testUser2", first_name="Strange", last_name="Fellow")
+        cls.user2.set_password("testPassword2")
+        cls.user2.save()
+        cls.user2.userprofile.student_id = '654321'
+        cls.user2.userprofile.organization = settings.LOCAL_ORGANIZATION
+        cls.user2.userprofile.save()
 
-        self.course = Course.objects.create(
+        cls.course = Course.objects.create(
             name="test course",
             code="123456",
             url="Course-Url"
         )
 
-        self.today = timezone.now()
-        self.yesterday = self.today - timedelta(days=1)
-        self.tomorrow = self.today + timedelta(days=1)
-        self.two_days_from_now = self.tomorrow + timedelta(days=1)
-        self.three_days_from_now = self.two_days_from_now + timedelta(days=1)
+        cls.today = timezone.now()
+        cls.yesterday = cls.today - timedelta(days=1)
+        cls.tomorrow = cls.today + timedelta(days=1)
+        cls.two_days_from_now = cls.tomorrow + timedelta(days=1)
+        cls.three_days_from_now = cls.two_days_from_now + timedelta(days=1)
 
-        self.course_instance = CourseInstance.objects.create(
+        cls.course_instance = CourseInstance.objects.create(
             instance_name="Fall 2011 day 1",
-            enrollment_starting_time=self.yesterday,
-            starting_time=self.today,
-            ending_time=self.tomorrow,
-            course=self.course,
+            enrollment_starting_time=cls.yesterday,
+            starting_time=cls.today,
+            ending_time=cls.tomorrow,
+            course=cls.course,
             url="T-00.1000_d1",
             view_content_to=CourseInstance.VIEW_ACCESS.ENROLLMENT_AUDIENCE,
         )
-        self.course_instance.add_teacher(self.teacher.userprofile)
-        self.course_instance.add_assistant(self.grader.userprofile)
+        cls.course_instance.add_teacher(cls.teacher.userprofile)
+        cls.course_instance.add_assistant(cls.grader.userprofile)
 
-        self.course_module = CourseModule.objects.create(
+        cls.course_module = CourseModule.objects.create(
             name="test module",
             url="test-module",
             points_to_pass=15,
-            course_instance=self.course_instance,
-            opening_time=self.today,
-            closing_time=self.tomorrow
+            course_instance=cls.course_instance,
+            opening_time=cls.today,
+            closing_time=cls.tomorrow
         )
 
-        self.course_module_with_late_submissions_allowed = CourseModule.objects.create(
+        cls.course_module_with_late_submissions_allowed = CourseModule.objects.create(
             name="test module",
             url="test-module-late",
             points_to_pass=50,
-            course_instance=self.course_instance,
-            opening_time=self.today,
-            closing_time=self.tomorrow,
+            course_instance=cls.course_instance,
+            opening_time=cls.today,
+            closing_time=cls.tomorrow,
             late_submissions_allowed=True,
-            late_submission_deadline=self.two_days_from_now,
+            late_submission_deadline=cls.two_days_from_now,
             late_submission_penalty=0.2
         )
 
-        self.old_course_module = CourseModule.objects.create(
+        cls.old_course_module = CourseModule.objects.create(
             name="test module",
             url="test-module-old",
             points_to_pass=15,
-            course_instance=self.course_instance,
-            opening_time=self.yesterday,
-            closing_time=self.today
+            course_instance=cls.course_instance,
+            opening_time=cls.yesterday,
+            closing_time=cls.today
         )
 
-        self.reading_open_course_module = CourseModule.objects.create(
+        cls.reading_open_course_module = CourseModule.objects.create(
             name="test module",
             url="test-module-reading-open",
             points_to_pass=15,
-            course_instance=self.course_instance,
-            reading_opening_time=self.yesterday,
-            opening_time=self.tomorrow,
-            closing_time=self.two_days_from_now
+            course_instance=cls.course_instance,
+            reading_opening_time=cls.yesterday,
+            opening_time=cls.tomorrow,
+            closing_time=cls.two_days_from_now
         )
 
-        self.learning_object_category = LearningObjectCategory.objects.create(
+        cls.learning_object_category = LearningObjectCategory.objects.create(
             name="test category",
-            course_instance=self.course_instance,
+            course_instance=cls.course_instance,
             points_to_pass=5
         )
 
-        self.hidden_learning_object_category = LearningObjectCategory.objects.create(
+        cls.hidden_learning_object_category = LearningObjectCategory.objects.create(
             name="hidden category",
-            course_instance=self.course_instance
+            course_instance=cls.course_instance
         )
-        #self.hidden_learning_object_category.hidden_to.add(self.user.userprofile)
+        #cls.hidden_learning_object_category.hidden_to.add(cls.user.userprofile)
 
-        self.learning_object = LearningObject.objects.create(
+        cls.learning_object = LearningObject.objects.create(
             name="test learning object",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             url="l1",
         )
 
         # Learning object names are not unique, so this object really is not
         # broken despite the variable name.
-        self.broken_learning_object = LearningObject.objects.create(
+        cls.broken_learning_object = LearningObject.objects.create(
             name="test learning object",
-            course_module=self.course_module_with_late_submissions_allowed,
-            category=self.learning_object_category,
+            course_module=cls.course_module_with_late_submissions_allowed,
+            category=cls.learning_object_category,
             url="l2",
         )
 
-        self.base_exercise = BaseExercise.objects.create(
+        cls.base_exercise = BaseExercise.objects.create(
             order=1,
             name="test exercise",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             url="b1",
             max_submissions=1,
         )
 
-        self.static_exercise = StaticExercise.objects.create(
+        cls.static_exercise = StaticExercise.objects.create(
             order=2,
             name="test exercise 2",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             url="s2",
             max_points=50,
             points_to_pass=50,
@@ -164,11 +165,11 @@ class ExerciseTestBase(TestCase):
             submission_page_content="test_submission_content"
         )
 
-        self.exercise_with_attachment = ExerciseWithAttachment.objects.create(
+        cls.exercise_with_attachment = ExerciseWithAttachment.objects.create(
             order=3,
             name="test exercise 3",
-            course_module=self.course_module,
-            category=self.learning_object_category,
+            course_module=cls.course_module,
+            category=cls.learning_object_category,
             url="a1",
             max_points=50,
             points_to_pass=50,
@@ -177,88 +178,88 @@ class ExerciseTestBase(TestCase):
             content="test_instructions"
         )
 
-        self.old_base_exercise = BaseExercise.objects.create(
+        cls.old_base_exercise = BaseExercise.objects.create(
             name="test exercise",
-            course_module=self.old_course_module,
-            category=self.learning_object_category,
+            course_module=cls.old_course_module,
+            category=cls.learning_object_category,
             url="b2",
             max_submissions=1
         )
 
-        self.exercise_in_reading_time = BaseExercise.objects.create(
+        cls.exercise_in_reading_time = BaseExercise.objects.create(
             order=1,
             name="test exercise",
-            course_module=self.reading_open_course_module,
-            category=self.learning_object_category,
+            course_module=cls.reading_open_course_module,
+            category=cls.learning_object_category,
             url="b1",
             max_submissions=1,
         )
 
-        self.base_exercise_with_late_submission_allowed = BaseExercise.objects.create(
+        cls.base_exercise_with_late_submission_allowed = BaseExercise.objects.create(
             name="test exercise with late submissions allowed",
-            course_module=self.course_module_with_late_submissions_allowed,
-            category=self.learning_object_category,
+            course_module=cls.course_module_with_late_submissions_allowed,
+            category=cls.learning_object_category,
             url="b3",
         )
 
-        self.enrollment_exercise = BaseExercise.objects.create(
+        cls.enrollment_exercise = BaseExercise.objects.create(
             name="test enrollment exercise",
-            course_module=self.old_course_module,
-            category=self.learning_object_category,
+            course_module=cls.old_course_module,
+            category=cls.learning_object_category,
             url="enroll-exercise",
             max_submissions=1,
             status="enrollment",
         )
 
-        self.submission = Submission.objects.create(
-            exercise=self.base_exercise,
-            grader=self.grader.userprofile
+        cls.submission = Submission.objects.create(
+            exercise=cls.base_exercise,
+            grader=cls.grader.userprofile
         )
-        self.submission.submitters.add(self.user.userprofile)
+        cls.submission.submitters.add(cls.user.userprofile)
 
-        self.submission_with_two_submitters = Submission.objects.create(
-            exercise=self.base_exercise,
-            grader=self.grader.userprofile
+        cls.submission_with_two_submitters = Submission.objects.create(
+            exercise=cls.base_exercise,
+            grader=cls.grader.userprofile
         )
-        self.submission_with_two_submitters.submitters.add(self.user.userprofile)
-        self.submission_with_two_submitters.submitters.add(self.user2.userprofile)
+        cls.submission_with_two_submitters.submitters.add(cls.user.userprofile)
+        cls.submission_with_two_submitters.submitters.add(cls.user2.userprofile)
 
-        self.late_submission = Submission.objects.create(
-            exercise=self.base_exercise,
-            grader=self.grader.userprofile
+        cls.late_submission = Submission.objects.create(
+            exercise=cls.base_exercise,
+            grader=cls.grader.userprofile
         )
-        self.late_submission.submission_time = self.two_days_from_now
-        self.late_submission.submitters.add(self.user.userprofile)
+        cls.late_submission.submission_time = cls.two_days_from_now
+        cls.late_submission.submitters.add(cls.user.userprofile)
 
-        self.submission_when_late_allowed = Submission.objects.create(
-            exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.userprofile
+        cls.submission_when_late_allowed = Submission.objects.create(
+            exercise=cls.base_exercise_with_late_submission_allowed,
+            grader=cls.grader.userprofile
         )
-        self.submission_when_late_allowed.submitters.add(self.user.userprofile)
+        cls.submission_when_late_allowed.submitters.add(cls.user.userprofile)
 
-        self.late_submission_when_late_allowed = Submission.objects.create(
-            exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.userprofile
+        cls.late_submission_when_late_allowed = Submission.objects.create(
+            exercise=cls.base_exercise_with_late_submission_allowed,
+            grader=cls.grader.userprofile
         )
-        self.late_submission_when_late_allowed.submission_time = self.two_days_from_now
-        self.late_submission_when_late_allowed.submitters.add(self.user.userprofile)
+        cls.late_submission_when_late_allowed.submission_time = cls.two_days_from_now
+        cls.late_submission_when_late_allowed.submitters.add(cls.user.userprofile)
 
-        self.late_late_submission_when_late_allowed = Submission.objects.create(
-            exercise=self.base_exercise_with_late_submission_allowed,
-            grader=self.grader.userprofile
+        cls.late_late_submission_when_late_allowed = Submission.objects.create(
+            exercise=cls.base_exercise_with_late_submission_allowed,
+            grader=cls.grader.userprofile
         )
-        self.late_late_submission_when_late_allowed.submission_time = self.three_days_from_now
-        self.late_late_submission_when_late_allowed.submitters.add(self.user.userprofile)
+        cls.late_late_submission_when_late_allowed.submission_time = cls.three_days_from_now
+        cls.late_late_submission_when_late_allowed.submitters.add(cls.user.userprofile)
 
-        self.course_hook = CourseHook.objects.create(
+        cls.course_hook = CourseHook.objects.create(
             hook_url="http://localhost/test_hook_url",
-            course_instance=self.course_instance
+            course_instance=cls.course_instance
         )
 
-        self.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
-            exercise=self.exercise_with_attachment,
-            submitter=self.user.userprofile,
-            granter=self.teacher.userprofile,
+        cls.deadline_rule_deviation = DeadlineRuleDeviation.objects.create(
+            exercise=cls.exercise_with_attachment,
+            submitter=cls.user.userprofile,
+            granter=cls.teacher.userprofile,
             extra_seconds=24*60*60  # One day
         )
 
