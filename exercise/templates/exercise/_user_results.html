@@ -231,6 +231,12 @@
 						>
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 							<span class="sr-only">{% translate "MODULE_MODEL_ANSWER_NOT_VISIBLE" %}</span>
+							{% if is_course_staff %}
+							<a href="{{ entry.link }}">
+								<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+								{% translate "EARLY_ACCESS" %}
+							</a>
+							{% endif %}
 						</span>
 						{% endif %}
 						{% endif %}
