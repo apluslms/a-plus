@@ -5900,3 +5900,7 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
+
+#: course/templates/course/index.html
+msgid "CONTINUE"
+msgstr "Jatka siitä mistä jäit"
