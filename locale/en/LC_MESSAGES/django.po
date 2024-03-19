@@ -3213,7 +3213,7 @@ msgid "EXERCISE_MAX_SUBMISSIONS_USED"
 msgstr "You have used the allowed amount of submissions for this assignment."
 
 #: exercise/exercise_models.py
-msgid "CANNOT_ENROLL_IN_COURSE"
+msgid "CANNOT_ENROLL_IN_COURSE_ERROR"
 msgstr "You cannot enroll in the course."
 
 #: exercise/exercise_models.py
@@ -3221,11 +3221,11 @@ msgid "STAFF_CAN_SUBMIT_WITHOUT_ENROLLING"
 msgstr "Staff can submit assignments without enrolling."
 
 #: exercise/exercise_models.py
-msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES"
+msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES_WARNING"
 msgstr "You must enroll in the course to submit assignments."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
 msgstr "Cannot submit assignment because of invalid JSON in POST data"
 
 #: exercise/exercise_models.py

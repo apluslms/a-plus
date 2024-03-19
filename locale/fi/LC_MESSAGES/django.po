@@ -3228,7 +3228,7 @@ msgid "EXERCISE_MAX_SUBMISSIONS_USED"
 msgstr "Olet käyttänyt kaikki tehtävän palautuskerrat."
 
 #: exercise/exercise_models.py
-msgid "CANNOT_ENROLL_IN_COURSE"
+msgid "CANNOT_ENROLL_IN_COURSE_ERROR"
 msgstr "Et voi ilmoittautua kurssille."
 
 #: exercise/exercise_models.py
@@ -3236,11 +3236,11 @@ msgid "STAFF_CAN_SUBMIT_WITHOUT_ENROLLING"
 msgstr "Henkilökunta voi palauttaa tehtäviä ilmoittautumatta."
 
 #: exercise/exercise_models.py
-msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES"
+msgid "MUST_ENROLL_TO_SUBMIT_EXERCISES_WARNING"
 msgstr "Palauttaaksesi tehtäviä sinun pitää ilmoittautua kurssille."
 
 #: exercise/exercise_models.py
-msgid "EXERCISE_WARNING_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
+msgid "EXERCISE_ERROR_CANNOT_SUBMIT_INVALID_JSON_IN_POST"
 msgstr "Tehtävää ei voitu palauttaa, POST pyyntö sisälsi virheellistä JSON:nia"
 
 #: exercise/exercise_models.py
