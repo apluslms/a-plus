@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generic, Iterable, Optional, TypeVa
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import pytz
 
 from course.models import CourseInstance
 from exercise.exercise_models import BaseExercise
@@ -197,6 +198,30 @@ class DeadlineRuleDeviation(SubmissionRuleDeviation):
             seconds = self.exercise.delta_in_seconds_from_closing_to_date(new_date)
         else:
             seconds = int(seconds)
+
+            # Adjust the deadline deviation length by taking daylight savings time into consideration
+            timezone_string = form_data.get('timezone_string')
+            try:
+                tz = pytz.timezone(timezone_string)
+
+                module_close = self.get_normal_deadline()
+                new_deadline = module_close + timedelta(seconds=seconds)
+                start_date = module_close.replace(tzinfo=pytz.utc).astimezone(tz)
+                end_date = new_deadline.replace(tzinfo=pytz.utc).astimezone(tz)
+
+                # Get the UTC offsets for the start and end dates
+                start_offset = start_date.utcoffset().total_seconds()
+                end_offset = end_date.utcoffset().total_seconds()
+
+                if start_offset > end_offset:
+                    # Clock was moved backward, add one hour to the deadline deviation
+                    seconds += 60 * 60
+                elif start_offset < end_offset:
+                    # Clock was moved forward, remove one hour from the deadline deviation
+                    seconds -= 60 * 60
+            except pytz.exceptions.UnknownTimeZoneError:
+                pass
+
         self.extra_seconds = seconds
         self.without_late_penalty = bool(form_data.get('without_late_penalty'))
 

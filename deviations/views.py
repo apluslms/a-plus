@@ -49,6 +49,11 @@ class AddDeadlinesView(AddDeviationsView):
         })
         return result
 
+    def form_valid(self, form):
+        timezone_string = self.request.POST.get('timezone_string')
+        form.cleaned_data['timezone_string'] = timezone_string
+        return super().form_valid(form)
+
 
 class OverrideDeadlinesView(OverrideDeviationsView):
     template_name = "deviations/override_dl.html"
