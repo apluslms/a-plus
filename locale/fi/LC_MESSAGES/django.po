@@ -5394,6 +5394,10 @@ msgstr "uutiset"
 msgid "ADD_NEWS_ITEM"
 msgstr "Lisää uutinen"
 
+#: news/templates/news/edit.html news/templates/news/list.html
+msgid "REMOVE_SELECTED_NEWS_ITEMS"
+msgstr "Poista valitut uutiset"
+
 #: news/templates/news/list.html
 msgid "NEWS"
 msgstr "Uutiset"

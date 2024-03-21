@@ -23,6 +23,7 @@ class NewsForm(forms.ModelForm):
             'pin',
             'email_students',
             'email_staff',
+            'language',
             'title',
             'body',
         ]
