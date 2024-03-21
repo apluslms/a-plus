@@ -4,6 +4,7 @@
 # You can copy local_settings.example.py and start from there.
 ##
 from os.path import abspath, dirname, join
+
 from lib.logging import skip_unreadable_post
 from os import environ
 from r_django_essentials.conf import (
@@ -313,6 +314,7 @@ ROOT_URLCONF = 'aplus.urls'
 LOGIN_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/accounts/login/"
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -332,6 +334,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "lib.context_processors.aplus_version",
                 "lib.context_processors.gitmanager_enabled",
+                "lib.context_processors.gitmanager_url"
             ],
         },
     },

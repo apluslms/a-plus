@@ -14,3 +14,8 @@ def gitmanager_enabled(request):
     return {
         'GITMANAGER_ENABLED': bool(settings.GITMANAGER_URL),
     }
+
+def gitmanager_url(request):
+    return {
+        'GITMANAGER_URL': settings.GITMANAGER_URL,
+    }
