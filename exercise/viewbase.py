@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from course.viewbase import CourseModuleMixin
 from lib.viewbase import BaseTemplateView, BaseView
 from userprofile.models import UserProfile
+from userprofile.pseudonymize import format_user
 
 from .cache.content import LearningObjectContent, ModuleContent
 from .cache.hierarchy import NoSuchContent
@@ -127,7 +128,8 @@ class ExerciseMixin(ExerciseRevealRuleMixin, ExerciseBaseMixin, CourseModuleMixi
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.now = timezone.now()
-        self.note("now", "submission_url_name", "exercise_url_name")
+        self.pseudonymize = self.request.session.get("pseudonymize", False)
+        self.note("now", "submission_url_name", "exercise_url_name", "pseudonymize")
 
     def get_summary_user(self) -> Optional[User]:
         return self.request.user
@@ -249,6 +251,7 @@ class SubmissionMixin(SubmissionBaseMixin, ExerciseMixin):
             # Use None (AnonymousUser) in the ExercisePoints
             # so that it does not pick submissions from request.user (the teacher).
             return None
+        format_user(self.submitter.user, self.pseudonymize)
         return self.submitter.user
 
     @cached_property

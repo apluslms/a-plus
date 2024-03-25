@@ -10,9 +10,15 @@
 			<div class="assessment-bar-fill assessment-bar-text">
 				{% if submission.grader %}
 				<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-				{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
-				ASSESSED_BY -- {{ user }}, {{ time }}
-				{% endblocktranslate %}
+				{% if not pseudonymize %}
+					{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
+					ASSESSED_BY -- {{ user }}, {{ time }}
+					{% endblocktranslate %}
+				{% else %}
+					{% blocktranslate trimmed with user="Somebody" time=submission.grading_time %}
+					ASSESSED_BY -- {{ user }}, {{ time }}
+					{% endblocktranslate %}
+				{% endif %}
 				{% else %}
 				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 				{% translate 'NOT_ASSESSED_MANUALLY' %}

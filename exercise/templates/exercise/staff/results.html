@@ -43,21 +43,27 @@ that includes the correct DataTables extensions. -->
     results_staff.js is the main script for this page. -->
 <!--<link rel="stylesheet" href="{% static 'exercise/css/loading_animation.css' %}" />-->
 <link rel="stylesheet" href="{% static 'exercise/css/results_staff.css' %}" />
-<script
-	src="{% static 'exercise/results_staff.js' %}"
-	data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=instance.id %}"
-	data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
-	data-points-url="{% url 'api:course-resultsdata-list' version=2 course_id=instance.id %}"
-	data-points-best-url="{% url 'api:course-resultsdata-best-list' version=2 course_id=instance.id %}"
-	defer>
-</script>
+{% if not pseudonymize %}
+    <script
+        src="{% static 'exercise/results_staff.js' %}"
+        data-exercises-url="{% url 'api:course-exercises-list' version=2 course_id=instance.id %}"
+        data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
+        data-points-url="{% url 'api:course-resultsdata-list' version=2 course_id=instance.id %}"
+        data-points-best-url="{% url 'api:course-resultsdata-best-list' version=2 course_id=instance.id %}"
+        defer>
+    </script>
+{% endif %}
 
 <!--Colortags-->
 <script src="{% static 'django_colortag.js' %}"></script>
 {% endblock scripts %}
 
 {% block columns %}
-
+{% if pseudonymize %}
+<div class="alert alert-warning clearfix site-message">
+	{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+</div>
+{% endif %}
 <div class="col-md-12">
 	<div id="main-body">
 		<div class="col-md-6 col-sm-12">
