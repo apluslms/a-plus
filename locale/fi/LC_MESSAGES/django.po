@@ -2738,6 +2738,10 @@ msgid "EDIT_GITMANAGER_DESCRIPTION"
 msgstr "Tämä toiminto päivittää kurssikerran asetuksia Git managerissa."
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "GO_TO_GITMANAGER_PAGE"
+msgstr "Mene gitmanager sivulle"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "UPDATING_GITMANAGER"
 msgstr "Päivitetään Git manageria..."
 
