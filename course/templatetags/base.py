@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django import template
 from django.conf import settings
+from django.urls import resolve
+from django.urls.exceptions import Resolver404
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import get_language, gettext_lazy as _
@@ -28,6 +30,15 @@ def get_date(cont, key):
         cont[key] = data
     return data
 
+@register.simple_tag(takes_context=True)
+def login_next(context):
+    request = context["request"]
+    try:
+        matched_url_name = resolve(request.path).url_name
+        next_path = f"?next={request.path}" if matched_url_name != 'logout' else ""
+        return next_path
+    except Resolver404:
+        return ""
 
 @register.simple_tag
 def brand_name():
