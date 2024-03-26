@@ -174,7 +174,7 @@
 							</li>
 							{% else %}
 							<li role="presentation">
-								<a href="{% url 'login' %}">
+								<a href="{% url 'login' %}{% login_next %}">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
 									{% translate "LOG_IN"%}
 								</a>
@@ -218,7 +218,7 @@
 							</li>
 							{% else %}
 							<li>
-								<a href="{% url 'login' %}">
+								<a href="{% url 'login' %}{% login_next %}">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
 									{% translate "LOG_IN" %}
 								</a>
