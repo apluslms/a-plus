@@ -11,14 +11,14 @@
   document.addEventListener('DOMContentLoaded', function() {
     var loginLink = document.getElementById('loginLink');
     if (loginLink) {
-        loginLink.addEventListener('click', function(event) {
-			if (!window.location.pathname.includes("/logout")) {
-            	event.preventDefault();
-            	var currentUrl = window.location.href;
-            	var loginUrl = this.getAttribute('href') + '?next=' + encodeURIComponent(currentUrl);
-            	window.location.href = loginUrl;
-			}
-        });
+      loginLink.addEventListener('click', function(event) {
+			  if (!window.location.pathname.includes("/logout")) {
+          event.preventDefault();
+      	  var currentUrl = window.location.href;
+          var loginUrl = this.getAttribute('href') + '?next=' + encodeURIComponent(currentUrl);
+      	  window.location.href = loginUrl;
+			  }
+      });
     }
   });
 
