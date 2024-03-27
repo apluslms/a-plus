@@ -174,11 +174,12 @@
 							</li>
 							{% else %}
 							<li role="presentation">
-								<a href="{% url 'login' %}">
+								<a href="{% url 'login' %}" id="loginLink">
 									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
 									{% translate "LOG_IN"%}
 								</a>
 							</li>
+							<script src="{% static 'userprofile/extra_logins.js' %}"></script>
 							{% endif %}
 						</ul>
 
