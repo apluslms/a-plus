@@ -123,6 +123,7 @@ class CourseSerializer(CourseBriefSerializer):
             'my_groups',
             'news',
             'statistics',
+            'image',
         )
 
 
