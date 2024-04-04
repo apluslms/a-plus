@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 17:06+0200\n"
+"POT-Creation-Date: 2024-04-04 13:12+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1022,6 +1022,14 @@ msgstr "Määräaikojen poikkeamat"
 #: deviations/templates/deviations/list_submissions.html
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Palautuskertojen poikkeamat"
+
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Pseudonymisointi pois päältä"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymisointi päälle"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
@@ -4041,6 +4049,10 @@ msgstr "Palautushetki"
 msgid "INCLUDES_LATE_PENALTY"
 msgstr "Sisältää myöhästymissakon"
 
+#: exercise/templates/exercise/_submission_info.html
+msgid "PSEUDONYMIZED_SUBMITTERS"
+msgstr "Anonymisoidut palauttajat"
+
 #: exercise/templates/exercise/_submit_progress.html
 #: exercise/templates/exercise/exercise.html
 msgid "POSTING_SUBMISSION"
@@ -4254,6 +4266,14 @@ msgstr "Tulokset"
 #, python-format
 msgid "ASSESSED_BY -- %(user)s, %(time)s"
 msgstr "Arvostellut %(user)s, %(time)s"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ASSESSED_BY"
+msgstr "Arvostellut"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SOMEBODY"
+msgstr "Joku"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "NOT_ASSESSED_MANUALLY"
@@ -4480,6 +4500,11 @@ msgstr "Viimeisin palautusaika"
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "NO_SUBMITTERS"
 msgstr "Ei palauttajia"
+
+#: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
+msgid "PSEUDONYMIZATION_ERROR_MSG"
+msgstr "Tämä näkymä ei ole saatavilla kun pseudonymisointi on päällä!"
 
 #: exercise/templates/exercise/staff/analytics.html
 msgid "MODULE_SELECTION"

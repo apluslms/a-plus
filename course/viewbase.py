@@ -109,10 +109,10 @@ class CourseInstanceBaseMixin:
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             self.query_language = None
             self.user_language = None
-
+            self.pseudonymize = self.request.session.get('pseudonymize', False)
             self.note(
                 "instance", "is_student", "is_assistant", "is_teacher", "is_course_staff",
-                "url_without_language", "query_language", "user_language"
+                "url_without_language", "query_language", "user_language", "pseudonymize"
             )
 
             # Try to find a language that is defined for this course instance
