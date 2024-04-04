@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-20 17:06+0200\n"
+"POT-Creation-Date: 2024-04-04 13:12+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1016,11 +1016,6 @@ msgstr "Deadline deviations"
 #: deviations/templates/deviations/list_submissions.html
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Submission deviations"
-
-#: exercise/templates/exercise/staff/results.html
-#: exercise/templates/exercise/staff/analytics.html
-msgid "PSEUDONYMIZATION_ERROR_MSG"
-msgstr "This view is not available when pseudonymization is enabled!"
 
 #: course/templates/course/_course_menu.html
 msgid "UNPSEUDONYMIZE"
@@ -4044,6 +4039,10 @@ msgstr "Submitted on"
 msgid "INCLUDES_LATE_PENALTY"
 msgstr "Includes late penalty"
 
+#: exercise/templates/exercise/_submission_info.html
+msgid "PSEUDONYMIZED_SUBMITTERS"
+msgstr "Anonymous submitters"
+
 #: exercise/templates/exercise/_submit_progress.html
 #: exercise/templates/exercise/exercise.html
 msgid "POSTING_SUBMISSION"
@@ -4255,6 +4254,14 @@ msgstr "Results"
 #, python-format
 msgid "ASSESSED_BY -- %(user)s, %(time)s"
 msgstr "Assessed by %(user)s, %(time)s"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ASSESSED_BY"
+msgstr "Assessed by"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SOMEBODY"
+msgstr "Somebody"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "NOT_ASSESSED_MANUALLY"
@@ -4480,6 +4487,11 @@ msgstr "Latest submission time"
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "NO_SUBMITTERS"
 msgstr "No submitters"
+
+#: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
+msgid "PSEUDONYMIZATION_ERROR_MSG"
+msgstr "This view is not available when pseudonymization is enabled!"
 
 #: exercise/templates/exercise/staff/analytics.html
 msgid "MODULE_SELECTION"

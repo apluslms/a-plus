@@ -1,5 +1,5 @@
 import json
-from random import choice
+from random import seed, choice
 
 from faker import Faker
 import hashlib
@@ -32,7 +32,9 @@ def format_user(user: User, pseudonymized: bool, user_profile: UserProfile = Non
     if pseudonymized:
         # Return formatted versions of the user's attributes and all the user class's methods
         if user_profile is not None:
+            Faker.seed(user_profile.student_id)
             user_profile.student_id = str(fake.random_int(min=10, max=10000))
+        seed(user.first_name)
         user.first_name = choice(DATA["colors"])["name"]
         user.last_name = choice(DATA["animals"])
         user.email = pseudonymize('email', user.email)

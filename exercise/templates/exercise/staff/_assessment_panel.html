@@ -15,9 +15,7 @@
 					ASSESSED_BY -- {{ user }}, {{ time }}
 					{% endblocktranslate %}
 				{% else %}
-					{% blocktranslate trimmed with user="Somebody" time=submission.grading_time %}
-					ASSESSED_BY -- {{ user }}, {{ time }}
-					{% endblocktranslate %}
+					{% translate 'ASSESSED_BY' %} -- {% translate 'SOMEBODY' %}, {{ submission.grading_time }}
 				{% endif %}
 				{% else %}
 				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
