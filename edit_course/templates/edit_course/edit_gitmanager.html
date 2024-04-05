@@ -14,6 +14,9 @@
 <form id="gitmanager-form" method="post" class="well">
     {% csrf_token %}
     <legend>{% translate "EDIT_GITMANAGER" %}</legend>
+    <a style="float: right" role="button" value="{{ gitmanager_url }}" href="javascript:;" id="gitmanager-link">
+        {% translate "OPEN_IN_GITMANAGER" %}
+    </a>
     <p>
         {% translate "EDIT_GITMANAGER_DESCRIPTION" %}
     </p>
@@ -21,9 +24,6 @@
     <button type="submit" class="aplus-button--default aplus-button--md">
         {% translate "SUBMIT" %}
     </button>
-    <a class="aplus-button aplus-button--md" role="button" value="{{GITMANAGER_URL}}" href="" id="gitmanager-link"> {% csrf_token %}
-        {% translate "GO_TO_GITMANAGER_PAGE" %}
-    </a>
     <div class="hidden progress">
       <div class="progress-bar progress-bar-striped active" role="progressbar" style="width:100%;">
         {% translate "UPDATING_GITMANAGER" %}
@@ -34,7 +34,6 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"></script>
 <script>
 $(function() {
     var form = $("#gitmanager-form");
@@ -42,50 +41,42 @@ $(function() {
         form.find('[type="submit"]').attr("disabled", true);
         form.find('.progress').removeClass("hidden");
     });
-});
 
-$(function() {
     $("#gitmanager-link").on("click", async function(event) {
         event.preventDefault();
 
+        // Fetch gitmanager access token
         const course_id = document.getElementById('id_remote_id').value;
-
-        console.log(course_id)
-
-        const csrftoken = Cookies.get('csrftoken');
-        var data = {
+        const data = JSON.stringify({
             "taud": "gitmanager",
             "exp": "01:00:00",
             "permissions": [
                 ["instance", 1, {"id": course_id}],
                 ["instance", 2, {"id": course_id}]
             ]
-        };
-
-        var jsonData = JSON.stringify(data);
-
+        });
         const response = await fetch('/api/v2/get-token/', {
             method: 'POST',
-            headers: {'X-CSRFToken': csrftoken,
-                      'Content-type': 'application/json'
+            headers: {
+                'Content-type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: jsonData
+            body: data
         });
+        const token = await response.json();
 
-        var resp_data = await response.json();
-
-        var gitman_url = String("{{GITMANAGER_URL}}");
-
-		const gitman_auth_post = await fetch(gitman_url + "/login", {
+        // Login to gitmanager using generated access token
+        const gitmanager_url = "{{ gitmanager_url }}";
+        await fetch(gitmanager_url + "/login", {
             method: 'POST',
-		    credentials: 'include',
-            headers: {'Authorization': 'Bearer ' + resp_data,
+            credentials: 'include',
+            headers: {
+                'Authorization': 'Bearer ' + token,
             },
         });
 
-		var gitman_auth_post_data = await gitman_auth_post;
-
-        window.location = gitman_url;
+        // Navigate to gitmanager, now logged in
+        window.location = gitmanager_url;
 
     });
 });

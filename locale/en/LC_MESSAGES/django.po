@@ -2723,8 +2723,8 @@ msgid "EDIT_GITMANAGER_DESCRIPTION"
 msgstr "This action will update the course instance settings on Git manager."
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
-msgid "GO_TO_GITMANAGER_PAGE"
-msgstr "Open the gitmanager page"
+msgid "OPEN_IN_GITMANAGER"
+msgstr "Open in Git manager"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "UPDATING_GITMANAGER"
