@@ -53,10 +53,10 @@
 			</a>
 		</td>
 		<td>
-			<a href="{{ item|url:'news-remove' }}" role="button" class="aplus-button--danger aplus-button--xs">
+			<button id="remove-btn-{{item.id}}" role="button" class="aplus-button--danger aplus-button--xs" value="{{item.id}}">
 				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 				{% translate "REMOVE" %}
-			</a>
+			</button>
 		</td>
 	</tr>
 	{% endfor %}
@@ -76,4 +76,30 @@
 		{% translate "ADD_NEWS_ITEM" %}
 	</a>
 </p>
+
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+	const removeBtns = document.querySelectorAll("[id^='remove-btn']");
+
+	for (let i = 0; i < removeBtns.length; i++) {
+		removeBtns[i].addEventListener('click', function(event) {
+			event.preventDefault();
+
+			const currentUrl = window.location.href;
+			const newsId = this.getAttribute('value');
+
+			fetch(currentUrl + newsId + '/remove/', {
+				method: 'POST',
+				headers: {
+					'X-CSRFToken': '{{ csrf_token }}',
+				},
+			})
+			.then((response) => {
+				window.location = currentUrl;
+			});
+		});
+	}
+});
+</script>
+
 {% endblock %}

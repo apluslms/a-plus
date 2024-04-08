@@ -18,7 +18,6 @@ class ListNewsView(CourseInstanceBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.news = self.instance.news.all()
-        print(self.news)
 
         self.note("news")
 
@@ -37,7 +36,6 @@ class RemoveSelectedNewsView(CourseInstanceBaseView, BaseRedirectView):
 
         for new in self.news:
             if str(new.id) in selected_news_ids:
-                print("Deleting ", new)
                 new.delete()
 
         return self.redirect(self.instance.get_url("news-list"))
@@ -98,6 +96,6 @@ class RemoveNewsView(CourseInstanceMixin, BaseRedirectView):
         )
         self.note("news_item")
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         self.news_item.delete()
         return self.redirect(self.instance.get_url("news-list"))
