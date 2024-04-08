@@ -397,6 +397,11 @@ class EditGitmanagerView(CourseInstanceMixin, BaseFormView):
     template_name = "edit_course/edit_gitmanager.html"
     form_class = GitmanagerForm
 
+    def get_common_objects(self) -> None:
+        super().get_common_objects()
+        self.gitmanager_url = settings.GITMANAGER_URL
+        self.note('gitmanager_url')
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["instance"] = self.instance
