@@ -13,6 +13,7 @@ from authorization.permissions import ACCESS
 from lib.helpers import settings_text
 from lib.viewbase import BaseFormView, BaseTemplateView, BaseRedirectMixin
 from userprofile.models import UserProfile
+from userprofile.pseudonymize import format_user
 from .cache.students import CachedStudent
 from .forms import EnrollStudentsForm, GroupEditForm
 from .models import (
@@ -22,6 +23,13 @@ from .models import (
     StudentGroup,
 )
 from .viewbase import CourseInstanceBaseView, CourseInstanceMixin
+
+
+def format_group(group: StudentGroup, pseudonymized: bool):
+    if pseudonymized:
+        for member in group.members.all():
+            format_user(member.user, True, member)
+    return group
 
 
 class ParticipantsView(CourseInstanceBaseView):
@@ -63,6 +71,7 @@ class ParticipantsView(CourseInstanceBaseView):
         participants = ci.all_students.prefetch_tags(ci)
         data = []
         for participant in participants:
+            format_user(participant.user, self.pseudonymize, participant)
             user_id = participant.user.id
             user_tags = CachedStudent(ci, participant.user).data
             user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
@@ -93,6 +102,8 @@ class GroupsView(CourseInstanceBaseView):
                 models.Prefetch('members', UserProfile.objects.prefetch_tags(self.instance)),
             )
         )
+        for group in self.groups:
+            format_group(group, self.pseudonymize)
         self.note('groups')
 
 
@@ -105,13 +116,15 @@ class GroupsEditView(CourseInstanceMixin, BaseFormView):
     def get_resource_objects(self):
         super().get_resource_objects()
         gid = self._get_kwarg(self.group_kw, default=None)
+        group = None
         if gid:
-            self.group = get_object_or_404(StudentGroup,
+            group = get_object_or_404(StudentGroup,
                 course_instance=self.instance,
                 id=gid,
             )
         else:
-            self.group = StudentGroup(course_instance=self.instance)
+            group = StudentGroup(course_instance=self.instance)
+        self.group = group
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -145,6 +158,7 @@ class GroupsDeleteView(CourseInstanceMixin, BaseRedirectMixin, BaseTemplateView)
             course_instance=self.instance,
             id=self._get_kwarg(self.group_kw),
         )
+        format_group(self.group, self.pseudonymize)
         self.note('group')
 
     def post(self, request, *args, **kwargs):

@@ -202,6 +202,19 @@
 		{% translate "SUBMISSION_DEVIATIONS" %}
 	</a>
 </li>
+
+<li class="menu-pseudonymize">
+	<a href="{% url 'toggle-pseudonymization' %}">
+		{% if pseudonymize %}
+			<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+			{% translate "UNPSEUDONYMIZE" %}
+		{% else %}
+			<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+			{% translate "PSEUDONYMIZE" %}
+		{% endif %}
+	</a>
+</li>
+
 {% endif %}
 
 {% for group in course_menu.staff_link_groups %}

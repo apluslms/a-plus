@@ -193,6 +193,8 @@ class CourseInstanceForm(forms.ModelForm):
         # having invalid values.
         generate_url_key_validator()(self.cleaned_data['url'])
         url = self.cleaned_data['url']
+        if url in self.instance.RESERVED_URLS:
+            raise ValidationError(_('ERROR_URL_ALREADY_TAKEN'))
         if url != self.instance.url and CourseInstance.objects.filter(course=self.instance.course, url=url).exists():
             raise ValidationError(_('ERROR_URL_ALREADY_TAKEN'))
         return url

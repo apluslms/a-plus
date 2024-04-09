@@ -18,7 +18,29 @@ class ListNewsView(CourseInstanceBaseView):
     def get_common_objects(self):
         super().get_common_objects()
         self.news = self.instance.news.all()
+        print(self.news)
+
         self.note("news")
+
+
+class RemoveSelectedNewsView(CourseInstanceBaseView, BaseRedirectView):
+    access_mode = ACCESS.TEACHER
+    template_name = "news/list.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        self.news = self.instance.news.all()
+        self.note("news")
+
+    def post(self, request, *args, **kwargs):
+        selected_news_ids = request.POST.getlist("selection")
+
+        for new in self.news:
+            if str(new.id) in selected_news_ids:
+                print("Deleting ", new)
+                new.delete()
+
+        return self.redirect(self.instance.get_url("news-list"))
 
 
 class EditNewsView(CourseInstanceMixin, BaseFormView):
@@ -76,6 +98,6 @@ class RemoveNewsView(CourseInstanceMixin, BaseRedirectView):
         )
         self.note("news_item")
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.news_item.delete()
         return self.redirect(self.instance.get_url("news-list"))
