@@ -80,7 +80,12 @@ def check_exercise_deadline_extensions(children, entry_name, is_module_specific=
     exercise_count = 0
     for exercise in children:
         # Module specific ToC page
-        if is_module_specific and exercise.parent and exercise.parent.name == entry_name and exercise.personal_deadline:
+        if (
+          is_module_specific
+          and exercise.parent
+          and exercise.parent.name == entry_name
+          and exercise.personal_deadline
+        ):
             exercise_count += 1
         # ToC page
         elif exercise.type != 'level' and not exercise.is_empty and exercise.submittable:

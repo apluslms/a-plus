@@ -413,7 +413,7 @@ class CourseTest(CourseTestCase):
         # Sisu import should not remove manually enrolled students
         self.past_course_instance.enroll_student(self.user1)
         self.assertTrue(self.past_course_instance.is_student(self.user1))
-        response = self.client.post( # pylint: disable=unused-variable
+        response = self.client.post(
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.past_course_instance.url,
@@ -427,7 +427,7 @@ class CourseTest(CourseTestCase):
         self.past_course_instance.enroll_student(self.user2, from_sis=True)
         self.assertTrue(self.past_course_instance.is_student(self.user1))
         self.assertTrue(self.past_course_instance.is_student(self.user2))
-        response = self.client.post( # pylint: disable=unused-variable
+        response = self.client.post(
             reverse("enroll-students", kwargs={
                 'course_slug': self.course.url,
                 'instance_slug': self.past_course_instance.url,
