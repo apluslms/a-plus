@@ -223,6 +223,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                     'max_submissions': child.max_submissions,
                     'hierarchical_name': child.hierarchical_name,
                     'difficulty': child.difficulty,
+                    'has_submittable_files': child.has_submittable_files,
                 }
                 exercises.append(exercise_dictionary)
 
