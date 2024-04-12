@@ -237,6 +237,7 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
     submittable: bool
     grading_mode: Optional[int]
     model_answer_modules: List[ModuleEntry]
+    has_submittable_files: bool
 
     @property
     def course_module(self):
@@ -269,11 +270,20 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
 
         category = lobj.category
 
+        exercise_info = lobj.exercise_info
+        has_submittable_files = (
+            exercise_info
+            and exercise_info['form_spec']
+            and isinstance(exercise_info['form_spec'], list)
+            and any(map(lambda item: item.get('type') == 'file', exercise_info['form_spec']))
+        )
+
         self.module = precreated.get_or_create_proxy(ModuleEntryBase, module.id)
         if lobj.parent_id is None:
             self.parent = None
         else:
             self.parent = precreated.get_or_create_proxy(LearningObjectEntryBase, lobj.parent_id)
+        self.has_submittable_files = has_submittable_files
         self.category = str(category)
         self.category_id = category.id
         self.category_status = category.status
