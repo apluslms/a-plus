@@ -2,6 +2,8 @@
 {% load course %}
 {% load exercise %}
 {% load bootstrap %}
+{% load colortag %}
+{% load static %}
 
 <div class="panel panel-default assessment-panel">
 	<div class="panel-heading">
@@ -22,6 +24,32 @@
 				{% translate 'NOT_ASSESSED_MANUALLY' %}
 				{% endif %}
 			</div>
+				<td class="usertags-container">
+				<p id="submission-tags" class="usertags-container" data-user-id="{{ instance.id }}">
+				{% for tag in submission.submission_taggings.all %}
+				  <form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
+					{% csrf_token %}
+					{{tag.tag|colortag}}
+					<button type="submit" class="aplus-button--danger aplus-button--xs"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+				  </form>
+				{% endfor %}
+				</td>
+				</p>
+
+				<div class="dropdown">
+				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Add Tags
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-tagid="subtag.id">
+					{% for subtag in instance.submissiontags.all %}
+						  <form method="post" action="{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}">
+							{% csrf_token %}
+							<li><button type="submit" class="dropdown-item" id={{subtag.id}}>{{subtag|colortag}}</button></li>
+						  </form>
+					{% endfor %}
+				  </ul>
+				</div>
+
 			<div>
 				{% if is_teacher or exercise.allow_assistant_grading %}
 					{% if submission.is_approvable  %}
@@ -184,3 +212,21 @@
 		</div>
 	</div>
 </div>
+
+<script>
+var submissionTags = [];
+{% for tag in submission.submission_taggings.all %}
+    submissionTags.push("{{ tag.tag.id }}");
+{% endfor %}
+
+// Hide tags that the submission already has from the "Add tags" dropdown
+$(document).ready(function() {
+    $('.dropdown-menu .dropdown-item').each(function() {
+        var subtagId = $(this).attr('id');
+        if (submissionTags.includes(subtagId)) {
+            $(this).hide();
+        }
+    });
+});
+</script>
+

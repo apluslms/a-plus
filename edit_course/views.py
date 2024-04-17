@@ -31,7 +31,7 @@ from exercise.cache.exercise import invalidate_instance
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
 from .course_forms import CourseInstanceForm, CourseIndexForm, \
-    CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm
+    CourseContentForm, CloneInstanceForm, GitmanagerForm, UserTagForm, SelectUsersForm, SubmissionTagForm
 from .managers import CategoryManager, ModuleManager, ExerciseManager
 from .operations.batch import create_submissions
 from .operations.configure import configure_from_url, get_build_log
@@ -300,6 +300,42 @@ class UserTaggingAddView(UserTagMixin, FormView):
         )
 
         return super().form_valid(form)
+
+
+class SubmissionTagMixin(CourseInstanceMixin, BaseTemplateMixin, BaseViewMixin):
+    access_mode = ACCESS.TEACHER
+    form_class = SubmissionTagForm
+    pk_url_kwarg = "tag_id"
+    success_url_name = "course-submission-tags"
+
+    def get_success_url(self):
+        return self.instance.get_url(self.success_url_name)
+
+    def get_queryset(self):
+        return self.instance.submissiontags.all()
+
+
+class SubmissionTagListView(SubmissionTagMixin, ListView):
+    template_name = "edit_course/submissiontag_list.html"
+
+
+class SubmissionTagAddView(SubmissionTagMixin, CreateView):
+    template_name = "edit_course/submissiontag_add.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if 'instance' not in kwargs or not kwargs['instance']:
+            kwargs.update({'instance': self.form_class.get_base_object(self.instance)})
+        return kwargs
+
+
+class SubmissionTagEditView(SubmissionTagMixin, UpdateView):
+    template_name = "edit_course/submissiontag_edit.html"
+
+
+class SubmissionTagDeleteView(SubmissionTagMixin, DeleteView):
+    form_class = Form
+    template_name = "edit_course/submissiontag_delete.html"
 
 
 class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):

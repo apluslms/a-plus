@@ -34,6 +34,15 @@ urlpatterns = [
         views.SubmittedFileView.as_view(),
         name="submission-file"),
 
+    re_path(SUBMISSION_URL_PREFIX \
+            + r'add-taggings/(?P<subtag_id>\d+)$',
+            views.SubmissionTaggingAddView.as_view(),
+            name="add-tag-to-submissions"),
+    re_path(SUBMISSION_URL_PREFIX \
+            + r'remove-taggings/(?P<subtag_id>\d+)$',
+            views.SubmissionTaggingRemoveView.as_view(),
+            name="remove-tag-from-submissions"),
+
     re_path(EXERCISE_URL_PREFIX + r'submissions/$',
         staff_views.ListSubmissionsView.as_view(),
         name="submission-list"),

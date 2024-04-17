@@ -12,9 +12,10 @@ from django.utils.translation import gettext_lazy as _
 from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
-from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag
+from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag, SubmissionTag
 from course.sis import get_sis_configuration, StudentInfoSystem
 from exercise.models import CourseChapter
+from exercise.submission_models import SubmissionTagging
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
@@ -267,6 +268,13 @@ class CloneInstanceForm(forms.Form):
         required=False,
         initial=True,
     )
+    submissiontags = forms.BooleanField(
+        label=_('LABEL_SUBMISSION_TAGS'),
+        help_text=_('LABEL_SUBMISSION_TAGS_HELPTEXT'),
+        required=False,
+        initial=True,
+    )
+
     if settings.GITMANAGER_URL:
         key_year = forms.IntegerField(
             label=_('LABEL_YEAR'),
@@ -400,6 +408,30 @@ class UserTagForm(ColorTagForm):
         return obj
 
 
+class SubmissionTagForm(ColorTagForm):
+
+    class Meta(ColorTagForm.Meta):
+        model = SubmissionTag
+        fields = [
+            'name',
+            'slug',
+            'description',
+            'color',
+        ]
+        labels = {
+            'name': _('LABEL_NAME'),
+            'slug': _('LABEL_SLUG'),
+            'description': _('LABEL_DESCRIPTION'),
+            'color': _('LABEL_COLOR'),
+        }
+
+    @classmethod
+    def get_base_object(self, course_instance):
+        obj = self.Meta.model()
+        obj.course_instance = course_instance
+        return obj
+
+
 class SelectUsersForm(forms.Form):
     user = UsersSearchSelectField(queryset=UserProfile.objects.none(),
         initial_queryset=UserProfile.objects.none())
@@ -410,6 +442,19 @@ class SelectUsersForm(forms.Form):
         self.fields['user'].widget.search_api_url = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
         self.fields['user'].queryset = course_instance.get_student_profiles()
+
+
+class SubmissionTaggingForm(forms.ModelForm):
+    class Meta(ColorTagForm.Meta):
+        model = SubmissionTagging
+        fields = [
+            'tag',
+            'submission',
+        ]
+        labels = {
+            'tag': _('LABEL_SUBMISSION_TAG'),
+            'submission': _('LABEL_SUBMISSION'),
+        }
 
 
 class GitmanagerForm(forms.Form):

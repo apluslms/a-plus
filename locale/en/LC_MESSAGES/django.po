@@ -1383,6 +1383,10 @@ msgstr "Add new"
 msgid "FILTER_USERS_BY_TAG"
 msgstr "Filter users by tag"
 
+#: course/templates/course/staff/_assessment_panel.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Filter submissions by tag"
+
 #: course/templates/course/staff/participants.html
 msgid "FILTER_USERS_BY_STATUS"
 msgstr "Filter users by status"
@@ -1448,6 +1452,15 @@ msgstr "Status"
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "TAGS"
 msgstr "Tags"
+
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/submissiontagging_add.html
+msgid "SUBMISSION_TAGS"
+msgstr "Submission tags"
+
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -2815,6 +2828,10 @@ msgstr ""
 msgid "ADD_NEW_USER_TAG"
 msgstr "Add new user tag"
 
+#: edit_course/templates/edit_course/submissiontag_add.html
+msgid "ADD_NEW_SUBMISSION_TAG"
+msgstr "Add new submission tag"
+
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_STUDENT_TAG"
 msgstr "Add student tag"
@@ -2827,6 +2844,19 @@ msgstr "Remove user tag"
 msgid "REMOVE_USER_TAG_CONFIRMATION"
 msgstr "Confirm user tag removal"
 
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION"
+msgstr "Remove submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG"
+msgstr "Remove submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
+msgstr "Confirm submission tag removal"
+
+
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
 msgstr "Are you sure you want to remove following user tag?"
@@ -2834,6 +2864,10 @@ msgstr "Are you sure you want to remove following user tag?"
 #: edit_course/templates/edit_course/usertag_edit.html
 msgid "EDIT_STUDENT_TAG"
 msgstr "Edit student tag"
+
+#: edit_course/templates/edit_course/submissiontag_edit.html
+msgid "EDIT_SUBMISSION_TAG"
+msgstr "Edit submission tag"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ADD_NEW_STUDENT_TAG"

@@ -1,0 +1,58 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load course %}
+{% load editcourse %}
+{% load colortag %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li class="active">{% translate "SUBMISSION_TAGS" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,course-submission-tags{% endblock %}
+
+{% block coursecontent %}
+<br />
+<p>
+	<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'course-submission-tags-add' }}">
+		<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+		{% translate "ADD_NEW_SUBMISSION_TAG" %}
+	</a>
+</p>
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		<h3 class="panel-title">{% translate "SUBMISSION_TAGS" %}</h3>
+	</div>
+	<table class="table table-striped table-bordered table-condensed">
+		<tr>
+			<th>{% translate "TAG" %}</th>
+			<th>{% translate "SLUG" %}</th>
+			<th>{% translate "DESCRIPTION" %}</th>
+			<th>{% translate "ACTIONS" %}</th>
+		</tr>
+		{% with hide_tooltip=True %}
+		{% for tag in object_list %}
+		<tr>
+			<td>{{ tag|colortag }}</td>
+			<td>{{ tag.slug }}</td>
+			<td>{{ tag.description }}</td>
+			<td>
+				<a href="{{ tag|url:'course-submission-tags-edit' }}" class="aplus-button--secondary aplus-button--xs" role="button">
+					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					{% translate "EDIT" %}
+				</a>
+				<a href="{{ tag|url:'course-submission-tags-remove' }}" class="aplus-button--secondary aplus-button--xs" role="button">
+					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					{% translate "REMOVE" %}
+				</a>
+			</td>
+		</tr>
+		{% empty %}
+		<tr>
+			<td colspan="4">{% translate "NO_SUBMISSION_TAGS" %}</td>
+		</tr>
+		{% endfor %}
+		{% endwith %}
+	</table>
+</div>
+{% endblock %}
