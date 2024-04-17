@@ -15,6 +15,7 @@ from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 
+from course.models import SubmissionTag
 from exercise.protocol.exercise_page import ExercisePage
 from authorization.models import JWTAccessible
 from authorization.object_permissions import register_jwt_accessible_class
@@ -711,6 +712,23 @@ class Submission(SubmissionProto, models.Model):
         except PendingSubmission.DoesNotExist:
             pass
 
+class SubmissionTagging(models.Model):
+    tag = models.ForeignKey(SubmissionTag,
+        verbose_name=_('LABEL_SUBMISSION_TAG'),
+        on_delete=models.CASCADE,
+        related_name="submission_taggings",
+    )
+    submission = models.ForeignKey(Submission,
+        verbose_name=_('LABEL_SUBMISSION'),
+        on_delete=models.CASCADE,
+        related_name="submission_taggings",
+        db_index=True,
+    )
+
+    class Meta:
+        ordering = ["tag"]
+
+    objects = models.Manager()
 
 class SubmissionDraft(models.Model):
     """

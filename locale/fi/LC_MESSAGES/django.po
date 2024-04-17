@@ -1391,6 +1391,10 @@ msgstr "Lisää"
 msgid "FILTER_USERS_BY_TAG"
 msgstr "Suodata listaa merkinnän perusteella"
 
+#: course/templates/course/staff/_assessment_panel.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Suodata listaa merkinnän perusteella"
+
 #: course/templates/course/staff/participants.html
 msgid "FILTER_USERS_BY_STATUS"
 msgstr "Suodata listaa tilan perusteella"
@@ -1456,6 +1460,14 @@ msgstr "Tila"
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "TAGS"
 msgstr "Merkinnät"
+
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/submissiontagging_add.html
+msgid "SUBMISSION_TAGS"
+msgstr "Palautusmerkinnät"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -2830,6 +2842,10 @@ msgstr ""
 msgid "ADD_NEW_USER_TAG"
 msgstr "Lisää käyttäjämerkintä"
 
+#: edit_course/templates/edit_course/submissiontag_add.html
+msgid "ADD_NEW_SUBMISSION_TAG"
+msgstr "Lisää palautusmerkintä"
+
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_STUDENT_TAG"
 msgstr "Lisää opiskelijamerkintä"
@@ -2842,6 +2858,14 @@ msgstr "Poista käyttäjämerkintä"
 msgid "REMOVE_USER_TAG_CONFIRMATION"
 msgstr "Vahvista käyttäjämerkinnän poisto"
 
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION"
+msgstr "Poista palautusmerkintä"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
+msgstr "Vahvista palautusmerkinnän poisto"
+
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
 msgstr "Haluatko varmasti poistaa seuraavan käyttäjämerkinnän?"
@@ -2849,6 +2873,10 @@ msgstr "Haluatko varmasti poistaa seuraavan käyttäjämerkinnän?"
 #: edit_course/templates/edit_course/usertag_edit.html
 msgid "EDIT_STUDENT_TAG"
 msgstr "Muokkaa opiskelijamerkintää"
+
+#: edit_course/templates/edit_course/submissiontag_edit.html
+msgid "EDIT_SUBMISSION_TAG"
+msgstr "Muokkaa palautusmerkintää"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ADD_NEW_STUDENT_TAG"

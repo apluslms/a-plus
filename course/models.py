@@ -51,7 +51,6 @@ if TYPE_CHECKING:
     from exercise.exercise_models import LearningObject
     from threshold.models import CourseModuleRequirement
 
-
 logger = logging.getLogger('aplus.course')
 
 # Read pseudonymization data from file
@@ -332,6 +331,37 @@ class UserTag(UrlMixin, ColorTag):
         verbose_name = _('MODEL_NAME_USER_TAG')
         verbose_name_plural = _('MODEL_NAME_USER_TAG_PLURAL')
         ordering = ['course_instance', 'name']
+
+    def get_url_kwargs(self):
+        return dict(tag_id=self.id, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal
+
+    def is_valid_slug(self, slug_candidate): # pylint: disable=arguments-renamed
+        assert self.course_instance
+        if not slug_candidate:
+            return False
+        qs = self.__class__.objects.filter(
+            course_instance=self.course_instance, slug=slug_candidate)
+        if self.pk is not None:
+            qs = qs.exclude(pk=self.pk)
+        return not qs.exists()
+
+
+class SubmissionTag(UrlMixin, ColorTag):
+    course_instance = models.ForeignKey('CourseInstance',
+        verbose_name=_('LABEL_COURSE_INSTANCE'),
+        on_delete=models.CASCADE,
+        related_name="submissiontags",
+    )
+
+    visible_to_students = models.BooleanField(
+        verbose_name=_('LABEL_VISIBLE_TO_STUDENTS'),
+        default=False,
+    )
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_SUBMISSION_TAG')
+        verbose_name_plural = _('MODEL_NAME_SUBMISSION_TAG_PLURAL')
+        ordering = ['id']
 
     def get_url_kwargs(self):
         return dict(tag_id=self.id, **self.course_instance.get_url_kwargs()) # pylint: disable=use-dict-literal

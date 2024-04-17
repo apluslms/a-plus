@@ -2,6 +2,7 @@
 {% load course %}
 {% load exercise %}
 {% load static %}
+{% load colortag %}
 
 <div class="clearfix">
 	<div class="pull-right">
@@ -60,13 +61,23 @@
 		</a>
 	</p>
 </div>
-<table class="table table-bordered{% if not limited or count < default_limit %} filtered-table ordered-table{% endif %}">
-		<thead>
+<p class="filter-submissions">
+	<small>{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
+	{% for tag in instance.submissiontags.all %}
+	<button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
+		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		{{ tag.name }}
+	</button>
+	{% endfor %}
+</p>
+<table class="table table-bordered{% if not limited or count < default_limit %} filtered-table ordered-table{% endif %}" id="submissions_table">
+	<thead>
 				<tr>
 						<th>{% translate "SUBMITTERS" %} {{percentage_graded}} {% translate "GRADED" %}</th>
 						<th>{% translate "TIME" %}</th>
 						<th>{% translate "STATUS" %}</th>
 						<th>{% translate "GRADE" %}</th>
+						<th>{% translate "TAGS" %}</th>
 						<th
 							data-filter-type="options"
 							data-filter-options="{% translate 'YES' %}|{% translate 'NO' %}"
@@ -79,7 +90,7 @@
 		</thead>
 		<tbody>
 				{% for submission in submissions %}
-				<tr>
+				<tr id="{{ submission.id }}">
 						<td>
 								{% profiles submission.submitters.all instance is_teacher %}
 						</td>
@@ -98,6 +109,11 @@
 						</td>
 						<td>
 								{% format_points submission.grade feedback_revealed False %}
+						</td>
+						<td id="submission_tags">
+								{% for tagging in submission.submission_taggings.all %}
+									{{ tagging.tag|colortag }}
+								{% endfor %}
 						</td>
 						<td>
 								{% if submission.grader %}
@@ -124,3 +140,54 @@
 </table>
 
 {% include "exercise/staff/_regrade_submissions.html" %}
+<script>
+$(document).ready(function() {
+	var checked_buttons = []
+    $('button.filter-tag').click(function() {
+        var tagSlug = $(this).data('tagslug');
+
+        if ($(this).find('.glyphicon').hasClass('glyphicon-unchecked')) {
+            $(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+            checked_buttons.push(tagSlug);
+            filterSubmissions(checked_buttons)
+        } else {
+            $(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+            var index = checked_buttons.indexOf(tagSlug);
+            if (index !== -1) {
+                checked_buttons.splice(index, 1);
+            }
+            filterSubmissions(checked_buttons)
+        }
+    });
+
+});
+
+function filterSubmissions(checked_buttons) {
+	let trs = document.getElementsByTagName('table')[0].getElementsByTagName('tr');
+
+	let submissionTags = [];
+
+	for (let i = 0; i < trs.length; i++) {
+		let tagTd = trs[i].getElementsByTagName('td')['submission_tags'];
+
+		if (tagTd) {
+			let parser = new DOMParser();
+			let doc = parser.parseFromString(tagTd.innerHTML, "text/html");
+
+			let tagSlugs = Array.from(doc.getElementsByTagName('span')).map((el) => el.getAttribute('data-tagslug'));
+
+			submissionTags.push(...tagSlugs);
+
+			let checkedButtonsArr = checked_buttons.map(item => item.replace(/;/g, ""));
+
+			if (checkedButtonsArr.length > 0 && !checkedButtonsArr.every(slug => tagSlugs.includes(slug))) {
+				trs[i].style.display = 'none';
+			}
+			else {
+				trs[i].style.display = 'table-row';
+			}
+
+		}
+	}
+};
+</script>

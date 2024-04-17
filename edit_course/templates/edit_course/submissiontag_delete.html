@@ -1,0 +1,36 @@
+{% extends "edit_course/edit_course_base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% load course %}
+{% load editcourse %}
+{% load colortag %}
+
+{% block editbreadcrumblist %}
+{{ block.super }}
+<li><a href="{{ instance|url:'course-submission-tags' }}">{% translate "SUBMISSION_TAGS" %}</a></li>
+<li class="active">{% translate "REMOVE_SUBMISSION_TAG" %}</li>
+{% endblock %}
+{% block view_tag %}edit-course,course-submission-tags{% endblock %}
+
+{% block coursecontent %}
+<br />
+<form method="post" class="well form-horizontal">
+	{% csrf_token %}
+	<legend>
+		{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION" %}
+	</legend>
+
+	<div class="alert alert-danger">
+		{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT" %}
+		{{ object|colortag }}
+	</div>
+
+	<div class="form-group">
+		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
+		<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'course-submission-tags' }}">
+			{% translate "CANCEL" %}
+		</a>
+	</div>
+</form>
+
+{% endblock %}
