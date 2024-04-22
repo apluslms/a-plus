@@ -80,7 +80,8 @@ class ListSubmissionsView(ExerciseListBaseView):
         self.all = self.request.GET.get('all', None)
         self.all_url = self.exercise.get_submission_list_url() + "?all=yes"
         self.submissions = qs if self.all else qs[:self.default_limit]
-        self.note("all", "all_url", "submissions", "default_limit")
+        self.count = len(self.submissions)
+        self.note("all", "all_url", "submissions", "default_limit", "count")
 
 
 class SubmissionsSummaryView(ExerciseBaseView):

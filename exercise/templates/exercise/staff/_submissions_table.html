@@ -2,7 +2,6 @@
 {% load course %}
 {% load exercise %}
 {% load static %}
-{% with count=submissions.count %}
 
 <div class="clearfix">
 	<div class="pull-right">
@@ -121,5 +120,3 @@
 </table>
 
 {% include "exercise/staff/_regrade_submissions.html" %}
-
-{% endwith %}
