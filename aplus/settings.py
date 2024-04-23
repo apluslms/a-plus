@@ -463,7 +463,7 @@ MAX_UNOFFICIAL_SUBMISSIONS = 200
 TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 TEST_OUTPUT_VERBOSE = True
 TEST_OUTPUT_DESCRIPTIONS = True
-TEST_OUTPUT_DIR = "test_results"
+TEST_OUTPUT_DIR = join(dirname(dirname(abspath(__file__))), "test_results")
 
 # Logging
 # https://docs.djangoproject.com/en/1.7/topics/logging/

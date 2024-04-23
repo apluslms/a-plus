@@ -1,10 +1,10 @@
-FROM python:3.10-alpine
+FROM python:3.10-bookworm
 
 WORKDIR /app
 
-RUN apk update && apk add git freetype-dev gcc musl-dev libffi-dev
+RUN apt update && apt install -y git gcc musl-dev libffi-dev
 
-RUN adduser --disabled-password prospector prospector \
+RUN adduser --disabled-password prospector \
     && chown -R prospector:prospector /app \
     && rm -rf ${HOME}/.cache/ ${HOME}/.local/bin/__pycache__/
 USER prospector

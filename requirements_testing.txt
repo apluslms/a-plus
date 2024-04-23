@@ -5,3 +5,6 @@ selenium
 pyvirtualdisplay
 django-debug-toolbar >= 3.2.2, < 4
 prospector
+pytest-playwright
+pytest-django
+pytest-env

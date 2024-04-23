@@ -22,6 +22,8 @@ venv/
 
 /assets/sass/vendor/
 /node_cache/
+__pycache__/
+.pytest_cache/
 node_modules/
 
 test.db
