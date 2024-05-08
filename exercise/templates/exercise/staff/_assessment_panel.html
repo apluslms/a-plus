@@ -24,28 +24,27 @@
 				{% translate 'NOT_ASSESSED_MANUALLY' %}
 				{% endif %}
 			</div>
-				<td class="usertags-container">
+				<div class="submissiontags-container">
 				<p id="submission-tags" class="usertags-container" data-user-id="{{ instance.id }}">
 				{% for tag in submission.submission_taggings.all %}
+				<div class="tag-div">
 				  <form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
 					{% csrf_token %}
 					{{tag.tag|colortag}}
-					<button type="submit" class="aplus-button--danger aplus-button--xs"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+					<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 				  </form>
+				</div>
 				{% endfor %}
-				</td>
+				</div>
 				</p>
 
 				<div class="dropdown">
 				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Add Tags
+					{% translate 'ADD_TAGGING' %}
 				  </button>
 				  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-tagid="subtag.id">
 					{% for subtag in instance.submissiontags.all %}
-						  <form method="post" action="{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}">
-							{% csrf_token %}
-							<li><button type="submit" class="dropdown-item" id={{subtag.id}}>{{subtag|colortag}}</button></li>
-						  </form>
+							<li><a class="dropdown-item" id={{subtag.id}} href="#" onclick="submitForm('{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}')"><span>{{subtag|colortag}}</span></a></li>
 					{% endfor %}
 				  </ul>
 				</div>
@@ -213,14 +212,49 @@
 	</div>
 </div>
 
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<style>
+.submissiontags-container {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 35%;
+}
+.tag-div {
+	margin: 0.25em 0.75em 0.75em;
+	height: 15px;
+}
+.dropdown-menu {
+	position: absolute;
+	top: 35px;
+}
+</style>
+
 <script>
+function submitForm(url) {
+	var form = document.createElement('form');
+	var csrfToken = "{{csrf_token}}"
+
+	form.setAttribute('method', 'post');
+	form.setAttribute('action', url);
+	document.body.appendChild(form);
+
+	var csrfInput = document.createElement('input');
+	csrfInput.setAttribute('type', 'hidden');
+	csrfInput.setAttribute('name', 'csrfmiddlewaretoken');
+	csrfInput.setAttribute('value', csrfToken);
+	form.appendChild(csrfInput);
+
+	form.submit();
+}
+
 var submissionTags = [];
 {% for tag in submission.submission_taggings.all %}
     submissionTags.push("{{ tag.tag.id }}");
 {% endfor %}
 
+$(document).ready(function() {	
 // Hide tags that the submission already has from the "Add tags" dropdown
-$(document).ready(function() {
     $('.dropdown-menu .dropdown-item').each(function() {
         var subtagId = $(this).attr('id');
         if (submissionTags.includes(subtagId)) {
