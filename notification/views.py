@@ -21,6 +21,9 @@ class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
     def get(self, request, *args, **kwargs):
         self.notification.seen = True
         self.notification.save()
+        submission = self.notification.submission
+        # Sends an update to Jutut that the feedback response has been seen.
+        submission.exercise.grade(submission)
         if self.notification.submission:
             return self.redirect(
                 self.notification.submission.get_url('submission-plain')
