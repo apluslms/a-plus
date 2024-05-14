@@ -54,12 +54,13 @@ def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=No
 
     # check the OAuth timestamp. Do not allow old requests in order to prevent replay attacks.
     try:
-        timestamp = datetime.datetime.utcfromtimestamp(int(req_oauth_params_dict.get('oauth_timestamp')))
+        timestamp = datetime.datetime.fromtimestamp(int(req_oauth_params_dict.get('oauth_timestamp')),
+                                                    datetime.timezone.utc)
         # oauth_timestamp: seconds since January 1, 1970 00:00:00 GMT
     except ValueError:
         return False, 'oauth_timestamp is missing or has an invalid format'
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     delta = datetime.timedelta(seconds=OAuthNonceCache.CACHE_TIMEOUT_SECONDS)
     if not (now - delta < timestamp and timestamp < now + delta): # pylint: disable=chained-comparison
         return False, 'oauth_timestamp has expired'
