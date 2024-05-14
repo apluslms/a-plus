@@ -172,6 +172,7 @@ class SubmissionGraderSerializer(AplusModelSerializerBase):
     )
     submission = SubmissionInGraderSerializer(source='*')
     exercise = ExerciseBriefSerializer()
+    feedback_response_seen = serializers.SerializerMethodField()
 
     class Meta(AplusSerializerMeta):
         model = Submission
@@ -181,7 +182,18 @@ class SubmissionGraderSerializer(AplusModelSerializerBase):
             'exercise',
             'grading_data',
             'is_graded',
+            'feedback_response_seen',
         )
+
+    def get_feedback_response_seen(self, obj: Submission) -> bool:
+        """Returns whether all feedback responses (notifications) have
+        been seen by the submitter. Used to inform the author of the
+        feedback about the status of the feedback responses.
+        If there are no notifications, the feedback response is not
+        considered seen so that a new submission is not immediately
+        marked as 'feedback response seen'.
+        """
+        return not obj.notifications.filter(seen=False).exists() and obj.notifications.count() > 0
 
 
 class TreeExerciseSerializer(serializers.Serializer):
