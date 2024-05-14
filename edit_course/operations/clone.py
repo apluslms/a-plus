@@ -1,5 +1,7 @@
 import logging
 
+from datetime import datetime
+from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.models import User
 from course.models import CourseInstance
@@ -34,8 +36,8 @@ def set_sis(instance: CourseInstance, id: str, enroll: bool) -> None: # pylint: 
         return
 
     if coursedata.get('starting_time') and coursedata.get('ending_time'):
-        instance.starting_time = coursedata['starting_time']
-        instance.ending_time = coursedata['ending_time']
+        instance.starting_time = timezone.make_aware(datetime.strptime(coursedata['starting_time'], '%Y-%m-%d'))
+        instance.ending_time = timezone.make_aware(datetime.strptime(coursedata['ending_time'], '%Y-%m-%d'))
 
     instance.sis_id = id
     instance.sis_enroll = enroll
