@@ -261,6 +261,9 @@ class TransactionTest(TransactionTestCase):
 
 
 class TestCached(CachedAbstract):
+
+    __test__ = False # Prevents this class from being picked up by pytest
+
     def __init__(self, func):
         self._fake_func = func
         super().__init__()

@@ -7,6 +7,7 @@ from .request_globals import RequestGlobal
 
 
 class TestGlobal(RequestGlobal):
+    __test__ = False # Prevents this class from being picked up by pytest
     test = None
     def init(self):
         self.test = "test"
