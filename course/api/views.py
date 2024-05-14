@@ -245,6 +245,9 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                 module.opening_time,
                 module.closing_time,
             ),
+            'reading_opening_time': module.reading_opening_time,
+            'opening_time': module.opening_time,
+            'closing_time': module.closing_time,
         }
         module_dictionary['exercises'] = self.__recurse_exercises(module, [])
         return module_dictionary
