@@ -1,0 +1,14 @@
+.submissiontags-container {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 35%;
+}
+.tag-div {
+	margin: 0.25em 0.75em 0.75em;
+	height: 15px;
+}
+#submissionTagsList {
+	position: absolute;
+	top: 35px;
+}
+

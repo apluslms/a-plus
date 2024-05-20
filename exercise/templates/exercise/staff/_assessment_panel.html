@@ -39,12 +39,12 @@
 				</p>
 
 				<div class="dropdown">
-				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					{% translate 'ADD_TAGGING' %}
+				  <button class="aplus-button--secondary aplus-button--sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					{% translate 'ADD_TAGGING' %} <span class="caret"></span>
 				  </button>
-				  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" data-tagid="subtag.id">
+				  <ul id="submissionTagsList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 					{% for subtag in instance.submissiontags.all %}
-							<li><a class="dropdown-item" id={{subtag.id}} href="#" onclick="submitForm('{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}')"><span>{{subtag|colortag}}</span></a></li>
+							<li><a class="dropdown-item" id="submission-tag-{{subtag.id}}" href="#" onclick="submitForm('{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}')"><span>{{subtag|colortag}}</span></a></li>
 					{% endfor %}
 				  </ul>
 				</div>
@@ -212,23 +212,7 @@
 	</div>
 </div>
 
-<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-
-<style>
-.submissiontags-container {
-	display: flex;
-	flex-wrap: wrap;
-	max-width: 35%;
-}
-.tag-div {
-	margin: 0.25em 0.75em 0.75em;
-	height: 15px;
-}
-.dropdown-menu {
-	position: absolute;
-	top: 35px;
-}
-</style>
+<link rel="stylesheet" href="{% static 'exercise/css/submission_tagging_dropdown.css' %}" />
 
 <script>
 function submitForm(url) {
@@ -250,17 +234,19 @@ function submitForm(url) {
 
 var submissionTags = [];
 {% for tag in submission.submission_taggings.all %}
-    submissionTags.push("{{ tag.tag.id }}");
+	submissionTags.push("{{ tag.tag.id }}");
 {% endfor %}
 
 $(document).ready(function() {	
 // Hide tags that the submission already has from the "Add tags" dropdown
-    $('.dropdown-menu .dropdown-item').each(function() {
-        var subtagId = $(this).attr('id');
-        if (submissionTags.includes(subtagId)) {
-            $(this).hide();
-        }
-    });
+	$('.dropdown-menu .dropdown-item').each(function() {
+		var subtagId = $(this).attr('id');
+		// Remove submission-tag- prefix from id
+		subtagId = subtagId.substring(15);
+		if (submissionTags.includes(subtagId)) {
+			$(this).hide();
+		}
+	});
 });
 </script>
 

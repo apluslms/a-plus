@@ -1469,6 +1469,10 @@ msgstr "Merkinnät"
 msgid "SUBMISSION_TAGS"
 msgstr "Palautusmerkinnät"
 
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "NO_SUBMISSION_TAGS"
+msgstr "Ei palautusmerkintöjä"
+
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
 msgstr "Poista opiskelija"
@@ -2859,12 +2863,16 @@ msgid "REMOVE_USER_TAG_CONFIRMATION"
 msgstr "Vahvista käyttäjämerkinnän poisto"
 
 #: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG"
+msgstr "Poista palautusmerkintä"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
 msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION"
 msgstr "Poista palautusmerkintä"
 
 #: edit_course/templates/edit_course/submissiontag_delete.html
 msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
-msgstr "Vahvista palautusmerkinnän poisto"
+msgstr "Haluatko varmasti poistaa tämän palautusmerkinnän?"
 
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
