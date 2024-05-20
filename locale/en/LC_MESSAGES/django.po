@@ -1461,6 +1461,9 @@ msgstr "Tags"
 msgid "SUBMISSION_TAGS"
 msgstr "Submission tags"
 
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "NO_SUBMISSION_TAGS"
+msgstr "No submission tags"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -2854,8 +2857,7 @@ msgstr "Remove submission tag"
 
 #: edit_course/templates/edit_course/submissiontag_delete.html
 msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
-msgstr "Confirm submission tag removal"
-
+msgstr "Are you sure you want to remove the following submission tag?"
 
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
