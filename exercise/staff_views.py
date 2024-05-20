@@ -97,8 +97,9 @@ class ListSubmissionsView(ExerciseListBaseView):
         self.all_url = self.exercise.get_submission_list_url()
         self.submissions = qs[:self.default_limit] if self.limited else qs
         self.count = len(self.submissions)
+        graded_ratio = int(graded_submitters / total_submitters * 100) if total_submitters > 0 else 0
         self.percentage_graded = (
-            f"{graded_submitters} / {total_submitters} ({int(graded_submitters / total_submitters * 100)}%)"
+            f"{graded_submitters} / {total_submitters} ({graded_ratio}%)"
         )
         self.note("limited", "not_all_url", "all_url", "submissions", "default_limit", "count", "percentage_graded")
 
