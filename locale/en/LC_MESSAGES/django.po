@@ -1457,7 +1457,6 @@ msgstr "Tags"
 #: edit_course/templates/edit_course/submissiontag_delete.html
 #: edit_course/templates/edit_course/submissiontag_edit.html
 #: edit_course/templates/edit_course/submissiontag_list.html
-#: edit_course/templates/edit_course/submissiontagging_add.html
 msgid "SUBMISSION_TAGS"
 msgstr "Submission tags"
 
@@ -2910,10 +2909,6 @@ msgstr "No student tags."
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "ADD_NEW_USER_TAGGING"
 msgstr "Add new user tagging"
-
-#: edit_course/templates/edit_course/submissiontagging_add.html
-msgid "ADD_NEW_SUBMISSION_TAGGING"
-msgstr "Add new submission tagging"
 
 #: exercise/forms.py exercise/templates/exercise/staff/_assessment_panel.html
 msgid "ADD_TAGGING"

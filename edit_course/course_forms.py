@@ -15,7 +15,6 @@ from aplus.api import api_reverse
 from course.models import LearningObjectCategory, CourseModule, CourseInstance, UserTag, SubmissionTag
 from course.sis import get_sis_configuration, StudentInfoSystem
 from exercise.models import CourseChapter
-from exercise.submission_models import SubmissionTagging
 from lib.validators import generate_url_key_validator
 from lib.fields import UsersSearchSelectField
 from lib.widgets import DateTimeLocalInput
@@ -442,19 +441,6 @@ class SelectUsersForm(forms.Form):
         self.fields['user'].widget.search_api_url = api_reverse(
             "course-students-list", kwargs={'course_id': course_instance.id})
         self.fields['user'].queryset = course_instance.get_student_profiles()
-
-
-class SubmissionTaggingForm(forms.ModelForm):
-    class Meta(ColorTagForm.Meta):
-        model = SubmissionTagging
-        fields = [
-            'tag',
-            'submission',
-        ]
-        labels = {
-            'tag': _('LABEL_SUBMISSION_TAG'),
-            'submission': _('LABEL_SUBMISSION'),
-        }
 
 
 class GitmanagerForm(forms.Form):
