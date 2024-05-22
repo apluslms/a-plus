@@ -106,6 +106,7 @@ class CourseSerializer(CourseBriefSerializer):
             'starting_time',
             'ending_time',
             'visible_to_students',
+            'group_work_allowed',
             # links
             'exercises',
             'tree',
@@ -148,6 +149,7 @@ class CourseWriteSerializer(AplusModelSerializer):
             'starting_time',
             'ending_time',
             'visible_to_students',
+            'group_work_allowed',
             'configure_url',
             'teachers',
         )
@@ -205,6 +207,7 @@ class CourseWriteSerializer(AplusModelSerializer):
         instance.starting_time = validated_data.get('starting_time', instance.starting_time)
         instance.ending_time = validated_data.get('ending_time', instance.ending_time)
         instance.visible_to_students = validated_data.get('visible_to_students', instance.visible_to_students)
+        instance.group_work_allowed = validated_data.get('group_work_allowed', instance.group_work_allowed)
         instance.configure_url = validated_data.get('configure_url', instance.configure_url)
         instance.save()
         self.set_teachers(instance, self.teachers)

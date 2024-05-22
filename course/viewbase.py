@@ -42,7 +42,7 @@ class CourseInstanceBaseMixin:
         CourseVisiblePermission,
     )
     context_properties = [
-        "course", "content", "points", "user_course_data", "taggings", "instance_max_group_size"
+        "course", "content", "points", "user_course_data", "taggings"
     ]
 
     @cached_property
@@ -65,14 +65,6 @@ class CourseInstanceBaseMixin:
     @cached_property
     def points(self) -> CachedPoints:
         return CachedPoints(self.instance, self.request.user, self.is_course_staff)
-
-    @property
-    def instance_max_group_size(self) -> int:
-        return self.content_bare.total().max_group_size
-
-    @property
-    def instance_min_group_size(self) -> int:
-        return self.content_bare.total().min_group_size
 
     @property
     def course(self) -> Course:

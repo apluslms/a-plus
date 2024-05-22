@@ -54,6 +54,7 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         'course',
         'instance_name',
         'visible_to_students',
+        'group_work_allowed',
         'starting_time',
         'ending_time',
         instance_url,

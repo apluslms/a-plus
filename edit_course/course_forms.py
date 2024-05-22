@@ -134,6 +134,7 @@ class CourseInstanceForm(forms.ModelForm):
         model = CourseInstance
         fields = [
             'visible_to_students',
+            'group_work_allowed',
             'instance_name',
             'url',
             'image',
