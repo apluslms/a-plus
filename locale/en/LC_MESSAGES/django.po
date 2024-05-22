@@ -402,6 +402,10 @@ msgid "LABEL_VISIBLE_TO_STUDENTS"
 msgstr "visible to students"
 
 #: course/models.py
+msgid "LABEL_GROUP_WORK_ALLOWED"
+msgstr "students can form groups"
+
+#: course/models.py
 msgid "MODEL_NAME_USER_TAG"
 msgstr "user tag"
 
