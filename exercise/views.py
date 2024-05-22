@@ -11,13 +11,10 @@ from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
-from django.views.generic import CreateView
 
 from authorization.permissions import ACCESS
 from course.models import CourseModule, SubmissionTag
 from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
-from edit_course.course_forms import SubmissionTaggingForm
-from edit_course.views import SubmissionTagMixin
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseRedirectMixin, BaseView
@@ -46,11 +43,7 @@ class TableOfContentsView(CourseInstanceBaseView):
 class ResultsView(TableOfContentsView):
     template_name = "exercise/results.html"
 
-
-class SubmissionTaggingAddView(SubmissionTagMixin, CreateView):
-    form_class = SubmissionTaggingForm
-    template_name = "edit_course/submissiontagging_add.html"
-    pk_url_kwarg = "subtag_id"
+class SubmissionTaggingAddView(CourseInstanceBaseView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
@@ -59,7 +52,7 @@ class SubmissionTaggingAddView(SubmissionTagMixin, CreateView):
 
         # Get the Submission and SubTag objects using these ids
         submission = Submission.objects.get(id=submission_id)
-        subtag = SubmissionTag.objects.get(id=subtag_id)
+        subtag = SubmissionTag.objects.get(id=subtag_id, course_instance=self.instance)
 
         # Create a new SubmissionTagging object
         SubmissionTagging.objects.create(submission=submission, tag=subtag)
@@ -67,15 +60,8 @@ class SubmissionTaggingAddView(SubmissionTagMixin, CreateView):
         # Redirect back to the previous page
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
-        super().__init__(*args, **kwargs)
 
-
-class SubmissionTaggingRemoveView(SubmissionTagMixin, CreateView):
-    form_class = SubmissionTaggingForm
-    template_name = "edit_course/submissiontagging_add.html"
-    pk_url_kwarg = "subtag_id"
+class SubmissionTaggingRemoveView(CourseInstanceBaseView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
@@ -84,7 +70,7 @@ class SubmissionTaggingRemoveView(SubmissionTagMixin, CreateView):
 
         # Get the Submission and SubTag objects using these ids
         submission = Submission.objects.get(id=submission_id)
-        subtag = SubmissionTag.objects.get(id=subtag_id)
+        subtag = SubmissionTag.objects.get(id=subtag_id, course_instance=self.instance)
 
         # Delete SubmissionTagging object
         SubmissionTagging.objects.filter(submission=submission, tag=subtag).delete()
@@ -92,15 +78,9 @@ class SubmissionTaggingRemoveView(SubmissionTagMixin, CreateView):
         # Redirect back to the previous page
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
-        super().__init__(*args, **kwargs)
-
-
 
 class ExerciseInfoView(ExerciseBaseView):
     ajax_template_name = "exercise/_exercise_info.html"
-
 
 class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
     template_name = "exercise/exercise.html"
