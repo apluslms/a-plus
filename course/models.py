@@ -614,6 +614,10 @@ class CourseInstance(CourseInstanceProto, models.Model):
         verbose_name=_('LABEL_VISIBLE_TO_STUDENTS'),
         default=True,
     )
+    group_work_allowed = models.BooleanField(
+        verbose_name=_('LABEL_GROUP_WORK_ALLOWED'),
+        default=True,
+    )
     enrollment_audience = models.IntegerField(
         verbose_name=_('LABEL_ENROLLMENT_AUDIENCE'),
         choices=ENROLLMENT_AUDIENCE.choices,
