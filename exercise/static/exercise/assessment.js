@@ -96,9 +96,10 @@ $(function () {
         $.get(fileUrl, function (data) {
           const text = $('<pre/>').text(data);
           text.attr('data-url', fileUrl);
+          text.attr('data-filename', element.data('filename'));
           element.find('.submitted-file-data').html(text);
           const extraButtons = element.addStickyButton('submissionSticky');
-          text.highlightCode({extraButtons});
+          text.highlightCode({extraButtons, compareMode: fileUrl.includes('compare_to=')});
         })
         .fail(function () {
           element.find('.submitted-file-error').removeClass('hidden');

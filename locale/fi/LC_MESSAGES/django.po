@@ -4518,6 +4518,11 @@ msgid "NUMBER_ABBREVIATED"
 msgstr "Nro"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#| msgid "INCOMPLETE"
+msgid "COMPARE"
+msgstr "Vertaa"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "Tämä palautus määrittää tehtävän lopullisen arvosanan."
 
@@ -4536,6 +4541,11 @@ msgstr "Kurssin henkilökunta on arvostellut tämän palautuksen manuaalisesti."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ASSESSED"
 msgstr "Arvosteltu"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#| msgid "COURSE_MODULES"
+msgid "COMPARE_TO_MODEL"
+msgstr "Vertaa mallivastaukseen"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SHOW_ALL_SUBMISSIONS"
@@ -4661,6 +4671,25 @@ msgstr "Arvostele seuraava palauttaja manuaalisesti"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
 msgstr "Lisää yksi uusi palautuskerta tälle opiskelijalle tähän tehtävään."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "COMPARING_TO_MODEL"
+msgstr "Verrataan mallivastaukseen."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+#| msgid "FILE_NOT_FOUND"
+msgid "COMPARING_TO_NOT_FOUND"
+msgstr "Tiedostoa, johon yrität verrata, ei löytynyt."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+#| msgid "EXCEPTION_PARSING_SUBMISSION_JSON -- {error!s}"
+msgid "COMPARING_TO_SUBMISSION -- %(cs_url)s, %(cs_date)s"
+msgstr "Verrataan palautukseen <a href=\"%(cs_url)s\">%(cs_date)s</a>."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+#| msgid "SHOW_ALL_SUBMISSIONS"
+msgid "SHOW_ORIGINAL_SUBMISSION -- %(submission_url)s"
+msgstr "Näytä <a href=\"%(submission_url)s\">alkuperäinen palautus</a>."
 
 #: exercise/templates/exercise/staff/list_submitters.html
 msgid "ALL_SUBMITTERS"

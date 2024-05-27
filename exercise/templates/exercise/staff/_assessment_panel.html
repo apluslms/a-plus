@@ -67,6 +67,11 @@
 					data-target="#details-modal"
 					class="aplus-button--secondary aplus-button--sm"
 				>{% translate 'SUBMISSION_DETAILS' %}</button>
+				{% if has_model_answers and files %}
+				<a class="aplus-button--secondary aplus-button--sm" href="{{ submission|url:'submission-inspect' }}?compare_to=model">
+					{% translate "COMPARE_TO_MODEL" %}
+				</a>
+				{% endif %}
 				<form method="post" action="{{ submission|url:'submission-re-submit' }}" style="display: inline-block">
 					{% csrf_token %}
 					<button
@@ -143,7 +148,10 @@
 						role="tabpanel"
 						class="submitted-file tab-pane {% if forloop.first %}active{% endif %}"
 						{% if not file.is_passed %}data-viewable="true"{% endif %}
-						{% if file.exists %}data-url="{{ file.get_absolute_url }}"{% endif %}
+						{% if file.exists %}
+						data-url="{{ file.get_absolute_url }}{% if compared_submission %}?{{ compared_submission|compared_submission_param }}{% endif %}"
+						data-filename="{{ file.filename }}"
+						{% endif %}
 					>
 						{% if file.exists %}
 							{% if not file.is_passed %}
@@ -237,7 +245,7 @@ var submissionTags = [];
 	submissionTags.push("{{ tag.tag.id }}");
 {% endfor %}
 
-$(document).ready(function() {	
+$(document).ready(function() {
 // Hide tags that the submission already has from the "Add tags" dropdown
 	$('.dropdown-menu .dropdown-item').each(function() {
 		var subtagId = $(this).attr('id');
@@ -249,4 +257,3 @@ $(document).ready(function() {
 	});
 });
 </script>
-
