@@ -551,12 +551,10 @@ class CoursePointsViewSet(ListSerializerMixin,
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {}
-    listserializer_class = StudentBriefSerializer
+    listserializer_class = UserPointsSerializer
     serializer_class = UserPointsSerializer
 
     def get_queryset(self):
-        if self.action == 'list':
-            return self.instance.students
         return self.instance.course_staff_and_students
 
 
