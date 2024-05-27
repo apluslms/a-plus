@@ -4503,6 +4503,10 @@ msgid "NUMBER_ABBREVIATED"
 msgstr "No."
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "COMPARE"
+msgstr "Compare"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
 msgstr "This submission determines the final grade for this exercise."
 
@@ -4522,6 +4526,10 @@ msgstr "This submission has been assessed manually by course staff."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ASSESSED"
 msgstr "Assessed"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "COMPARE_TO_MODEL"
+msgstr "Compare to model answer"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SHOW_ALL_SUBMISSIONS"
@@ -4647,6 +4655,24 @@ msgstr "Assess next submitter manually"
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "ADD_ONE_EXTRA_SUBMISSION_FOR_STUDENT_IN_EXERCISE"
 msgstr "Add one extra submission for the student in this assignment."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "COMPARING_TO_MODEL"
+msgstr "Comparing to the model solution."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "COMPARING_TO_NOT_FOUND"
+msgstr "The file you are attempting to compare to was not found."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+#| msgid "COMPARING_TO_SUBMISSION -- %(cs)s"
+msgid "COMPARING_TO_SUBMISSION -- %(cs_url)s, %(cs_date)s"
+msgstr "Comparing to submission <a href=\"%(cs_url)s\">%(cs_date)s</a>."
+
+#: exercise/templates/exercise/staff/inspect_submission.html
+#| msgid "SHOW_ORIGINAL_SUBMISSION -- %(cs)s"
+msgid "SHOW_ORIGINAL_SUBMISSION -- %(submission_url)s"
+msgstr "Show the <a href=\"%(submission_url)s\">original submission</a>."
 
 #: exercise/templates/exercise/staff/list_submitters.html
 msgid "ALL_SUBMITTERS"

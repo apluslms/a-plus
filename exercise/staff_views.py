@@ -13,7 +13,7 @@ from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext, get_language
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -194,6 +194,22 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     template_name = "exercise/staff/inspect_submission.html"
     form_class = SubmissionReviewForm
 
+    def get_compared_submission(self):
+        try:
+            compare_to_str = self.request.GET.get('compare_to')
+            if compare_to_str is None:
+                return None
+            if compare_to_str == 'model':
+                return 'model'
+            compare_to = int(compare_to_str)
+            for submission in self.submissions:
+                if submission.id == compare_to:
+                    return submission
+            return 'not found'
+        except ValueError:
+            return 'not found'
+
+
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.files = list(self.submission.files.all())
@@ -230,6 +246,9 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             logger.warning("Missing description for grading mode.")
         self.grading_mode_text = format_lazy(_('GRADING_MODE_TITLE -- {}'), mode)
 
+        self.has_model_answers = len(self.exercise.get_models_by_language(self.submission.lang or get_language())) > 0
+        self.compared_submission = self.get_compared_submission()
+
         self.note(
             'files',
             'lowest_visible_index',
@@ -238,6 +257,8 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             'not_best',
             'not_last',
             'grading_mode_text',
+            'has_model_answers',
+            'compared_submission',
         )
 
     def get_initial(self):

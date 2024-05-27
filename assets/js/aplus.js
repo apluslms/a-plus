@@ -317,7 +317,7 @@ $(function () {
         let fileExtOrAlias = "";
         const splitUrl = url.split('.');
         if (splitUrl.length > 1) { // Has file extension
-          fileExtOrAlias = splitUrl.pop();
+          fileExtOrAlias = splitUrl.pop().split('?')[0];
         } else if (splitUrl.pop().endsWith("Dockerfile")) {
           fileExtOrAlias = "dockerfile";
         }
@@ -337,16 +337,51 @@ $(function () {
 
         // Add line numbers
         const lines = pre.html().split(/\r\n|\r|\n/g);
+        const textLines = pre.text().split(/\r\n|\r|\n/g);
         const maxLinesToShow = Math.min(lines.length, 5000);
         let currentLinesToShow = maxLinesToShow; // Initial number of lines to show
+        let testLineNumber = 0, comparedLineNumber = 0, originalLineNumber = 0;
+        const filename = pre.data('filename');
+
+        const testId = () => {
+          testLineNumber++;
+          return `data-testid="${filename}-line-${testLineNumber}"`;
+        }
+
+        const getNormalRow = (lineNumber, lineContent) => {
+          return `<td class="num unselectable">${lineNumber}</td><td class="src" ${testId()}>${lineContent}</td>`;
+        }
+
+        const getDiffRow = (lineNumber, lineContent, textContent) => {
+          const diffCode = textContent.slice(0, 2);
+          let backgroundColorClass;
+          if (diffCode === '+ ') {
+            originalLineNumber++;
+            backgroundColorClass = 'new';
+          } else if (diffCode === '- ') {
+            comparedLineNumber++;
+            backgroundColorClass = 'old';
+          } else {
+            comparedLineNumber++;
+            originalLineNumber++;
+            backgroundColorClass = '';
+          }
+          const showComparedLineNumber = (diffCode === '  ' || diffCode === '- ') ? comparedLineNumber : '';
+          const showOriginalLineNumber = (diffCode === '  ' || diffCode === '+ ') ? originalLineNumber : '';
+          return `
+            <td class="num unselectable ${backgroundColorClass}">${showComparedLineNumber}</td>
+            <td class="num unselectable ${backgroundColorClass}">${showOriginalLineNumber}</td>
+            <td class="src ${backgroundColorClass}" ${testId()}>${lineContent}</td>
+          `
+        }
+
+        const getRow = options.compareMode ? getDiffRow : getNormalRow;
 
         const getLines = (start, end) => {
           const fragment = document.createDocumentFragment();
 
           for (let i = start; i <= end; i++) {
-            const row = $('<tr>').append(
-              '<td class="num unselectable">' + i + '</td><td class="src">' + lines[i - 1] + '</td>'
-            );
+            const row = $('<tr>').append(getRow(i, lines[i - 1], textLines[i - 1]));
             fragment.appendChild(row[0]);
           }
 

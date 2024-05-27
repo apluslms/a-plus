@@ -6,6 +6,7 @@ ignore-paths:
   - aplus/local_settings.example.py
   - aplus/local_settings.test.py
   - aplus/secret_key.py
+  - e2e_tests/assets
   - src/drf-extensions
 ignore-patterns:
   - ^.*\/migrations\/.*$

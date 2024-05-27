@@ -9,6 +9,9 @@
 			<th>{% translate "TIME" %}</th>
 			<th>{% translate "STATUS" %}</th>
 			<th>{% translate "GRADE" %}</th>
+			{% if submissions|length > 1 and files %}
+			<th>{% translate "COMPARE" %}</th>
+			{% endif %}
 		</tr>
 	</thead>
 	<tbody>
@@ -78,6 +81,15 @@
 				>{% translate 'ASSESSED' %}</span>
 				{% endif %}
 			</td>
+			{% if submissions|length > 1 and files %}
+			<td>
+				{% if forloop.counter != index %}
+				<a class="aplus-button--secondary aplus-button--xs" href="{{ submission|url:'submission-inspect' }}?compare_to={{ s.id }}">
+					{% translate "COMPARE" %}
+				</a>
+				{% endif %}
+			</td>
+			{% endif %}
 		</tr>
 		{% endfor %}
 		{% if submissions|length > highest_visible_index or lowest_visible_index > 1 %}
