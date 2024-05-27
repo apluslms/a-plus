@@ -26,7 +26,6 @@ from course.permissions import (
     OnlyCourseStaffPermission,
 )
 from course.api.mixins import CourseResourceMixin
-from course.api.serializers import StudentBriefSerializer
 from exercise.async_views import _post_async_submission
 
 from ..models import (
@@ -551,7 +550,7 @@ class CoursePointsViewSet(ListSerializerMixin,
     lookup_url_kwarg = 'user_id'
     lookup_value_regex = REGEX_INT_ME
     parent_lookup_map = {}
-    listserializer_class = StudentBriefSerializer
+    listserializer_class = UserPointsSerializer
     serializer_class = UserPointsSerializer
 
     def get_queryset(self):
