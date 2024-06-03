@@ -5,9 +5,11 @@
 	{% translate "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN" %}
 </p>
 {% endif %}
+Personalized {{personalized_points_goal}}
+
 <div class="progress" data-toggle="tooltip" data-html="true" data-placement="bottom"
     title="{% translate 'POINTS' %}: &lt;span class='text-nowrap'&gt;{{ formatted_points }} / {{ max }}&lt;/span&gt;{% if required %} {% translate 'POINTS_TO_PASS' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt;{% endif %}">
-    <div class="progress-bar progress-bar-striped progress-bar-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
+    <div class="progress-bar progress-bar-striped progress-bar-{% if percentage >= personalized_points_goal %}info{% elif full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"
         style="width:{{ percentage }}%;"></div>
     {% if required_percentage %}

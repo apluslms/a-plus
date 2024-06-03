@@ -45,6 +45,11 @@
 		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
 		<h3 class="panel-title">
 			{% points_badge module "pull-right" %}
+			{% for goal in personalized_points_goal %}
+				{% if goal.module.id == module.id %}
+					PERSONALIZED POINTS GOAL {{ goal.personalized_points_goal }}% 
+				{% endif %}
+			{% endfor %}
 			{% if not accessible %}
 			<span class="badge pull-right">
 				{% translate "OPENS ON" %} {{ module.opening_time }}
@@ -103,8 +108,9 @@
 				{% endblocktranslate %}
 			{% endif %}
 		</p>
-
-		{% points_progress module %}
+		
+		Goals {{goal.personalized_points_goal}}
+		{% points_progress module 50 %}
 		{{ module.introduction|safe }}
 		{% if student %}
 			{% adddeviationsbutton instance module submitters=student %}

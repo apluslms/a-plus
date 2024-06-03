@@ -13,11 +13,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
-from course.models import CourseModule, SubmissionTag
-from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
+from course.forms import StudentModuleGoalForm
+from course.models import CourseModule, StudentModuleGoal, SubmissionTag
+from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView, EnrollableViewMixin
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
-from lib.viewbase import BaseRedirectMixin, BaseView
+from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
 from .cache.points import ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
@@ -561,3 +562,21 @@ class SubmissionDraftView(SubmissionDraftBaseView):
         self.exercise.set_submission_draft(self.profile, submission_data_list)
         # Simple OK response
         return HttpResponse()
+
+
+class StudentModuleGoalView(CourseModuleBaseView, BaseFormView):
+    access_mode = ACCESS.STUDENT
+    template_name = "exercise/student_module_goal.html"
+    form_class = StudentModuleGoalForm
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, _('MODULE_GOAL_UPDATED'))
+        return super().form_valid(form)

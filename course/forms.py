@@ -10,7 +10,7 @@ from django.db.models import Count
 from aplus.api import api_reverse
 from exercise.models import SubmissionDraft
 from lib.fields import UsersSearchSelectField
-from .models import Enrollment, StudentGroup
+from .models import CourseModule, Enrollment, StudentGroup, StudentModuleGoal
 from userprofile.models import UserProfile
 
 
@@ -162,3 +162,12 @@ class EnrollStudentsForm(forms.Form):
                 required=False,
                 label=_('LABEL_ENROLL_FROM_SIS'),
             )
+
+class StudentModuleGoalForm(forms.ModelForm):
+    student = forms.ModelChoiceField(queryset=UserProfile.objects.all())
+    module = forms.ModelChoiceField(queryset=CourseModule.objects.all())
+    personalized_points_goal = forms.IntegerField(initial=100)
+
+    class Meta:
+        model = StudentModuleGoal
+        fields = ['student', 'module', 'personalized_points_goal']

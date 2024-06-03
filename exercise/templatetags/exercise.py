@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseInstance, CourseModule
+from course.models import CourseInstance, CourseModule, StudentModuleGoal
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
@@ -28,7 +28,6 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 
 
 register = template.Library()
-
 
 def _prepare_now(context):
     if 'now' not in context:
@@ -54,12 +53,18 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
+        # Add personalized_points_goal to the context
+    if 'personalized_points_goal' not in context:
+        context["personalized_points_goal"] = StudentModuleGoal.objects.all
+    print(StudentModuleGoal.objects.all())
+
     context = context.flatten()
     context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
         'total': points.total().as_dict(),
         'is_course_staff': context.get('is_course_staff', False),
+        'personalized_points_goal': context.get('personalized_points_goal', 100),
     })
     return context
 
@@ -110,6 +115,7 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
             .order_by()
         )
         values['exercise_submitter_counts'] = {row['submissions__exercise_id']: row['count'] for row in counts}
+    print("StudentModuleGoalObjects", StudentModuleGoal.objects.all())
     return values
 
 
@@ -245,8 +251,11 @@ def _points_data(
 @register.inclusion_tag("exercise/_points_progress.html")
 def points_progress(
         obj: Union[CachedPointsData, ModulePoints, CategoryPoints],
+        personalized_points_goal: int = 100,
         ) -> Dict[str, Any]:
-    return _points_data(obj, None)
+    data = _points_data(obj, None)
+    data['personalized_points_goal'] = personalized_points_goal
+    return data
 
 
 @register.inclusion_tag("exercise/_points_badge.html")

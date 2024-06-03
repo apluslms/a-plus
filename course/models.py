@@ -1482,6 +1482,12 @@ class CourseModule(CourseModuleProto, models.Model):
             .filter(submissions__exercise__course_module=self).distinct().count()
 
 
+class StudentModuleGoal(models.Model):
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    module = models.ForeignKey(CourseModule, on_delete=models.CASCADE)
+    personalized_points_goal = models.IntegerField(default=100)
+
+
 class LearningObjectCategory(models.Model):
     """
     Learning objects may be grouped to different categories.
