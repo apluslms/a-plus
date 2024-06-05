@@ -90,6 +90,11 @@ def none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
         return min(a,b)
     return a or b
 
+def next_timestamp(timestamps) -> Optional[float]:
+    now = timezone.now().timestamp()
+    future_timestamps = [ts for ts in timestamps if ts and ts > now]
+    return min(timestamps) if future_timestamps else None
+
 
 def _add_to(target: Union[ModulePoints, CategoryPoints, Totals], entry: ExercisePoints) -> None:
     target.feedback_revealed = target.feedback_revealed and entry.feedback_revealed
@@ -952,11 +957,10 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             self.is_model_answer_revealed = True
         else:
             state = ModuleRevealState(self)
-            self.is_model_answer_revealed = reveal_rule.is_revealed(state)
-            if not self.is_model_answer_revealed:
-                reveal_time = reveal_rule.get_reveal_time(state)
-                timestamp = reveal_time and reveal_time.timestamp()
-                self._expires_on = none_min(self._expires_on, timestamp)
+            self.is_model_answer_revealed = reveal_rule.is_revealed(state) and not self.instance.is_on_lifesupport
+            reveal_time = reveal_rule.get_reveal_time(state)
+            reveal_rule_timestamp = reveal_time and reveal_time.timestamp()
+            self._expires_on = next_timestamp([reveal_rule_timestamp, self.instance.lifesupport_start.timestamp()])
 
         return {
             ModuleEntryBase: [self._params[:1]],
