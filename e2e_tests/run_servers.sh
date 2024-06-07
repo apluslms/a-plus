@@ -2,10 +2,10 @@
 
 export COMPOSE_FILE=docker-compose.yml
 
-SCRIPTPATH=$(dirname $(realpath "$0"))
+scriptpath=$(dirname $(realpath "$0"))
 
 # Move to the directory containing this file
-cd "$SCRIPTPATH"
+cd "$scriptpath"
 
 # Clone aplus-manual if it hasn't been cloned yet
 if ! [ -d ../../aplus-manual ]; then
