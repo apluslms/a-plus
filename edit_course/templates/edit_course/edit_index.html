@@ -12,7 +12,7 @@
 
 {% block coursecontent %}
 <br />
-<form method="post" class="well">
+<form method="post" class="card">
     {% csrf_token %}
     <legend>{% translate "EDIT_COURSE_INDEX" %}</legend>
     {{ form|bootstrap }}

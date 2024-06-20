@@ -11,7 +11,7 @@
 
 {% block coursecontent %}
 <br />
-<form id="gitmanager-form" method="post" class="well">
+<form id="gitmanager-form" method="post" class="card">
     {% csrf_token %}
     <legend>{% translate "EDIT_GITMANAGER" %}</legend>
     <a style="float: right" role="button" value="{{ gitmanager_url }}" href="javascript:;" id="gitmanager-link">

@@ -5,14 +5,14 @@
 	<li role="presentation" class="divider"></li>
 	{% else %}
 	<li role="presentation">
-		<a href="{{ entry.link }}">
+		<a class="dropdown-item" href="{{ entry.link }}">
 			{{ entry.name }}
 		</a>
 	</li>
 	{% endif %}
 	{% empty %}
 	<li role="presentation">
-		<a href="/">
+		<a class="dropdown-item" href="/">
 			{% translate "COURSE_DROPDOWN_EMPTY_TEXT" %}
 		</a>
 	</li>

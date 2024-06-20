@@ -18,7 +18,7 @@
 		<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
 		{% if is_course_staff %}
 		<a href="{{ previous.link }}">
-			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+			<i class="bi-lock" aria-hidden="true"></i>
 			{% translate "EARLY_ACCESS" %}
 		</a>
 		{% endif %}
@@ -26,7 +26,7 @@
 	{% endif %}
 	{% endif %}
 
-	<span class="hidden-md hidden-sm hidden-xs" style="display: block; margin: auto; text-align: center;">
+	<span class="hidden-md hidden-sm d-none d-sm-block" style="display: block; margin: auto; text-align: center;">
 		<a href="{{ instance|url:'toc' }}">
 			{% translate "COURSE_MATERIALS" %}
 		</a>
@@ -43,11 +43,11 @@
 		{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
 	</a>
 	{% else %}
-	<span class="pull-right disabled">
+	<span class="float-end disabled">
 		{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
 		{% if is_course_staff %}
 		<a href="{{ next.link }}">
-			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+			<i class="bi-lock" aria-hidden="true"></i>
 			{% translate "EARLY_ACCESS" %}
 		</a>
 		{% endif %}

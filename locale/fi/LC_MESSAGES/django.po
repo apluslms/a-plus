@@ -4834,8 +4834,8 @@ msgstr "Tiedostot"
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
 "<span data-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Henkilökohtaiset pidennetyt määräajat: {count}</"
+"{count}\"><span class=\"bi-time\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Henkilökohtaiset pidennetyt määräajat: {count}</"
 "span></span>"
 
 #: exercise/templatetags/exercise.py

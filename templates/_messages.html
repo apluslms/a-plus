@@ -2,7 +2,7 @@
 	<div class="site-messages">
 		{% for message in messages %}
 			<div class="alert alert-{% if message.level == 10 %}success{% elif message.level == 40 %}danger{% else %}{{ message.tags }}{% endif %} clearfix site-message" role="alert">
-				<span class="glyphicon glyphicon-{% if message.level == 25 %}check{% else %}warning-sign{% endif %}" aria-hidden="true"></span>
+				<i class="bi-{% if message.level == 25 %}check{% else %}warning-sign{% endif %}" aria-hidden="true"></i>
 				<div class="message">{{ message|safe }}</div>
 			</div>
 		{% endfor %}

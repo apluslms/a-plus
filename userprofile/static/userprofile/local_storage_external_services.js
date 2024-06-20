@@ -78,7 +78,7 @@
         );
         li.addClass("list-group-item clearfix");
         const btn = $(
-          `<button aria-label="${ariaLabelPrefix}" class="aplus-button--danger aplus-button--sm pull-right"><span class="glyphicon glyphicon-remove"></span>${btnText}</button>`
+          `<button aria-label="${ariaLabelPrefix}" class="aplus-button--danger aplus-button--sm float-end"><i class="bi-remove"></i>${btnText}</button>`
         );
         btn.on("click", function () {
           li.remove();

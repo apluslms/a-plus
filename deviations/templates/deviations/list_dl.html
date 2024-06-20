@@ -15,15 +15,15 @@
 <div class="col-md-12">
 	<p>
 		<a class="aplus-button--default aplus-button--xs" role="button" href="{{ instance|url:'deviations-add-dl' }}">
-			<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+			<i class="bi-plus-sign" aria-hidden="true"></i>
 			{% translate "ADD_NEW_DEADLINE_DEVIATIONS" %}
 		</a>
 		<a class="aplus-button--default aplus-button--xs" href="{{ instance|url:'deviations-remove-dl' }}">
-			<span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+			<i class="bi-minus-sign" aria-hidden="true"></i>
 			{% translate "REMOVE_DEADLINE_DEVIATIONS" %}
 		</a>
-		<a class="aplus-button--danger aplus-button--xs pull-right" id="remove-selected-button" data-toggle="modal" data-target="#remove-selected-modal" role="button">
-			<span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+		<a class="aplus-button--danger aplus-button--xs float-end" id="remove-selected-button" data-toggle="modal" data-target="#remove-selected-modal" role="button">
+			<i class="bi-minus-sign" aria-hidden="true"></i>
 			{% translate "REMOVE_SELECTED_DEVIATIONS" %}
 		</a>
 	</p>
@@ -76,10 +76,10 @@
 						</td>
 						<td>
 							{% if deviations.0.without_late_penalty %}
-								<span class="glyphicon glyphicon-ok"></span>
+								<i class="bi-ok"></i>
 								{% translate "YES" %}
 							{% else %}
-								<span class="glyphicon glyphicon-remove"></span>
+								<i class="bi-remove"></i>
 								{% translate "NO" %}
 							{% endif %}
 						</td>
@@ -120,10 +120,10 @@
 						</td>
 						<td>
 							{% if deviation.without_late_penalty %}
-								<span class="glyphicon glyphicon-ok"></span>
+								<i class="bi-ok"></i>
 								{% translate "YES" %}
 							{% else %}
-								<span class="glyphicon glyphicon-remove"></span>
+								<i class="bi-remove"></i>
 								{% translate "NO" %}
 							{% endif %}
 						</td>

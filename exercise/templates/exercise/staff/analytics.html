@@ -47,16 +47,16 @@
 
 	<p id="llama-filter-tags">
 		<button class="btn btn-success btn-xs" data-id="aalto">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ internal_user_label|safe }}
 		</button>
 		<button class="btn btn-info btn-xs" data-id="mooc">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ external_user_label|safe }}
 		</button>
 		{% for tag in tags %}
 		<button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
@@ -76,12 +76,12 @@
 	<div id="llama-view-table">
 		<div class="btn-group">
 			<a class="btn btn-default btn-sm" href="#">
-				<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+				<i class="bi-download-alt" aria-hidden="true"></i>
 				{% translate "DOWNLOAD_CSV" %}
 			</a>
 			<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="caret"></span>
-				<span class="sr-only">{% translate "TOGGLE_DROPDOWN" %}</span>
+				
+				<span class="visually-hidden">{% translate "TOGGLE_DROPDOWN" %}</span>
 			</button>
 			<ul class="dropdown-menu">
 				<li><a href="#">{% translate "OPEN_API" %}</a></li>

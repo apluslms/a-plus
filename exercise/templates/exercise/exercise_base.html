@@ -51,7 +51,7 @@
 							aria-haspopup="true" aria-expanded="false">
 							{% translate "MY_SUBMISSIONS" %}
 							({{ summary.submission_count }}{% if exercise.max_submissions %}/{{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}{% endif %})
-							<span class="caret"></span>
+							
 					</a>
 					<ul class="dropdown-menu">
 							{% for submission in submissions %}
@@ -95,20 +95,20 @@
 					<p class="navbar-text navbar-btn">
 							{% if submission and not disable_staff_nav %}
 							<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-									<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+									<i class="bi-zoom-in" aria-hidden="true"></i>
 									{% translate "INSPECT_SUBMISSION" %}
 							</a>
 							{% elif is_teacher and not disable_staff_nav %}
 							{% load editcourse %}
 							<a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+									<i class="bi-edit" aria-hidden="true"></i>
 									{% translate "EDIT_EXERCISE" %}
 							</a>
 							{% endif %}
 							{% if not disable_staff_nav %}
 								{% if is_teacher or exercise.allow_assistant_viewing %}
 								<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-										<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+										<i class="bi-list" aria-hidden="true"></i>
 										{% translate "VIEW_ALL_SUBMISSIONS" %}
 								</a>
 								{% endif %}

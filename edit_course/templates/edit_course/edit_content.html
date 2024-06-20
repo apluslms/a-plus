@@ -10,7 +10,7 @@
 
 {% block coursecontent %}
 <br>
-<div class="well">
+<div class="card">
   <form method="post" class="form-inline" action="{{ instance|url:'course-configure' }}">
     {% csrf_token %}
     <div class="form-group">
@@ -49,12 +49,12 @@
                 </td>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ category|editurl:'category' }}">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        <i class="bi-edit" aria-hidden="true"></i>
                         {% translate "EDIT_CATEGORY" %}
                     </a>
                     {% if category.count_lobjects == 0 %}
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
-                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
+                    	<i class="bi-remove" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                 </td>
@@ -63,7 +63,7 @@
             <tr>
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'category' }}" role="button">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        <i class="bi-plus-sign" aria-hidden="true"></i>
                         {% translate "ADD_NEW_CATEGORY" %}
                     </a>
                 </th>
@@ -88,11 +88,11 @@
                 </th>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ module|editurl:'module' }}" role="button">
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% translate "EDIT_MODULE" %}
+                        <i class="bi-edit" aria-hidden="true"></i> {% translate "EDIT_MODULE" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
-                    	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
+                    	<i class="bi-remove" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                     <a class="btn btn-link btn-xs" href="{{ module|url }}">
@@ -110,11 +110,11 @@
                 </td>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|editurl:'exercise' }}" role="button">
-                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                      <i class="bi-edit" aria-hidden="true"></i>
                       {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CHAPTER" %}{% endif %}
                     </a>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% translate "REMOVE" %}
+                        <i class="bi-remove" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     <a class="btn btn-link btn-xs" href="{{ lobject|url }}">
                       {% if lobject.is_submittable %}{% translate "VIEW_EXERCISE" %}{% else %}{% translate "VIEW_CHAPTER" %}{% endif %}
@@ -130,7 +130,7 @@
             <tr>
                 <td colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#lobject{{ module.id }}" role="button">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        <i class="bi-plus-sign" aria-hidden="true"></i>
                         {% translate "ADD_NEW_LEARNING_OBJECT" %}
                     </a>
                     <div class="modal" id="lobject{{ module.id }}" tabindex="-1" role="dialog" aria-labelledby="lobject{{ module.id }}Label">
@@ -177,7 +177,7 @@
             <tr>
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'module' }}" role="button">
-                        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                        <i class="bi-plus-sign" aria-hidden="true"></i>
                         {% translate "ADD_NEW_MODULE" %}
                     </a>
                 </th>
@@ -185,7 +185,7 @@
         </tbody>
     </table>
 </div>
-<form method="post" class="well">
+<form method="post" class="card">
     {% csrf_token %}
     {{ form|bootstrap }}
     <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% translate "SAVE" %}</button>

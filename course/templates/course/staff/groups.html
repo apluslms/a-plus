@@ -16,7 +16,7 @@
   <p>
     {% translate "NUMBER_OF_GROUPS" %} <strong>{{ groups|length }}</strong>
     <a class="aplus-button--secondary aplus-button--xs" role="button" href="{{ instance|url:'groups-add' }}">
-      <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+      <i class="far fa-plus-sign" aria-hidden="true"></i>
       {% translate "ADD_NEW" %}
     </a>
   </p>
@@ -38,11 +38,11 @@
         <td>{{ group.timestamp }}</td>
         <td>
           <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-edit' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
-            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+            <i class="bi-edit" aria-hidden="true"></i>
             {% translate "EDIT" %}
           </a>
           <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-delete' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
-            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            <i class="bi-remove" aria-hidden="true"></i>
             {% translate "REMOVE" %}
           </a>
         </td>

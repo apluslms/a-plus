@@ -11,7 +11,7 @@
 			{% for item in language_news %}
 					<div class="{% if item.pin %}pinned-{% endif %}list-group-item">
 						{% if item.pin %}
-							<span class="sr-only">{% translate "NEWS_ITEM_PINNED_SR_TEXT" %}</span>
+							<span class="visually-hidden">{% translate "NEWS_ITEM_PINNED_SR_TEXT" %}</span>
 						{% endif %}
 						<div class="list-group-item-heading">
 							<h4 class="list-group-item-title">
@@ -27,7 +27,7 @@
 									<span class="label label-primary">{{ item.audience|news_audience }}</span>
 								{% endif %}
 								{% if item.pin %}
-									<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+									<i class="bi-pushpin" aria-hidden="true"></i>
 								{% endif %}
 							</div>
 						</div>
@@ -38,7 +38,7 @@
 				{# If a limit for folding news (more) is set, this creates the folding section #}
 				{% if forloop.counter == more and language_news|length > more and more > 0 %}
 					<a class="folding-list-group-item collapsed" href="#more-news" data-toggle="collapse" role="button" aria-controls="more-news" aria-expanded="false">
-						{% translate "SHOW_OLDER" %} <span class="caret"></span>
+						{% translate "SHOW_OLDER" %} 
 					</a>
 					<div class="collapse" id="more-news">{# start of collapse.div #}
 				{% endif %}

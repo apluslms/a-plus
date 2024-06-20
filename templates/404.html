@@ -15,13 +15,13 @@
 			</div>
 			{% if url_without_language %}
 			<div class="alert alert-danger">
-				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				<i class="bi-warning-sign" aria-hidden="true"></i>
 				{% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
 				<a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
 			</div>
 			{% elif languages %}
 			<div class="alert alert-danger">
-				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				<i class="bi-warning-sign" aria-hidden="true"></i>
 				{% blocktranslate trimmed %}
 				PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
 				{% endblocktranslate %}
@@ -31,7 +31,7 @@
 			</div>
 			{% else %}
 			<div class="alert alert-danger">
-				<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+				<i class="bi-warning-sign" aria-hidden="true"></i>
 				{% translate "PAGE_DOES_NOT_EXIST" %}
 			</div>
 			{% endif %}

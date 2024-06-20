@@ -4820,8 +4820,8 @@ msgstr "Files"
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
 "<span data-toggle=\"tooltip\" title=\"Personal extended deadlines: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Personal extended deadlines: {count}</span></"
+"{count}\"><span class=\"bi-time\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Personal extended deadlines: {count}</span></"
 "span>"
 
 #: exercise/templatetags/exercise.py

@@ -34,15 +34,15 @@
 <div data-taggings="{{ taggings|join:' ' }}" class="row">
 	{% block course_sidebar %}
 	<button
-		class="hidden hidden-xs course-sidebar-expander"
+		class="d-none course-sidebar-expander"
 		title="{% translate 'OPEN_SIDEBAR' %}"
 		aria-label="{% translate 'OPEN_SIDEBAR' %}"
 	>
-		<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		<i class="bi-caret-right-fill" aria-hidden="true"></i>
 	</button>
-	<div class="col-sm-2 hidden-xs" id="course-sidebar">
+	<div class="col-sm-2 d-none d-sm-block" id="course-sidebar">
 		<nav class="course-menu" id="main-course-menu" aria-labelledby="course-menu-heading">
-			<ul class="nav nav-pills nav-stacked">
+			<ul class="nav nav-pills nav-stacked flex-column" aria-orientation="vertical">
 				{% include "course/_course_menu.html" %}
 			</ul>
 			{% site_advert as advert %}

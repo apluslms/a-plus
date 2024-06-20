@@ -11,7 +11,7 @@
 	{% for entry in categories %}
 	{% if entry.is_listed %}
 	<button class="aplus-button--secondary aplus-button--xs" data-category="{{ entry.id }}" aria-pressed="true">
-		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+		<i class="check-square" aria-hidden="true"></i>
 		{{ entry.name|parse_localization }}
 	</button>
 	{% endif %}
@@ -21,15 +21,15 @@
 
 <p>
 	<button id="toggle-expand-all-modules" class="aplus-button--secondary aplus-button--xs" aria-pressed="false" style="display:none">
-		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<i class="bi-square" aria-hidden="true"></i>
 		{% translate "EXPAND_ALL_MODULES" %}
 	</button>
 	<button id="toggle-auto-scroll" class="aplus-button--secondary aplus-button--xs" aria-pressed="true" style="display:none">
-		<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+		<i class="check-square" aria-hidden="true"></i>
 		{% translate "AUTO_SCROLL" %}
 	</button>
 	<button id="auto-scroll-behavior-instant" class="aplus-button--secondary aplus-button--xs" aria-pressed="false" style="display:none">
-		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<i class="bi-square" aria-hidden="true"></i>
 		{% translate "AUTO_SCROLL_BEHAVIOR_INSTANT" %}
 	</button>
 </p>
@@ -44,32 +44,32 @@
 		role="button" href="#module{{ module.id }}" data-toggle="collapse"
 		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
 		<h3 class="panel-title">
-			{% points_badge module "pull-right" %}
+			{% points_badge module "float-end" %}
 			{% if not accessible %}
-			<span class="badge pull-right">
+			<span class="badge float-end">
 				{% translate "OPENS ON" %} {{ module.opening_time }}
 			</span>
 			{% elif not after_open %}
-			<span class="badge pull-right">
+			<span class="badge float-end">
 				{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
 			</span>
-			<span class="badge badge-info pull-right">
+			<span class="badge badge-info float-end">
 				{% translate "OPEN_FOR_READING" %}
 			</span>
 			{% endif %}
 			{% if module|deadline_extended_exercises_open:now %}
-			<span class="badge pull-right">
+			<span class="badge float-end">
 				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 			</span>
 			{% endif %}
 			{% if module.requirements|length > 0 %}
-			<span class="badge pull-right">
+			<span class="badge float-end">
 				{% translate "REQUIRES" %}:
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
 			{% endif %}
 			{% if not module.is_visible and is_teacher %}
-			<span class="label label-danger pull-right">{% translate "HIDDEN_capitalized" %}</span>
+			<span class="label label-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
 			{% endif %}
 			<div class="module-name">
 				<span class="caret" aria-hidden="true"></span>
@@ -140,8 +140,8 @@
 								data-toggle="tooltip"
 								title="{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}"
 							>
-								<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-								<span class="sr-only">{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}</span>
+								<i class="bi-time" aria-hidden="true"></i>
+								<span class="visually-hidden">{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}</span>
 							</span>
 						{% endif %}
 						{% else %}
@@ -155,7 +155,7 @@
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 							<span class="badge">
 								{% if entry.notified %}
-								<span class="glyphicon glyphicon-comment{% if entry.unseen %} red{% endif %}"></span>
+								<i class="bi-comment{% if entry.unseen %} red{% endif %}"></i>
 								{% endif %}
 								{{ entry.submission_count }}
 								{% if entry.max_submissions > 0 %}
@@ -187,7 +187,7 @@
 						{% if entry.submissions and student.id %}
 						{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=entry.get_path user_id=student.id as inspect_url %}
 						<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
-							<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+							<i class="bi-zoom-in" aria-hidden="true"></i>
 							{% translate "INSPECT" %}
 						</a>
 						{% endif %}
@@ -198,14 +198,14 @@
 					<td>
 						{% if not accessible %}
 						<a href="{{ entry.link }}">
-							<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+							<i class="bi-lock" aria-hidden="true"></i>
 							{% translate "EARLY_ACCESS" %}
 						</a>
 						{% else %}
 						{% exercise_text_stats entry.id %}
 						{% endif %}
 						<a class="aplus-button--secondary aplus-button--xs" href="{{ entry.submissions_link }}">
-							<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+							<i class="bi-list" aria-hidden="true"></i>
 							{% translate "VIEW_SUBMISSIONS" %}
 						</a>
 					</td>
@@ -229,11 +229,11 @@
 							data-toggle="tooltip"
 							title="{% translate 'MODULE_MODEL_ANSWER_NOT_VISIBLE' %}"
 						>
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-							<span class="sr-only">{% translate "MODULE_MODEL_ANSWER_NOT_VISIBLE" %}</span>
+							<i class="bi-info-sign" aria-hidden="true"></i>
+							<span class="visually-hidden">{% translate "MODULE_MODEL_ANSWER_NOT_VISIBLE" %}</span>
 							{% if is_course_staff %}
 							<a href="{{ entry.link }}">
-								<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+								<i class="bi-lock" aria-hidden="true"></i>
 								{% translate "EARLY_ACCESS" %}
 							</a>
 							{% endif %}
@@ -245,7 +245,7 @@
 					<td>
 						{% if not accessible %}
 						<a href="{{ entry.link }}">
-							<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+							<i class="bi-lock" aria-hidden="true"></i>
 							{% translate "EARLY_ACCESS" %}
 						</a>
 						{% endif %}

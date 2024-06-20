@@ -11,7 +11,7 @@
 		<div class="assessment-bar assessment-toggle{% if form.errors %} hidden{% endif %}">
 			<div class="assessment-bar-fill assessment-bar-text">
 				{% if submission.grader %}
-				<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+				<i class="bi-ok" aria-hidden="true"></i>
 				{% if not pseudonymize %}
 					{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
 					ASSESSED_BY -- {{ user }}, {{ time }}
@@ -20,7 +20,7 @@
 					{% translate 'ASSESSED_BY' %} -- {% translate 'SOMEBODY' %}, {{ submission.grading_time }}
 				{% endif %}
 				{% else %}
-				<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+				<i class="bi-remove" aria-hidden="true"></i>
 				{% translate 'NOT_ASSESSED_MANUALLY' %}
 				{% endif %}
 			</div>
@@ -31,7 +31,7 @@
 				  <form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
 					{% csrf_token %}
 					{{tag.tag|colortag}}
-					<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+					<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><i class="bi-remove" aria-hidden="true"></i></button>
 				  </form>
 				</div>
 				{% endfor %}
@@ -40,7 +40,7 @@
 
 				<div class="dropdown">
 				  <button class="aplus-button--secondary aplus-button--sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					{% translate 'ADD_TAGGING' %} <span class="caret"></span>
+					{% translate 'ADD_TAGGING' %} 
 				  </button>
 				  <ul id="submissionTagsList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 					{% for subtag in instance.submissiontags.all %}

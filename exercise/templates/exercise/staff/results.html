@@ -106,7 +106,7 @@ that includes the correct DataTables extensions. -->
 				<br>
 				{% for tag in tags %}
 				<button class="btn btn-default btn-xs tag-button" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tag-slug="{{ tag.slug }}" data-tag-name="{{ tag.name }}">
-					<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+					<i class="bi-square" aria-hidden="true"></i>
 					{{ tag.name }}
 				</button>
 				{% endfor %}

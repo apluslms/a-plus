@@ -17,7 +17,7 @@
 	{% if is_teacher %}
 	<p>
 		<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
-			<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+			<i class="bi-user" aria-hidden="true"></i>
 			{% translate "ENROLL_STUDENTS" %}
 		</a>
 	</p>
@@ -26,7 +26,7 @@
 		<small>{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
 		<button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
@@ -34,9 +34,9 @@
 		{% for status_code, status_label in enrollment_statuses.items %}
 		<button class="btn btn-default btn-xs filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
-			<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+			<i class="check-square" aria-hidden="true"></i>
 			{% else %}
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{% endif %}
 			{{ status_label }}
 		</button>

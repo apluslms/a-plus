@@ -14,7 +14,7 @@
 		<div class="input-group-btn search-button">
 			<div class="btn-group">
 				<button class="btn btn-default dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
-					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<i class="bi-search" aria-hidden="true"></i>
 				</button>
 				<ul class="dropdown-menu search-options" role="menu">
 					{% if clipboard_options %}
@@ -58,7 +58,7 @@
 					class="btn btn-default copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
 					{% endif %}
 				>
-					<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
+					<i class="bi-copy" aria-hidden="true"></i>
 				</button>
 				{% if clipboard_options %}
 				<ul class="dropdown-menu dropdown-menu-right" role="menu">

@@ -15,7 +15,7 @@
 <br />
 <p>
 	<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'course-submission-tags-add' }}">
-		<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+		<i class="bi-plus-sign" aria-hidden="true"></i>
 		{% translate "ADD_NEW_SUBMISSION_TAG" %}
 	</a>
 </p>
@@ -38,11 +38,11 @@
 			<td>{{ tag.description }}</td>
 			<td>
 				<a href="{{ tag|url:'course-submission-tags-edit' }}" class="aplus-button--secondary aplus-button--xs" role="button">
-					<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					<i class="bi-edit" aria-hidden="true"></i>
 					{% translate "EDIT" %}
 				</a>
 				<a href="{{ tag|url:'course-submission-tags-remove' }}" class="aplus-button--secondary aplus-button--xs" role="button">
-					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					<i class="bi-remove" aria-hidden="true"></i>
 					{% translate "REMOVE" %}
 				</a>
 			</td>

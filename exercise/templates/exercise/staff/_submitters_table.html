@@ -4,7 +4,7 @@
 {% load static %}
 
 <div class="clearfix">
-	<div class="pull-right">
+	<div class="float-end">
 		{% if allow_regrade %}
 			<button type="button" class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#regrade-modal">
 				{{ regrade_button }}
@@ -12,11 +12,11 @@
 		{% endif %}
 
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
-			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<i class="bi-ok" aria-hidden="true"></i>
 			{% translate "START_MANUAL_ASSESSMENT" %}
 		</a>
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-summary' }}">
-			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+			<i class="bi-bar-chart-fill" aria-hidden="true"></i>
 			{% translate "SUMMARY" %}
 		</a>
 		<span class="dropdown">
@@ -26,7 +26,7 @@
 				data-toggle="dropdown"
 				id="download-data"
 			>
-				{% translate "DOWNLOAD" %} <span class="caret"></span>
+				{% translate "DOWNLOAD" %} 
 			</button>
 			<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
@@ -83,16 +83,16 @@
 			</td>
 			<td>
 				{% if submitter.count_assessed > 0 %}
-					<span class="glyphicon glyphicon-ok"></span>
+					<i class="bi-ok"></i>
 					{% translate "YES" %}
 				{% else %}
-					<span class="glyphicon glyphicon-remove"></span>
+					<i class="bi-remove"></i>
 					{% translate "NO" %}
 				{% endif %}
 			</td>
 			<td>
 				<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">
-					<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+					<i class="bi-zoom-in" aria-hidden="true"></i>
 					{% translate "INSPECT" %}
 				</a>
 			</td>

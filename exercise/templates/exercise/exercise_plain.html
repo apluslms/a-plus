@@ -14,7 +14,8 @@
 				integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		<script src="{% static 'js/bootstrap3.min.js' %}"></script>
+		<script src="{% static 'js/popper.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
@@ -115,14 +116,14 @@
 										<ul>
 											{% if exercise.points_to_pass > 0 %}
 												<li>
-													<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+													<i class="bi-flag" aria-hidden="true"></i>
 													{% blocktranslate trimmed with points=exercise.points_to_pass %}
 														POINTS_REQUIRED_TO_PASS -- {{ points }}
 													{% endblocktranslate %}
 												</li>
 											{% endif %}
 											<li>
-												<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+												<i class="bi-time" aria-hidden="true"></i>
 												{% if summary.personal_deadline %}
 													{% translate "PERSONAL_EXTENDED_DEADLINE" %}
 													{{ summary.personal_deadline }}
@@ -142,7 +143,7 @@
 												{% endif %}
 											</li>
 											<li>
-												<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+												<i class="bi-user" aria-hidden="true"></i>
 												{% if exercise.min_group_size == 1 %}
 													{% if exercise.max_group_size == 1 %}
 														{% translate "TO_BE_SUBMITTED_ALONE" %}
@@ -168,7 +169,7 @@
 							{% endcomment %}
 							{% if exercise.model_answers %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+									<i class="bi-file" aria-hidden="true"></i>
 									{% translate "SHOW_MODEL_ANSWER" %}
 								</a>
 							{% endif %}
@@ -176,14 +177,14 @@
 						{% if is_course_staff or is_student %}
 							{% if exercise.templates %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+									<i class="bi-file" aria-hidden="true"></i>
 									{% translate "SHOW_EXERCISE_TEMPLATE" %}
 								</a>
 							{% endif %}
 						{% endif %}
 						{% if is_course_staff %}
 							<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
-								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+								<i class="bi-list" aria-hidden="true"></i>
 								{% translate "VIEW_ALL_SUBMISSIONS" %}
 							</a>
 						{% endif %}

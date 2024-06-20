@@ -14,7 +14,8 @@
 				integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		<script src="{% static 'js/bootstrap3.min.js' %}"></script>
+		<script src="{% static 'js/popper.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
@@ -75,7 +76,7 @@
 					<ul class="list-unstyled">
 					{% for file in submission.files.all %}
 						<li>
-							<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+							<i class="bi-file" aria-hidden="true"></i>
 							{% include "exercise/_file_link.html" %}
 						</li>
 					{% endfor %}
@@ -85,7 +86,7 @@
 				{% if is_course_staff %}
 				<td>
 					<a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--md" role="button">
-						<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+						<i class="bi-zoom-in" aria-hidden="true"></i>
 						{% translate "INSPECT" %}
 					</a>
 				</td>

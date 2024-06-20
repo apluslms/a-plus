@@ -29,7 +29,7 @@ E.g. {% static 'js/external_launcher.js' ‰}
 		{% else %}
 			<h4>{% blocktranslate trimmed with name=service_label|parse_localization %}EXTERNAL_SERVICE_LAUNCH_EXERCISE_HOSTED_ON -- {{ name }}{% endblocktranslate %}</h4>
 		{% endif %}
-		<div class="well">
+		<div class="card">
 			{% include "external_services/_privacy.html" %}
 		</div>
 		<p class="external-service-auto">

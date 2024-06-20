@@ -13,7 +13,7 @@
 
 {% block coursecontent %}
 <br />
-<form method="post" enctype="multipart/form-data" class="well">
+<form method="post" enctype="multipart/form-data" class="card">
     {% csrf_token %}
     <legend>{% translate "EDIT_COURSE_DETAILS" %}</legend>
     {{ form|bootstrap }}
