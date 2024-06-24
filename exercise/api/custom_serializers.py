@@ -126,7 +126,10 @@ class UserPointsSerializer(UserWithTagsSerializer):
             modules.append(module_data)
 
         total = points.total()
-        for key in ['submission_count', 'points', 'points_by_difficulty']:
+        for key in [
+            'max_points', 'max_points_by_difficulty', 'submission_count',
+            'points', 'points_by_difficulty',
+        ]:
             rep[key] = getattr(total, key)
         rep['modules'] = modules
 
