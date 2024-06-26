@@ -1534,6 +1534,14 @@ msgstr "Assignment"
 msgid "LABEL_SUBMITTER_TAG"
 msgstr "Submitter tag"
 
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS"
+msgstr "Submission tags"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
+msgstr "Copy submission tags from this course instance."
+
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
 msgstr "Submitter"
