@@ -87,6 +87,24 @@
 					{{ grading_mode_text }}
 				{% endif %}
 				{% include "exercise/staff/_submissions_table_compact.html" %}
+				{% if compared_submission and files %}
+				{% with cs=compared_submission %}
+				<p>
+				{% if cs == 'model' %}
+					{% translate "COMPARING_TO_MODEL" %}
+				{% elif cs == 'not found' %}
+					{% translate "COMPARING_TO_NOT_FOUND" %}
+				{% else %}
+					{% blocktranslate trimmed with cs_url=cs|url:'submission-inspect' cs_date=cs.date|date:'DATETIME_SECONDS_FORMAT' %}
+						COMPARING_TO_SUBMISSION -- {{ cs_url }}, {{ cs_date }}
+					{% endblocktranslate %}
+				{% endif %}
+					{% blocktranslate trimmed with submission_url=submission|url:'submission-inspect' %}
+						SHOW_ORIGINAL_SUBMISSION -- {{ submission_url }}
+					{% endblocktranslate %}
+				</p>
+				{% endwith %}
+				{% endif %}
 			</div>
 		</div>
 	</div>

@@ -13,7 +13,7 @@ from django.urls.base import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import format_lazy
-from django.utils.translation import gettext_lazy as _, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext, get_language
 
 from authorization.permissions import ACCESS
 from course.viewbase import CourseInstanceBaseView, CourseInstanceMixin
@@ -194,6 +194,22 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
     template_name = "exercise/staff/inspect_submission.html"
     form_class = SubmissionReviewForm
 
+    def get_compared_submission(self):
+        try:
+            compare_to_str = self.request.GET.get('compare_to')
+            if compare_to_str is None:
+                return None
+            if compare_to_str == 'model':
+                return 'model'
+            compare_to = int(compare_to_str)
+            for submission in self.submissions:
+                if submission.id == compare_to:
+                    return submission
+            return 'not found'
+        except ValueError:
+            return 'not found'
+
+
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.files = list(self.submission.files.all())
@@ -230,6 +246,9 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             logger.warning("Missing description for grading mode.")
         self.grading_mode_text = format_lazy(_('GRADING_MODE_TITLE -- {}'), mode)
 
+        self.has_model_answers = len(self.exercise.get_models_by_language(self.submission.lang or get_language())) > 0
+        self.compared_submission = self.get_compared_submission()
+
         self.note(
             'files',
             'lowest_visible_index',
@@ -238,6 +257,8 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             'not_best',
             'not_last',
             'grading_mode_text',
+            'has_model_answers',
+            'compared_submission',
         )
 
     def get_initial(self):
@@ -377,24 +398,25 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
         total_submitters = submitters.count()
         previous_user_id = request.GET.get('prev')
         if previous_user_id:
-            # get the previous time
-            previous_time = submitters.filter(user__id=previous_user_id).first().earliest_submission
+            previous_submitter = submitters.filter(user__id=previous_user_id).first()
+            if previous_submitter:
+                # get the previous time
+                previous_time = previous_submitter.earliest_submission
+                if previous_time:
+                    # remove the submitters who have been assessed (we do this after we've found the
+                    # previous submitter's time as the previous submitter might have been assessed)
+                    submitters = submitters.filter(count_assessed=0)
 
-            # remove the submitters who have been assessed (we do this after we've found the
-            # previous submitter's time as the previous submitter might have been assessed)
-            submitters = submitters.filter(count_assessed=0)
-
-            # Find specifically the submitter who's submission was submitted right after this one
-            submitters = submitters.filter(earliest_submission__gt=previous_time)
-            submitter = submitters.first()
+                    # Find specifically the submitter who's submission was submitted right after this one
+                    submitters = submitters.filter(earliest_submission__gt=previous_time)
+                    submitter = submitters.first()
 
         if not submitter:
             submitters = submitters.filter(count_assessed=0)
             submitter = submitters.first()
 
-        # the number of submitters that we have after filtering
-        submitters_after = submitters.count()
-        filtered_submitters = total_submitters - submitters_after + 1
+        # Subtract the number of submitters that we have after filtering from the total_submitters
+        filtered_submitters = total_submitters - submitters.count() + 1
 
         if not submitter:
             # There are no more unassessed submitters.
@@ -406,7 +428,10 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True, fallback_to_last=True)
         if not ids:
             raise Http404()
-        percentage = f"{int(filtered_submitters / total_submitters * 100)}%"
+        if total_submitters == 0:
+            percentage = "0%"
+        else:
+            percentage = f"{int(filtered_submitters / total_submitters * 100)}%"
         self.request.session['manually_assessed_counter'] = (
             f"{filtered_submitters} / {total_submitters} ({percentage})"
         )

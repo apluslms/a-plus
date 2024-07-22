@@ -17,3 +17,9 @@ table.src tr td.src {
 table.src.no-wrap tr td.src {
 	white-space: pre;
 }
+table.src tr td.old {
+	background: #f8d7da;
+}
+table.src tr td.new {
+	background: #d4edda;
+}

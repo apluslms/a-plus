@@ -22,7 +22,7 @@ function duplicateCheck(exercise, form_element, submitCallback) {
   for (let elem of datahashElements) {
     try {
       hashes.push(elem.dataset["hash"]);
-    } catch(error) {
+    } catch(e) {
     }
   }
 
@@ -45,10 +45,16 @@ function duplicateCheck(exercise, form_element, submitCallback) {
     function readNextFile() {
       let file;
       const fileList = inputFileElements[index++].files;
+      file = new File([""], "filename");
       if (fileList.length > 0) {
-        file = fileList[0];
-      } else {
-        file = new File([""], "filename");
+        if (fileList[0].size <= 100 * 1024 * 1024) {
+          // File size is smaller than the 100MB limit, read it.
+          // Larger files are not read to avoid the out-of-memory browser error.
+          file = fileList[0];
+        } else {
+          // For large files, use the file size as the file content
+          file = new File([fileList[0].size.toString()], "filename");
+        }
       }
       reader.readAsText(file);
     };
@@ -59,13 +65,23 @@ function duplicateCheck(exercise, form_element, submitCallback) {
         // More to do, start loading the next file
         readNextFile();
       } else {
-        const hash = md5(hashThis);
-        openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback);
+        try {
+          const hash = md5(hashThis);
+          openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback);
+        } catch(e) {
+          // Skip duplicate check if creating the hash fails for some reason
+          submitCallback(exercise, "");
+        }
       }
     };
     readNextFile();
   } else {
-    const hash = md5(hashThis);
-    openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback);
+    try {
+      const hash = md5(hashThis);
+      openDuplicateModalOrSubmit(exercise, hashes, hash, submitCallback);
+    } catch(e) {
+      // Skip duplicate check if creating the hash fails for some reason
+      submitCallback(exercise, "");
+    }
   }
 };
