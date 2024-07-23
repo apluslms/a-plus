@@ -272,8 +272,8 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
 
         exercise_info = lobj.exercise_info
         has_submittable_files = (
-            exercise_info
-            and exercise_info['form_spec']
+            bool(exercise_info)
+            and exercise_info.get('form_spec')
             and isinstance(exercise_info['form_spec'], list)
             and any(map(lambda item: item.get('type') == 'file', exercise_info['form_spec']))
         )
