@@ -72,7 +72,8 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.save()
 
         if form.cleaned_data["notify"]:
-            Notification.send(None, submission)
+            regrade_when_notification_seen = form.cleaned_data["regrade_when_notification_seen"]
+            Notification.send(None, submission, regrade_when_seen=regrade_when_notification_seen)
         else:
             Notification.remove(submission)
 
