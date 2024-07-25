@@ -19,6 +19,7 @@ class SubmissionCallbackForm(forms.Form):
     max_points = forms.IntegerField(min_value=0, required=False)
     feedback = forms.CharField(required=False)
     notify = forms.CharField(required=False)
+    regrade_when_notification_seen = forms.BooleanField(required=False)
     grading_payload = forms.CharField(required=False)
     lti_launch_id = forms.CharField(required=False)
     lti_session_id = forms.CharField(required=False)
