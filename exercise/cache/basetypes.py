@@ -272,8 +272,8 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
 
         exercise_info = lobj.exercise_info
         has_submittable_files = (
-            exercise_info
-            and exercise_info['form_spec']
+            bool(exercise_info)
+            and exercise_info.get('form_spec')
             and isinstance(exercise_info['form_spec'], list)
             and any(map(lambda item: item.get('type') == 'file', exercise_info['form_spec']))
         )
@@ -496,6 +496,8 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Learni
     exercise_index: Dict[int, LearningObjectEntry]
     paths: Dict[int, Dict[str, int]]
     modules: List[ModuleEntry]
+    is_on_lifesupport: bool
+    lifesupport_start: Optional[datetime]
     categories: Dict[int, CategoryEntry]
     total: Totals
 
@@ -529,6 +531,8 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Learni
 
         self.url = instance.url
         self.course_url_kwargs = instance.course.get_url_kwargs()
+        self.is_on_lifesupport = instance.is_on_lifesupport()
+        self.lifesupport_start = instance.lifesupport_start
 
         self.exercise_index = exercise_index = {}
         self.module_index = module_index = {}

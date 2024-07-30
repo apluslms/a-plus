@@ -439,9 +439,12 @@ class LearningObject(LearningObjectProto, ModelWithInheritance):
             'lang': language,
         })
 
-    def get_models(self):
-        entries = pick_localized(self.model_answers, get_language())
+    def get_models_by_language(self, language: str):
+        entries = pick_localized(self.model_answers, language)
         return [(url,url.split('/')[-1].split('?', 1)[0]) for url in entries.split()]
+
+    def get_models(self):
+        return self.get_models_by_language(get_language())
 
     def get_templates(self):
         entries = pick_localized(self.templates, get_language())

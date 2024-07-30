@@ -173,6 +173,14 @@ def submission_status(status):
     return Submission.STATUS[status]
 
 
+@register.filter
+def compared_submission_param(compared_submission) -> str:
+    param = 'compare_to='
+    if isinstance(compared_submission, SubmissionEntry):
+        return param + str(compared_submission.id)
+    return param + compared_submission
+
+
 AnyPointsEntry = Union[
     CachedPointsData,
     ModulePoints,

@@ -1,12 +1,13 @@
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from difflib import ndiff
 from django.contrib import messages
 from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language
 from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
@@ -525,6 +526,38 @@ class SubmittedFileView(SubmissionMixin, BaseView):
         if self.file.filename != file_name:
             raise Http404()
 
+    def get_model_answer_file_data(self):
+        file_index = None
+        for i, submittable_file_info in enumerate(self.exercise.exercise_info.get('form_spec', [])):
+            if submittable_file_info.get('key') == self.file.param_name:
+                file_index = i
+                break
+        try:
+            language = self.submission.lang or get_language()
+            url, _ = self.exercise.get_models_by_language(language)[file_index]
+            response = request_for_response(url, instance_id=self.exercise.course_instance.id)
+            response.encoding = "UTF-8"
+            return response.text
+        except (RemotePageNotFound, IndexError, TypeError) as e:
+            raise Http404() from e
+
+    def get_compared_submission_file_data(self, submission_id: int):
+        try:
+            submission =  get_object_or_404(
+                Submission,
+                id=int(submission_id),
+                exercise=self.exercise
+            )
+            file = get_object_or_404(
+                SubmittedFile,
+                param_name=self.file.param_name,
+                submission=submission
+            )
+            with file.file_object.open() as f:
+                return f.read().decode('utf-8', 'ignore')
+        except ValueError as e:
+            raise Http404() from e
+
     def get(self, request, *args, **kwargs):
         try:
             with self.file.file_object.open() as f:
@@ -532,12 +565,24 @@ class SubmittedFileView(SubmissionMixin, BaseView):
         except OSError:
             return HttpResponseNotFound()
 
+        # Compare to another submission.
+        compare_to = request.GET.get("compare_to", None)
+        if compare_to and self.exercise.course_instance.is_course_staff(request.user):
+            compared_data = (
+                self.get_model_answer_file_data()
+                if compare_to == "model"
+                else self.get_compared_submission_file_data(compare_to)
+            )
+            submitted_data = bytedata.decode('utf-8', 'ignore')
+            diff = ndiff(compared_data.splitlines(keepends=True), submitted_data.splitlines(keepends=True))
+            diff_text = ''.join([line for line in diff if line[0] != '?'])
+            bytedata = diff_text.encode('utf-8')
+
         # Download the file.
         if request.GET.get("download", False):
             response = HttpResponse(bytedata,
                 content_type="application/octet-stream")
-            response["Content-Disposition"] = 'attachment; filename="{}"'\
-                .format(self.file.filename)
+            response["Content-Disposition"] = 'attachment; filename="{}"'.format(self.file.filename)
             return response
 
         if self.file.is_passed():

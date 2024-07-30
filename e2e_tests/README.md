@@ -8,7 +8,7 @@ source .venv/bin/activate
 
 2. Begin "recording" a test in the browser
 ```
-playwright codegen --target python-pytest localhost:8000
+playwright codegen --target python-pytest "localhost:8000/?hl=en"
 ```
 
 3. Copy the generated test code to a Python file
