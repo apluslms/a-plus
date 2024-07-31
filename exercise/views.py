@@ -21,7 +21,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
-from .cache.points import ExercisePoints
+from .cache.points import CachedPoints, ExercisePoints, ModulePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission, SubmissionTagging
@@ -613,6 +613,38 @@ class StudentModuleGoalView(CourseModuleBaseView, BaseFormView):
     access_mode = ACCESS.STUDENT
     template_name = "exercise/student_module_goal.html"
     form_class = StudentModuleGoalForm
+
+    @csrf_exempt
+    def save_points_goal(request):
+        if request.method == 'POST':
+            points_goal: float = request.POST.get('points_goal')
+            user_id = request.POST.get('student')
+            module_id = request.POST.get('module-id')
+            
+            student = UserProfile.objects.get(id=user_id)
+            module = CourseModule.objects.get(id=module_id)
+            
+            cached_points = CachedPoints(module.course_instance, student, True)
+            cached_module, _, _, _ = cached_points.find(module)
+            print(cached_module.max_points)
+            # Points goal can either be an integer or percentage. If the the points goal is given as a percentage, give it to the points goal directly as an int
+            # Otherwise calculate the points goal by taking the integer and calculating how much that is of the module's max points
+            if '%' in points_goal:
+                points_goal = float(points_goal.replace('%', ''))
+            elif cached_module.max_points > 0:
+                points_goal = float(float(points_goal) / float(cached_module.max_points)) * 100.0
+            elif cached_module.max_points == 0:
+                points_goal = 0
+            print("POINTS GOAL SAVING", points_goal)
+            if points_goal > 100:
+                points_goal = 100
+            elif points_goal < 0:
+                points_goal = 0
+            StudentModuleGoal.objects.update_or_create(student=student, module=module, defaults={'personalized_points_goal_percentage': points_goal * 1.0})
+            print("STUDENT MODULE GOAL VALUE: ", StudentModuleGoal.objects.get(student=user_id, module=module_id).personalized_points_goal_percentage)
+            cached_points.invalidate(module.course_instance, student)
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        return HttpResponse('Invalid request', status=400)
 
     def get_common_objects(self):
         super().get_common_objects()

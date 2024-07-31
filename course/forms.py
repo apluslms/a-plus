@@ -166,8 +166,8 @@ class EnrollStudentsForm(forms.Form):
 class StudentModuleGoalForm(forms.ModelForm):
     student = forms.ModelChoiceField(queryset=UserProfile.objects.all())
     module = forms.ModelChoiceField(queryset=CourseModule.objects.all())
-    personalized_points_goal = forms.IntegerField(initial=100)
+    personalized_points_goal_percentage = forms.IntegerField(initial=100)
 
     class Meta:
         model = StudentModuleGoal
-        fields = ['student', 'module', 'personalized_points_goal']
+        fields = ['student', 'module', 'personalized_points_goal_percentage']

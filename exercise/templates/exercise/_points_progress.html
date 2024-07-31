@@ -1,18 +1,21 @@
 {% load i18n %}
+{% load static %}
 {% if not feedback_revealed %}
 <p class="small">
 	<i class="glyphicon glyphicon-info-sign"></i>
 	{% translate "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN" %}
 </p>
 {% endif %}
-Personalized {{personalized_points_goal}}
-
 <div class="progress" data-toggle="tooltip" data-html="true" data-placement="bottom"
-    title="{% translate 'POINTS' %}: &lt;span class='text-nowrap'&gt;{{ formatted_points }} / {{ max }}&lt;/span&gt;{% if required %} {% translate 'POINTS_TO_PASS' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt;{% endif %}">
-    <div class="progress-bar progress-bar-striped progress-bar-{% if percentage >= personalized_points_goal %}info{% elif full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
+    title="{% translate 'POINTS' %}: &lt;span class='text-nowrap'&gt;{{ formatted_points }} / {{ max }}&lt;/span&gt;{% if required %} {% translate 'POINTS_TO_PASS' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt {% endif %}{% if personalized_points_module_goal %} {% translate 'PERSONALIZED_POINTS_GOAL' %}: &lt;span class='text-nowrap'&gt;{{ formatted_points }} / {{ personalized_points_module_goal_points|floatformat:"0" }}&lt;/span&gt;{% endif %}">
+    <div class="progress-bar progress-bar-striped progress-bar-{% if full_score %}success{% elif percentage >= personalized_points_module_goal %}primary{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"
         style="width:{{ percentage }}%;"></div>
     {% if required_percentage %}
     <div class="required-points" style="left:{{ required_percentage }}%"></div>
+    {% endif %}
+    {% if personalized_points_module_goal %}
+    <link rel="stylesheet" href="{% static 'exercise/css/goal_points.css' %}" />
+    <div class="goal-points" style="left:{{ personalized_points_module_goal|floatformat:0 }}%"></div>
     {% endif %}
 </div>

@@ -53,21 +53,24 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
-        # Add personalized_points_goal to the context
-    if 'personalized_points_goal' not in context:
-        context["personalized_points_goal"] = StudentModuleGoal.objects.all
-    print(StudentModuleGoal.objects.all())
-
+        
     context = context.flatten()
     context.update({
         'modules': points.modules_flatted(),
         'categories': points.categories(),
         'total': points.total().as_dict(),
         'is_course_staff': context.get('is_course_staff', False),
-        'personalized_points_goal': context.get('personalized_points_goal', 100),
     })
     return context
 
+
+@register.simple_tag
+def get_goal(module, student):
+    try:
+        goal = StudentModuleGoal.objects.get(module_id=module, student_id=student)
+        return goal
+    except StudentModuleGoal.DoesNotExist:
+        return None
 
 def _is_accessible(context, entry, t):
     if t and t > _prepare_now(context):
@@ -115,7 +118,7 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
             .order_by()
         )
         values['exercise_submitter_counts'] = {row['submissions__exercise_id']: row['count'] for row in counts}
-    print("StudentModuleGoalObjects", StudentModuleGoal.objects.all())
+    #print("StudentModuleGoalObjects", StudentModuleGoal.objects.all())
     return values
 
 
@@ -221,6 +224,8 @@ def _points_data(
         'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
+        'personalized_points_module_goal': getattr(obj, 'personalized_points_module_goal', None),
+        'personalized_points_module_goal_points': getattr(obj, 'personalized_points_module_goal_points', None),
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 
@@ -259,10 +264,8 @@ def _points_data(
 @register.inclusion_tag("exercise/_points_progress.html")
 def points_progress(
         obj: Union[CachedPointsData, ModulePoints, CategoryPoints],
-        personalized_points_goal: int = 100,
         ) -> Dict[str, Any]:
     data = _points_data(obj, None)
-    data['personalized_points_goal'] = personalized_points_goal
     return data
 
 

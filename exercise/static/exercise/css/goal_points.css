@@ -1,0 +1,5 @@
+.progress .goal-points {
+    position: absolute;
+    height: 20px;
+    border-left: 1px solid blue;
+}

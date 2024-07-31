@@ -2,7 +2,7 @@
 {% load static %}
 {% load course %}
 {% load exercise %}
-
+{% include 'exercise/points_goal_modal.html' %}
 <script src="{% static 'exercise/user_results.js' %}"></script>
 
 {% if categories|len_listed > 1 %}
@@ -45,11 +45,6 @@
 		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
 		<h3 class="panel-title">
 			{% points_badge module "pull-right" %}
-			{% for goal in personalized_points_goal %}
-				{% if goal.module.id == module.id %}
-					PERSONALIZED POINTS GOAL {{ goal.personalized_points_goal }}% 
-				{% endif %}
-			{% endfor %}
 			{% if not accessible %}
 			<span class="badge pull-right">
 				{% translate "OPENS ON" %} {{ module.opening_time }}
@@ -109,8 +104,15 @@
 			{% endif %}
 		</p>
 		
-		Goals {{goal.personalized_points_goal}}
-		{% points_progress module 50 %}
+    		{% with module_id=module.id student_id=user.id  %}
+			{% get_goal module_id student_id as goal %}
+		<div style="width: 100%;">
+			<button type="button" class="aplus-button--secondary aplus-button--xs" style="float: right;" data-toggle="modal" data-target="#pointsGoalModal" data-module-id="{{ module.id }}">
+				<span class="glyphicon glyphicon-screenshot" aria-hidden="true"></span> Points goal
+			</button>
+			{% points_progress module %}
+		{% endwith %}
+
 		{{ module.introduction|safe }}
 		{% if student %}
 			{% adddeviationsbutton instance module submitters=student %}
@@ -282,3 +284,16 @@
 		startListen("{{course|safe}}");
 	}, false);
 </script>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		$('#pointsGoalModal').on('show.bs.modal', function (event) {
+			var button = $(event.relatedTarget); // Button that triggered the modal
+			var moduleId = button.data('module-id'); // Extract info from data-* attributes
+	
+			// Use the moduleId as needed, for example, set it in a hidden input field in the modal
+			var modal = $(this);
+			modal.find('.modal-body input#module').val(moduleId);
+		});
+	});
+	</script>
