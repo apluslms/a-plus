@@ -1539,8 +1539,20 @@ msgid "LABEL_SUBMISSION_TAGS"
 msgstr "Submission tags"
 
 #: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAG"
+msgstr "Submission tag"
+
+#: edit_course/course_forms.py
 msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
 msgstr "Copy submission tags from this course instance."
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG"
+msgstr "submission tag"
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
+msgstr "submission tags"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"

@@ -1548,8 +1548,20 @@ msgid "LABEL_SUBMISSION_TAGS"
 msgstr "Palautusmerkinnät"
 
 #: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAG"
+msgstr "Palautusmerkintä"
+
+#: edit_course/course_forms.py
 msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
 msgstr "Kopioi palautusmerkinnät tästä kurssikerrasta."
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG"
+msgstr "palautusmerkintä"
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
+msgstr "palautusmerkinnät"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
