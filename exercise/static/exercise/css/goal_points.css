@@ -1,5 +1,12 @@
 .progress .goal-points {
     position: absolute;
-    height: 20px;
-    border-left: 1px solid blue;
+    height: 100%;
+    width: 3px;
+    background: repeating-linear-gradient(#005EB8, #005EB8 2px, transparent 2px, transparent 4px);
+}
+.progress .required-points {
+    position: absolute;
+    height: 100%;
+    width: 3px;
+    background: solid black;
 }

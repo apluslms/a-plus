@@ -14,7 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
 
 from authorization.permissions import ACCESS
-from course.forms import StudentModuleGoalForm
 from course.models import CourseModule, StudentModuleGoal, SubmissionTag
 from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView, EnrollableViewMixin
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
@@ -33,7 +32,6 @@ from .viewbase import (
     ExerciseModelBaseView,
     ExerciseTemplateBaseView,
 )
-
 from .exercisecollection_models import ExerciseCollection
 from django.urls import reverse
 
@@ -612,7 +610,6 @@ class SubmissionDraftView(SubmissionDraftBaseView):
 class StudentModuleGoalView(CourseModuleBaseView, BaseFormView):
     access_mode = ACCESS.STUDENT
     template_name = "exercise/student_module_goal.html"
-    form_class = StudentModuleGoalForm
 
     @csrf_exempt
     def save_points_goal(request):
@@ -652,8 +649,4 @@ class StudentModuleGoalView(CourseModuleBaseView, BaseFormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         return kwargs
-
-    def form_valid(self, form):
-        form.save()
-        messages.success(self.request, _('MODULE_GOAL_UPDATED'))
-        return super().form_valid(form)
+    

@@ -943,14 +943,12 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             elif entry.submission_count > 0:
                 self.confirmable_children = True
 
-        def update_personalized_points():
+        def _update_personalized_points():
             print("Called update_personalized_points")
             try:
                 self.personalized_points_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id).personalized_points_goal_percentage
                 self.personalized_points_module_goal_points = ((self.personalized_points_module_goal*0.01) * self.max_points)
-                print("Module Goal: " + str(self.personalized_points_module_goal))
             except StudentModuleGoal.DoesNotExist:
-                print("Module Goal: None")
                 self.personalized_points_module_goal = None
 
         def add_points(children):
@@ -961,8 +959,7 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
                 add_points(entry.children)
 
         add_points(self.children)
-        print("Called add_points")
-        update_personalized_points()
+        _update_personalized_points()
         self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
         self._passed = self._passed and self._points >= self.points_to_pass
 

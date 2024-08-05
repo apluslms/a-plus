@@ -162,12 +162,3 @@ class EnrollStudentsForm(forms.Form):
                 required=False,
                 label=_('LABEL_ENROLL_FROM_SIS'),
             )
-
-class StudentModuleGoalForm(forms.ModelForm):
-    student = forms.ModelChoiceField(queryset=UserProfile.objects.all())
-    module = forms.ModelChoiceField(queryset=CourseModule.objects.all())
-    personalized_points_goal_percentage = forms.IntegerField(initial=100)
-
-    class Meta:
-        model = StudentModuleGoal
-        fields = ['student', 'module', 'personalized_points_goal_percentage']
