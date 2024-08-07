@@ -10,7 +10,7 @@ from django.db.models import Count
 from aplus.api import api_reverse
 from exercise.models import SubmissionDraft
 from lib.fields import UsersSearchSelectField
-from .models import CourseModule, Enrollment, StudentGroup, StudentModuleGoal
+from .models import Enrollment, StudentGroup
 from userprofile.models import UserProfile
 
 

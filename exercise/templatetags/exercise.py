@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseInstance, CourseModule, StudentModuleGoal
+from course.models import CourseInstance, CourseModule
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
@@ -53,7 +53,7 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
-        
+
     context = context.flatten()
     context.update({
         'modules': points.modules_flatted(),
@@ -65,12 +65,22 @@ def _get_toc(context, student=None):
 
 
 @register.simple_tag
-def get_goal(module, student):
-    try:
-        goal = StudentModuleGoal.objects.get(module_id=module, student_id=student)
-        return goal
-    except StudentModuleGoal.DoesNotExist:
-        return None
+def get_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.points
+
+
+@register.simple_tag
+def get_max_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.max_points
+
 
 def _is_accessible(context, entry, t):
     if t and t > _prepare_now(context):
@@ -118,7 +128,6 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
             .order_by()
         )
         values['exercise_submitter_counts'] = {row['submissions__exercise_id']: row['count'] for row in counts}
-    #print("StudentModuleGoalObjects", StudentModuleGoal.objects.all())
     return values
 
 
@@ -265,8 +274,7 @@ def _points_data(
 def points_progress(
         obj: Union[CachedPointsData, ModulePoints, CategoryPoints],
         ) -> Dict[str, Any]:
-    data = _points_data(obj, None)
-    return data
+    return _points_data(obj, None)
 
 
 @register.inclusion_tag("exercise/_points_badge.html")

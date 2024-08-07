@@ -1486,7 +1486,7 @@ class StudentModuleGoal(models.Model):
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     module = models.ForeignKey(CourseModule, on_delete=models.CASCADE)
     personalized_points_goal_percentage = models.FloatField(default=100.0)
-
+    personalized_points_goal_points = models.IntegerField(default=0)
 
 class LearningObjectCategory(models.Model):
     """

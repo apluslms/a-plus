@@ -747,6 +747,41 @@ msgstr "myöhästymissakko"
 msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, esim. 0,1 = 10%"
 
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL"
+msgstr "Pistetavoite"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL_TOOLTIP"
+msgstr "Aseta henkilökohtainen pistetavoite tälle moduulille. Tavoite näkyy vain sinulle. Kun tavoite on saavutettu, pistepalkki vaihtaa värin siniseksi."
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_TITLE"
+msgstr "Aseta pistetavoite moduulille"
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "LABEL_POINTS_GOAL_INPUT"
+msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/_user_results.html
+msgid "REQUIRED_POINTS"
+msgstr "Vaaditut pisteet"
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
+msgstr "Pistetavoite asetettu onnistuneesti"
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
+msgstr "Pistetavoitteen asettaminen epäonnistui"
+
+msgid "PERSONALIZED_POINTS_GOAL"
+msgstr "Pistetavoite"
+
+msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
+msgstr "Pistetavoite ei voi olla vähemmän kuin läpipääsyyn vaaditut pisteet"
+
 #: course/models.py
 msgid "LABEL_MODEL_ANSWER"
 msgstr "esimerkkiratkaisu"
@@ -4091,7 +4126,7 @@ msgstr "Pisteet"
 
 #: exercise/templates/exercise/_points_progress.html
 msgid "POINTS_TO_PASS"
-msgstr "Läpäisyyn vaadittavat pisteet"
+msgstr "Vaaditut pisteet"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMISSION_INFO"
@@ -4443,7 +4478,7 @@ msgstr "Aloita uudelleenarviointi"
 
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE"
-msgstr "Lähetä arvosteltavaksi uudelleen"
+msgstr "Lähetä arvosteltavaksi uudelleen"#: exercise/templates/exercise/_user_results.html
 
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE_DESCRIPTION"

@@ -82,12 +82,11 @@ urlpatterns = [
     re_path(EDIT_URL_PREFIX + r'results/$',
         staff_views.AllResultsView.as_view(),
         name="all-results"),
-    re_path(MODULE_URL_PREFIX + r'student_module_goal/$',
-        views.StudentModuleGoalView.as_view(),
-        name="student_module_goal"),
-    re_path(r'save_points_goal/$',
-        views.StudentModuleGoalView.save_points_goal,
-        name="save_points_goal"),
+
+    re_path(MODULE_URL_PREFIX + r'save_points_goal_form/$',
+        views.StudentModuleGoalFormView.as_view(),
+        name="save_points_goal_form_view"),
+
     re_path(EDIT_URL_PREFIX + r'analytics/$',
         staff_views.AnalyticsView.as_view(),
         name="analytics"),

@@ -943,13 +943,12 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             elif entry.submission_count > 0:
                 self.confirmable_children = True
 
-        def _update_personalized_points():
-            print("Called update_personalized_points")
-            try:
-                self.personalized_points_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id).personalized_points_goal_percentage
-                self.personalized_points_module_goal_points = ((self.personalized_points_module_goal*0.01) * self.max_points)
-            except StudentModuleGoal.DoesNotExist:
-                self.personalized_points_module_goal = None
+        try:
+            student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id)
+            self.personalized_points_module_goal = student_module_goal.personalized_points_goal_percentage
+            self.personalized_points_module_goal_points = student_module_goal.personalized_points_goal_points
+        except StudentModuleGoal.DoesNotExist:
+            pass
 
         def add_points(children):
             for entry in children:
@@ -959,7 +958,6 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
                 add_points(entry.children)
 
         add_points(self.children)
-        _update_personalized_points()
         self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
         self._passed = self._passed and self._points >= self.points_to_pass
 
@@ -977,9 +975,6 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             ModuleEntryBase: [self._params[:1]],
             LearningObjectPoints: [proxy._params for proxy in self.children],
         }
-    
-    def update_personalized_points(self):
-        self._generate_data()
 
 
 CachedPointsDataType = TypeVar("CachedPointsDataType", bound="CachedPointsData")

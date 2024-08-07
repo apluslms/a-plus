@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from difflib import ndiff
 from django.contrib import messages
+from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect
@@ -16,11 +17,12 @@ from django.db import DatabaseError
 from authorization.permissions import ACCESS
 from course.models import CourseModule, StudentModuleGoal, SubmissionTag
 from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView, EnrollableViewMixin
+from exercise.forms import StudentModuleGoalForm
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
-from .cache.points import CachedPoints, ExercisePoints, ModulePoints
+from .cache.points import CachedPoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission, SubmissionTagging
@@ -607,46 +609,54 @@ class SubmissionDraftView(SubmissionDraftBaseView):
         return HttpResponse()
 
 
-class StudentModuleGoalView(CourseModuleBaseView, BaseFormView):
+class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
     access_mode = ACCESS.STUDENT
-    template_name = "exercise/student_module_goal.html"
+    form_class = StudentModuleGoalForm
+    template_name = "exercise/personalized_points_goal_modal.html"
+    success_url = '/'
 
-    @csrf_exempt
-    def save_points_goal(request):
-        if request.method == 'POST':
-            points_goal: float = request.POST.get('points_goal')
-            user_id = request.POST.get('student')
-            module_id = request.POST.get('module-id')
-            
-            student = UserProfile.objects.get(id=user_id)
-            module = CourseModule.objects.get(id=module_id)
-            
-            cached_points = CachedPoints(module.course_instance, student, True)
-            cached_module, _, _, _ = cached_points.find(module)
-            print(cached_module.max_points)
-            # Points goal can either be an integer or percentage. If the the points goal is given as a percentage, give it to the points goal directly as an int
-            # Otherwise calculate the points goal by taking the integer and calculating how much that is of the module's max points
-            if '%' in points_goal:
-                points_goal = float(points_goal.replace('%', ''))
-            elif cached_module.max_points > 0:
-                points_goal = float(float(points_goal) / float(cached_module.max_points)) * 100.0
-            elif cached_module.max_points == 0:
-                points_goal = 0
-            print("POINTS GOAL SAVING", points_goal)
-            if points_goal > 100:
-                points_goal = 100
-            elif points_goal < 0:
-                points_goal = 0
-            StudentModuleGoal.objects.update_or_create(student=student, module=module, defaults={'personalized_points_goal_percentage': points_goal * 1.0})
-            print("STUDENT MODULE GOAL VALUE: ", StudentModuleGoal.objects.get(student=user_id, module=module_id).personalized_points_goal_percentage)
-            cached_points.invalidate(module.course_instance, student)
-            return redirect(request.META.get('HTTP_REFERER', '/'))
-        return HttpResponse('Invalid request', status=400)
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        user_id = request.user.id
+        module_slug = self.kwargs['module_slug']
+        points_goal = request.POST.get('personalized_points_goal_input')
 
-    def get_common_objects(self):
-        super().get_common_objects()
-        
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        return kwargs
-    
+        if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
+            return JsonResponse({"error": "not_a_number"}, status=400)
+
+        # Get the StudentModuleGoal object for the student and module
+        student = UserProfile.objects.get(id=user_id)
+        module = CourseModule.objects.get(url=module_slug)
+        cached_points = CachedPoints(module.course_instance, student, True)
+        cached_module, _, _, _ = cached_points.find(module)
+        # Points goal can either be an integer or percentage. If the the points goal is given as a percentage,
+        # give it to the points goal directly. Otherwise calculate the points goal by taking the integer
+        # and calculating how much that is of the module's max points
+        if '%' in points_goal:
+            points_goal = float(points_goal.replace('%', ''))
+        elif cached_module.max_points > 0:
+            points_goal = float(float(points_goal) / float(cached_module.max_points)) * 100.0
+
+        points_goal = max(0, min(points_goal, 100))
+
+        StudentModuleGoal.objects.update_or_create(
+            student=student,
+            module=module,
+            defaults={'personalized_points_goal_percentage': points_goal * 1.0,
+                      'personalized_points_goal_points': (points_goal * 0.01) * cached_module.max_points})
+
+        cached_points.invalidate(module.course_instance, student)
+
+        points = StudentModuleGoal.objects.get(student=user_id,
+                                               module=module.id).personalized_points_goal_points
+        percentage = StudentModuleGoal.objects.get(student=user_id,
+                                                    module=module.id).personalized_points_goal_percentage
+
+        if points < module.points_to_pass:
+            return JsonResponse({"error": "less_than_required"}, status=400)
+
+        response_data = {
+            "personalized_points_goal_points": points,
+            "personalized_points_goal_percentage": percentage,
+        }
+
+        return JsonResponse(response_data)
