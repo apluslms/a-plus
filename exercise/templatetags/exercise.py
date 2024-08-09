@@ -29,7 +29,6 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 
 register = template.Library()
 
-
 def _prepare_now(context):
     if 'now' not in context:
         context['now'] = timezone.now()
@@ -54,6 +53,7 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
+
     context = context.flatten()
     context.update({
         'modules': points.modules_flatted(),
@@ -62,6 +62,24 @@ def _get_toc(context, student=None):
         'is_course_staff': context.get('is_course_staff', False),
     })
     return context
+
+
+@register.simple_tag
+def get_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.points
+
+
+@register.simple_tag
+def get_max_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.max_points
 
 
 def _is_accessible(context, entry, t):
@@ -215,6 +233,8 @@ def _points_data(
         'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
+        'personalized_points_module_goal': getattr(obj, 'personalized_points_module_goal', None),
+        'personalized_points_module_goal_points': getattr(obj, 'personalized_points_module_goal_points', None),
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 
