@@ -39,6 +39,10 @@ class Notification(UrlMixin, models.Model):
         verbose_name=_('LABEL_SEEN'),
         default=False,
     )
+    regrade_when_seen = models.BooleanField(
+        verbose_name=_('LABEL_REGRADE_WHEN_SEEN'),
+        default=False,
+    )
     course_instance = models.ForeignKey(CourseInstance,
         verbose_name=_('LABEL_COURSE_INSTANCE'),
         on_delete=models.CASCADE,
@@ -62,7 +66,7 @@ class Notification(UrlMixin, models.Model):
         )
 
     @classmethod
-    def send(cls, sender: UserProfile, submission: Submission) -> None:
+    def send(cls, sender: UserProfile, submission: Submission, regrade_when_seen: bool = False) -> None:
         for recipient in submission.submitters.all():
             if not Notification.objects.filter(
                 submission=submission,
@@ -74,6 +78,7 @@ class Notification(UrlMixin, models.Model):
                     recipient=recipient,
                     course_instance=submission.exercise.course_instance,
                     submission=submission,
+                    regrade_when_seen=regrade_when_seen
                 )
                 notification.save()
 
