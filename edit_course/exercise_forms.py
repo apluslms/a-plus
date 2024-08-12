@@ -96,12 +96,25 @@ class RevealRuleForm(FieldsetModelForm):
 
     class Meta:
         model = RevealRule
-        fields = ['trigger', 'delay_minutes', 'time', 'currently_revealed']
+        fields = ['trigger', 'delay_minutes', 'time', 'currently_revealed', 'show_zero_points_immediately']
         widgets = {'time': DateTimeLocalInput}
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, is_submission_feedback: bool = False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields['trigger'].widget.attrs['data-trigger'] = True
+
+        if is_submission_feedback:
+            self.fields['show_zero_points_immediately'].widget.attrs['data-visible-triggers'] = [
+                RevealRule.TRIGGER.DEADLINE.value,
+                RevealRule.TRIGGER.DEADLINE_ALL.value,
+                RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS.value,
+                RevealRule.TRIGGER.TIME.value,
+                RevealRule.TRIGGER.MANUAL.value,
+                RevealRule.TRIGGER.COMPLETION.value,
+            ]
+        else:
+            self.fields['show_zero_points_immediately'].widget.attrs['data-visible-triggers'] = [
+            ]
         # Visibility rules for the form fields. Each of the following fields is
         # only visible when one of their specified values is selected from the
         # trigger dropdown. See edit_model.html.
@@ -147,11 +160,13 @@ class BaseExerciseForm(LearningObjectMixin, FieldsetModelForm):
             data=kwargs.get('data'),
             instance=self.instance.active_submission_feedback_reveal_rule,
             prefix='submission_feedback',
+            is_submission_feedback=True,
         )
         self.model_solutions_form = RevealRuleForm(
             data=kwargs.get('data'),
             instance=self.instance.active_model_solutions_reveal_rule,
             prefix='model_solutions',
+            is_submission_feedback=False,
         )
 
     def get_fieldsets(self) -> List[Dict[str, Any]]:

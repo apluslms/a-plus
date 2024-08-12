@@ -2593,6 +2593,10 @@ msgstr "Kurssikerrat"
 msgid "HIDDEN_lowercase"
 msgstr "piilotettu"
 
+#: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Show feedback immediately if the submission gets 0 points"
+
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
 msgstr "Luo uusi kurssikerta"

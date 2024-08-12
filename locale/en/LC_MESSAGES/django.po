@@ -3702,6 +3702,10 @@ msgid "LABEL_CURRENTLY_REVEALED"
 msgstr "Currently revealed"
 
 #: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Show feedback immediately if the submission gets 0 points"
+
+#: exercise/reveal_models.py
 msgid "MODEL_NAME_REVEAL_RULE"
 msgstr "Reveal rule"
 
