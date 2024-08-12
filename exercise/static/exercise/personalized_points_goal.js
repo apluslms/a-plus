@@ -37,7 +37,7 @@ $(document).ready(function() {
 
                 let spanElement = doc.querySelector('span.personalized-points-text');
                 // If the span element does not exist, create it
-                if (spanElement.length === 0) {
+                if (spanElement == null) {
                     spanElement = doc.createElement('span');
                     spanElement.className = 'personalized-points-text text-nowrap';
                     doc.body.appendChild(spanElement);
