@@ -621,26 +621,24 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         points_goal = request.POST.get('personalized_points_goal_input')
         delete = request.POST.get('delete')
 
-        if delete:
-            student = UserProfile.objects.get(id=user_id)
-            module = CourseModule.objects.get(url=module_slug)
-            try:
-                StudentModuleGoal.objects.get(student=user_id, module=module.id).delete()
-                cached_points = CachedPoints(module.course_instance, student, True)
-                cached_module, _, _, _ = cached_points.find(module)
-                cached_points.invalidate(module.course_instance, student)
-                return JsonResponse({"success": "deleted"}, status=200)
-            except Exception as e:
-                return JsonResponse({"error": e}, status=404)
-
-        if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
-            return JsonResponse({"error": "not_a_number"}, status=400)
-
-        # Get the StudentModuleGoal object for the student and module
         student = UserProfile.objects.get(id=user_id)
         module = CourseModule.objects.get(url=module_slug)
         cached_points = CachedPoints(module.course_instance, student, True)
         cached_module, _, _, _ = cached_points.find(module)
+
+        if delete:
+            try:
+                StudentModuleGoal.objects.get(student=user_id, module=module.id).delete()
+                cached_points.invalidate(module.course_instance, student)
+                return JsonResponse({"success": "deleted"}, status=200)
+            except StudentModuleGoal.DoesNotExist:
+                return JsonResponse({'error': 'Not found'}, status=404)
+            except Exception:
+                return JsonResponse({'error': 'Internal server error'}, status=500)
+
+        if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
+            return JsonResponse({"error": "not_a_number"}, status=400)
+
         # Points goal can either be an integer or percentage. If the the points goal is given as a percentage,
         # give it to the points goal directly. Otherwise calculate the points goal by taking the integer
         # and calculating how much that is of the module's max points
@@ -667,9 +665,7 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         if points < module.points_to_pass:
             return JsonResponse({"error": "less_than_required"}, status=400)
 
-        response_data = {
+        return JsonResponse({
             "personalized_points_goal_points": points,
             "personalized_points_goal_percentage": percentage,
-        }
-
-        return JsonResponse(response_data)
+        })

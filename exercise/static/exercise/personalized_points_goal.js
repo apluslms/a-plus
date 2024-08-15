@@ -57,7 +57,7 @@ $(document).ready(function() {
                     spanElement = doc.createElement('span');
                     spanElement.className = 'personalized-points-full-text text-nowrap';
                     doc.body.appendChild(spanElement);
-                    spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + response.personalized_points_goal_points;
+                    spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + "<span class=\"personalized-points-text text-nowrap\">" + response.personalized_points_goal_points + "</span>";
                 }
                 else {
                     spanElement.textContent = response.personalized_points_goal_points;
@@ -127,7 +127,7 @@ $(document).ready(function() {
 
                 // Update progress-bar style
                 $progressDiv.find('.progress-bar').removeClass('progress-bar-primary');
-
+                
                 $('#remove-success-alert').show();
                 setTimeout(function() {
                     $('#remove-success-alert').hide();
