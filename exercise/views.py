@@ -619,6 +619,19 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         user_id = request.user.id
         module_slug = self.kwargs['module_slug']
         points_goal = request.POST.get('personalized_points_goal_input')
+        delete = request.POST.get('delete')
+
+        if delete:
+            student = UserProfile.objects.get(id=user_id)
+            module = CourseModule.objects.get(url=module_slug)
+            try:
+                StudentModuleGoal.objects.get(student=user_id, module=module.id).delete()
+                cached_points = CachedPoints(module.course_instance, student, True)
+                cached_module, _, _, _ = cached_points.find(module)
+                cached_points.invalidate(module.course_instance, student)
+                return JsonResponse({"success": "deleted"}, status=200)
+            except Exception as e:
+                return JsonResponse({"error": e}, status=404)
 
         if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
             return JsonResponse({"error": "not_a_number"}, status=400)

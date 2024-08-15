@@ -9,7 +9,7 @@
 <div class="progress" data-toggle="tooltip" data-html="true" data-placement="bottom"
     title="{% translate 'POINTS' %}: &lt;span class='text-nowrap'&gt;{{ formatted_points }} / {{ max }}&lt;/span&gt;
         {% if required %} &lt;br&gt; {% translate 'POINTS_TO_PASS' %}: &lt;span class='text-nowrap'&gt;{{ required }}&lt;/span&gt; {% endif %}
-        {% if personalized_points_module_goal %} &lt;br&gt;{% translate 'PERSONALIZED_POINTS_GOAL' %}: &lt;span class='personalized-points-text text-nowrap'&gt;{{ personalized_points_module_goal_points|floatformat:"0" }}&lt;/span&gt;{% endif %}"
+        {% if personalized_points_module_goal %} &lt;br&gt;&lt;span class='personalized-points-full-text text-nowrap'&gt;{% translate 'PERSONALIZED_POINTS_GOAL' %}: &lt;span class='personalized-points-text text-nowrap'&gt;&lt;/span&gt;{{ personalized_points_module_goal_points|floatformat:"0" }}&lt;/span&gt;{% endif %}"
 >
     <div class="progress-bar progress-bar-striped progress-bar-{% if full_score %}success{% elif percentage >= personalized_points_module_goal %}primary{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"

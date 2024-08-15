@@ -1,8 +1,24 @@
 $(document).ready(function() {
     const $pointsGoalForm = $('#pointsGoalForm');
-    document.getElementById('id_personalized_points_goal_input').focus();
+    const $inputField = $('#id_personalized_points_goal_input');
+    $inputField.focus();
     $pointsGoalForm.on('submit', function(event) {
         event.preventDefault();
+
+        // Validate input
+        const inputValue = $inputField.val().trim();
+
+        const isNumber = !isNaN(inputValue) && inputValue !== '';
+        const isPercentage = inputValue.endsWith('%') && !isNaN(inputValue.slice(0, -1));
+
+        if (!isNumber && !isPercentage) {
+            $('#validation-alert').show();
+            setTimeout(function() {
+                $('#validation-errors-alert').hide();
+            }, 5000);
+            return;
+        }
+
         $.ajax({
             type: 'POST',
             url: $pointsGoalForm.attr('action'),
@@ -39,7 +55,7 @@ $(document).ready(function() {
                 // If the span element does not exist, create it
                 if (spanElement == null) {
                     spanElement = doc.createElement('span');
-                    spanElement.className = 'personalized-points-text text-nowrap';
+                    spanElement.className = 'personalized-points-full-text text-nowrap';
                     doc.body.appendChild(spanElement);
                     spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + response.personalized_points_goal_points;
                 }
@@ -79,6 +95,51 @@ $(document).ready(function() {
                         $('#warning-alert').hide();
                     }, 5000);	
                 }
+            }
+        });
+    });
+    $('#deletePointsGoalForm').on('submit', function(event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize() + '&delete=true',
+            success: function(response) {
+                // Update page dynamically
+                const $progressElement = $('#progress-' + $pointsGoalForm.data('module-url'));
+                const $progressDiv = $progressElement.find('.progress');
+
+                // Remove goal indicator
+                let $goalPointsElement = $progressElement.find('.goal-points');
+                $goalPointsElement.removeClass('goal-points');
+
+                // Update tooltip
+                const tooltipTitle = $progressDiv.attr('data-original-title');
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(tooltipTitle, 'text/html');
+                    
+                let spanElement = doc.querySelector('span.personalized-points-full-text');
+                spanElement.remove();
+
+                const updatedTooltipTitle = doc.body.innerHTML;
+                $progressDiv.attr('data-original-title', updatedTooltipTitle);
+
+                // Update progress-bar style
+                $progressDiv.find('.progress-bar').removeClass('progress-bar-primary');
+
+                $('#remove-success-alert').show();
+                setTimeout(function() {
+                    $('#remove-success-alert').hide();
+                }, 5000);
+
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                $('#remove-warning-alert').show();
+                setTimeout(function() {
+                    $('#remove-warning-alert').hide();
+                }, 5000);
             }
         });
     });

@@ -15,10 +15,19 @@
 		<div class="alert alert-warning" id="warning-alert" style="display: none;">
 			{% translate "PERSONALIZED_POINTS_MODAL_FAILURE" %}
 		</div>
+		<div class="alert alert-warning" id="validation-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_NOT_NUMBER" %}
+		</div>
 		<div class="alert alert-danger" id="danger-alert" style="display: none;">
 			{% translate "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED" %}
 		</div>
-		<h4 class="title" id="pointsGoalModalLabel">{% translate "PERSONALIZED_POINTS_MODAL_TITLE" %} {{ module.name|parse_localization}}</h4>
+		<div class="alert alert-success" id="remove-success-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS" %}
+		</div>
+		<div class="alert alert-warning" id="remove-warning-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE" %}
+		</div>
+		<h4 class="title" id="pointsGoalModalLabel">{% translate "PERSONALIZED_POINTS_MODAL_TITLE" %} "{{ module.name|parse_localization}}"</h4>
 	</div>
 	<div class="modal-body">
 		<form id="pointsGoalForm" method="POST"
@@ -38,8 +47,19 @@
 				<p style="margin-top: 5px;">{% translate "POINTS_TO_PASS" %}: <span id="required-points">{{ module.points_to_pass }}</span></p>
 				{% endif %}
 			</div>
-			<div>
-				<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SAVE" %}</button>
-			</div>
+			<div style="display: flex;">
+				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px;">{% translate "SAVE" %}</button>
 		</form>
+				<form id="deletePointsGoalForm" method="POST"
+				action="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
+				data-module-url="{{module.url|lower}}"
+				data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+				data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
+				data-points="{{ points }}"
+				>
+					{% csrf_token %}
+					<button type="submit" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;">{% translate "REMOVE" %}</button>
+				</form>
+			</div>
+
 </div>

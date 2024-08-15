@@ -764,11 +764,6 @@ msgid "LABEL_POINTS_GOAL_INPUT"
 msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
 
 #: exercise/templates/exercise/personalized_points_goal_modal.html
-#: exercise/templates/exercise/_user_results.html
-msgid "REQUIRED_POINTS"
-msgstr "Vaaditut pisteet"
-
-#: exercise/templates/exercise/personalized_points_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
 msgstr "Pistetavoite asetettu onnistuneesti"
 
@@ -776,11 +771,21 @@ msgstr "Pistetavoite asetettu onnistuneesti"
 msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
 msgstr "Pistetavoitteen asettaminen epäonnistui"
 
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr "Pistetavoite tulee antaa joko prosentteina tai pisteinä (esim. 50% or 150)"
+
 msgid "PERSONALIZED_POINTS_GOAL"
 msgstr "Pistetavoite"
 
 msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
-msgstr "Pistetavoite ei voi olla vähemmän kuin läpipääsyyn vaaditut pisteet"
+msgstr "Pistetavoite ei voi olla vähemmän kuin moduulin läpipääsyyn vaaditut pisteet"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Pistetavoite poistettu onnistuneesti"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Pistetavoitteen poistaminen epäonnistui"
 
 #: course/models.py
 msgid "LABEL_MODEL_ANSWER"
@@ -4478,7 +4483,7 @@ msgstr "Aloita uudelleenarviointi"
 
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE"
-msgstr "Lähetä arvosteltavaksi uudelleen"#: exercise/templates/exercise/_user_results.html
+msgstr "Lähetä arvosteltavaksi uudelleen"
 
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE_DESCRIPTION"

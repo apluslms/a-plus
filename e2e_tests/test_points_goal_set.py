@@ -1,5 +1,7 @@
 from playwright.sync_api import Page, expect
+
 from e2e_tests.helpers import login
+
 
 def test_points_goal_set(page: Page) -> None:
     login(page, "student", "student")

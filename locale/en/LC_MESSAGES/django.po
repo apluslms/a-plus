@@ -1259,33 +1259,40 @@ msgstr "Points goal"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "POINTS_GOAL_TOOLTIP"
-msgstr "Set a personal points goal for this module. This goal is only visible to you. Once the goal has been reached, the points progress bar changes color to blue."
+msgstr "Set a personal points goal for this module. This goal is only visible to you. Once the goal has been reached, the points progress bar changes colour to blue."
 
-#: exercise/templates/exercise/save_personalized_points_goal.html
+#: exercise/templates/exercise/personalized_points_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_TITLE"
 msgstr "Set personalized points goal for module"
 
-#: exercise/templates/exercise/save_personalized_points_goal.html
+#: exercise/templates/exercise/personalized_points_goal_modal.html
 msgid "LABEL_POINTS_GOAL_INPUT"
-msgstr "Input personalized goal as percentage or points (e.g., 50% or 150)"
+msgstr "Input personalized goal as a percentage or points (e.g., 50% or 150)"
 
-#: exercise/templates/exercise/save_personalized_points_goal.html
-msgid "REQUIRED_POINTS"
-msgstr "Points required to pass for module"
-
-#: exercise/templates/exercise/save_personalized_points_goal.html
+#: exercise/templates/exercise/personalized_points_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
 msgstr "Succesfully set personalized points goal"
 
-#: exercise/templates/exercise/save_personalized_points_goal.html
+#: exercise/templates/exercise/personalized_points_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
 msgstr "Failed to set personalized points goal"
+
+#: exercise/templates/exercise/personalized_points_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr "Input needs to be a percentage or a number (e.g., 50% or 150)"
 
 msgid "PERSONALIZED_POINTS_GOAL"
 msgstr "Points goal"
 
 msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
-msgstr "You cannot set the personalized points goal to be less than the points required to pass"
+msgstr "You cannot set the personalized points goal to be less than the points required to pass the module"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Succesfully removed personalized points goal"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Failed to remove personalized points goal"
+
 
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "UNTAG_MULTIPLE_USERS"
