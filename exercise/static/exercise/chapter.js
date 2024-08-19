@@ -173,7 +173,7 @@
     ajax_attr: "data-aplus-ajax",
     autosave_attr: "data-aplus-autosave",
     disable_duplicate_check_attr: "data-aplus-disable-duplicate-check",
-    message_selector: ".progress-bar",
+    message_selector: ".aplus-progress-bar",
     content_element: '<div class="exercise-content"></div>',
     content_selector: '.exercise-content',
     exercise_selector: '#exercise-all',
@@ -911,9 +911,9 @@
       this.loader.show().find(this.settings.message_selector)
         .text(this.chapter.messages[messageType]);
       if (messageType == "error") {
-        this.loader.removeClass("active").addClass("progress-bar-danger");
+        this.loader.removeClass("active").addClass("aplus-progress-bar-danger");
       } else {
-        this.loader.addClass("active").removeClass("progress-bar-danger");
+        this.loader.addClass("active").removeClass("aplus-progress-bar-danger");
       }
     },
 
