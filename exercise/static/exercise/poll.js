@@ -10,7 +10,7 @@
     poll_url_attr: "data-poll-url",
     ready_url_attr: "data-ready-url",
     poll_delays: [2,3,5,5,5,10,10,10,10],
-    message_selector: ".progress-bar",
+    message_selector: ".aplus-progress-bar",
     message_attr: {
       error: "data-msg-error",
       timeout: "data-msg-timeout"
@@ -96,7 +96,7 @@
           $.removeData(this.element[0], "plugin_" + pluginName);
         }
       } else if (messageType == "error") {
-        this.element.addClass("progress-bar-danger");
+        this.element.addClass("aplus-progress-bar-danger");
       }
     },
   });
