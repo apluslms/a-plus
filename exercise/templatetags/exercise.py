@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseInstance, CourseModule
+from course.models import CourseInstance, CourseModule, StudentModuleGoal
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
@@ -80,6 +80,16 @@ def get_max_module_points(module: int, student: int) -> int:
     cached_points = CachedPoints(module.course_instance, student, True)
     cached_module, _, _, _ = cached_points.find(module)
     return cached_module.max_points
+
+
+@register.simple_tag
+def get_points_goal(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    try:
+        return StudentModuleGoal.objects.get(module=module, student=student).personalized_points_goal_points
+    except StudentModuleGoal.DoesNotExist:
+        return False
 
 
 def _is_accessible(context, entry, t):

@@ -1,6 +1,9 @@
 $(document).ready(function() {
     const $pointsGoalForm = $('#pointsGoalForm');
     const $inputField = $('#id_personalized_points_goal_input');
+    // If points-goal is a number then input it into the field
+    if (typeof $pointsGoalForm.data('points-goal') === 'number') {
+        $inputField.val($pointsGoalForm.data('points-goal'))};
     $inputField.focus();
     $pointsGoalForm.on('submit', function(event) {
         event.preventDefault();
@@ -14,7 +17,7 @@ $(document).ready(function() {
         if (!isNumber && !isPercentage) {
             $('#validation-alert').show();
             setTimeout(function() {
-                $('#validation-errors-alert').hide();
+                $('#validation-alert').hide();
             }, 5000);
             return;
         }

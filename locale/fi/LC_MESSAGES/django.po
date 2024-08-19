@@ -779,7 +779,7 @@ msgid "PERSONALIZED_POINTS_GOAL"
 msgstr "Pistetavoite"
 
 msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
-msgstr "Pistetavoite ei voi olla vähemmän kuin moduulin läpipääsyyn vaaditut pisteet"
+msgstr "Pistetavoite ei voi olla vähemmän kuin moduulin läpäisyyn vaaditut pisteet"
 
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
 msgstr "Pistetavoite poistettu onnistuneesti"

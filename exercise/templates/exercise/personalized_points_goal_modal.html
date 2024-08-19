@@ -6,6 +6,7 @@
 
 {% get_max_module_points module.id user.id as max_points %}
 {% get_module_points module.id user.id as points %}
+{% get_points_goal module.id user.id as points_goal %}
 
 <div class="content">
 	<div class="header">
@@ -36,6 +37,7 @@
 			data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
 			data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
 			data-points="{{ points }}"
+			data-points-goal={{ points_goal }}
 		>
 			{% csrf_token %}
 			<div class="form-group">
@@ -50,16 +52,19 @@
 			<div style="display: flex;">
 				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px;">{% translate "SAVE" %}</button>
 		</form>
-				<form id="deletePointsGoalForm" method="POST"
-				action="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
-				data-module-url="{{module.url|lower}}"
-				data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
-				data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
-				data-points="{{ points }}"
-				>
-					{% csrf_token %}
-					<button type="submit" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;">{% translate "REMOVE" %}</button>
-				</form>
+				{% if points_goal != False %}
+					<form id="deletePointsGoalForm" method="POST"
+					action="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
+					data-module-url="{{module.url|lower}}"
+					data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+					data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
+					data-points="{{ points }}"
+					data-points-goal={{ points_goal }}
+					>
+						{% csrf_token %}
+						<button type="submit" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;">{% translate "REMOVE" %}</button>
+					</form>
+				{% endif %}
 			</div>
 
 </div>
