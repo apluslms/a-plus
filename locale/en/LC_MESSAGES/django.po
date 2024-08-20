@@ -410,6 +410,14 @@ msgid "MODEL_NAME_USER_TAG_PLURAL"
 msgstr "user tags"
 
 #: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG"
+msgstr "submission tag"
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
+msgstr "submission tags"
+
+#: course/models.py
 msgid "MODEL_NAME_HARDCODED_USER_TAG"
 msgstr "hardcoded user tag"
 
@@ -925,8 +933,8 @@ msgstr "Begin by enrolling in a course."
 msgid "SKIP_COURSE_NAVIGATION"
 msgstr "Skip course navigation"
 
-#: course/templates/course/_course_menu.html
-#: userprofile/templates/userprofile/profile.html
+#: course/templates/course/_course_menu.html news/models.py
+#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
 msgid "LANGUAGE"
 msgstr "Language"
 
@@ -1117,6 +1125,10 @@ msgstr "Early access"
 msgid "COURSE_ARCHIVE"
 msgstr "Course archive"
 
+#: course/templates/course/course.html
+msgid "LEFT_OFF_REMINDER"
+msgstr "Continue where you left off"
+
 #: course/templates/course/course_base.html
 msgid "OPEN_SIDEBAR"
 msgstr "Open sidebar"
@@ -1274,6 +1286,9 @@ msgstr ""
 #: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/edit_model.html
 #: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_edit.html
@@ -1312,6 +1327,8 @@ msgstr "Enrol students in the course"
 #: deviations/templates/deviations/_remove_modal.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: external_services/templates/external_services/list_menu.html
@@ -1340,6 +1357,7 @@ msgstr "Created"
 
 #: course/templates/course/staff/group_edit.html
 #: course/templates/course/staff/groups.html
+#: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: external_services/templates/external_services/list_menu.html
@@ -1360,6 +1378,8 @@ msgstr "Edit group members"
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
 #: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
@@ -1382,10 +1402,6 @@ msgstr "Add new"
 #: course/templates/course/staff/participants.html
 msgid "FILTER_USERS_BY_TAG"
 msgstr "Filter users by tag"
-
-#: course/templates/course/staff/_assessment_panel.html
-msgid "FILTER_SUBMISSIONS_BY_TAG"
-msgstr "Filter submissions by tag"
 
 #: course/templates/course/staff/participants.html
 msgid "FILTER_USERS_BY_STATUS"
@@ -1450,19 +1466,9 @@ msgstr "Status"
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "TAGS"
 msgstr "Tags"
-
-#: edit_course/templates/edit_course/submissiontag_add.html
-#: edit_course/templates/edit_course/submissiontag_delete.html
-#: edit_course/templates/edit_course/submissiontag_edit.html
-#: edit_course/templates/edit_course/submissiontag_list.html
-msgid "SUBMISSION_TAGS"
-msgstr "Submission tags"
-
-#: edit_course/templates/edit_course/submissiontag_list.html
-msgid "NO_SUBMISSION_TAGS"
-msgstr "No submission tags"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1533,26 +1539,6 @@ msgstr "Assignment"
 #: deviations/forms.py
 msgid "LABEL_SUBMITTER_TAG"
 msgstr "Submitter tag"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS"
-msgstr "Submission tags"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAG"
-msgstr "Submission tag"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
-msgstr "Copy submission tags from this course instance."
-
-#: course/models.py
-msgid "MODEL_NAME_SUBMISSION_TAG"
-msgstr "submission tag"
-
-#: course/models.py
-msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
-msgstr "submission tags"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
@@ -1812,6 +1798,7 @@ msgstr "Grant time"
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
+#: news/templates/news/list.html
 msgid "SELECT"
 msgstr "Select"
 
@@ -2113,6 +2100,14 @@ msgstr "Student tags"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS_HELPTEXT"
 msgstr "Copy student tags from this course instance."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS"
+msgstr "Submission tags"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
+msgstr "Copy submission tags from this course instance."
 
 #: edit_course/course_forms.py
 msgid "LABEL_YEAR"
@@ -2754,6 +2749,14 @@ msgid "MENU"
 msgstr "Menu"
 
 #: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "SUBMISSION_TAGS"
+msgstr "Submission tags"
+
+#: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Batch assess"
 
@@ -2762,12 +2765,12 @@ msgid "EDIT_GITMANAGER"
 msgstr "Edit Git manager settings"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
-msgid "EDIT_GITMANAGER_DESCRIPTION"
-msgstr "This action will update the course instance settings on Git manager."
-
-#: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "OPEN_IN_GITMANAGER"
 msgstr "Open in Git manager"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER_DESCRIPTION"
+msgstr "This action will update the course instance settings on Git manager."
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "UPDATING_GITMANAGER"
@@ -2846,13 +2849,54 @@ msgstr ""
 "The %(model)s <strong>%(name)s</strong> is not empty. Contained assignments "
 "must be removed first."
 
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "ADD_NEW_SUBMISSION_TAG"
+msgstr "Add new submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG"
+msgstr "Remove submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION"
+msgstr "Remove submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_delete.html
+msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
+msgstr "Are you sure you want to remove the following submission tag?"
+
+#: edit_course/templates/edit_course/submissiontag_edit.html
+msgid "EDIT_SUBMISSION_TAG"
+msgstr "Edit submission tag"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "TAG"
+msgstr "Tag"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "SLUG"
+msgstr "Slug"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "DESCRIPTION"
+msgstr "Description"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "ACTIONS"
+msgstr "Actions"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "NO_SUBMISSION_TAGS"
+msgstr "No submission tags"
+
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_NEW_USER_TAG"
 msgstr "Add new user tag"
-
-#: edit_course/templates/edit_course/submissiontag_add.html
-msgid "ADD_NEW_SUBMISSION_TAG"
-msgstr "Add new submission tag"
 
 #: edit_course/templates/edit_course/usertag_add.html
 msgid "ADD_STUDENT_TAG"
@@ -2866,18 +2910,6 @@ msgstr "Remove user tag"
 msgid "REMOVE_USER_TAG_CONFIRMATION"
 msgstr "Confirm user tag removal"
 
-#: edit_course/templates/edit_course/submissiontag_delete.html
-msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION"
-msgstr "Remove submission tag"
-
-#: edit_course/templates/edit_course/submissiontag_delete.html
-msgid "REMOVE_SUBMISSION_TAG"
-msgstr "Remove submission tag"
-
-#: edit_course/templates/edit_course/submissiontag_delete.html
-msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
-msgstr "Are you sure you want to remove the following submission tag?"
-
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
 msgstr "Are you sure you want to remove following user tag?"
@@ -2885,10 +2917,6 @@ msgstr "Are you sure you want to remove following user tag?"
 #: edit_course/templates/edit_course/usertag_edit.html
 msgid "EDIT_STUDENT_TAG"
 msgstr "Edit student tag"
-
-#: edit_course/templates/edit_course/submissiontag_edit.html
-msgid "EDIT_SUBMISSION_TAG"
-msgstr "Edit submission tag"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ADD_NEW_STUDENT_TAG"
@@ -2899,24 +2927,8 @@ msgid "STUDENT_TAGS"
 msgstr "Student tags"
 
 #: edit_course/templates/edit_course/usertag_list.html
-msgid "TAG"
-msgstr "Tag"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "SLUG"
-msgstr "Slug"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "DESCRIPTION"
-msgstr "Description"
-
-#: edit_course/templates/edit_course/usertag_list.html
 msgid "VISIBLE_TO_STUDENTS"
 msgstr "Visible to students"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "ACTIONS"
-msgstr "Actions"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "TAG_STUDENTS"
@@ -2929,10 +2941,6 @@ msgstr "No student tags."
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "ADD_NEW_USER_TAGGING"
 msgstr "Add new user tagging"
-
-#: exercise/forms.py exercise/templates/exercise/staff/_assessment_panel.html
-msgid "ADD_TAGGING"
-msgstr "Add tagging"
 
 #: edit_course/views.py
 msgid "ERROR_EXERCISE_CATEGORY_MUST_EXIST_BEFORE_CREATEING_EXERCISES"
@@ -3867,6 +3875,10 @@ msgid "MODEL_NAME_SUBMISSION_PLURAL"
 msgstr "submissions"
 
 #: exercise/submission_models.py
+msgid "LABEL_SUBMISSION_TAG"
+msgstr "Submission tag"
+
+#: exercise/submission_models.py
 msgid "LABEL_ACTIVE"
 msgstr "active"
 
@@ -4335,6 +4347,10 @@ msgid "NOT_ASSESSED_MANUALLY"
 msgstr "Not assessed manually"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ADD_TAGGING"
+msgstr "Add tagging"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "APPROVE_SUBMISSION"
 msgstr "Approve submission"
 
@@ -4342,6 +4358,10 @@ msgstr "Approve submission"
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Submission details"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "COMPARE_TO_MODEL"
+msgstr "Compare to model answer"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
@@ -4498,6 +4518,14 @@ msgid "GROUP_BY_SUBMITTER"
 msgstr "Group by submitter"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Filter submissions by tag"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GRADED"
+msgstr "graded"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Time"
@@ -4546,10 +4574,6 @@ msgstr "This submission has been assessed manually by course staff."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ASSESSED"
 msgstr "Assessed"
-
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "COMPARE_TO_MODEL"
-msgstr "Compare to model answer"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SHOW_ALL_SUBMISSIONS"
@@ -4685,12 +4709,12 @@ msgid "COMPARING_TO_NOT_FOUND"
 msgstr "The file you are attempting to compare to was not found."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#| msgid "COMPARING_TO_SUBMISSION -- %(cs)s"
+#, python-format
 msgid "COMPARING_TO_SUBMISSION -- %(cs_url)s, %(cs_date)s"
 msgstr "Comparing to submission <a href=\"%(cs_url)s\">%(cs_date)s</a>."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#| msgid "SHOW_ORIGINAL_SUBMISSION -- %(cs)s"
+#, python-format
 msgid "SHOW_ORIGINAL_SUBMISSION -- %(submission_url)s"
 msgstr "Show the <a href=\"%(submission_url)s\">original submission</a>."
 
@@ -5184,6 +5208,12 @@ msgid "MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTE
 msgstr ""
 "A menu label is required when there is no preconfigured service selected."
 
+#: external_services/models.py
+msgid "MENU_ITEM_ERROR_SCHEME_IN_MENU_URL_AND_PRECONFIGURED_SERVICE_SELECTED"
+msgstr ""
+"Menu item URL must not begin with a protocol if an external service is "
+"selected."
+
 #: external_services/permissions.py
 msgid "MENU_VISIBILTY_PERMISSION_DENIED_MSG"
 msgstr "Unfortunately, you are not permitted to use this link."
@@ -5500,10 +5530,6 @@ msgstr "news items"
 msgid "ADD_NEWS_ITEM"
 msgstr "Add news item"
 
-#: news/templates/news/edit.html news/templates/news/list.html
-msgid "REMOVE_SELECTED_NEWS_ITEMS"
-msgstr "Remove selected news items"
-
 #: news/templates/news/list.html
 msgid "NEWS"
 msgstr "News"
@@ -5519,6 +5545,10 @@ msgstr "Audience"
 #: news/templates/news/list.html
 msgid "TITLE"
 msgstr "Title"
+
+#: news/templates/news/list.html
+msgid "REMOVE_SELECTED_NEWS_ITEMS"
+msgstr "Remove selected news items"
 
 #: news/templates/news/user_news.html
 msgid "COURSE_NEWS"
@@ -5559,6 +5589,12 @@ msgstr "recipient"
 #: notification/models.py
 msgid "LABEL_SEEN"
 msgstr "seen"
+
+#: notification/models.py
+#, fuzzy
+#| msgid "LABEL_GRADE"
+msgid "LABEL_REGRADE_WHEN_SEEN"
+msgstr "grade"
 
 #: notification/models.py
 msgid "MODEL_NAME_NOTIFICATION"
@@ -5998,11 +6034,3 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "GRADED"
-msgstr "graded"
-
-#: course/templates/course/index.html
-msgid "LEFT_OFF_REMINDER"
-msgstr "Continue where you left off"
