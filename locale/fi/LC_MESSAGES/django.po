@@ -411,6 +411,14 @@ msgid "MODEL_NAME_USER_TAG_PLURAL"
 msgstr "käyttäjämerkinnät"
 
 #: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG"
+msgstr "palautusmerkintä"
+
+#: course/models.py
+msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
+msgstr "palautusmerkinnät"
+
+#: course/models.py
 msgid "MODEL_NAME_HARDCODED_USER_TAG"
 msgstr "kovakoodattu käyttäjämerkintä"
 
@@ -931,8 +939,8 @@ msgstr "Aloita ilmoittautumalla jollekin kurssille."
 msgid "SKIP_COURSE_NAVIGATION"
 msgstr "Ohita kurssivalikko"
 
-#: course/templates/course/_course_menu.html
-#: userprofile/templates/userprofile/profile.html
+#: course/templates/course/_course_menu.html news/models.py
+#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
 msgid "LANGUAGE"
 msgstr "Kieli"
 
@@ -1124,6 +1132,10 @@ msgstr "Aikainen pääsy"
 msgid "COURSE_ARCHIVE"
 msgstr "Kurssiarkisto"
 
+#: course/templates/course/course.html
+msgid "LEFT_OFF_REMINDER"
+msgstr ""
+
 #: course/templates/course/course_base.html
 msgid "OPEN_SIDEBAR"
 msgstr "Avaa sivupalkki"
@@ -1282,6 +1294,9 @@ msgstr ""
 #: deviations/templates/deviations/remove_submissions.html
 #: edit_course/templates/edit_course/edit_model.html
 #: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_edit.html
@@ -1320,6 +1335,8 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: deviations/templates/deviations/_remove_modal.html
 #: edit_course/templates/edit_course/edit_content.html
 #: edit_course/templates/edit_course/remove_model.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: external_services/templates/external_services/list_menu.html
@@ -1348,6 +1365,7 @@ msgstr "Luotu"
 
 #: course/templates/course/staff/group_edit.html
 #: course/templates/course/staff/groups.html
+#: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: external_services/templates/external_services/list_menu.html
@@ -1368,6 +1386,8 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/edit_index.html
 #: edit_course/templates/edit_course/edit_instance.html
 #: edit_course/templates/edit_course/edit_model.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
@@ -1389,10 +1409,6 @@ msgstr "Lisää"
 
 #: course/templates/course/staff/participants.html
 msgid "FILTER_USERS_BY_TAG"
-msgstr "Suodata listaa merkinnän perusteella"
-
-#: course/templates/course/staff/_assessment_panel.html
-msgid "FILTER_SUBMISSIONS_BY_TAG"
 msgstr "Suodata listaa merkinnän perusteella"
 
 #: course/templates/course/staff/participants.html
@@ -1458,19 +1474,9 @@ msgstr "Tila"
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertag_list.html
 #: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "TAGS"
 msgstr "Merkinnät"
-
-#: edit_course/templates/edit_course/submissiontag_add.html
-#: edit_course/templates/edit_course/submissiontag_delete.html
-#: edit_course/templates/edit_course/submissiontag_edit.html
-#: edit_course/templates/edit_course/submissiontag_list.html
-msgid "SUBMISSION_TAGS"
-msgstr "Palautusmerkinnät"
-
-#: edit_course/templates/edit_course/submissiontag_list.html
-msgid "NO_SUBMISSION_TAGS"
-msgstr "Ei palautusmerkintöjä"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1542,26 +1548,6 @@ msgstr "Tehtävä"
 #: deviations/forms.py
 msgid "LABEL_SUBMITTER_TAG"
 msgstr "Opiskelijamerkintä"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS"
-msgstr "Palautusmerkinnät"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAG"
-msgstr "Palautusmerkintä"
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
-msgstr "Kopioi palautusmerkinnät tästä kurssikerrasta."
-
-#: course/models.py
-msgid "MODEL_NAME_SUBMISSION_TAG"
-msgstr "palautusmerkintä"
-
-#: course/models.py
-msgid "MODEL_NAME_SUBMISSION_TAG_PLURAL"
-msgstr "palautusmerkinnät"
 
 #: deviations/forms.py deviations/models.py exercise/submission_models.py
 msgid "LABEL_SUBMITTER"
@@ -1823,6 +1809,7 @@ msgstr "Myöntämisaika"
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
+#: news/templates/news/list.html
 msgid "SELECT"
 msgstr "Valitse"
 
@@ -2125,6 +2112,14 @@ msgstr "Opiskelijamerkinnät"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS_HELPTEXT"
 msgstr "Kopioi opiskelijamerkinnät tästä kurssikerrasta."
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS"
+msgstr "Palautusmerkinnät"
+
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
+msgstr "Kopioi palautusmerkinnät tästä kurssikerrasta."
 
 #: edit_course/course_forms.py
 msgid "LABEL_YEAR"
@@ -2769,6 +2764,14 @@ msgid "MENU"
 msgstr "Valikko"
 
 #: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_delete.html
+#: edit_course/templates/edit_course/submissiontag_edit.html
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "SUBMISSION_TAGS"
+msgstr "Palautusmerkinnät"
+
+#: edit_course/templates/edit_course/edit_course_base.html
 msgid "BATCH_ASSESS"
 msgstr "Joukkoarviointi"
 
@@ -2777,12 +2780,12 @@ msgid "EDIT_GITMANAGER"
 msgstr "Muokkaa Git managerin asetuksia"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
-msgid "EDIT_GITMANAGER_DESCRIPTION"
-msgstr "Tämä toiminto päivittää kurssikerran asetuksia Git managerissa."
-
-#: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "OPEN_IN_GITMANAGER"
 msgstr "Avaa Git managerissa"
+
+#: edit_course/templates/edit_course/edit_gitmanager.html
+msgid "EDIT_GITMANAGER_DESCRIPTION"
+msgstr "Tämä toiminto päivittää kurssikerran asetuksia Git managerissa."
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "UPDATING_GITMANAGER"
@@ -2861,25 +2864,10 @@ msgstr ""
 "Tämä %(model)s <strong>%(name)s</strong> ei ole tyhjä. Sen sisältämät "
 "tehtävät pitää poistaa ensin."
 
-#: edit_course/templates/edit_course/usertag_add.html
-msgid "ADD_NEW_USER_TAG"
-msgstr "Lisää käyttäjämerkintä"
-
 #: edit_course/templates/edit_course/submissiontag_add.html
+#: edit_course/templates/edit_course/submissiontag_list.html
 msgid "ADD_NEW_SUBMISSION_TAG"
 msgstr "Lisää palautusmerkintä"
-
-#: edit_course/templates/edit_course/usertag_add.html
-msgid "ADD_STUDENT_TAG"
-msgstr "Lisää opiskelijamerkintä"
-
-#: edit_course/templates/edit_course/usertag_delete.html
-msgid "REMOVE_USER_TAG"
-msgstr "Poista käyttäjämerkintä"
-
-#: edit_course/templates/edit_course/usertag_delete.html
-msgid "REMOVE_USER_TAG_CONFIRMATION"
-msgstr "Vahvista käyttäjämerkinnän poisto"
 
 #: edit_course/templates/edit_course/submissiontag_delete.html
 msgid "REMOVE_SUBMISSION_TAG"
@@ -2893,6 +2881,50 @@ msgstr "Poista palautusmerkintä"
 msgid "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT"
 msgstr "Haluatko varmasti poistaa tämän palautusmerkinnän?"
 
+#: edit_course/templates/edit_course/submissiontag_edit.html
+msgid "EDIT_SUBMISSION_TAG"
+msgstr "Muokkaa palautusmerkintää"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "TAG"
+msgstr "Merkintä"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "SLUG"
+msgstr "Tunniste"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "DESCRIPTION"
+msgstr "Kuvaus"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+#: edit_course/templates/edit_course/usertag_list.html
+msgid "ACTIONS"
+msgstr "Toiminnot"
+
+#: edit_course/templates/edit_course/submissiontag_list.html
+msgid "NO_SUBMISSION_TAGS"
+msgstr "Ei palautusmerkintöjä"
+
+#: edit_course/templates/edit_course/usertag_add.html
+msgid "ADD_NEW_USER_TAG"
+msgstr "Lisää käyttäjämerkintä"
+
+#: edit_course/templates/edit_course/usertag_add.html
+msgid "ADD_STUDENT_TAG"
+msgstr "Lisää opiskelijamerkintä"
+
+#: edit_course/templates/edit_course/usertag_delete.html
+msgid "REMOVE_USER_TAG"
+msgstr "Poista käyttäjämerkintä"
+
+#: edit_course/templates/edit_course/usertag_delete.html
+msgid "REMOVE_USER_TAG_CONFIRMATION"
+msgstr "Vahvista käyttäjämerkinnän poisto"
+
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG_CONFIRMATION_ALERT"
 msgstr "Haluatko varmasti poistaa seuraavan käyttäjämerkinnän?"
@@ -2900,10 +2932,6 @@ msgstr "Haluatko varmasti poistaa seuraavan käyttäjämerkinnän?"
 #: edit_course/templates/edit_course/usertag_edit.html
 msgid "EDIT_STUDENT_TAG"
 msgstr "Muokkaa opiskelijamerkintää"
-
-#: edit_course/templates/edit_course/submissiontag_edit.html
-msgid "EDIT_SUBMISSION_TAG"
-msgstr "Muokkaa palautusmerkintää"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "ADD_NEW_STUDENT_TAG"
@@ -2914,24 +2942,8 @@ msgid "STUDENT_TAGS"
 msgstr "Opiskelijamerkinnät"
 
 #: edit_course/templates/edit_course/usertag_list.html
-msgid "TAG"
-msgstr "Merkintä"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "SLUG"
-msgstr "Tunniste"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "DESCRIPTION"
-msgstr "Kuvaus"
-
-#: edit_course/templates/edit_course/usertag_list.html
 msgid "VISIBLE_TO_STUDENTS"
 msgstr "Näkyy opiskelijoille"
-
-#: edit_course/templates/edit_course/usertag_list.html
-msgid "ACTIONS"
-msgstr "Toiminnot"
 
 #: edit_course/templates/edit_course/usertag_list.html
 msgid "TAG_STUDENTS"
@@ -2944,10 +2956,6 @@ msgstr "Ei opiskelijamerkintöjä."
 #: edit_course/templates/edit_course/usertagging_add.html
 msgid "ADD_NEW_USER_TAGGING"
 msgstr "Merkitse opiskelijoita"
-
-#: exercise/forms.py exercise/templates/exercise/staff/_assessment_panel.html
-msgid "ADD_TAGGING"
-msgstr "Lisää merkintä"
 
 #: edit_course/views.py
 msgid "ERROR_EXERCISE_CATEGORY_MUST_EXIST_BEFORE_CREATEING_EXERCISES"
@@ -3877,6 +3885,10 @@ msgid "MODEL_NAME_SUBMISSION_PLURAL"
 msgstr "palautukset"
 
 #: exercise/submission_models.py
+msgid "LABEL_SUBMISSION_TAG"
+msgstr "Palautusmerkintä"
+
+#: exercise/submission_models.py
 msgid "LABEL_ACTIVE"
 msgstr "aktiivinen"
 
@@ -4348,6 +4360,10 @@ msgid "NOT_ASSESSED_MANUALLY"
 msgstr "Ei arvosteltu manuaalisesti"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "ADD_TAGGING"
+msgstr "Lisää merkintä"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 msgid "APPROVE_SUBMISSION"
 msgstr "Hyväksy pisteytetyksi"
 
@@ -4355,6 +4371,10 @@ msgstr "Hyväksy pisteytetyksi"
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Palautuksen lisätiedot"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "COMPARE_TO_MODEL"
+msgstr "Vertaa mallivastaukseen"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_resubmit_modal.html
@@ -4513,6 +4533,14 @@ msgid "GROUP_BY_SUBMITTER"
 msgstr "Ryhmittele palauttajittain"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Suodata listaa merkinnän perusteella"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "GRADED"
+msgstr "arvosteltu"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "TIME"
 msgstr "Aika"
@@ -4538,7 +4566,6 @@ msgid "NUMBER_ABBREVIATED"
 msgstr "Nro"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
-#| msgid "INCOMPLETE"
 msgid "COMPARE"
 msgstr "Vertaa"
 
@@ -4561,11 +4588,6 @@ msgstr "Kurssin henkilökunta on arvostellut tämän palautuksen manuaalisesti."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "ASSESSED"
 msgstr "Arvosteltu"
-
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#| msgid "COURSE_MODULES"
-msgid "COMPARE_TO_MODEL"
-msgstr "Vertaa mallivastaukseen"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SHOW_ALL_SUBMISSIONS"
@@ -4697,17 +4719,16 @@ msgid "COMPARING_TO_MODEL"
 msgstr "Verrataan mallivastaukseen."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#| msgid "FILE_NOT_FOUND"
 msgid "COMPARING_TO_NOT_FOUND"
 msgstr "Tiedostoa, johon yrität verrata, ei löytynyt."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#| msgid "EXCEPTION_PARSING_SUBMISSION_JSON -- {error!s}"
+#, python-format
 msgid "COMPARING_TO_SUBMISSION -- %(cs_url)s, %(cs_date)s"
 msgstr "Verrataan palautukseen <a href=\"%(cs_url)s\">%(cs_date)s</a>."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
-#| msgid "SHOW_ALL_SUBMISSIONS"
+#, python-format
 msgid "SHOW_ORIGINAL_SUBMISSION -- %(submission_url)s"
 msgstr "Näytä <a href=\"%(submission_url)s\">alkuperäinen palautus</a>."
 
@@ -5206,6 +5227,11 @@ msgstr ""
 msgid "MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED"
 msgstr "Nimi on pakollinen, kun palvelua ei ole annetussa valikoimassa."
 
+#: external_services/models.py
+msgid "MENU_ITEM_ERROR_SCHEME_IN_MENU_URL_AND_PRECONFIGURED_SERVICE_SELECTED"
+msgstr ""
+"Linkin URL ei saa alkaa protokollalla, jos ulkopuolinen palvelu on valittu."
+
 #: external_services/permissions.py
 msgid "MENU_VISIBILTY_PERMISSION_DENIED_MSG"
 msgstr "Valitettavasti sinulla ei ole oikeutta käyttää tätä linkkiä."
@@ -5524,10 +5550,6 @@ msgstr "uutiset"
 msgid "ADD_NEWS_ITEM"
 msgstr "Lisää uutinen"
 
-#: news/templates/news/edit.html news/templates/news/list.html
-msgid "REMOVE_SELECTED_NEWS_ITEMS"
-msgstr "Poista valitut uutiset"
-
 #: news/templates/news/list.html
 msgid "NEWS"
 msgstr "Uutiset"
@@ -5543,6 +5565,10 @@ msgstr "Yleisö"
 #: news/templates/news/list.html
 msgid "TITLE"
 msgstr "Otsikko"
+
+#: news/templates/news/list.html
+msgid "REMOVE_SELECTED_NEWS_ITEMS"
+msgstr "Poista valitut uutiset"
 
 #: news/templates/news/user_news.html
 msgid "COURSE_NEWS"
@@ -5583,6 +5609,12 @@ msgstr "vastaanottaja"
 #: notification/models.py
 msgid "LABEL_SEEN"
 msgstr "nähty"
+
+#: notification/models.py
+#, fuzzy
+#| msgid "LABEL_GRADE"
+msgid "LABEL_REGRADE_WHEN_SEEN"
+msgstr "arvosana"
 
 #: notification/models.py
 msgid "MODEL_NAME_NOTIFICATION"
@@ -6028,11 +6060,3 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "GRADED"
-msgstr "arvosteltu"
-
-#: course/templates/course/index.html
-msgid "CONTINUE"
-msgstr "Jatka siitä, mihin jäit"
