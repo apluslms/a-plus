@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from django import template
 from django.db import models
@@ -137,6 +137,13 @@ def profiles(
 def tags(profile, instance):
     tags = UserTagging.objects.get_all(profile, instance)
     return mark_safe(' '.join(tag.html_label for tag in tags))
+
+
+@register.simple_tag
+def is_external_menu_url(url: Optional[str]) -> bool:
+    if url and '://' in url:
+        return True
+    return False
 
 
 @register.filter

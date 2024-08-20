@@ -110,7 +110,8 @@
 {% for entry in group.items %}
 {% if entry.enabled %}
 <li>
-	<a href="{{ entry.url }}" {% if entry.blank %} target="_blank" {% endif %}>
+	{% is_external_menu_url entry.url as is_external_menu_url_flag %}
+	<a href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
 		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
 		{% endif %}
