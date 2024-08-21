@@ -83,7 +83,7 @@ def get_max_module_points(module: int, student: int) -> int:
 
 
 @register.simple_tag
-def get_points_goal(module: int, student: int) -> int:
+def get_points_goal(module: int, student: int) -> Union[int, bool]:
     student = UserProfile.objects.get(id=student)
     module = CourseModule.objects.get(id=module)
     try:

@@ -130,6 +130,8 @@ $(document).ready(function() {
 
                 // Update progress-bar style
                 $progressDiv.find('.progress-bar').removeClass('progress-bar-primary');
+
+                $('#deletePointsGoalForm').hide();
                 
                 $('#remove-success-alert').show();
                 setTimeout(function() {
