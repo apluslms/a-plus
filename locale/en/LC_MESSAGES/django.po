@@ -5594,7 +5594,7 @@ msgstr "seen"
 #, fuzzy
 #| msgid "LABEL_GRADE"
 msgid "LABEL_REGRADE_WHEN_SEEN"
-msgstr "grade"
+msgstr "regrade when seen"
 
 #: notification/models.py
 msgid "MODEL_NAME_NOTIFICATION"
