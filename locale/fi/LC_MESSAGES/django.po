@@ -5614,7 +5614,7 @@ msgstr "nähty"
 #, fuzzy
 #| msgid "LABEL_GRADE"
 msgid "LABEL_REGRADE_WHEN_SEEN"
-msgstr "arvosana"
+msgstr "arvioi uudestaan kun nähty"
 
 #: notification/models.py
 msgid "MODEL_NAME_NOTIFICATION"
