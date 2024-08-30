@@ -103,18 +103,16 @@ class RevealRuleForm(FieldsetModelForm):
         super().__init__(*args, **kwargs)
         self.fields['trigger'].widget.attrs['data-trigger'] = True
 
-        if is_submission_feedback:
-            self.fields['show_zero_points_immediately'].widget.attrs['data-visible-triggers'] = [
-                RevealRule.TRIGGER.DEADLINE.value,
-                RevealRule.TRIGGER.DEADLINE_ALL.value,
-                RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS.value,
-                RevealRule.TRIGGER.TIME.value,
-                RevealRule.TRIGGER.MANUAL.value,
-                RevealRule.TRIGGER.COMPLETION.value,
-            ]
-        else:
-            self.fields['show_zero_points_immediately'].widget.attrs['data-visible-triggers'] = [
-            ]
+        zero_feedback_triggers = [
+            RevealRule.TRIGGER.DEADLINE.value,
+            RevealRule.TRIGGER.DEADLINE_ALL.value,
+            RevealRule.TRIGGER.DEADLINE_OR_FULL_POINTS.value,
+            RevealRule.TRIGGER.TIME.value,
+            RevealRule.TRIGGER.MANUAL.value,
+            RevealRule.TRIGGER.COMPLETION.value,
+        ] if is_submission_feedback else []
+        self.fields['show_zero_points_immediately'].widget.attrs['data-visible-triggers'] = zero_feedback_triggers
+
         # Visibility rules for the form fields. Each of the following fields is
         # only visible when one of their specified values is selected from the
         # trigger dropdown. See edit_model.html.
