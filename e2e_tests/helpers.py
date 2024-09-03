@@ -12,6 +12,8 @@ class File:
         self.name = name
         self.label = label if label else name
 
+def dismiss_cookie_notice(page: Page):
+    page.get_by_role("button", name="Close").click()
 
 def login(page: Page, username: str, password: str):
     page.goto("http://localhost:8000/?hl=en")

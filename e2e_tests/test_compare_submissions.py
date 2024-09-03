@@ -1,5 +1,5 @@
 from playwright.sync_api import Page, expect
-from e2e_tests.helpers import upload_submission, login, logout, File
+from e2e_tests.helpers import upload_submission, login, logout, File, dismiss_cookie_notice
 
 
 def test_compare_submissions(page: Page) -> None:
@@ -8,6 +8,7 @@ def test_compare_submissions(page: Page) -> None:
     green = "rgb(212, 237, 218)"
     red = "rgb(248, 215, 218)"
     login(page, "student", "student")
+    dismiss_cookie_notice(page)
     page.get_by_role("link", name="Def. Course Current DEF000 1.").click()
     upload_submission(
         page,

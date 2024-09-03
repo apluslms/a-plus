@@ -6060,3 +6060,7 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
+
+#: templates/base.html
+msgid "COOKIE_NOTICE_TEXT"
+msgstr "Tämä sivusto käyttää evästeitä toiminnalisuuden parantamiseksi. Käyttämällä sivustoa hyväksyt evästeiden käytön."
