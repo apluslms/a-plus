@@ -4882,6 +4882,14 @@ msgstr "Palautus"
 msgid "FILES_IN_SUBMISSION"
 msgstr "Tiedostot tässä palautuksessa"
 
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Palautuksen arvostelu ei valmistunut määräajassa, ja sitä on "
+"yritetty uudelleen %(num_retries)s kertaa. Palautusta yritetään "
+"automaattisesti enintään %(max_retries)s kertaa."
+
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"

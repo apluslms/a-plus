@@ -94,7 +94,14 @@
 		</table>
 
 		<div id="exercise-all">
-
+		{% if pending.num_retries > 0 %}
+		<div class="alert alert-warning">
+			{% blocktranslate trimmed with num_retries=pending.num_retries max_retries=pending.max_retries %}
+				SUBMISSION_GRADING_RETRIED -- {{ num_retries }}, {{ max_retries }}
+			{% endblocktranslate %}
+		</div>
+		{% endif %}
+	
 		{% if feedback_revealed and submission.assistant_feedback %}
 		<h4>{% translate "ASSISTANT_FEEDBACK" %}</h4>
 		<blockquote>{{ submission.assistant_feedback|safe }}</blockquote>

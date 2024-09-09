@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 from dateutil.relativedelta import relativedelta
 from time import sleep
+from random import choice
 
 from django.conf import settings
 
@@ -49,13 +50,23 @@ def retry_submissions():
     from exercise.submission_models import PendingSubmission
 
     # Recovery state: only send one grading request to probe the state of grader
-    # We pick the one with most attempts, so that total_retries comes down more quickly
-    # when things are back to normal, and we can return to normal state
     if not PendingSubmission.objects.is_grader_stable():
-        pending = PendingSubmission.objects.order_by('-num_retries').first()
-        # pylint: disable-next=logging-fstring-interpolation
-        logging.info(f"Recovery state: retrying expired submission {pending.submission}")
-        pending.submission.exercise.grade(pending.submission)
+        # Get ids of all pending submissions and randomly load one to be retried
+        # (do not load all the submissions objects to save memory)
+        submission_ids = PendingSubmission.objects.values_list('id',flat=True)
+        random_choice = choice(submission_ids)
+        pending = PendingSubmission.objects.get(pk=random_choice)
+        if pending.num_retries >= settings.SUBMISSION_RETRY_LIMIT and settings.SUBMISSION_RETRY_LIMIT > 0:
+            # pylint: disable-next=logging-fstring-interpolation
+            logger.info(f"Recovery state: submission retry limit exceeded for submission {pending.submission} - removing from pending")
+            pending.submission.set_error()
+            pending.submission.save()
+            pending.delete()
+        else:
+            if pending.submission.exercise.can_regrade:
+                # pylint: disable-next=logging-fstring-interpolation
+                logger.info(f"Recovery state: retrying expired submission {pending.submission} (retries: {pending.num_retries})")
+                pending.submission.exercise.grade(pending.submission)
         return
 
     # Stable state: retry all expired submissions
@@ -66,7 +77,18 @@ def retry_submissions():
 
     for pending in expired:
         if pending.submission.exercise.can_regrade:
-            # pylint: disable-next=logging-fstring-interpolation
-            logger.info(f"Retrying expired submission {pending.submission}")
-            pending.submission.exercise.grade(pending.submission)
-            sleep(0.5)  # Delay 500 ms to avoid choking grader
+            # Do not retry submission until SUBMISSION_EXPIRY_TIMEOUT * num_retries has passed
+            pending_timelimit = datetime.datetime.now(datetime.timezone.utc) - relativedelta(seconds=settings.SUBMISSION_EXPIRY_TIMEOUT*pending.num_retries)
+            if pending.num_retries < settings.SUBMISSION_RETRY_LIMIT:
+                if pending.submission_time < pending_timelimit:
+                    # pylint: disable-next=logging-fstring-interpolation
+                    logger.info(f"Retrying expired submission {pending.submission} (retries: {pending.num_retries})")
+                    pending.submission.exercise.grade(pending.submission)
+                    sleep(0.5)  # Delay 500 ms to avoid choking grader
+                else:
+                    logger.info(f"Not yet retrying submission {pending.submission} (retries: {pending.num_retries})")
+            else:
+                logger.info(f"Could not grade submission {pending.submission} (maximum retries exceeded).")
+                pending.submission.set_error()
+                pending.submission.save()
+                pending.delete()
