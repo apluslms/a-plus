@@ -280,6 +280,9 @@ SUBMISSION_EXPIRY_TIMEOUT = 30 * 60
 # Network location is sufficient, e.g. "localhost:8080" or "grader.cs.aalto.fi"
 SUBMISSION_RETRY_SERVICES = []
 
+# Maximum number of retries to automatically grade a given submission
+SUBMISSION_RETRY_LIMIT = 3
+
 # Number of unresponded retries beyond which we move to recovery state.
 # In recovery state there likely is more persistent problem with the grader
 # or network that needs fixing.

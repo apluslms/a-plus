@@ -4868,6 +4868,14 @@ msgstr "Submission"
 msgid "FILES_IN_SUBMISSION"
 msgstr "Files in this submission"
 
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Grading this submission did not finish in time, and it has been "
+"retried %(num_retries)s time(s). Retries continue until successful, "
+"or until the limit of %(max_retries)s retries is reached."
+
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
