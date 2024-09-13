@@ -9,6 +9,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
 from django.db.models import Q, QuerySet
 from django.http import Http404
+from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -623,7 +624,10 @@ class CourseNewsViewSet(NestedViewSetMixin,
         user = self.request.user
         AUDIENCE = CourseInstance.ENROLLMENT_AUDIENCE
         queryset = News.objects.select_related('course_instance')
+
         if not user.is_superuser and not self.instance.is_course_staff(user):
+            # Filter out unpublished news based on the publish date
+            queryset = queryset.filter(publish__lte=timezone.now())
             if user.userprofile.is_external:
                 return queryset.filter(
                     Q(audience=AUDIENCE.ALL_USERS) |
