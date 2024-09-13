@@ -82,10 +82,13 @@ class UserProfileAPITest(UserProfileTestCase):
             'is_external': False,
             'enrolled_courses': [],
             'staff_courses': [],
+            'teacher_courses': [],
+            'assistant_courses': [],
             'full_name':'Superb Student',
             'first_name':'Superb',
             'last_name':'Student',
-            'email':'test@aplus.com'})
+            'email':'test@aplus.com',
+        })
 
     def test_field_values_filter(self):
         client = APIClient()
