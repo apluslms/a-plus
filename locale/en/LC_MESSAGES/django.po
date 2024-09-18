@@ -1004,6 +1004,14 @@ msgstr "All results"
 msgid "VISUALIZATIONS"
 msgstr "Visualizations"
 
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Depseudonymize"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymize"
+
 #: course/templates/course/_course_menu.html news/templates/news/edit.html
 #: news/templates/news/list.html
 msgid "EDIT_NEWS"
@@ -1024,14 +1032,6 @@ msgstr "Deadline deviations"
 #: deviations/templates/deviations/list_submissions.html
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Submission deviations"
-
-#: course/templates/course/_course_menu.html
-msgid "UNPSEUDONYMIZE"
-msgstr "Depseudonymize"
-
-#: course/templates/course/_course_menu.html
-msgid "PSEUDONYMIZE"
-msgstr "Pseudonymize"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
@@ -4494,6 +4494,8 @@ msgid "SUMMARY"
 msgstr "Summary"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#, fuzzy, python-format
+#| msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgstr "%(count)s submissions."
 
@@ -5478,6 +5480,10 @@ msgstr "Use the whole course"
 #: lti_tool/templates/lti_tool/module_list.html
 msgid "LTI_SELECT_SPECIFIC_CONTENT"
 msgstr "Select specific content"
+
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_CONFIRM_USE_WHOLE_COURSE"
+msgstr "Are you sure you want to use the whole course?"
 
 #: lti_tool/templates/lti_tool/exercise_list.html
 #: lti_tool/templates/lti_tool/module_list.html
