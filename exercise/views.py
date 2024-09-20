@@ -13,6 +13,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from authorization.permissions import ACCESS
 from course.models import CourseModule, SubmissionTag
@@ -487,7 +488,7 @@ class SubmissionView(SubmissionBaseView):
                 pending = PendingSubmission.objects.get(submission__id=self.submission.id)
                 self.pending = { "num_retries": pending.num_retries, "max_retries": settings.SUBMISSION_RETRY_LIMIT }
                 self.note("pending")
-            except:
+            except ObjectDoesNotExist:
                 pass
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:

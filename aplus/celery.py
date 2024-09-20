@@ -57,15 +57,15 @@ def retry_submissions():
         random_choice = choice(submission_ids)
         pending = PendingSubmission.objects.get(pk=random_choice)
         if pending.num_retries >= settings.SUBMISSION_RETRY_LIMIT and settings.SUBMISSION_RETRY_LIMIT > 0:
-            # pylint: disable-next=logging-fstring-interpolation
-            logger.info(f"Recovery state: submission retry limit exceeded for submission {pending.submission} - removing from pending")
+            logger.info("Recovery state: submission retry limit exceeded for submission %s - removing from pending",
+                        pending.submission)
             pending.submission.set_error()
             pending.submission.save()
             pending.delete()
         else:
             if pending.submission.exercise.can_regrade:
-                # pylint: disable-next=logging-fstring-interpolation
-                logger.info(f"Recovery state: retrying expired submission {pending.submission} (retries: {pending.num_retries})")
+                logger.info("Recovery state: retrying expired submission %s (retries: %s)",
+                            pending.submission, pending.num_retries)
                 pending.submission.exercise.grade(pending.submission)
         return
 
@@ -78,17 +78,20 @@ def retry_submissions():
     for pending in expired:
         if pending.submission.exercise.can_regrade:
             # Do not retry submission until SUBMISSION_EXPIRY_TIMEOUT * num_retries has passed
-            pending_timelimit = datetime.datetime.now(datetime.timezone.utc) - relativedelta(seconds=settings.SUBMISSION_EXPIRY_TIMEOUT*pending.num_retries)
+            pending_timelimit = datetime.datetime.now(datetime.timezone.utc) - relativedelta(
+                seconds=settings.SUBMISSION_EXPIRY_TIMEOUT*pending.num_retries
+            )
             if pending.num_retries < settings.SUBMISSION_RETRY_LIMIT:
                 if pending.submission_time < pending_timelimit:
-                    # pylint: disable-next=logging-fstring-interpolation
-                    logger.info(f"Retrying expired submission {pending.submission} (retries: {pending.num_retries})")
+                    logger.info("Retrying expired submission %s (retries: %s)",
+                                pending.submission, pending.num_retries)
                     pending.submission.exercise.grade(pending.submission)
                     sleep(0.5)  # Delay 500 ms to avoid choking grader
                 else:
-                    logger.info(f"Not yet retrying submission {pending.submission} (retries: {pending.num_retries})")
+                    logger.info("Not yet retrying submission %s (retries: %s)",
+                                pending.submission, pending.num_retries)
             else:
-                logger.info(f"Could not grade submission {pending.submission} (maximum retries exceeded).")
+                logger.info("Could not grade submission %s (maximum retries exceeded).", pending.submission)
                 pending.submission.set_error()
                 pending.submission.save()
                 pending.delete()
