@@ -87,7 +87,7 @@ def get_points_goal(module: int, student: int) -> Union[int, bool]:
     student = UserProfile.objects.get(id=student)
     module = CourseModule.objects.get(id=module)
     try:
-        return StudentModuleGoal.objects.get(module=module, student=student).personalized_points_goal_points
+        return StudentModuleGoal.objects.get(module=module, student=student).goal_points
     except StudentModuleGoal.DoesNotExist:
         return False
 
@@ -226,6 +226,12 @@ def _points_data(
 
     max_points = getattr(obj, 'max_points',  0)
     required = getattr(obj, 'points_to_pass',  0)
+    personalized_points_module_goal_points = getattr(obj, 'personalized_points_module_goal_points', None)
+    if personalized_points_module_goal_points is not None:
+        personalized_points_module_goal = (personalized_points_module_goal_points / max_points) * 100
+    else:
+        personalized_points_module_goal = None
+
     data = {
         'points': points,
         'formatted_points': getattr(obj, 'formatted_points',  '0'),
@@ -243,8 +249,8 @@ def _points_data(
         'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
-        'personalized_points_module_goal': getattr(obj, 'personalized_points_module_goal', None),
-        'personalized_points_module_goal_points': getattr(obj, 'personalized_points_module_goal_points', None),
+        'personalized_points_module_goal_points': personalized_points_module_goal_points,
+        'personalized_points_module_goal': personalized_points_module_goal,
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 

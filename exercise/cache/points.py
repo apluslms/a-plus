@@ -865,7 +865,6 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
     _children_unconfirmed: bool
     is_model_answer_revealed: bool
     confirmable_children: bool
-    personalized_points_module_goal: Optional[int]
     personalized_points_module_goal_points: Optional[int]
 
     children_unconfirmed = RevealableAttribute[bool]()
@@ -921,7 +920,6 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
         self._points_by_difficulty = {}
         self._true_unconfirmed_points_by_difficulty = {}
         self._unconfirmed_points_by_difficulty = {}
-        self.personalized_points_module_goal = None
         self.personalized_points_module_goal_points = None
         self.instance = precreated.get_or_create_proxy(
             CachedPointsData, *self.instance._params, user_id, modifiers=self._modifiers
@@ -945,8 +943,7 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
 
         try:
             student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id)
-            self.personalized_points_module_goal = student_module_goal.personalized_points_goal_percentage
-            self.personalized_points_module_goal_points = student_module_goal.personalized_points_goal_points
+            self.personalized_points_module_goal_points = student_module_goal.goal_points
         except StudentModuleGoal.DoesNotExist:
             pass
 

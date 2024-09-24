@@ -615,26 +615,24 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
     template_name = "exercise/personalized_points_goal_modal.html"
     success_url = '/'
 
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        cached_points = CachedPoints(self.instance, request.user, True)
+
+        try:
+            StudentModuleGoal.objects.get(student=request.user.id, module=self.module.id).delete()
+            cached_points.invalidate(self.instance, request.user)
+            return JsonResponse({"success": "deleted"}, status=200)
+        except StudentModuleGoal.DoesNotExist:
+            return JsonResponse({'error': 'Not found'}, status=404)
+        except Exception:
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+
+
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
-        user_id = request.user.id
-        module_slug = self.kwargs['module_slug']
         points_goal = request.POST.get('personalized_points_goal_input')
-        delete = request.POST.get('delete')
 
-        student = UserProfile.objects.get(id=user_id)
-        module = CourseModule.objects.get(url=module_slug)
-        cached_points = CachedPoints(module.course_instance, student, True)
-        cached_module, _, _, _ = cached_points.find(module)
-
-        if delete:
-            try:
-                StudentModuleGoal.objects.get(student=user_id, module=module.id).delete()
-                cached_points.invalidate(module.course_instance, student)
-                return JsonResponse({"success": "deleted"}, status=200)
-            except StudentModuleGoal.DoesNotExist:
-                return JsonResponse({'error': 'Not found'}, status=404)
-            except Exception:
-                return JsonResponse({'error': 'Internal server error'}, status=500)
+        cached_points = CachedPoints(self.instance, request.user, True)
+        cached_module, _, _, _ = cached_points.find(self.module)
 
         if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
             return JsonResponse({"error": "not_a_number"}, status=400)
@@ -643,29 +641,23 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         # give it to the points goal directly. Otherwise calculate the points goal by taking the integer
         # and calculating how much that is of the module's max points
         if '%' in points_goal:
-            points_goal = float(points_goal.replace('%', ''))
-        elif cached_module.max_points > 0:
-            points_goal = float(float(points_goal) / float(cached_module.max_points)) * 100.0
+            points_goal =  (cached_module.max_points) * int(points_goal.replace('%', '')) * 0.01
+        else:
+            points_goal = int(points_goal)
 
-        points_goal = max(0, min(points_goal, 100))
+        goal_percentage = points_goal / cached_module.max_points * 100
 
-        StudentModuleGoal.objects.update_or_create(
-            student=student,
-            module=module,
-            defaults={'personalized_points_goal_percentage': points_goal * 1.0,
-                      'personalized_points_goal_points': (points_goal * 0.01) * cached_module.max_points})
+        goal, _ = StudentModuleGoal.objects.update_or_create(
+            student=request.user.userprofile,
+            module=self.module,
+            defaults={'goal_points': points_goal})
 
-        cached_points.invalidate(module.course_instance, student)
+        cached_points.invalidate(self.module.course_instance, request.user)
 
-        points = StudentModuleGoal.objects.get(student=user_id,
-                                               module=module.id).personalized_points_goal_points
-        percentage = StudentModuleGoal.objects.get(student=user_id,
-                                                    module=module.id).personalized_points_goal_percentage
-
-        if points < module.points_to_pass:
+        if goal.goal_points < self.module.points_to_pass:
             return JsonResponse({"error": "less_than_required"}, status=400)
 
         return JsonResponse({
-            "personalized_points_goal_points": points,
-            "personalized_points_goal_percentage": percentage,
+            "goal_points": goal.goal_points,
+            "goal_percentage": goal_percentage,
         })

@@ -39,13 +39,13 @@ $(document).ready(function() {
                         id: 'goal-points',
                         class: 'goal-points',
                         css: {
-                            left: response.personalized_points_goal_percentage + '%'
+                            left: response.goal_percentage + '%'
                         }
                     });
                     $progressDiv.append($goalPointsElement);
                 } else {
                     // Update the existing element
-                    $goalPointsElement.css('left', response.personalized_points_goal_percentage + '%');
+                    $goalPointsElement.css('left', response.goal_percentage + '%');
                 }
 
             // Update tooltip
@@ -60,17 +60,17 @@ $(document).ready(function() {
                     spanElement = doc.createElement('span');
                     spanElement.className = 'personalized-points-full-text text-nowrap';
                     doc.body.appendChild(spanElement);
-                    spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + "<span class=\"personalized-points-text text-nowrap\">" + response.personalized_points_goal_points + "</span>";
+                    spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + "<span class=\"personalized-points-text text-nowrap\">" + response.goal_points + "</span>";
                 }
                 else {
-                    spanElement.textContent = response.personalized_points_goal_points;
+                    spanElement.textContent = response.goal_points;
                 }
 
                 const updatedTooltipTitle = doc.body.innerHTML;
                 $progressDiv.attr('data-original-title', updatedTooltipTitle);
 
                 // Update progress-bar style
-                if (response.personalized_points_goal_points <= $pointsGoalForm.data('points')) {
+                if (response.goal_points <= $pointsGoalForm.data('points')) {
                     $progressDiv.find('.progress-bar').removeClass('progress-bar-warning');
                     $progressDiv.find('.progress-bar').addClass('progress-bar-primary');
                 }
@@ -105,7 +105,7 @@ $(document).ready(function() {
         event.preventDefault();
 
         $.ajax({
-            type: 'POST',
+            type: 'DELETE',
             url: $(this).attr('action'),
             data: $(this).serialize() + '&delete=true',
             success: function(response) {
