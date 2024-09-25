@@ -1927,6 +1927,10 @@ msgstr "signature title"
 msgid "LABEL_SMALL_PRINT"
 msgstr "small print"
 
+#: templates/base.html
+msgid "COOKIE_NOTICE_TEXT"
+msgstr "This website uses cookies to improve functionality. You agree to our cookie policy by using this site."
+
 #: diploma/models.py
 msgid "LABEL_POINT_LIMITS"
 msgstr "point limits"

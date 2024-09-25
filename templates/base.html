@@ -74,6 +74,7 @@
 	<link rel="stylesheet" href="{% static 'css/main.css' %}" />
 	<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
 	<link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
+	<link rel="stylesheet" href="{% static 'css/cookie-notice.css' %}" />
 	<script src="{% static 'js/polyfill-find.js' %}"></script>
 	<script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
 	<script src="{% static 'js/aplus.js' %}"></script>
@@ -249,6 +250,12 @@
 		<footer role="contentinfo">
 			<div class="site-footer navbar navbar-default navbar-fixed-bottom" role="presentation">
 				<div class="container-fluid">
+
+					<div id="cookie-notice" class="cookie-notice">
+						<p>{% translate "COOKIE_NOTICE_TEXT" %}</p>
+						<button id="cookie-notice-dismiss" class="btn btn-primary">{% translate "CLOSE" %}</button>
+					</div>
+			
 					<ul class="nav navbar-nav">
 						{% block footercontent %}{% endblock %}
 						<li><a href="{% url 'privacy_notice' %}">{% translate "PRIVACY_NOTICE" %}</a></li>
@@ -310,3 +317,4 @@
 </body>
 
 </html>
+<script src="{% static 'js/cookie-notice.js' %}"></script>
