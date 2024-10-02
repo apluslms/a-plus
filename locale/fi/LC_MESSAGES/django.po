@@ -1010,6 +1010,14 @@ msgstr "Kaikki pisteet"
 msgid "VISUALIZATIONS"
 msgstr "Visualisoinnit"
 
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Pseudonymisointi pois päältä"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymisointi päälle"
+
 #: course/templates/course/_course_menu.html news/templates/news/edit.html
 #: news/templates/news/list.html
 msgid "EDIT_NEWS"
@@ -1030,14 +1038,6 @@ msgstr "Määräaikojen poikkeamat"
 #: deviations/templates/deviations/list_submissions.html
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Palautuskertojen poikkeamat"
-
-#: course/templates/course/_course_menu.html
-msgid "UNPSEUDONYMIZE"
-msgstr "Pseudonymisointi pois päältä"
-
-#: course/templates/course/_course_menu.html
-msgid "PSEUDONYMIZE"
-msgstr "Pseudonymisointi päälle"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
@@ -4031,8 +4031,6 @@ msgid "VIEW_FILE -- %(filename)s"
 msgstr "Katsele tiedostoa %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Lataa"
 
@@ -4509,6 +4507,16 @@ msgid "SUMMARY"
 msgstr "Yhteenveto"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_POINTS"
+msgstr "Lataa pisteet"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Lataa palautukset"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgstr "%(count)s palautusta."
 
@@ -4674,6 +4682,7 @@ msgstr "Muokkaa palauttajia SID "
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
 #: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
 msgid "ALL_SUBMISSIONS"
 msgstr "Kaikki palautukset"
 
@@ -4882,14 +4891,6 @@ msgstr "Palautus"
 msgid "FILES_IN_SUBMISSION"
 msgstr "Tiedostot tässä palautuksessa"
 
-#: exercise/templates/exercise/submission_plain.html
-#, python-format
-msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
-msgstr ""
-"Palautuksen arvostelu ei valmistunut määräajassa, ja sitä on "
-"yritetty uudelleen %(num_retries)s kertaa. Palautusta yritetään "
-"automaattisesti enintään %(max_retries)s kertaa."
-
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
@@ -4906,6 +4907,14 @@ msgstr "Päiväys"
 #: exercise/templates/exercise/submission_plain.html
 msgid "FILES"
 msgstr "Tiedostot"
+
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Palautuksen arvostelu ei valmistunut määräajassa, ja sitä on yritetty "
+"uudelleen %(num_retries)s kertaa. Palautusta yritetään automaattisesti "
+"enintään %(max_retries)s kertaa."
 
 #: exercise/templatetags/exercise.py
 #, python-brace-format
@@ -4936,6 +4945,10 @@ msgstr "Tulokset on tällä hetkellä piilotettu."
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel-yhteensopiva CSV"
+
+#: exercise/templatetags/exercise.py
+msgid "BEST_SUBMISSIONS"
+msgstr "Parhaat palautukset"
 
 #: exercise/templatetags/exercise.py
 msgid "INCOMPLETE"

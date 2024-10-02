@@ -92,6 +92,7 @@ class ListSubmissionsView(ExerciseListBaseView):
 
         for submission in qs:
             format_submission(submission, self.pseudonymize)
+        self.has_files = any(len(submission.files.all()) > 0 for submission in qs)
         self.limited = self.request.GET.get('limited', False)
         self.not_all_url = self.exercise.get_submission_list_url() + "?limited=true"
         self.all_url = self.exercise.get_submission_list_url()
@@ -102,7 +103,16 @@ class ListSubmissionsView(ExerciseListBaseView):
         self.percentage_graded = (
             f"{graded_submitters} / {total_submitters} ({percentage}%)"
         )
-        self.note("limited", "not_all_url", "all_url", "submissions", "default_limit", "count", "percentage_graded")
+        self.note(
+            "has_files",
+            "limited",
+            "not_all_url",
+            "all_url",
+            "submissions",
+            "default_limit",
+            "count",
+            "percentage_graded",
+        )
 
 
 class SubmissionsSummaryView(ExerciseBaseView):
@@ -141,6 +151,8 @@ class ListSubmittersView(ExerciseListBaseView):
             .order_by()
         )
 
+        self.has_files = any(len(submission.files.all()) > 0 for submission in self.exercise.submissions.all())
+
         # Get a dict of submitters, accessed by their id.
         profiles = (
             UserProfile.objects
@@ -160,7 +172,7 @@ class ListSubmittersView(ExerciseListBaseView):
             if submitter_id is not None:
                 profile = profiles[submitter_id]
                 self.submitters.append({'profile': profile, **submitter_summary})
-        self.note('submitters')
+        self.note('submitters', 'has_files')
 
 
 class InspectSubmitterView(ExerciseBaseView, BaseRedirectView):

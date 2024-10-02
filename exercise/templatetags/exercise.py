@@ -348,6 +348,30 @@ def get_format_info(format): # pylint: disable=redefined-builtin
 def get_format_info_list(formats):
     return [get_format_info(format) for format in formats.split()]
 
+
+@register.simple_tag
+def get_zip_info(type): # pylint: disable=redefined-builtin
+    zip_infos = {
+        'all' : {
+            'best': 'no',
+            'verbose_name': _('ALL_SUBMISSIONS'),
+        },
+        'best': {
+            'best': 'yes',
+            'verbose_name': _('BEST_SUBMISSIONS'),
+        },
+    }
+    try:
+        return zip_infos[type]
+    except KeyError as e:
+        raise RuntimeError('Invalid zip type: \'{}\''.format(type)) from e
+
+
+@register.simple_tag
+def get_zip_info_list(types):
+    return [get_zip_info(type) for type in types.split()]
+
+
 @register.simple_tag
 def get_regrade_info(index):
     regrade_infos = {

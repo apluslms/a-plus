@@ -1004,6 +1004,14 @@ msgstr "All results"
 msgid "VISUALIZATIONS"
 msgstr "Visualizations"
 
+#: course/templates/course/_course_menu.html
+msgid "UNPSEUDONYMIZE"
+msgstr "Depseudonymize"
+
+#: course/templates/course/_course_menu.html
+msgid "PSEUDONYMIZE"
+msgstr "Pseudonymize"
+
 #: course/templates/course/_course_menu.html news/templates/news/edit.html
 #: news/templates/news/list.html
 msgid "EDIT_NEWS"
@@ -1024,14 +1032,6 @@ msgstr "Deadline deviations"
 #: deviations/templates/deviations/list_submissions.html
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Submission deviations"
-
-#: course/templates/course/_course_menu.html
-msgid "UNPSEUDONYMIZE"
-msgstr "Depseudonymize"
-
-#: course/templates/course/_course_menu.html
-msgid "PSEUDONYMIZE"
-msgstr "Pseudonymize"
 
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
@@ -4021,8 +4021,6 @@ msgid "VIEW_FILE -- %(filename)s"
 msgstr "View the file %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Download"
 
@@ -4494,6 +4492,16 @@ msgid "SUMMARY"
 msgstr "Summary"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_POINTS"
+msgstr "Download points"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Download submissions"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgstr "%(count)s submissions."
 
@@ -4660,6 +4668,7 @@ msgstr "Edit submitters SID "
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
 #: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
 msgid "ALL_SUBMISSIONS"
 msgstr "All submissions"
 
@@ -4868,14 +4877,6 @@ msgstr "Submission"
 msgid "FILES_IN_SUBMISSION"
 msgstr "Files in this submission"
 
-#: exercise/templates/exercise/submission_plain.html
-#, python-format
-msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
-msgstr ""
-"Grading this submission did not finish in time, and it has been "
-"retried %(num_retries)s time(s). Retries continue until successful, "
-"or until the limit of %(max_retries)s retries is reached."
-
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "NO_GRADER_FEEDBACK_FOR_SUBMISSION"
@@ -4892,6 +4893,14 @@ msgstr "Date"
 #: exercise/templates/exercise/submission_plain.html
 msgid "FILES"
 msgstr "Files"
+
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Grading this submission did not finish in time, and it has been retried "
+"%(num_retries)s time(s). Retries continue until successful, or until the "
+"limit of %(max_retries)s retries is reached."
 
 #: exercise/templatetags/exercise.py
 #, python-brace-format
@@ -4922,6 +4931,10 @@ msgstr "Results are currently hidden."
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel compatible CSV"
+
+#: exercise/templatetags/exercise.py
+msgid "BEST_SUBMISSIONS"
+msgstr "Best submissions"
 
 #: exercise/templatetags/exercise.py
 msgid "INCOMPLETE"
@@ -5599,8 +5612,6 @@ msgid "LABEL_SEEN"
 msgstr "seen"
 
 #: notification/models.py
-#, fuzzy
-#| msgid "LABEL_GRADE"
 msgid "LABEL_REGRADE_WHEN_SEEN"
 msgstr "regrade when seen"
 
