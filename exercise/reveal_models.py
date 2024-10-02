@@ -32,6 +32,8 @@ class RevealRule(models.Model):
         verbose_name=_('LABEL_TIME'))
     currently_revealed = models.BooleanField(default=False,
         verbose_name=_('LABEL_CURRENTLY_REVEALED'))
+    show_zero_points_immediately = models.BooleanField(default=False,
+        verbose_name=_('LABEL_SHOW_ZERO_POINTS_IMMEDIATELY'))
 
     class Meta:
         verbose_name = _('MODEL_NAME_REVEAL_RULE')
@@ -46,6 +48,8 @@ class RevealRule(models.Model):
         Otherwise, the current time is used.
         """
 
+        if self.show_zero_points_immediately and state.get_points() == 0:
+            return True
         if self.trigger == RevealRule.TRIGGER.MANUAL:
             return self.currently_revealed
         if self.trigger == RevealRule.TRIGGER.IMMEDIATE:

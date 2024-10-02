@@ -132,6 +132,8 @@ def parse_reveal_rule(
         rule.time = parse_date(rule_config["time"], errors)
     if "delay_minutes" in rule_config:
         rule.delay_minutes = parse_int(rule_config["delay_minutes"], errors)
+    if "show_zero_points_immediately" in rule_config:
+        rule.show_zero_points_immediately = rule_config["show_zero_points_immediately"]
     rule.save()
     return rule
 

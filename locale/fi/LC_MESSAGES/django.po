@@ -2588,6 +2588,10 @@ msgstr "Kurssikerrat"
 msgid "HIDDEN_lowercase"
 msgstr "piilotettu"
 
+#: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Näytä palaute välittömästi jos tehtäväpalautus saa 0 pistettä"
+
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
 msgstr "Luo uusi kurssikerta"
