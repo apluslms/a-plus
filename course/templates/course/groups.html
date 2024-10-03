@@ -15,7 +15,7 @@
 
 {% block columns %}
 <div class="col-md-7">
-  {% if instance_max_group_size > 1 %}
+  {% if instance.group_work_allowed %}
 
   <div class="alert alert-info">
     {% translate "[STAFF_HAS_NONE]" as staff_code %}
