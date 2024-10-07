@@ -13,6 +13,8 @@ from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from authorization.permissions import ACCESS
 from course.models import CourseModule, StudentModuleGoal, SubmissionTag
@@ -25,7 +27,7 @@ from userprofile.models import UserProfile
 from .cache.points import CachedPoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
-from .submission_models import SubmittedFile, Submission, SubmissionTagging
+from .submission_models import SubmittedFile, Submission, SubmissionTagging, PendingSubmission
 from .viewbase import (
     ExerciseBaseView,
     SubmissionBaseView,
@@ -479,6 +481,16 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
+        # If the submission is not in 'ready' state, check if there is a pendingSubmission
+        # object for this submission and fetch the number of retries from it, so the info
+        # can be displayed for the user. Also display the maximum retries from settings.
+        if self.submission.status != 'ready':
+            try:
+                pending = PendingSubmission.objects.get(submission__id=self.submission.id)
+                self.pending = { "num_retries": pending.num_retries, "max_retries": settings.SUBMISSION_RETRY_LIMIT }
+                self.note("pending")
+            except ObjectDoesNotExist:
+                pass
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not self.feedback_revealed:

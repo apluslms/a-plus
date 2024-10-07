@@ -300,6 +300,10 @@ class MenuItem(UrlMixin, models.Model):
                 errors['menu_label'] = ValidationError(_(
                     'MENU_ITEM_ERROR_MENU_LABEL_REQUIRED_WHEN_NO_PRECONFIGURED_SERVICE_SELECTED'
                 ))
+        if self.service and self.menu_url and '://' in self.menu_url:
+            errors['menu_url'] = ValidationError(_(
+                'MENU_ITEM_ERROR_SCHEME_IN_MENU_URL_AND_PRECONFIGURED_SERVICE_SELECTED'
+            ))
         if errors:
             raise ValidationError(errors)
 
@@ -335,7 +339,6 @@ class MenuItem(UrlMixin, models.Model):
             }
             return self.service.as_leaf_class().get_url(replace=self.menu_url, kwargs=kwargs)
         if '://' in self.menu_url:
-            # Deprecated, but DB can have old urls
             return self.menu_url
         return urljoin(self.course_instance.get_absolute_url(), self.menu_url)
 

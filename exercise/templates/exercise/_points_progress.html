@@ -22,7 +22,7 @@
         </span>
     {% endif %}"
 >
-    <div class="progress-bar progress-bar-striped progress-bar-{% if full_score %}success{% elif percentage >= personalized_points_module_goal %}primary{% elif passed %}warning{% else %}danger{% endif %}"
+    <div class="aplus-progress-bar aplus-progress-bar-striped aplus-progress-bar-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"
         style="width:{{ percentage }}%;"></div>
     <link rel="stylesheet" href="{% static 'exercise/css/goal_points.css' %}" />

@@ -501,7 +501,7 @@ $(function () {
   const pluginName = "aplusModal";
   var defaults = {
     loader_selector: ".modal-progress",
-    loader_text_selector: ".progress-bar",
+    loader_text_selector: ".aplus-progress-bar",
     alert_text_selector: ".modal-submit-error",
     title_selector: ".modal-title",
     content_selector: ".modal-body",
@@ -547,7 +547,7 @@ $(function () {
       this.content.hide();
       this.alertText.hide();
       this.loaderText
-        .removeClass('progress-bar-danger').addClass('active')
+        .removeClass('aplus-progress-bar-danger').addClass('active')
         .text(data || this.messages.loading);
       this.loader.show();
       this.element.on("hidden.bs.modal", function (event) {
@@ -560,7 +560,7 @@ $(function () {
       if (data) {
         this.alertText.text(data).show();
       }
-      this.loaderText.removeClass('active').addClass('progress-bar-danger').text(this.messages.error);
+      this.loaderText.removeClass('active').addClass('aplus-progress-bar-danger').text(this.messages.error);
     },
 
     showContent: function (data) {
