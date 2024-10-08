@@ -1,6 +1,6 @@
 $(document).ready(function() {
     const $pointsGoalForm = $('#pointsGoalForm');
-    const $inputField = $('#id_personalized_points_goal_input');
+    const $inputField = $('#id_module_goal_input');
     // If points-goal is a number then input it into the field
     if (typeof $pointsGoalForm.data('points-goal') === 'number') {
         $inputField.val($pointsGoalForm.data('points-goal'))};
@@ -71,12 +71,12 @@ $(document).ready(function() {
 
                 // Update progress-bar style
                 if (response.goal_points <= $pointsGoalForm.data('points')) {
-                    $progressDiv.find('.progress-bar').removeClass('progress-bar-warning');
-                    $progressDiv.find('.progress-bar').addClass('progress-bar-primary');
+                    $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-warning');
+                    $progressDiv.find('.aplus-progress-bar').addClass('aplus-progress-bar-primary');
                 }
                 else {
-                    $progressDiv.find('.progress-bar').removeClass('progress-bar-primary');
-                    $progressDiv.find('.progress-bar').addClass('progress-bar-warning');
+                    $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
+                    $progressDiv.find('.aplus-progress-bar').addClass('aplus-progress-bar-warning');
                 }
                 // Show the success alert
                 $('#success-alert').show();
@@ -129,7 +129,7 @@ $(document).ready(function() {
                 $progressDiv.attr('data-original-title', updatedTooltipTitle);
 
                 // Update progress-bar style
-                $progressDiv.find('.progress-bar').removeClass('progress-bar-primary');
+                $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
 
                 $('#deletePointsGoalForm').hide();
                 

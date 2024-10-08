@@ -624,7 +624,7 @@ class SubmissionDraftView(SubmissionDraftBaseView):
 class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
     access_mode = ACCESS.STUDENT
     form_class = StudentModuleGoalForm
-    template_name = "exercise/personalized_points_goal_modal.html"
+    template_name = "exercise/module_goal_modal.html"
     success_url = '/'
 
     def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
@@ -641,7 +641,7 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
 
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
-        points_goal = request.POST.get('personalized_points_goal_input')
+        points_goal = request.POST.get('module_goal_input')
 
         cached_points = CachedPoints(self.instance, request.user, True)
         cached_module, _, _, _ = cached_points.find(self.module)

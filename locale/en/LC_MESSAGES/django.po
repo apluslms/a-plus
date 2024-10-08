@@ -1273,23 +1273,23 @@ msgstr "Points goal"
 msgid "POINTS_GOAL_TOOLTIP"
 msgstr "Set a personal points goal for this module. This goal is only visible to you. Once the goal has been reached, the points progress bar changes colour to blue."
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_TITLE"
 msgstr "Set personalized points goal for module"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "LABEL_POINTS_GOAL_INPUT"
 msgstr "Input personalized goal as a percentage or points (e.g., 50% or 150)"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
 msgstr "Succesfully set personalized points goal"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
 msgstr "Failed to set personalized points goal"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
 msgstr "Input needs to be a percentage or a number (e.g., 50% or 150)"
 
@@ -4148,7 +4148,7 @@ msgid "POINTS"
 msgstr "Points"
 
 #: exercise/templates/exercise/_points_progress.html
-#: exercise/templates/exercise/save_personalized_points_goal.html
+#: exercise/templates/exercise/save_module_goal.html
 msgid "POINTS_TO_PASS"
 msgstr "Points to pass"
 

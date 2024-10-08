@@ -12,24 +12,24 @@
         <br/>
         {% translate 'POINTS_TO_PASS' %}: <span class='text-nowrap'>{{ required }}</span>
     {% endif %}
-    {% if personalized_points_module_goal %}
+    {% if module_goal %}
         <span class='personalized-points-full-text text-nowrap'>
             <br/>
             {% translate 'PERSONALIZED_POINTS_GOAL' %}:
             <span class='personalized-points-text text-nowrap'>
-                {{ personalized_points_module_goal_points|floatformat:"0" }}
+                {{ module_goal_points|floatformat:"0" }}
             </span>
         </span>
     {% endif %}"
 >
-    <div class="aplus-progress-bar aplus-progress-bar-striped aplus-progress-bar-{% if full_score %}success{% elif passed %}warning{% else %}danger{% endif %}"
+    <div class="aplus-progress-bar aplus-progress-bar-striped aplus-progress-bar-{% if full_score %}success{% elif module_goal_achieved %}primary{% elif passed %}warning{% else %}danger{% endif %}"
         rel="progressbar" aria-valuenow="{{ points }}" aria-valuemin="0" aria-valuemax="{{ max }}"
         style="width:{{ percentage }}%;"></div>
     <link rel="stylesheet" href="{% static 'exercise/css/goal_points.css' %}" />
     {% if required_percentage %}
     <div class="required-points" style="left:{{ required_percentage }}%"></div>
     {% endif %}
-    {% if personalized_points_module_goal %}
-    <div id="goal-points" class="goal-points" style="left:{{ personalized_points_module_goal|floatformat:0 }}%"></div>
+    {% if module_goal_percentage %}
+    <div id="goal-points" class="goal-points" style="left:{{ module_goal_percentage|floatformat:0 }}%"></div>
     {% endif %}
 </div>

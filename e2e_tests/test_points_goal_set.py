@@ -37,5 +37,6 @@ def test_points_goal_reached(page: Page) -> None:
     page.get_by_role("button", name="Save").click()
     expect(page.locator("#success-alert")).to_contain_text("Succesfully set personalized points goal")
     page.get_by_role("button", name="Close", exact=True).click()
-    progress_bar_locator = page.locator("#progress-questionnaires > .progress > .progress-bar")
-    expect(progress_bar_locator).to_have_class("progress-bar progress-bar-striped progress-bar-primary")
+    progress_bar_locator = page.locator("#progress-questionnaires > .progress > .aplus-progress-bar")
+    expect(progress_bar_locator).\
+        to_have_class("aplus-progress-bar aplus-progress-bar-striped aplus-progress-bar-primary")

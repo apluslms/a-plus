@@ -763,23 +763,23 @@ msgstr "Pistetavoite"
 msgid "POINTS_GOAL_TOOLTIP"
 msgstr "Aseta henkilökohtainen pistetavoite tälle moduulille. Tavoite näkyy vain sinulle. Kun tavoite on saavutettu, pistepalkki vaihtaa värin siniseksi."
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_TITLE"
 msgstr "Aseta pistetavoite moduulille"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "LABEL_POINTS_GOAL_INPUT"
 msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
 msgstr "Pistetavoite asetettu onnistuneesti"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
 msgstr "Pistetavoitteen asettaminen epäonnistui"
 
-#: exercise/templates/exercise/personalized_points_goal_modal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
 msgstr "Pistetavoite tulee antaa joko prosentteina tai pisteinä (esim. 50% or 150)"
 

@@ -2,7 +2,7 @@
 {% load static %}
 {% load course %}
 {% load exercise %}
-<script src="{% static 'exercise/personalized_points_goal.js' %}"></script>
+<script src="{% static 'exercise/module_goal.js' %}"></script>
 
 {% get_max_module_points module.id user.id as max_points %}
 {% get_module_points module.id user.id as points %}
@@ -41,9 +41,9 @@
 		>
 			{% csrf_token %}
 			<div class="form-group">
-				{{ form.personalized_points_goal_input.label_tag }}
+				{{ form.module_goal_input.label_tag }}
 				<div style="display: flex;">
-					{{ form.personalized_points_goal_input }} <span style="margin-top: 5px; margin-left: 5px;">/<span id="max-points"> {{ max_points }}</span></span>
+					{{ form.module_goal_input }} <span style="margin-top: 5px; margin-left: 5px;">/<span id="max-points"> {{ max_points }}</span></span>
 				</div>
 				{% if module.points_to_pass %}
 				<p style="margin-top: 5px;">{% translate "POINTS_TO_PASS" %}: <span id="required-points">{{ module.points_to_pass }}</span></p>

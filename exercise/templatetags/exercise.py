@@ -226,11 +226,15 @@ def _points_data(
 
     max_points = getattr(obj, 'max_points',  0)
     required = getattr(obj, 'points_to_pass',  0)
-    personalized_points_module_goal_points = getattr(obj, 'personalized_points_module_goal_points', None)
-    if personalized_points_module_goal_points is not None:
-        personalized_points_module_goal = (personalized_points_module_goal_points / max_points) * 100
+    module_goal_points = getattr(obj, 'module_goal_points', None)
+    if module_goal_points is not None:
+        module_goal_percentage = (module_goal_points / max_points) * 100
     else:
-        personalized_points_module_goal = None
+        module_goal_percentage = None
+    module_goal_achieved = (
+        module_goal_points
+        and points >= module_goal_points
+    )
 
     data = {
         'points': points,
@@ -249,8 +253,9 @@ def _points_data(
         'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
-        'personalized_points_module_goal_points': personalized_points_module_goal_points,
-        'personalized_points_module_goal': personalized_points_module_goal,
+        'module_goal_points': module_goal_points,
+        'module_goal_percentage': module_goal_percentage,
+        'module_goal_achieved': module_goal_achieved,
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 
