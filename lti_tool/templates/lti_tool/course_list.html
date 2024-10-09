@@ -31,8 +31,8 @@
 							<form style="display: inline-block" method="POST" action="{{ instance_url }}">
 								{% csrf_token %}
 								<button
-									class="aplus-button--secondary aplus-button--xs"
-									type="submit"
+									class="use-whole-course-button aplus-button--secondary aplus-button--xs"
+									type="button"
 								>
 									{% translate "LTI_USE_WHOLE_COURSE" %}
 								</button>
@@ -52,4 +52,13 @@
 		{% endfor %}
 	</div>
 </section>
+<script>
+	$(document).ready(function() {
+		$(".use-whole-course-button").on("click", function() {
+			if (confirm("{% translate 'LTI_CONFIRM_USE_WHOLE_COURSE' %}")) {
+				$(this).closest("form").submit();
+			}
+		});
+	})
+</script>
 {% endblock %}
