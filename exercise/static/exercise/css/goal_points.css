@@ -1,0 +1,6 @@
+.progress .goal-points {
+    position: absolute;
+    height: 100%;
+    width: 3px;
+    background: repeating-linear-gradient(#000000, #000000 2px, transparent 2px, transparent 4px);
+}

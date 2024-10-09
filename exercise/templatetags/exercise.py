@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseInstance, CourseModule
+from course.models import CourseInstance, CourseModule, StudentModuleGoal
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
@@ -28,7 +28,6 @@ from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExer
 
 
 register = template.Library()
-
 
 def _prepare_now(context):
     if 'now' not in context:
@@ -54,6 +53,7 @@ def _prepare_context(context: Context, student: Optional[User] = None) -> Cached
 
 def _get_toc(context, student=None):
     points = _prepare_context(context, student)
+
     context = context.flatten()
     context.update({
         'modules': points.modules_flatted(),
@@ -62,6 +62,34 @@ def _get_toc(context, student=None):
         'is_course_staff': context.get('is_course_staff', False),
     })
     return context
+
+
+@register.simple_tag
+def get_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.points
+
+
+@register.simple_tag
+def get_max_module_points(module: int, student: int) -> int:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    cached_points = CachedPoints(module.course_instance, student, True)
+    cached_module, _, _, _ = cached_points.find(module)
+    return cached_module.max_points
+
+
+@register.simple_tag
+def get_points_goal(module: int, student: int) -> Union[int, bool]:
+    student = UserProfile.objects.get(id=student)
+    module = CourseModule.objects.get(id=module)
+    try:
+        return StudentModuleGoal.objects.get(module=module, student=student).goal_points
+    except StudentModuleGoal.DoesNotExist:
+        return False
 
 
 def _is_accessible(context, entry, t):
@@ -198,6 +226,16 @@ def _points_data(
 
     max_points = getattr(obj, 'max_points',  0)
     required = getattr(obj, 'points_to_pass',  0)
+    module_goal_points = getattr(obj, 'module_goal_points', None)
+    if module_goal_points is not None:
+        module_goal_percentage = (module_goal_points / max_points) * 100
+    else:
+        module_goal_percentage = None
+    module_goal_achieved = (
+        module_goal_points
+        and points >= module_goal_points
+    )
+
     data = {
         'points': points,
         'formatted_points': getattr(obj, 'formatted_points',  '0'),
@@ -215,6 +253,9 @@ def _points_data(
         'unofficial_submission_type': getattr(obj, 'unofficial_submission_type', None),
         'confirmable_points': getattr(obj, 'confirmable_points',  False),
         'feedback_revealed': getattr(obj, 'feedback_revealed',  True),
+        'module_goal_points': module_goal_points,
+        'module_goal_percentage': module_goal_percentage,
+        'module_goal_achieved': module_goal_achieved,
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 

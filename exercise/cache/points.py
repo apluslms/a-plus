@@ -24,7 +24,7 @@ from django.db.models import prefetch_related_objects
 from django.db.models.signals import post_save, post_delete, pre_delete, m2m_changed
 from django.utils import timezone
 
-from course.models import CourseInstance, CourseModule, StudentGroup
+from course.models import CourseInstance, CourseModule, StudentGroup, StudentModuleGoal
 from deviations.models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
 from lib.cache.cached import DBDataManager, Dependencies, ProxyManager, resolve_proxies
 from lib.helpers import format_points
@@ -865,6 +865,7 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
     _children_unconfirmed: bool
     is_model_answer_revealed: bool
     confirmable_children: bool
+    module_goal_points: Optional[int]
 
     children_unconfirmed = RevealableAttribute[bool]()
 
@@ -919,7 +920,7 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
         self._points_by_difficulty = {}
         self._true_unconfirmed_points_by_difficulty = {}
         self._unconfirmed_points_by_difficulty = {}
-
+        self.module_goal_points = None
         self.instance = precreated.get_or_create_proxy(
             CachedPointsData, *self.instance._params, user_id, modifiers=self._modifiers
         )
@@ -940,6 +941,12 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             elif entry.submission_count > 0:
                 self.confirmable_children = True
 
+        try:
+            student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id)
+            self.module_goal_points = student_module_goal.goal_points
+        except StudentModuleGoal.DoesNotExist:
+            pass
+
         def add_points(children):
             for entry in children:
                 if not entry.confirm_the_level and isinstance(entry, ExercisePoints) and entry.is_visible():
@@ -948,7 +955,6 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
                 add_points(entry.children)
 
         add_points(self.children)
-
         self._true_passed = self._true_passed and self._true_points >= self.points_to_pass
         self._passed = self._passed and self._points >= self.points_to_pass
 
