@@ -941,8 +941,9 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             elif entry.submission_count > 0:
                 self.confirmable_children = True
 
+        user = User.objects.get(id=user_id)
         try:
-            student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user_id)
+            student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user.userprofile)
             self.module_goal_points = student_module_goal.goal_points
         except StudentModuleGoal.DoesNotExist:
             pass
