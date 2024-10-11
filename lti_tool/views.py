@@ -19,7 +19,7 @@ from pylti1p3.exception import LtiException
 from course.views import InstanceView, ModuleView
 from course.models import CourseInstance, Enrollment, CourseModule
 from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView
-from exercise.cache.points import LearningObjectPoints
+from exercise.cache.points import LearningObjectEntryBase
 from exercise.viewbase import ExerciseBaseView
 from exercise.models import LearningObject, BaseExercise
 from exercise.views import ExerciseView, SubmissionView
@@ -172,12 +172,11 @@ class LtiModuleView(LtiSessionMixin, ModuleView):
     def get(self, request, *args, **kwargs):
         learningobjects = LearningObject.objects.filter(course_module=self.module)
         learningobjects_dict = { obj.id: obj for obj in learningobjects }
-        # Can't use self.children for iteration, so this instead
-        flat_module = self.content.flat_module(self.module, level_markers=False)
-        exercises = [entry for entry in flat_module if isinstance(entry, LearningObjectPoints)]
-        for exercise in exercises:
-            learningobj = learningobjects_dict[exercise.id]
-            exercise.link = learningobj.get_url('lti-exercise')
+        self.children = list(self.children)
+        for exercise in self.children:
+            if isinstance(exercise, LearningObjectEntryBase):
+                learningobj = learningobjects_dict[exercise.id]
+                exercise.link = learningobj.get_url('lti-exercise')
         return super().get(request, *args, **kwargs)
 
 
@@ -324,7 +323,7 @@ class LtiSelectModuleView(LtiSelectContentMixin, CourseModuleBaseView):
         self.learningobjects = LearningObject.objects.filter(course_module=self.module)
         self.learningobjects_dict = { obj.id: obj for obj in self.learningobjects }
         self.flat_module = list(self.content.flat_module(self.module))
-        exercises = [entry for entry in self.flat_module if isinstance(entry, LearningObjectPoints)]
+        exercises = [entry for entry in self.flat_module if isinstance(entry, LearningObjectEntryBase)]
         for exercise in exercises:
             learningobj = self.learningobjects_dict[exercise.id]
             exercise.link = learningobj.get_url('lti-select-exercise')

@@ -5546,6 +5546,10 @@ msgstr "Use the whole course"
 msgid "LTI_SELECT_SPECIFIC_CONTENT"
 msgstr "Select specific content"
 
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_CONFIRM_USE_WHOLE_COURSE"
+msgstr "Are you sure you want to use the whole course?"
+
 #: lti_tool/templates/lti_tool/exercise_list.html
 #: lti_tool/templates/lti_tool/module_list.html
 msgid "LTI_GO_BACK"

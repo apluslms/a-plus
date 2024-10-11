@@ -5566,6 +5566,10 @@ msgstr "Valitse koko kurssi"
 msgid "LTI_SELECT_SPECIFIC_CONTENT"
 msgstr "Valitse tarkempaa sisältöä"
 
+#: lti_tool/templates/lti_tool/course_list.html
+msgid "LTI_CONFIRM_USE_WHOLE_COURSE"
+msgstr "Haluatko varmasti valita koko kurssin?"
+
 #: lti_tool/templates/lti_tool/exercise_list.html
 #: lti_tool/templates/lti_tool/module_list.html
 msgid "LTI_GO_BACK"
