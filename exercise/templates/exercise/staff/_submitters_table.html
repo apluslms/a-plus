@@ -26,7 +26,7 @@
 				data-toggle="dropdown"
 				id="download-data"
 			>
-				{% translate "DOWNLOAD" %} <span class="caret"></span>
+				{% translate "DOWNLOAD_POINTS" %} <span class="caret"></span>
 			</button>
 			<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
@@ -39,6 +39,28 @@
 				{% endfor %}
 			</ul>
 		</span>
+		{% if has_files %}
+			<span class="dropdown">
+				<button
+					class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+					type="button"
+					data-toggle="dropdown"
+					id="download-zip-data"
+				>
+					{% translate "DOWNLOAD_SUBMISSIONS" %} <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-zip-data">
+					{% get_zip_info_list "all best" as types %}
+					{% for type in types %}
+					<li>
+						<a href="{% url 'api:exercise-submissions-zip' version=2 exercise_id=exercise.id %}?best={{ type.best }}">
+							{{ type.verbose_name }}
+						</a>
+					</li>
+					{% endfor %}
+				</ul>
+			</span>
+		{% endif %}
 	</div>
 	<p>
 		{% exercise_text_stats exercise %}

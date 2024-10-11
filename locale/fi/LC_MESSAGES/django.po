@@ -755,6 +755,46 @@ msgstr "myöhästymissakko"
 msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, esim. 0,1 = 10%"
 
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL"
+msgstr "Pistetavoite"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL_TOOLTIP"
+msgstr "Aseta henkilökohtainen pistetavoite tälle moduulille. Tavoite näkyy vain sinulle. Kun tavoite on saavutettu, pistepalkki vaihtaa värin siniseksi."
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_TITLE"
+msgstr "Aseta pistetavoite moduulille"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "LABEL_POINTS_GOAL_INPUT"
+msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
+msgstr "Pistetavoite asetettu onnistuneesti"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
+msgstr "Pistetavoitteen asettaminen epäonnistui"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr "Pistetavoite tulee antaa joko prosentteina tai pisteinä (esim. 50% or 150)"
+
+msgid "PERSONALIZED_POINTS_GOAL"
+msgstr "Pistetavoite"
+
+msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
+msgstr "Pistetavoite ei voi olla vähemmän kuin moduulin läpäisyyn vaaditut pisteet"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Pistetavoite poistettu onnistuneesti"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Pistetavoitteen poistaminen epäonnistui"
+
 #: course/models.py
 msgid "LABEL_MODEL_ANSWER"
 msgstr "esimerkkiratkaisu"
@@ -2588,6 +2628,10 @@ msgstr "Kurssikerrat"
 msgid "HIDDEN_lowercase"
 msgstr "piilotettu"
 
+#: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Näytä palaute välittömästi jos tehtäväpalautus saa 0 pistettä"
+
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
 msgstr "Luo uusi kurssikerta"
@@ -4031,8 +4075,6 @@ msgid "VIEW_FILE -- %(filename)s"
 msgstr "Katsele tiedostoa %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Lataa"
 
@@ -4115,7 +4157,7 @@ msgstr "Pisteet"
 
 #: exercise/templates/exercise/_points_progress.html
 msgid "POINTS_TO_PASS"
-msgstr "Läpäisyyn vaadittavat pisteet"
+msgstr "Vaaditut pisteet"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMISSION_INFO"
@@ -4509,8 +4551,16 @@ msgid "SUMMARY"
 msgstr "Yhteenveto"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, fuzzy, python-format
-#| msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_POINTS"
+msgstr "Lataa pisteet"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Lataa palautukset"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgstr "%(count)s palautusta."
 
@@ -4676,6 +4726,7 @@ msgstr "Muokkaa palauttajia SID "
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
 #: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
 msgid "ALL_SUBMISSIONS"
 msgstr "Kaikki palautukset"
 
@@ -4901,6 +4952,14 @@ msgstr "Päiväys"
 msgid "FILES"
 msgstr "Tiedostot"
 
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Palautuksen arvostelu ei valmistunut määräajassa, ja sitä on yritetty "
+"uudelleen %(num_retries)s kertaa. Palautusta yritetään automaattisesti "
+"enintään %(max_retries)s kertaa."
+
 #: exercise/templatetags/exercise.py
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
@@ -4930,6 +4989,10 @@ msgstr "Tulokset on tällä hetkellä piilotettu."
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel-yhteensopiva CSV"
+
+#: exercise/templatetags/exercise.py
+msgid "BEST_SUBMISSIONS"
+msgstr "Parhaat palautukset"
 
 #: exercise/templatetags/exercise.py
 msgid "INCOMPLETE"

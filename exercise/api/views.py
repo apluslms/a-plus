@@ -1,11 +1,13 @@
+from io import BytesIO
+import zipfile
+
 from aplus_auth.payload import Permission
 from django.core.exceptions import PermissionDenied
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, FileResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from wsgiref.util import FileWrapper
-from rest_framework import mixins, permissions, viewsets
-from rest_framework import status
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.decorators import action
@@ -28,6 +30,7 @@ from course.permissions import (
 from course.api.mixins import CourseResourceMixin
 from exercise.async_views import _post_async_submission
 
+from ..cache.points import ExercisePoints
 from ..models import (
     Submission,
     SubmittedFile,
@@ -321,6 +324,107 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             status_code = status.HTTP_400_BAD_REQUEST
 
         return Response(data, status=status_code, headers=headers)
+
+    @action(
+        detail=False,
+        url_path='zip',
+        url_name='zip',
+        methods=['get'],
+    )
+    def zip(self, request, exercise_id, *args, **kwargs): # noqa: MC0001
+        if not self.instance.is_teacher(request.user):
+            return Response(
+                'Only a teacher can download submissions via this API',
+                status=status.HTTP_403_FORBIDDEN,
+        )
+        exercise = None
+        try:
+            exercise = BaseExercise.objects.get(id=exercise_id)
+        except BaseExercise.DoesNotExist:
+            return Response('Exercise not found', status=status.HTTP_404_NOT_FOUND)
+
+        best = request.query_params.get('best') == 'yes'
+        submissions = Submission.objects.filter(exercise__id=exercise_id).order_by('submission_time')
+
+        def get_group_id(submission):
+            group_id = None
+            if 'group' in submission.meta_data:
+                group_id = submission.meta_data['group']
+            if group_id is None:
+                for lst in submission.submission_data:
+                    if '_aplus_group' in lst:
+                        group_id = lst[1]
+                        break
+            return group_id
+
+        def handle_submission(submission, submitters, info_csv):
+            group_id = None
+            if len(submitters) > 1:
+                group_id = get_group_id(submission)
+                if group_id is not None:
+                    try:
+                        group_id = int(group_id)
+                    except ValueError:
+                        return info_csv
+            submission_time = submission.submission_time.strftime('%Y-%m-%d %H:%M:%S %z')
+            submitted_files = SubmittedFile.objects.filter(submission=submission)
+            student_ids = sorted([submitter.student_id for submitter in submitters])
+            submitters_string = '+'.join(student_ids)
+            submission_num = list(
+                dict.fromkeys( # Remove duplicates
+                    Submission.objects.filter(exercise__id=exercise_id, submitters__in=submitters)
+                    .order_by('submission_time')
+                )
+            ).index(submission) + 1
+            for i, submitted_file in enumerate(submitted_files, start=1):
+                filename = f"{submitters_string}_file{i}_submission{submission_num}"
+                try:
+                    with submitted_file.file_object.file.open('rb') as file:
+                        zip_file.writestr(f'{filename}', file.read())
+                    if group_id is not None:
+                        info_csv += f"{filename},group{group_id},{submission_time}\n"
+                    else:
+                        info_csv += f"{filename},{submitters_string},{submission_time}\n"
+                except OSError:
+                    pass
+            return info_csv
+
+        # Create a zip file in memory
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+            info_csv = "filename,label,created_at\n"
+            if best:
+                unique_submitters = []
+                for submission in submissions:
+                    submitters = submission.submitters.all()
+                    if any(self.instance.is_course_staff(submitter.user) for submitter in submitters):
+                        # Skip staff submissions
+                        continue
+                    for submitter in submitters:
+                        if submitter not in unique_submitters:
+                            unique_submitters.append(submitter)
+                unique_submissions = []
+                for submitter in unique_submitters:
+                    submission_entry = ExercisePoints.get(exercise, submitter).best_submission
+                    if submission_entry is None:
+                        continue
+                    submission = submissions.filter(id=submission_entry.id).first()
+                    # Prevent duplicate best submissions due to group submissions
+                    if submission not in unique_submissions:
+                        unique_submissions.append(submission)
+                        info_csv = handle_submission(submission, submission.submitters.all(), info_csv)
+            else:
+                for submission in submissions:
+                    submitters = submission.submitters.all()
+                    if any(self.instance.is_course_staff(submitter.user) for submitter in submitters):
+                        # Skip staff submissions
+                        continue
+                    info_csv = handle_submission(submission, submitters, info_csv)
+            zip_file.writestr('info.csv', info_csv)
+        zip_buffer.seek(0)
+
+        response = FileResponse(zip_buffer, as_attachment=True, filename='submissions.zip')
+        return response
 
     def get_access_mode(self):
         # The API is not supposed to use the access mode permission in views,

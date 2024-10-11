@@ -1265,6 +1265,47 @@ msgstr "Late submissions are allowed until %(deadline)s. "
 msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "However, points are only worth %(percent)s%%. "
 
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL"
+msgstr "Points goal"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL_TOOLTIP"
+msgstr "Set a personal points goal for this module. This goal is only visible to you. Once the goal has been reached, the points progress bar changes colour to blue."
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_TITLE"
+msgstr "Set personalized points goal for module"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "LABEL_POINTS_GOAL_INPUT"
+msgstr "Input personalized goal as a percentage or points (e.g., 50% or 150)"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
+msgstr "Succesfully set personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
+msgstr "Failed to set personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr "Input needs to be a percentage or a number (e.g., 50% or 150)"
+
+msgid "PERSONALIZED_POINTS_GOAL"
+msgstr "Points goal"
+
+msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
+msgstr "You cannot set the personalized points goal to be less than the points required to pass the module"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Succesfully removed personalized points goal"
+
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Failed to remove personalized points goal"
+
+
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "UNTAG_MULTIPLE_USERS"
 msgstr "Untag multiple users"
@@ -3710,6 +3751,10 @@ msgid "LABEL_CURRENTLY_REVEALED"
 msgstr "Currently revealed"
 
 #: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Show feedback immediately if the submission gets 0 points"
+
+#: exercise/reveal_models.py
 msgid "MODEL_NAME_REVEAL_RULE"
 msgstr "Reveal rule"
 
@@ -4021,8 +4066,6 @@ msgid "VIEW_FILE -- %(filename)s"
 msgstr "View the file %(filename)s"
 
 #: exercise/templates/exercise/_file_link.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
 msgid "DOWNLOAD"
 msgstr "Download"
 
@@ -4103,6 +4146,7 @@ msgid "POINTS"
 msgstr "Points"
 
 #: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/save_module_goal.html
 msgid "POINTS_TO_PASS"
 msgstr "Points to pass"
 
@@ -4494,8 +4538,16 @@ msgid "SUMMARY"
 msgstr "Summary"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, fuzzy, python-format
-#| msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_POINTS"
+msgstr "Download points"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Download submissions"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
 msgstr "%(count)s submissions."
 
@@ -4662,6 +4714,7 @@ msgstr "Edit submitters SID "
 #: exercise/templates/exercise/staff/inspect_submission.html
 #: exercise/templates/exercise/staff/list_submissions.html
 #: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
 msgid "ALL_SUBMISSIONS"
 msgstr "All submissions"
 
@@ -4887,6 +4940,14 @@ msgstr "Date"
 msgid "FILES"
 msgstr "Files"
 
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "SUBMISSION_GRADING_RETRIED -- %(num_retries)s, %(max_retries)s"
+msgstr ""
+"Grading this submission did not finish in time, and it has been retried "
+"%(num_retries)s time(s). Retries continue until successful, or until the "
+"limit of %(max_retries)s retries is reached."
+
 #: exercise/templatetags/exercise.py
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
@@ -4916,6 +4977,10 @@ msgstr "Results are currently hidden."
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
 msgstr "Excel compatible CSV"
+
+#: exercise/templatetags/exercise.py
+msgid "BEST_SUBMISSIONS"
+msgstr "Best submissions"
 
 #: exercise/templatetags/exercise.py
 msgid "INCOMPLETE"
@@ -5597,8 +5662,6 @@ msgid "LABEL_SEEN"
 msgstr "seen"
 
 #: notification/models.py
-#, fuzzy
-#| msgid "LABEL_GRADE"
 msgid "LABEL_REGRADE_WHEN_SEEN"
 msgstr "regrade when seen"
 

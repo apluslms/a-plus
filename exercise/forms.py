@@ -180,3 +180,15 @@ class EditSubmittersForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ['submitters']
+
+class StudentModuleGoalForm(forms.Form):
+    module_goal_input = forms.CharField(
+        label=_('LABEL_POINTS_GOAL_INPUT'),
+        max_length=10,
+        widget=forms.TextInput(attrs={'style': 'width: 66px;', 'class': 'form-control'}),
+    )
+
+    class Meta():
+        fields = [
+            'module_goal_input',
+        ]

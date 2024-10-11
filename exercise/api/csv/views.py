@@ -158,6 +158,8 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
             response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
+        else:
+            response['Content-Disposition'] = 'attachment; filename="submissions.json"'
         return response
 
     def get_renderer_context(self):

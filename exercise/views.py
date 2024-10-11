@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from difflib import ndiff
 from django.contrib import messages
+from django.http import JsonResponse
 from django.http.request import HttpRequest
 from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect
@@ -12,18 +13,21 @@ from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.db import DatabaseError
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from authorization.permissions import ACCESS
-from course.models import CourseModule, SubmissionTag
-from course.viewbase import CourseInstanceBaseView, EnrollableViewMixin
+from course.models import CourseModule, StudentModuleGoal, SubmissionTag
+from course.viewbase import CourseInstanceBaseView, CourseModuleBaseView, EnrollableViewMixin
+from exercise.forms import StudentModuleGoalForm
 from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
-from lib.viewbase import BaseRedirectMixin, BaseView
+from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
-from .cache.points import ExercisePoints
+from .cache.points import CachedPoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
-from .submission_models import SubmittedFile, Submission, SubmissionTagging
+from .submission_models import SubmittedFile, Submission, SubmissionTagging, PendingSubmission
 from .viewbase import (
     ExerciseBaseView,
     SubmissionBaseView,
@@ -32,7 +36,6 @@ from .viewbase import (
     ExerciseModelBaseView,
     ExerciseTemplateBaseView,
 )
-
 from .exercisecollection_models import ExerciseCollection
 from django.urls import reverse
 
@@ -478,6 +481,16 @@ class SubmissionView(SubmissionBaseView):
         super().get_common_objects()
         self.page = { "is_wait": "wait" in self.request.GET }
         self.note("page")
+        # If the submission is not in 'ready' state, check if there is a pendingSubmission
+        # object for this submission and fetch the number of retries from it, so the info
+        # can be displayed for the user. Also display the maximum retries from settings.
+        if self.submission.status != 'ready':
+            try:
+                pending = PendingSubmission.objects.get(submission__id=self.submission.id)
+                self.pending = { "num_retries": pending.num_retries, "max_retries": settings.SUBMISSION_RETRY_LIMIT }
+                self.note("pending")
+            except ObjectDoesNotExist:
+                pass
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         if not self.feedback_revealed:
@@ -606,3 +619,57 @@ class SubmissionDraftView(SubmissionDraftBaseView):
         self.exercise.set_submission_draft(self.profile, submission_data_list)
         # Simple OK response
         return HttpResponse()
+
+
+class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
+    access_mode = ACCESS.STUDENT
+    form_class = StudentModuleGoalForm
+    template_name = "exercise/module_goal_modal.html"
+    success_url = '/'
+
+    def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        cached_points = CachedPoints(self.instance, request.user, True)
+
+        try:
+            StudentModuleGoal.objects.get(student=request.user.id, module=self.module.id).delete()
+            cached_points.invalidate(self.instance, request.user)
+            return JsonResponse({"success": "deleted"}, status=200)
+        except StudentModuleGoal.DoesNotExist:
+            return JsonResponse({'error': 'Not found'}, status=404)
+        except Exception:
+            return JsonResponse({'error': 'Internal server error'}, status=500)
+
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        points_goal = request.POST.get('module_goal_input')
+
+        cached_points = CachedPoints(self.instance, request.user, True)
+        cached_module, _, _, _ = cached_points.find(self.module)
+
+        if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
+            return JsonResponse({"error": "not_a_number"}, status=400)
+
+        # Points goal can either be an integer or percentage. If the the points goal is given as a percentage,
+        # give it to the points goal directly. Otherwise calculate the points goal by taking the integer
+        # and calculating how much that is of the module's max points
+        if '%' in points_goal:
+            points_goal =  (cached_module.max_points) * int(points_goal.replace('%', '')) * 0.01
+        else:
+            points_goal = int(points_goal)
+
+        goal_percentage = points_goal / cached_module.max_points * 100
+
+        goal, _ = StudentModuleGoal.objects.update_or_create(
+            student=request.user.userprofile,
+            module=self.module,
+            defaults={'goal_points': points_goal})
+
+        cached_points.invalidate(self.module.course_instance, request.user)
+
+        if goal.goal_points < self.module.points_to_pass:
+            return JsonResponse({"error": "less_than_required"}, status=400)
+
+        return JsonResponse({
+            "goal_points": goal.goal_points,
+            "goal_percentage": goal_percentage,
+        })

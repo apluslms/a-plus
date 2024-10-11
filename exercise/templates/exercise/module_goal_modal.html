@@ -1,0 +1,72 @@
+{% load i18n %}
+{% load static %}
+{% load course %}
+{% load exercise %}
+<script src="{% static 'exercise/module_goal.js' %}"></script>
+
+{% get_max_module_points module.id user.id as max_points %}
+{% get_module_points module.id user.id as points %}
+{% get_points_goal module.id user.id as points_goal %}
+
+<div class="content">
+	<div class="header">
+		<div class="alert alert-success" id="success-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_SUCCESS" %}
+		</div>
+		<div class="alert alert-warning" id="warning-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_FAILURE" %}
+		</div>
+		<div class="alert alert-warning" id="validation-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_NOT_NUMBER" %}
+		</div>
+		<div class="alert alert-danger" id="danger-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED" %}
+		</div>
+		<div class="alert alert-success" id="remove-success-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS" %}
+		</div>
+		<div class="alert alert-warning" id="remove-warning-alert" style="display: none;">
+			{% translate "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE" %}
+		</div>
+		<h4 class="title" id="pointsGoalModalLabel">{% translate "PERSONALIZED_POINTS_MODAL_TITLE" %} "{{ module.name|parse_localization}}"</h4>
+	</div>
+	<div class="modal-body">
+		<form id="pointsGoalForm" method="POST"
+			action="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
+			data-module-url="{{module.url|lower}}"
+			data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+			data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
+			data-points="{{ points }}"
+			data-points-goal={{ points_goal }}
+		>
+			{% csrf_token %}
+			<div class="form-group">
+				{{ form.module_goal_input.label_tag }}
+				<div style="display: flex;">
+					{{ form.module_goal_input }} <span style="margin-top: 5px; margin-left: 5px;">/<span id="max-points"> {{ max_points }}</span></span>
+				</div>
+				{% if module.points_to_pass %}
+				<p style="margin-top: 5px;">{% translate "POINTS_TO_PASS" %}: <span id="required-points">{{ module.points_to_pass }}</span></p>
+				{% endif %}
+			</div>
+			<div style="display: flex;">
+				<input type="hidden" name="method" value="post">
+				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px; value="Post;">{% translate "SAVE" %}</button>
+		</form>
+				{% if points_goal != False %}
+					<form id="deletePointsGoalForm" method="DELETE"
+					action="{% url 'delete_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
+					data-module-url="{{module.url|lower}}"
+					data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+					data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
+					data-points="{{ points }}"
+					data-points-goal={{ points_goal }}
+					>
+						{% csrf_token %}
+						<input type="hidden" name="method" value="delete">
+						<button type="submit" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;" value="Delete;">{% translate "REMOVE" %}</button>
+					</form>
+				{% endif %}
+			</div>
+
+</div>
