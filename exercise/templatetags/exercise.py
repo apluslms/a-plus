@@ -64,34 +64,6 @@ def _get_toc(context, student=None):
     return context
 
 
-@register.simple_tag
-def get_module_points(module: int, student: int) -> int:
-    student = UserProfile.objects.get(id=student)
-    module = CourseModule.objects.get(id=module)
-    cached_points = CachedPoints(module.course_instance, student, True)
-    cached_module, _, _, _ = cached_points.find(module)
-    return cached_module.points
-
-
-@register.simple_tag
-def get_max_module_points(module: int, student: int) -> int:
-    student = UserProfile.objects.get(id=student)
-    module = CourseModule.objects.get(id=module)
-    cached_points = CachedPoints(module.course_instance, student, True)
-    cached_module, _, _, _ = cached_points.find(module)
-    return cached_module.max_points
-
-
-@register.simple_tag
-def get_points_goal(module: int, student: int) -> Union[int, bool]:
-    student = UserProfile.objects.get(id=student)
-    module = CourseModule.objects.get(id=module)
-    try:
-        return StudentModuleGoal.objects.get(module=module, student=student).goal_points
-    except StudentModuleGoal.DoesNotExist:
-        return False
-
-
 def _is_accessible(context, entry, t):
     if t and t > _prepare_now(context):
         return False

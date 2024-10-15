@@ -24,7 +24,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
-from .cache.points import CachedPoints, ExercisePoints
+from .cache.points import CachedPoints, ModulePoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission, SubmissionTagging, PendingSubmission
@@ -627,6 +627,21 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
     template_name = "exercise/module_goal_modal.html"
     success_url = '/'
 
+    def get_common_objects(self):
+        super().get_common_objects()
+        user = self.request.user
+        profile = user.userprofile
+        try:
+            self.points_goal = (
+                StudentModuleGoal.objects.get(module=self.module, student=profile).goal_points
+            )
+        except StudentModuleGoal.DoesNotExist:
+            self.points_goal = None
+        cached_module = ModulePoints.get(self.module, user)
+        self.max_points = cached_module.max_points
+        self.points = cached_module.points
+        self.note('points_goal', 'points', 'max_points')
+
     def delete(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         cached_points = CachedPoints(self.instance, request.user, True)
 
@@ -643,8 +658,7 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         points_goal = request.POST.get('module_goal_input')
 
-        cached_points = CachedPoints(self.instance, request.user, True)
-        cached_module, _, _, _ = cached_points.find(self.module)
+        cached_module = ModulePoints.get(self.module, request.user)
 
         if not points_goal.replace('%', '').isdigit() and not points_goal.isdigit():
             return JsonResponse({"error": "not_a_number"}, status=400)
@@ -664,6 +678,7 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
             module=self.module,
             defaults={'goal_points': points_goal})
 
+        cached_points = CachedPoints(self.instance, request.user, True)
         cached_points.invalidate(self.module.course_instance, request.user)
 
         if goal.goal_points < self.module.points_to_pass:

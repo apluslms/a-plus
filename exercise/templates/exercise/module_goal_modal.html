@@ -4,10 +4,6 @@
 {% load exercise %}
 <script src="{% static 'exercise/module_goal.js' %}"></script>
 
-{% get_max_module_points module.id user.id as max_points %}
-{% get_module_points module.id user.id as points %}
-{% get_points_goal module.id user.id as points_goal %}
-
 <div class="content">
 	<div class="header">
 		<div class="alert alert-success" id="success-alert" style="display: none;">
@@ -53,7 +49,7 @@
 				<input type="hidden" name="method" value="post">
 				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px; value="Post;">{% translate "SAVE" %}</button>
 		</form>
-				{% if points_goal != False %}
+				{% if points_goal != None %}
 					<form id="deletePointsGoalForm" method="DELETE"
 					action="{% url 'delete_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
 					data-module-url="{{module.url|lower}}"
