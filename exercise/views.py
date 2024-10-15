@@ -646,7 +646,7 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         cached_points = CachedPoints(self.instance, request.user, True)
 
         try:
-            StudentModuleGoal.objects.get(student=request.user.id, module=self.module.id).delete()
+            StudentModuleGoal.objects.get(student=request.user.userprofile, module=self.module.id).delete()
             cached_points.invalidate(self.instance, request.user)
             return JsonResponse({"success": "deleted"}, status=200)
         except StudentModuleGoal.DoesNotExist:
