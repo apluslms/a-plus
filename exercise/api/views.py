@@ -332,9 +332,9 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         methods=['get'],
     )
     def zip(self, request, exercise_id, *args, **kwargs): # noqa: MC0001
-        if not self.instance.is_teacher(request.user):
+        if not self.instance.is_course_staff(request.user):
             return Response(
-                'Only a teacher can download submissions via this API',
+                'Only course staff can download submissions via this API',
                 status=status.HTTP_403_FORBIDDEN,
         )
         exercise = None
