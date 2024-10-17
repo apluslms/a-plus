@@ -368,7 +368,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                         return info_csv
             submission_time = submission.submission_time.strftime('%Y-%m-%d %H:%M:%S %z')
             submitted_files = SubmittedFile.objects.filter(submission=submission)
-            student_ids = sorted([submitter.student_id for submitter in submitters])
+            student_ids = sorted([str(submitter.student_id) for submitter in submitters])
             submitters_string = '+'.join(student_ids)
             submission_num = list(
                 dict.fromkeys( # Remove duplicates
