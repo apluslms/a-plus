@@ -405,7 +405,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                             unique_submitters.append(submitter)
                 unique_submissions = []
                 for submitter in unique_submitters:
-                    submission_entry = ExercisePoints.get(exercise, submitter).best_submission
+                    submission_entry = ExercisePoints.get(exercise, submitter.user).best_submission
                     if submission_entry is None:
                         continue
                     submission = submissions.filter(id=submission_entry.id).first()
