@@ -408,27 +408,10 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
             )
             .order_by('earliest_submission'))
         total_submitters = submitters.count()
-        previous_user_id = request.GET.get('prev')
-        if previous_user_id:
-            previous_submitter = submitters.filter(user__id=previous_user_id).first()
-            if previous_submitter:
-                # get the previous time
-                previous_time = previous_submitter.earliest_submission
-                if previous_time:
-                    # remove the submitters who have been assessed (we do this after we've found the
-                    # previous submitter's time as the previous submitter might have been assessed)
-                    submitters = submitters.filter(count_assessed=0)
+        unassessed_submitters = submitters.filter(count_assessed=0).order_by('earliest_submission')
+        submitter = unassessed_submitters.first()
 
-                    # Find specifically the submitter who's submission was submitted right after this one
-                    submitters = submitters.filter(earliest_submission__gt=previous_time)
-                    submitter = submitters.first()
-
-        if not submitter:
-            submitters = submitters.filter(count_assessed=0)
-            submitter = submitters.first()
-
-        # Subtract the number of submitters that we have after filtering from the total_submitters
-        filtered_submitters = total_submitters - submitters.count() + 1
+        assessed_submitters_count = total_submitters - unassessed_submitters.count() + 1
 
         if not submitter:
             # There are no more unassessed submitters.
@@ -440,12 +423,9 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True, fallback_to_last=True)
         if not ids:
             raise Http404()
-        if total_submitters == 0:
-            percentage = "0%"
-        else:
-            percentage = f"{int(filtered_submitters / total_submitters * 100)}%"
+        percentage = f"{int(assessed_submitters_count / total_submitters * 100)}%" if total_submitters else "0%"
         self.request.session['manually_assessed_counter'] = (
-            f"{filtered_submitters} / {total_submitters} ({percentage})"
+            f"{assessed_submitters_count} / {total_submitters} ({percentage})"
         )
         url = reverse(
             'submission-inspect',

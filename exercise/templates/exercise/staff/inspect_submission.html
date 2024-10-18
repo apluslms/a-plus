@@ -55,14 +55,11 @@
 
 		<div class="col-md-9">
 			<div>
-				{% with prev_id=submission.submitters.all.0.id %}
-				<a href="{{ exercise|url:'submission-next-unassessed' }}?prev={{ prev_id }}" class="pull-right">
+				<a href="{{ exercise|url:'submission-next-unassessed' }}" class="pull-right">
 					{% translate "ASSESS_NEXT_SUBMITTER_MANUALLY" %}
 					{{ request.session.manually_assessed_counter }}
 					<span aria-hidden="true">&raquo;</span>
 				</a>
-				{% endwith %}
-
 				<span class="h4">{% translate "SUBMISSIONS" %}</span>
 				<span class="badge">
 					{{ summary.submission_count }}
