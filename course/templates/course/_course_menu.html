@@ -100,13 +100,8 @@
 </li>
 {% endif %}
 
-
 {% for group in course_menu.student_link_groups %}
-{% if group.label %}
-<li class="header">
-	<h4>{{ group.label|parse_localization }}</h4>
-</li>
-{% endif %}
+{% if group.label == '' %}
 {% for entry in group.items %}
 {% if entry.enabled %}
 <li>
@@ -120,6 +115,28 @@
 </li>
 {% endif %}
 {% endfor %}
+{% endif %}
+{% endfor %}
+
+{% for group in course_menu.student_link_groups %}
+{% if group.label != '' %}
+<li class="header">
+	<h4>{{ group.label|parse_localization }}</h4>
+</li>
+{% for entry in group.items %}
+{% if entry.enabled %}
+<li>
+	{% is_external_menu_url entry.url as is_external_menu_url_flag %}
+	<a href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
+		{% if entry.icon_class %}
+		<span class="glyphicon glyphicon-{{ entry.icon_class }}" aria-hidden="true"></span>
+		{% endif %}
+		{{ entry.label|parse_localization }}
+	</a>
+</li>
+{% endif %}
+{% endfor %}
+{% endif %}
 {% endfor %}
 
 {% for tab in instance.tabs.all %}
