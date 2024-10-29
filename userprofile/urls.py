@@ -1,13 +1,11 @@
 from django.urls import re_path
-from django.contrib.auth import views as auth_views
 
 from . import views
 
 
 urlpatterns = [
-    re_path(r'^login/$', views.CustomLoginView.as_view(), name="login"),
-    re_path(r'^logout/$', auth_views.LogoutView.as_view(template_name="userprofile/logout.html"),
-        name="logout"),
+    re_path(r'^login/$', views.AplusLoginView.as_view(), name="login"),
+    re_path(r'^logout/$', views.AplusLogoutView.as_view(), name="logout"),
     re_path(r'^privacy-notice/$', views.PrivacyNoticeView.as_view(),
         name="privacy_notice"),
     re_path(r'^accessibility-statement/$', views.AccessibilityStatementView.as_view(),

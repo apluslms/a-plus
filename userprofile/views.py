@@ -5,7 +5,7 @@ from urllib.parse import unquote
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
@@ -31,7 +31,7 @@ from .viewbase import UserProfileView
 logger = logging.getLogger('aplus.userprofile')
 
 
-class CustomLoginView(LoginView):
+class AplusLoginView(LoginView):
     """This login view class extends the default Django login class and
     overrides some of the default settings. Namely, the template and its context."""
 
@@ -70,9 +70,16 @@ class CustomLoginView(LoginView):
                 brand_name=brand_name,
                 privacy_url=reverse('privacy_notice'),
             ),
+            'show_language_toggle': True,
         })
         return context
 
+class AplusLogoutView(LogoutView):
+    template_name = "userprofile/logout.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["show_language_toggle"] = True
+        return context
 
 def set_user_language(request):
     """Overrides set_language function from django.views.i18n."""
@@ -150,7 +157,8 @@ class PrivacyNoticeView(UserProfileView):
             privacy_text = template.render() if template else _('NO_PRIVACY_NOTICE')
             cache.set(key, privacy_text)
         self.privacy_text = privacy_text
-        self.note("privacy_text")
+        self.show_language_toggle = True
+        self.note("privacy_text", "show_language_toggle")
 
 
 class AccessibilityStatementView(UserProfileView):
@@ -195,7 +203,8 @@ class AccessibilityStatementView(UserProfileView):
             accessibility_statement = local_accessibility_statement + system_accessibility_statement
             cache.set(key, accessibility_statement)
         self.accessibility_statement = accessibility_statement
-        self.note("accessibility_statement")
+        self.show_language_toggle = True
+        self.note("accessibility_statement", "show_language_toggle")
 
 class SupportView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS
@@ -228,7 +237,8 @@ class SupportView(UserProfileView):
             cache.set(key, support_channels)
 
         self.support_channels = support_channels
-        self.note("support_channels")
+        self.show_language_toggle = True
+        self.note("support_channels", "show_language_toggle")
 
 
 class ProfileView(UserProfileView):

@@ -150,6 +150,25 @@
 					</div>
 					<div class="collapse navbar-collapse" id="bs-navbar-collapse">
 						<ul class="user-menu nav navbar-nav navbar-right hidden-xs">
+							<li>
+								{% if show_language_toggle %}
+								{% if request.LANGUAGE_CODE == 'fi' %}
+								<a href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
+									<span>
+										<img src="{% static 'images/uls_white.svg' %}" alt="">
+										EN
+									</span>
+								</a>
+								{% else %}
+								<a href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
+									<span>
+										<img src="{% static 'images/uls_white.svg' %}" alt="">
+										FI
+									</span>
+								</a>
+								{% endif %}
+								{% endif %}
+							</li>
 							{% if user.is_authenticated %}
 							{% group_select %}
 							{% notification_menu %}
@@ -224,6 +243,25 @@
 								</a>
 							</li>
 							{% endif %}
+							<li>
+								{% if show_language_toggle %}
+								{% if request.LANGUAGE_CODE == 'fi' %}
+								<a href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
+									<span>
+										<img src="{% static 'images/uls_white.svg' %}" alt="">
+										EN
+									</span>
+								</a>
+								{% else %}
+								<a href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
+									<span>
+										<img src="{% static 'images/uls_white.svg' %}" alt="">
+										FI
+									</span>
+								</a>
+								{% endif %}
+								{% endif %}
+							</li>
 						</ul>
 					</div>
 				</div>
