@@ -5,10 +5,9 @@ from django.contrib.auth.mixins import AccessMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.messages import error as error_message
 from django.utils.functional import SimpleLazyObject
-from django.shortcuts import render
-from django.views.defaults import ERROR_403_TEMPLATE_NAME
 from rest_framework import permissions as drf_permissions
 
+from aplus import views
 from .exceptions import ValidationFailed
 from .permissions import NoPermission
 
@@ -75,7 +74,7 @@ class AuthenticationMixin(AccessMixin):
         if request.user.is_authenticated:
             # Do not `raise PermissionDenied(message)` here so that
             # view decorators such as `xframe_options_exempt` apply.
-            return render(request, ERROR_403_TEMPLATE_NAME, status=403)
+            return views.error_403(request)
 
         # Redirect not authenticated users to login
         return redirect_to_login(request.get_full_path(),

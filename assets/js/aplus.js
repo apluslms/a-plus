@@ -848,3 +848,10 @@ $(function () {
   });
 
 })(window, document);
+
+
+function changeLanguage(lang) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('hl', lang);
+    window.location.href = url.toString();
+}

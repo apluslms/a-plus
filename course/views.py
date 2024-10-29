@@ -38,6 +38,7 @@ class HomeView(UserProfileView):
         self.welcome_text = settings_text('WELCOME_TEXT')
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.show_language_toggle = True
         my_instances = []
         all_instances = []
         end_threshold = timezone.now() - datetime.timedelta(days=30)
@@ -77,6 +78,7 @@ class HomeView(UserProfileView):
             "my_instances",
             "all_instances",
             "is_logged_in",
+            "show_language_toggle",
         )
 
 
@@ -87,7 +89,8 @@ class ArchiveView(UserProfileView):
     def get_common_objects(self):
         super().get_common_objects()
         self.instances = CourseInstance.objects.get_visible(self.request.user)
-        self.note("instances")
+        self.show_language_toggle = True
+        self.note("instances", "show_language_toggle")
 
 class CourseInstancesView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS
