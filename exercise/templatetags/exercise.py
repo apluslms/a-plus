@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from course.models import CourseInstance, CourseModule, StudentModuleGoal
+from course.models import CourseInstance, CourseModule
 from lib.errors import TagUsageError
 from lib.helpers import format_points as _format_points, is_ajax as _is_ajax
 from userprofile.models import UserProfile
