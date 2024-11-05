@@ -2293,6 +2293,17 @@ msgstr ""
 "above."
 
 #: edit_course/course_forms.py
+msgid "LABEL_POINTS_GOAL_ENABLED"
+msgstr "Enable personalized points goal feature"
+
+#: edit_course/course_forms.py
+msgid "LABEL_POINTS_GOAL_ENABLED_HELP"
+msgstr ""
+"When enabled, students will be able to specify their own points goals for modules. "
+"This only affects the visual of the points progress bar for students and does not affect "
+"grading."
+
+#: edit_course/course_forms.py
 msgid "LABEL_SLUG"
 msgstr "Slug"
 

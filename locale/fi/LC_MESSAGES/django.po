@@ -633,6 +633,16 @@ msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
 "opintotietojärjestelmän kautta."
 
+#: edit_course/course_forms.py
+msgid "LABEL_POINTS_GOAL_ENABLED"
+msgstr "Ota käyttöön henkilökohtainen pistetavoite -ominaisuus"
+
+#: edit_course/course_forms.py
+msgid "LABEL_POINTS_GOAL_ENABLED_HELP"
+msgstr ""
+"Kun tämä on käytössä, opiskelijat voivat määrittää omat pistetavoitteensa moduuleille. "
+"Tämä vaikuttaa vain opiskelijoiden pistepalkin ulkonäköön, eikä vaikuta arviointiin."
+
 #: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "kurssikerta"

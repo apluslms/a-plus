@@ -12,7 +12,7 @@
         <br/>
         {% translate 'POINTS_TO_PASS' %}: <span class='text-nowrap'>{{ required }}</span>
     {% endif %}
-    {% if module_goal_points %}
+    {% if module_goal_points and points_goal_enabled %}
         <span class='personalized-points-full-text text-nowrap'>
             <br/>
             {% translate 'PERSONALIZED_POINTS_GOAL' %}:
@@ -29,7 +29,7 @@
     {% if required_percentage %}
     <div class="required-points" style="left:{{ required_percentage }}%"></div>
     {% endif %}
-    {% if module_goal_percentage %}
+    {% if module_goal_percentage and points_goal_enabled %}
     <div id="goal-points" class="goal-points" style="left:{{ module_goal_percentage|floatformat:0 }}%"></div>
     {% endif %}
 </div>
