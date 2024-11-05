@@ -151,6 +151,7 @@ class CourseInstanceForm(forms.ModelForm):
             'assistants',
             'technical_error_emails',
             'sis_enroll',
+            'points_goal_enabled',
         ]
         widgets = {
             'starting_time': DateTimeLocalInput,

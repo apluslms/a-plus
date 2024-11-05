@@ -691,6 +691,8 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
             instance.description = str(config["course_description"])
         if "course_footer" in config:
             instance.footer = str(config["course_footer"])
+        if "points_goal_enabled" in config:
+            instance.points_goal_enabled = parse_bool(config["points_goal_enabled"])
         if "lang" in config:
             langs = config["lang"]
             if isinstance(langs, list):

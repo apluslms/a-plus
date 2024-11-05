@@ -266,8 +266,11 @@ def _points_data(
 @register.inclusion_tag("exercise/_points_progress.html")
 def points_progress(
         obj: Union[CachedPointsData, ModulePoints, CategoryPoints],
+        points_goal_enabled: Optional[bool] = None,
         ) -> Dict[str, Any]:
-    return _points_data(obj, None)
+    points_data = _points_data(obj, None)
+    points_data['points_goal_enabled'] = points_goal_enabled
+    return points_data
 
 
 @register.inclusion_tag("exercise/_points_badge.html")
