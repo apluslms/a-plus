@@ -1493,6 +1493,11 @@ class StudentModuleGoal(models.Model):
     module = models.ForeignKey(CourseModule, on_delete=models.CASCADE)
     goal_points = models.IntegerField(default=0)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['student', 'module'], name='Unique student module goal')
+        ]
+
 class LearningObjectCategory(models.Model):
     """
     Learning objects may be grouped to different categories.
