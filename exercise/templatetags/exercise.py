@@ -193,8 +193,13 @@ def _points_data(
     # All the different cached points entries
     if isinstance(obj, ExercisePoints):
         points = obj.official_points
+        if obj.best_submission:
+            best_submission_true_points = obj.best_submission._true_points
+        else:
+            best_submission_true_points = None
     else:
         points = obj.points
+        best_submission_true_points = None
 
     max_points = getattr(obj, 'max_points',  0)
     required = getattr(obj, 'points_to_pass',  0)
@@ -228,6 +233,8 @@ def _points_data(
         'module_goal_points': module_goal_points,
         'module_goal_percentage': module_goal_percentage,
         'module_goal_achieved': module_goal_achieved,
+        'show_zero_points_immediately': getattr(obj, 'show_zero_points_immediately',  False),
+        'best_submission_true_points': best_submission_true_points,
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)
 
