@@ -36,7 +36,7 @@ class EqById:
     id: int
 
     def __eq__(self, other: Any) -> bool:
-        if type(self) != type(other): # pylint: disable=unidiomatic-typecheck
+        if type(self) != type(other): # pylint: disable=unidiomatic-typecheck # noqa: E721
             return False
         return self.id == other.id
 
@@ -573,8 +573,7 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Learni
                     _add_to(categories[entry.category_id], exercise)
                     _add_to(total, exercise)
 
-                    if exercise.max_group_size > total.max_group_size:
-                        total.max_group_size = exercise.max_group_size
+                    total.max_group_size = max(total.max_group_size, exercise.max_group_size)
                     if exercise.max_group_size > 1 and exercise.min_group_size < total.min_group_size:
                         total.min_group_size = exercise.min_group_size
 

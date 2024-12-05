@@ -128,6 +128,7 @@ class LTIOutcomesBaseTest(APITestCase):
         elif user and not lti_exercise.lti_service.is_anonymous:
             user_id = 'i' + str(user.pk)
         else:
+            user_id = 'unknown'
             self.fail('mk_sourced_id requires the enrollment argument for anonymous LTI services and user otherwise.')
         return '{}-{}'.format(lti_exercise.pk, user_id)
 

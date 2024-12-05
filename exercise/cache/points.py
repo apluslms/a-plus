@@ -587,7 +587,8 @@ class ExercisePoints(LearningObjectPoints):
         (Notification, [post_delete, post_save], with_user_ids(model_exercise_siblings_confirms_the_level)),
     ]
     DBCLS = LearningObjectPoints.DBCLS
-    submissions: List[SubmissionEntry] = field(default_factory=list)
+    # field() works because LearningObjectPoints inherits CommonPointData, which is a dataclass
+    submissions: List[SubmissionEntry] = field(default_factory=list) # pylint: disable=invalid-field-call
     _true_best_submission: Optional[SubmissionEntry]
     _best_submission: Optional[SubmissionEntry]
     graded: bool

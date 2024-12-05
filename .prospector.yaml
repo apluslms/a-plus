@@ -28,6 +28,7 @@ pylint:
     - relative-beyond-top-level
     - cyclic-import
     - imported-auth-user
+    - too-many-positional-arguments
   options:
     jobs: 0
 

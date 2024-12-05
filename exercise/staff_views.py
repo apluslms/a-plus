@@ -255,6 +255,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         elif self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
             mode = _('GRADING_MODE_LAST')
         else:
+            mode = _('UNKNOWN')
             logger.warning("Missing description for grading mode.")
         self.grading_mode_text = format_lazy(_('GRADING_MODE_TITLE -- {}'), mode)
 

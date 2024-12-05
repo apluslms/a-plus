@@ -224,6 +224,8 @@ class HomePage(BasePage):
             path = "/aplus1/basic_instance"
         elif (course == CourseName.HOOK):
             path = "/aplus1/hook_instance"
+        else:
+            raise Exception(f"Unknown course: {course}") # pylint: disable=broad-exception-raised
 
         self.load(path, HomePageLocators.MAIN_SCORE)
 
