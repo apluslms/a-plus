@@ -60,7 +60,7 @@ class ExternalLinkView(CourseInstanceBaseView):
         self.service = service = self.menu_item.service # pylint: disable=unused-variable
         self.service_label = self.menu_item.label
         url = urlsplit(self.menu_item.final_url)
-        self.url = url._replace(query='', fragment='').geturl()
+        self.url = url._replace(query='').geturl()
         self.site = site = '/'.join(self.url.split('/')[:3])
         self.parameters = parse_qsl(url.query)
         self.parameters_hash = site
