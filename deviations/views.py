@@ -46,6 +46,7 @@ class AddDeadlinesView(AddDeviationsView):
             'seconds': form_data['seconds'],
             'new_date': str(form_data['new_date']) if form_data['new_date'] else None,
             'without_late_penalty': form_data['without_late_penalty'],
+            'timezone_string': form_data['timezone_string'],
         })
         return result
 
@@ -69,8 +70,14 @@ class OverrideDeadlinesView(OverrideDeviationsView):
             'seconds': session_data['seconds'],
             'new_date': parse_datetime(session_data['new_date']) if session_data['new_date'] else None,
             'without_late_penalty': session_data['without_late_penalty'],
+            'timezone_string': session_data['timezone_string'],
         })
         return result
+
+    def form_valid(self, form):
+        timezone_string = self.request.POST.get('timezone_string')
+        form.cleaned_data['timezone_string'] = timezone_string
+        return super().form_valid(form)
 
 
 class RemoveDeadlinesByIDView(RemoveDeviationsByIDView):
