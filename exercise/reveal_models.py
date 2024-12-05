@@ -47,9 +47,6 @@ class RevealRule(models.Model):
         If a time is provided, visibility is checked for that specific time.
         Otherwise, the current time is used.
         """
-
-        if self.show_zero_points_immediately and state.get_points() == 0:
-            return True
         if self.trigger == RevealRule.TRIGGER.MANUAL:
             return self.currently_revealed
         if self.trigger == RevealRule.TRIGGER.IMMEDIATE:

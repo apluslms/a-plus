@@ -601,6 +601,7 @@ class ExercisePoints(LearningObjectPoints):
     personal_deadline_has_penalty: Optional[bool]
     personal_max_submissions: Optional[int]
     feedback_reveal_time: Optional[datetime.datetime]
+    show_zero_points_immediately: Optional[bool]
 
     best_submission = RevealableAttribute[Optional[SubmissionEntry]]()
 
@@ -638,9 +639,12 @@ class ExercisePoints(LearningObjectPoints):
 
     def post_build(self, precreated: ProxyManager):
         super().post_build(precreated)
-
         for submission in self.submissions:
-            submission.reveal(self._modifiers[0])
+            if not self.show_zero_points_immediately:
+                submission.reveal(self._modifiers[0])
+            else:
+                if submission._true_points == 0:
+                    submission.feedback_revealed = True
 
     # pylint: disable-next=too-many-locals
     def _generate_data( # noqa: MC0001
@@ -697,6 +701,7 @@ class ExercisePoints(LearningObjectPoints):
         self.notified = False
         self.unseen = False
         self.model_answer_modules = []
+        self.show_zero_points_immediately = False
 
         # Augment submission data.
         final_submission = None
@@ -731,7 +736,6 @@ class ExercisePoints(LearningObjectPoints):
                 group_id = group.id
             else:
                 group_id = 0
-
             submission_entry = SubmissionEntry(
                 id = submission.id,
                 exercise = self,
@@ -817,6 +821,7 @@ class ExercisePoints(LearningObjectPoints):
             # Check the reveal rule now that all submissions for the exercise have been iterated.
             reveal_rule = prefetched_data.get_reveal_rule(lobj_id)
             state = ExerciseRevealState(self)
+            self.show_zero_points_immediately = reveal_rule.show_zero_points_immediately
             is_revealed = reveal_rule.is_revealed(state)
             reveal_time = reveal_rule.get_reveal_time(state)
         else:
