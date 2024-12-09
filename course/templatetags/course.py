@@ -57,8 +57,8 @@ def parse_localization(entry):
 
 
 @register.filter
-def list_unselected(langs):
-    listed = list(filter(lambda x: x and x != get_language(), langs.split("|")))
+def list_languages(langs):
+    listed = list(filter(lambda x: x, langs.split("|")))
     return listed
 
 

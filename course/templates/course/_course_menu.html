@@ -7,6 +7,8 @@
 
 {% prepare_course_menu %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 <li>
 	<a href="#course-content" class="skip-link page-skip-link hidden-xs">
 		{% translate "SKIP_COURSE_NAVIGATION" %}
@@ -23,13 +25,15 @@
 		{% translate "CHANGE_LANGUAGE" %} <span class="caret"></span>
 	</a>
 	<ul class="dropdown-menu" aria-labelledby="lang-dropdown-mobile">
-		{% for language in instance.language|list_unselected %}
+		{% for language in instance.language|list_languages %}
 		<li role="none">
 			<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
 				{% csrf_token %}
 				<input name="next" type="hidden" value="{{ request.get_full_path }}" />
 				<input name="language" type="hidden" value="{{ language }}" />
-				<button type="submit" class="btn">{{ language|language_name_local }}</button>
+				<button type="submit" class="btn" {% if LANGUAGE_CODE == language %}aria-current="true"{% endif %}>
+					{{ language|language_name_local }} {% if LANGUAGE_CODE == language %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+				</button>
 			</form>
 		</li>
 		{% endfor %}
@@ -47,13 +51,15 @@
 			<span>Language</span>
 		</button>
 		<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="lang-dropdown-desktop">
-			{% for language in instance.language|list_unselected %}
+			{% for language in instance.language|list_languages %}
 			<li>
 				<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
 					{% csrf_token %}
 					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
 					<input name="language" type="hidden" value="{{ language }}" />
-					<button type="submit" class="btn">{{ language|language_name_local }}</button>
+					<button type="submit" class="btn" {% if LANGUAGE_CODE == language %}aria-current="true"{% endif %}>
+						{{ language|language_name_local }} {% if LANGUAGE_CODE == language %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+					</button>
 				</form>
 			</li>
 			{% endfor %}
