@@ -357,6 +357,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                         break
             return group_id
 
+        # pylint: disable=too-many-locals
         def handle_submission(submission, submitters, info_csv):
             group_id = None
             if len(submitters) > 1:
@@ -367,6 +368,10 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                     except ValueError:
                         return info_csv
             submission_time = submission.submission_time.strftime('%Y-%m-%d %H:%M:%S %z')
+            points = submission.service_points
+            submission_id = submission.id
+            submitter_name = ";".join([submitter.user.get_full_name() for submitter in submission.submitters.all()])
+            exercise_form_name = ";".join(list(submission.exercise.exercise_info["form_i18n"].keys()))
             submitted_files = SubmittedFile.objects.filter(submission=submission)
             student_ids = sorted([str(submitter.student_id) for submitter in submitters])
             submitters_string = '+'.join(student_ids)
@@ -378,13 +383,20 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
             ).index(submission) + 1
             for i, submitted_file in enumerate(submitted_files, start=1):
                 filename = f"{submitters_string}_file{i}_submission{submission_num}"
+                original_name = submitted_file.filename
                 try:
                     with submitted_file.file_object.file.open('rb') as file:
                         zip_file.writestr(f'{filename}', file.read())
                     if group_id is not None:
-                        info_csv += f"{filename},group{group_id},{submission_time}\n"
+                        info_csv += (
+                            f"{filename},group{group_id},{submission_time},{original_name},{points},"
+                            f"{submission_id},{submitter_name},{exercise_form_name},{submission_num}\n"
+                        )
                     else:
-                        info_csv += f"{filename},{submitters_string},{submission_time}\n"
+                        info_csv += (
+                            f"{filename},{submitters_string},{submission_time},{original_name},{points},"
+                            f"{submission_id},{submitter_name},{exercise_form_name},{submission_num}\n"
+                        )
                 except OSError:
                     pass
             return info_csv
@@ -392,7 +404,10 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         # Create a zip file in memory
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-            info_csv = "filename,label,created_at\n"
+            info_csv = (
+                "filename,label,created_at,original_name,points,submission_id,"
+                "submitter_name,exercise_form_name,submission_index\n"
+            )
             if best:
                 unique_submitters = []
                 for submission in submissions:
