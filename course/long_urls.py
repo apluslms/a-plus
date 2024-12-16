@@ -44,4 +44,7 @@ urlpatterns = [
     re_path(EDIT_URL_PREFIX + r'groups/(?P<group_id>\d+)/delete/$',
         staff_views.GroupsDeleteView.as_view(),
         name="groups-delete"),
+    re_path(EDIT_URL_PREFIX + r'all-submissions/$',
+        views.AllSubmissionsView.as_view(),
+        name="all-submissions"),
 ]
