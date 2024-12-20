@@ -107,6 +107,7 @@ class CourseInstanceBaseMixin:
             self.is_teacher = self.instance.is_teacher(user)
             self.is_course_staff = self.is_teacher or self.is_assistant
             self.url_without_language = remove_query_param_from_url(self.request.get_full_path(), 'hl')
+            self.url_without_limited = remove_query_param_from_url(self.request.get_full_path(), 'limited')
             self.query_language = None
             self.user_language = None
             self.pseudonymize = self.request.session.get('pseudonymize', False)

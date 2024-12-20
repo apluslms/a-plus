@@ -19,14 +19,17 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
+from exercise.submission_models import Submission
 from lib.helpers import settings_text, remove_query_param_from_url, is_ajax
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
 from userprofile.viewbase import UserProfileView
+
 from .forms import GroupsForm, GroupSelectForm
 from .models import Course, CourseInstance, CourseModule, Enrollment
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
-from .viewbase import CourseModuleBaseView, CourseInstanceMixin, EnrollableViewMixin, CourseMixin
+from .viewbase import CourseModuleBaseView, CourseInstanceMixin,\
+    EnrollableViewMixin, CourseMixin, CourseInstanceBaseView
 
 
 class HomeView(UserProfileView):
@@ -380,3 +383,40 @@ class LanguageView(CourseInstanceMixin, BaseView):
                     )
                 request.REQUEST_LANG = lang_code
         return response
+
+class AllSubmissionsView(CourseInstanceBaseView):
+    access_mode = ACCESS.ASSISTANT
+    template_name = 'course/staff/all_exercise_submissions.html'
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        row_data = []
+
+        submissions_data = (
+            Submission.objects
+            .filter(exercise__course_module__course_instance=self.instance.id)
+        )
+
+        for submission in submissions_data:
+            row_data.append({
+                'submission': submission,
+                'exercise': submission.exercise,
+                'submitters': submission.submitters.all(),
+                'is_teacher': self.instance.is_teacher(self.request.user),
+            })
+
+        self.tags = self.instance.submissiontags.all()
+        self.default_limit = 50
+        self.count = len(row_data)
+        self.limited = self.request.GET.get('limited', False)
+        self.submission_data = row_data[:self.default_limit] if self.limited else row_data
+        self.not_all_url = self.url_without_limited + '?limited=true'
+        self.all_url = self.url_without_limited
+
+        self.note('submission_data',
+                  'count',
+                  'default_limit',
+                  'tags',
+                  'limited',
+                  'not_all_url',
+                  'all_url')
