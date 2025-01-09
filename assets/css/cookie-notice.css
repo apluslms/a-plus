@@ -1,0 +1,12 @@
+.cookie-notice {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    justify-content: space-between;
+    margin: auto;
+    padding: 10px;
+    gap: 10px;
+}
+
+#cookie-notice-dismiss {
+    justify-content: flex-end;
+}
