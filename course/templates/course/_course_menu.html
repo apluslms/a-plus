@@ -97,7 +97,7 @@
 	</a>
 </li>
 
-{% if instance_max_group_size > 1 %}
+{% if instance.group_work_allowed %}
 <li class="menu-groups">
 	<a href="{{ instance|url:'groups' }}">
 		<span class="glyphicon glyphicon-heart" aria-hidden="true"></span>
