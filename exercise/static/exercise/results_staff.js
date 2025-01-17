@@ -1180,7 +1180,7 @@
 
             let columns = [
                 {data: "UserID", title: "UserID", class: "always-hidden col-0", type: "num", searchable: false},
-                {data: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
+                {data: "Email", name: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
                 {data: "StudentID", title: _("Student ID"), type: "string", class: "student-id stick-on-scroll col-2", render: renderParticipantLink},
                 {data: "Name", title: _("Student name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
                 {data: "Tags", title: _("Tags"), class: "tags col-4", render: function(data) { return userTagsToHTML(data); }, type: "html" },
@@ -1341,7 +1341,7 @@
              */
             var buttonCommon = {
                 exportOptions: {
-                    columns: ':visible',
+                    columns: ['Email:name', ':visible'],
                     format: {
                         body: removeHtmlFromColumns
                     }
