@@ -4,10 +4,12 @@ import zipfile
 from aplus_auth.payload import Permission
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponse, FileResponse
+from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from wsgiref.util import FileWrapper
 from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.decorators import action
@@ -672,10 +674,21 @@ class CoursePointsViewSet(ListSerializerMixin,
     listserializer_class = UserPointsSerializer
     serializer_class = UserPointsSerializer
 
+    def get_course_instance_object(self):
+        try:
+            return super().get_course_instance_object()
+        except Http404 as exc:
+            raise NotFound(detail="Course not found.") from exc
+
     def get_queryset(self):
         if self.action == 'list':
             return self.instance.students
         return self.instance.course_staff_and_students
+
+    def retrieve(self, request, *args, **kwargs):
+        if not self.instance.is_student(request.user) and not self.instance.is_course_staff(request.user):
+            return Response({'detail': 'You are not enrolled in the course.'}, status=status.HTTP_403_FORBIDDEN)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class ExerciseStatisticsView(BaseStatisticsView):
