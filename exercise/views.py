@@ -673,6 +673,9 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
 
         goal_percentage = points_goal / cached_module.max_points * 100
 
+        if points_goal < self.module.points_to_pass:
+            return JsonResponse({"error": "less_than_required"}, status=400)
+
         goal, _ = StudentModuleGoal.objects.update_or_create(
             student=request.user.userprofile,
             module=self.module,
@@ -680,9 +683,6 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
 
         cached_points = CachedPoints(self.instance, request.user, True)
         cached_points.invalidate(self.module.course_instance, request.user)
-
-        if goal.goal_points < self.module.points_to_pass:
-            return JsonResponse({"error": "less_than_required"}, status=400)
 
         return JsonResponse({
             "goal_points": goal.goal_points,
