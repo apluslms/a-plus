@@ -2601,11 +2601,11 @@ msgstr ""
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_BY"
-msgstr "Build initated by"
+msgstr "Build initiated by"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_INITIATED_AT"
-msgstr "Build initated at"
+msgstr "Build initiated at"
 
 #: edit_course/templates/edit_course/build_log.html
 msgid "BUILD_FINISHED"
@@ -2678,7 +2678,7 @@ msgstr "Retrieve latest build log"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "PREV_MODIFICATION_OF_COURSE_INSTANCE_TIME"
-msgstr "Previous modification of this course instance took place at"
+msgstr "This course was previously built or the course settings were modified on"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "EXERCISE_CATEGORIES"

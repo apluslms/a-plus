@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from django import template
 from django.urls import reverse
+from django.utils import timezone
 
 from course.models import CourseInstance
 
@@ -56,3 +59,15 @@ def createurl(model_object, model_name):
         model_name,
         parent_id=model_object.id,
     ))
+
+
+@register.filter
+def make_timezone_aware(utc_time_str):
+    try:
+        # Parse the Zulu date and time string into a naive datetime object
+        naive_datetime = datetime.strptime(utc_time_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+        # Convert it to a timezone-aware datetime object
+        aware_datetime = timezone.make_aware(naive_datetime, timezone.utc)
+        return aware_datetime
+    except ValueError:
+        return utc_time_str # Return the original string if parsing fails
