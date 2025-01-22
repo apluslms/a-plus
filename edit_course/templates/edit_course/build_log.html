@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load editcourse %}
 
 {% if error %}
   <div class="alert clearfix alert-danger" role="alert">{{ error }}</div>
@@ -11,7 +12,7 @@
       </tr>
       <tr>
         <td>{% translate "BUILD_INITIATED_AT" %}</td>
-        <td>{{ request_time }}</td>
+        <td>{{ request_time|make_timezone_aware }}</td>
       </tr>
       {% if not updated %}
         <tr class="warning">
@@ -21,7 +22,7 @@
       {% else %}
         <tr>
           <td>{% translate "BUILD_FINISHED" %}</td>
-          <td>{{ updated_time }}</td>
+          <td>{{ updated_time|make_timezone_aware }}</td>
         </tr>
       {% endif %}
     </tbody>

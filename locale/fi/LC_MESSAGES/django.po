@@ -2695,7 +2695,7 @@ msgstr "Hae uusin käännösloki"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "PREV_MODIFICATION_OF_COURSE_INSTANCE_TIME"
-msgstr "Kurssia on viimeksi muokattu"
+msgstr "Tämä kurssi on viimeksi käännetty tai kurssin asetuksia on muokattu"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "EXERCISE_CATEGORIES"
