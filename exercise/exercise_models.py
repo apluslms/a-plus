@@ -898,7 +898,7 @@ class BaseExercise(LearningObject):
             alerts[key] = [str(msg) for msg in alerts[key]]
         return success, alerts, students
 
-    def _check_submission_allowed(self, profile, request=None): # noqa: MC0001
+    def _check_submission_allowed(self, profile, request=None): # pylint: disable=too-many-locals # noqa: MC0001
         students = [profile]
         alerts = {
             'error_messages' : [],

@@ -110,7 +110,7 @@ class Command(BaseCommand):
         except OSError as e:
             raise CommandError(f'Error in reading the file "{file_path}".') from e
 
-    def handle(self, *args, **options): # noqa: MC0001
+    def handle(self, *args, **options): # pylint: disable=too-many-locals # noqa: MC0001
         course_instance_ids = options['course_instance_id']
 
         exercise_file_path = options['exercise_output_file']

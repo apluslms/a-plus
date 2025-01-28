@@ -42,7 +42,7 @@ def filter_best_submissions(
     return filtered
 
 
-def submissions_sheet( # noqa: MC0001
+def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
         revealed_ids: Set[int],

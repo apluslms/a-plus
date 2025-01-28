@@ -333,7 +333,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         url_name='zip',
         methods=['get'],
     )
-    def zip(self, request, exercise_id, *args, **kwargs): # noqa: MC0001
+    def zip(self, request, exercise_id, *args, **kwargs): # pylint: disable=too-many-locals # noqa: MC0001
         if not self.instance.is_course_staff(request.user):
             return Response(
                 'Only course staff can download submissions via this API',
@@ -359,7 +359,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
                         break
             return group_id
 
-        # pylint: disable=too-many-locals
+        # pylint: disable-next=too-many-locals
         def handle_submission(submission, submitters, info_csv):
             group_id = None
             if len(submitters) > 1:

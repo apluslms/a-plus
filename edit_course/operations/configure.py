@@ -241,7 +241,7 @@ def lobject_class(config: dict) -> Type[LearningObject]:
     return CourseChapter
 
 
-def update_learning_objects( # noqa: MC0001
+def update_learning_objects( # pylint: disable=too-many-locals # noqa: MC0001
         category_map: Dict[str, LearningObjectCategory],
         configs: Dict[str, Dict[str, Any]],
         learning_objects: Dict[str, LearningObject],
@@ -601,6 +601,7 @@ class ConfigParts:
         )
 
 
+# pylint: disable-next=too-many-locals too-many-branches too-many-statements
 def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[str]]: # noqa: MC0001
     new_config = copy.deepcopy(new_config)
 
