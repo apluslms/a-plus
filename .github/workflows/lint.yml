@@ -24,11 +24,11 @@ jobs:
         if: steps.imgcache.outputs.cache-hit != 'true'
       - uses: docker/setup-buildx-action@v2
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - run: docker buildx build -t lintimg --output type=docker,dest=.docker-lint-img.tar --cache-to type=local,dest=.docker-lint-cache3,mode=max --cache-from type=local,src=.docker-lint-cache -f .github/workflows/lint.Dockerfile .
+      - run: docker buildx build -t lintimg --output type=docker,dest=.docker-lint-img.tar --cache-to type=local,dest=.docker-lint-cache2,mode=max --cache-from type=local,src=.docker-lint-cache -f .github/workflows/lint.Dockerfile .
         if: steps.imgcache.outputs.cache-hit != 'true'
       - run: rm -rf .docker-lint-cache | true
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - run: mv .docker-lint-cache3 .docker-lint-cache
+      - run: mv .docker-lint-cache2 .docker-lint-cache
         if: steps.imgcache.outputs.cache-hit != 'true'
 
   lint:
