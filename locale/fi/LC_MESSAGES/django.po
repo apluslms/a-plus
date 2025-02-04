@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-04 13:12+0300\n"
+"POT-Creation-Date: 2025-02-04 12:16+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -637,15 +637,16 @@ msgstr ""
 "Kun valittu, paikallisten opiskelijoiden on ilmoittauduttava "
 "opintotietojärjestelmän kautta."
 
-#: edit_course/course_forms.py
+#: course/models.py
 msgid "LABEL_POINTS_GOAL_ENABLED"
 msgstr "Ota käyttöön henkilökohtainen pistetavoite -ominaisuus"
 
-#: edit_course/course_forms.py
+#: course/models.py
 msgid "LABEL_POINTS_GOAL_ENABLED_HELP"
 msgstr ""
-"Kun tämä on käytössä, opiskelijat voivat määrittää omat pistetavoitteensa moduuleille. "
-"Tämä vaikuttaa vain opiskelijoiden pistepalkin ulkonäköön, eikä vaikuta arviointiin."
+"Kun tämä on käytössä, opiskelijat voivat määrittää omat pistetavoitteensa "
+"moduuleille. Tämä vaikuttaa vain opiskelijoiden pistepalkin ulkonäköön, eikä "
+"vaikuta arviointiin."
 
 #: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
@@ -768,46 +769,6 @@ msgstr "myöhästymissakko"
 #: course/models.py
 msgid "MODULE_LATE_SUBMISSION_PENALTY_HELPTEXT"
 msgstr "Pisteiden vähennyskerroin desimaalilukuna, esim. 0,1 = 10%"
-
-#: exercise/templates/exercise/_user_results.html
-msgid "POINTS_GOAL"
-msgstr "Pistetavoite"
-
-#: exercise/templates/exercise/_user_results.html
-msgid "POINTS_GOAL_TOOLTIP"
-msgstr "Aseta henkilökohtainen pistetavoite tälle moduulille. Tavoite näkyy vain sinulle. Kun tavoite on saavutettu, pistepalkki vaihtaa värin siniseksi."
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_TITLE"
-msgstr "Aseta pistetavoite moduulille"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "LABEL_POINTS_GOAL_INPUT"
-msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
-msgstr "Pistetavoite asetettu onnistuneesti"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
-msgstr "Pistetavoitteen asettaminen epäonnistui"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
-msgstr "Pistetavoite tulee antaa joko prosentteina tai pisteinä (esim. 50% or 150)"
-
-msgid "PERSONALIZED_POINTS_GOAL"
-msgstr "Pistetavoite"
-
-msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
-msgstr "Pistetavoite ei voi olla vähemmän kuin moduulin läpäisyyn vaaditut pisteet"
-
-msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
-msgstr "Pistetavoite poistettu onnistuneesti"
-
-msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
-msgstr "Pistetavoitteen poistaminen epäonnistui"
 
 #: course/models.py
 msgid "LABEL_MODEL_ANSWER"
@@ -1093,6 +1054,16 @@ msgstr "Määräaikojen poikkeamat"
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Palautuskertojen poikkeamat"
 
+#: course/templates/course/_course_menu.html
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/staff/list_submissions.html
+#: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
+msgid "ALL_SUBMISSIONS"
+msgstr "Kaikki palautukset"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr ""
@@ -1367,6 +1338,132 @@ msgstr "Peruuta"
 msgid "REMOVE_ALL"
 msgstr "Poista kaikki"
 
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
+msgstr "%(count)s palautusta."
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
+msgstr ""
+"%(limit)s viimeisintä palautusta. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s palautusta. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Näytä %(limit)s viimeisintä</a>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Suodata listaa merkinnän perusteella"
+
+#: course/templates/course/staff/all_submissions_table.html exercise/admin.py
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "SUBMITTERS"
+msgstr "Opiskelijat"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "TIME"
+msgstr "Aika"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "STATUS"
+msgstr "Tila"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "GRADE"
+msgstr "Arvosana"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
+#: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertag_list.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "TAGS"
+msgstr "Merkinnät"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Kyllä"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "Ei"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Arvosteltu manuaalisesti"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "INSPECT"
+msgstr "Tutki"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_user_results.html
+msgid "EXERCISE"
+msgstr "Tehtävä"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "LATE_W_PENALTY -- %(percent)s"
+msgstr "Myöhässä <small>-%(percent)s%%</small>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "NO_SUBMISSIONS"
+msgstr "Ei vielä palautuksia"
+
 #: course/templates/course/staff/enroll_students.html
 #: course/templates/course/staff/participants.html
 msgid "ENROLL_STUDENTS"
@@ -1393,6 +1490,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_list.html
+#: exercise/templates/exercise/module_goal_modal.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html templates/ajax_search_select.html
 msgid "REMOVE"
@@ -1445,6 +1543,7 @@ msgstr "Muokkaa ryhmän jäseniä"
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/module_goal_modal.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: external_services/templates/external_services/edit_menu.html
 #: news/templates/news/edit.html userprofile/templates/userprofile/profile.html
@@ -1512,25 +1611,6 @@ msgstr "Etunimi"
 #: userprofile/templates/userprofile/teachers.html
 msgid "EMAIL"
 msgstr "Sähköposti"
-
-#: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "STATUS"
-msgstr "Tila"
-
-#: course/templates/course/staff/participants.html
-#: edit_course/templates/edit_course/edit_course_base.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertag_list.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "TAGS"
-msgstr "Merkinnät"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1811,15 +1891,6 @@ msgid "SUBMITTER"
 msgstr "Palauttaja"
 
 #: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
-#: deviations/templates/deviations/override_dl.html
-#: deviations/templates/deviations/override_submissions.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_user_results.html
-msgid "EXERCISE"
-msgstr "Tehtävä"
-
-#: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
 msgid "EXTRA_SECONDS"
 msgstr "Ylimääräiset minuutit"
@@ -1830,20 +1901,6 @@ msgstr "Ylimääräiset minuutit"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "DEADLINE"
 msgstr "Määräaika"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Kyllä"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "Ei"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
@@ -1871,6 +1928,7 @@ msgstr "Valitse"
 #: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: exercise/staff_views.py
 msgid "UNKNOWN"
 msgstr "Tuntematon"
 
@@ -2075,14 +2133,6 @@ msgstr "Suodata listaa"
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
 msgstr "Käyttäjätunnus"
-
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "GRADE"
-msgstr "Arvosana"
 
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
@@ -2642,10 +2692,6 @@ msgstr "Kurssikerrat"
 msgid "HIDDEN_lowercase"
 msgstr "piilotettu"
 
-#: exercise/reveal_models.py
-msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
-msgstr "Näytä palaute välittömästi jos tehtäväpalautus saa 0 pistettä"
-
 #: edit_course/templates/edit_course/clone_instance.html
 msgid "CLONE_COURSE"
 msgstr "Luo uusi kurssikerta"
@@ -3103,12 +3149,6 @@ msgstr "Oikea luokka"
 #: exercise/admin.py userprofile/templates/userprofile/teachers.html
 msgid "COURSE_INSTANCE"
 msgstr "Kurssikerta"
-
-#: exercise/admin.py exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "SUBMITTERS"
-msgstr "Opiskelijat"
 
 #: exercise/admin.py exercise/forms.py exercise/submission_models.py
 msgid "LABEL_SUBMITTERS"
@@ -3656,6 +3696,10 @@ msgstr "Ainakin yksi opiskelijakentistä tulee antaa"
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Voidaan antaa vain yksi opiskelijakenttä"
 
+#: exercise/forms.py
+msgid "LABEL_POINTS_GOAL_INPUT"
+msgstr "Anna pistetavoite prosentteina tai pisteinä (esim. 50% tai 150)"
+
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
 msgstr "Valitettavasti sinulla ei ole oikeutta nähdä tätä tehtävää."
@@ -3781,6 +3825,10 @@ msgid "LABEL_CURRENTLY_REVEALED"
 msgstr "Paljastettu nyt"
 
 #: exercise/reveal_models.py
+msgid "LABEL_SHOW_ZERO_POINTS_IMMEDIATELY"
+msgstr "Näytä palaute välittömästi jos tehtäväpalautus saa 0 pistettä"
+
+#: exercise/reveal_models.py
 msgid "MODEL_NAME_REVEAL_RULE"
 msgstr "Paljastamissääntö"
 
@@ -3807,6 +3855,10 @@ msgstr "Uudelleenarviointi on jo käynnissä."
 #: exercise/staff_views.py
 msgid "ALL_SUBMITTERS_HAVE_BEEN_ASSESSED"
 msgstr "Kaikki palauttajat on arvosteltu."
+
+#: exercise/staff_views.py
+msgid "SKIPPED"
+msgstr "Ohitettu"
 
 #: exercise/staff_views.py
 msgid "ERROR_FAILED_TO_LOAD_RESOURCE"
@@ -4170,8 +4222,14 @@ msgid "POINTS"
 msgstr "Pisteet"
 
 #: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "POINTS_TO_PASS"
 msgstr "Vaaditut pisteet"
+
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_GOAL"
+msgstr "Pistetavoite"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMISSION_INFO"
@@ -4267,6 +4325,17 @@ msgid "POINTS_REQUIRED_TO_PASS_MODULE -- %(points)s"
 msgstr "Moduulin suorittamiseen vaaditaan %(points)s pistettä."
 
 #: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL_TOOLTIP"
+msgstr ""
+"Aseta henkilökohtainen pistetavoite tälle moduulille. Tavoite näkyy vain "
+"sinulle. Kun tavoite on saavutettu, pistepalkki vaihtaa värin siniseksi."
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "POINTS_GOAL"
+msgstr "Pistetavoite"
+
+#: exercise/templates/exercise/_user_results.html
 msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "Tehtäviin saattaa tulla muutoksia ennen kierroksen avautumista!"
 
@@ -4281,14 +4350,6 @@ msgstr "Palautukset"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "NO_SUBMISSIONS_YET"
 msgstr "Ei vielä palautuksia"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "INSPECT"
-msgstr "Tutki"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
@@ -4393,6 +4454,36 @@ msgstr "Näytä pohjatiedosto"
 #: exercise/templates/exercise/submission_plain.html
 msgid "SUBMISSION_ACCEPTED_FOR_GRADING"
 msgstr "Palautuksesi on vastaanotettu arvostelua varten."
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
+msgstr "Pistetavoite asetettu onnistuneesti"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
+msgstr "Pistetavoitteen asettaminen epäonnistui"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr ""
+"Pistetavoite tulee antaa joko prosentteina tai pisteinä (esim. 50% or 150)"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
+msgstr ""
+"Pistetavoite ei voi olla vähemmän kuin moduulin läpäisyyn vaaditut pisteet"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Pistetavoite poistettu onnistuneesti"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Pistetavoitteen poistaminen epäonnistui"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_TITLE"
+msgstr "Aseta pistetavoite moduulille"
 
 #: exercise/templates/exercise/results.html
 msgid "RESULTS"
@@ -4575,57 +4666,12 @@ msgid "DOWNLOAD_SUBMISSIONS"
 msgstr "Lataa palautukset"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
-msgstr "%(count)s palautusta."
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
-msgstr ""
-"%(limit)s viimeisintä palautusta. <a class=\"aplus-button--secondary aplus-"
-"button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid ""
-"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
-"%(limit)s"
-msgstr ""
-"%(count)s palautusta. <a class=\"aplus-button--secondary aplus-button--xs\" "
-"role=\"button\" href=\"%(url)s\">Näytä %(limit)s viimeisintä</a>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"
 msgstr "Ryhmittele palauttajittain"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-msgid "FILTER_SUBMISSIONS_BY_TAG"
-msgstr "Suodata listaa merkinnän perusteella"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GRADED"
 msgstr "arvosteltu"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "TIME"
-msgstr "Aika"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "ASSESSED_MANUALLY"
-msgstr "Arvosteltu manuaalisesti"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-#, python-format
-msgid "LATE_W_PENALTY -- %(percent)s"
-msgstr "Myöhässä <small>-%(percent)s%%</small>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "NO_SUBMISSIONS"
-msgstr "Ei vielä palautuksia"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "NUMBER_ABBREVIATED"
@@ -4735,14 +4781,6 @@ msgstr ">= 90%% pisteistä"
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "EDIT_SUBMITTERS_SID"
 msgstr "Muokkaa palauttajia SID "
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/staff/list_submissions.html
-#: exercise/templates/exercise/staff/submissions_summary.html
-#: exercise/templatetags/exercise.py
-msgid "ALL_SUBMISSIONS"
-msgstr "Kaikki palautukset"
 
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
@@ -5694,8 +5732,6 @@ msgid "LABEL_SEEN"
 msgstr "nähty"
 
 #: notification/models.py
-#, fuzzy
-#| msgid "LABEL_GRADE"
 msgid "LABEL_REGRADE_WHEN_SEEN"
 msgstr "arvioi uudestaan kun nähty"
 
@@ -5813,6 +5849,14 @@ msgstr "Valitse kurssi"
 msgid "TOGGLE_NAVIGATION"
 msgstr "Näytä valikko"
 
+#: templates/base.html
+msgid "CHANGE_LANGUAGE_TO_ENGLISH"
+msgstr "Vaihda kieli englanniksi"
+
+#: templates/base.html
+msgid "CHANGE_LANGUAGE_TO_FINNISH"
+msgstr "Vaihda kieli suomeksi"
+
 #: templates/base.html userprofile/templates/userprofile/profile.html
 msgid "PROFILE"
 msgstr "Käyttäjätili"
@@ -5856,14 +5900,6 @@ msgstr "Palaute"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
-
-#: templates/base.html
-msgid "CHANGE_LANGUAGE_TO_ENGLISH"
-msgstr "Vaihda kieli englanniksi"
-
-#: templates/base.html
-msgid "CHANGE_LANGUAGE_TO_FINNISH"
-msgstr "Vaihda kieli suomeksi"
 
 #: templates/support_channels.html
 msgid "TEACHERS"
