@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-04 13:12+0300\n"
+"POT-Creation-Date: 2025-02-04 12:16+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -629,6 +629,17 @@ msgstr "Enrol from SIS"
 msgid "COURSE_INSTANCE_SIS_ENROLL_HELP"
 msgstr "When enabled, students from local organization must enrol through SIS."
 
+#: course/models.py
+msgid "LABEL_POINTS_GOAL_ENABLED"
+msgstr "Enable personalized points goal feature"
+
+#: course/models.py
+msgid "LABEL_POINTS_GOAL_ENABLED_HELP"
+msgstr ""
+"When enabled, students will be able to specify their own points goals for "
+"modules. This only affects the visual of the points progress bar for "
+"students and does not affect grading."
+
 #: course/models.py lib/admin_helpers.py
 msgid "MODEL_NAME_COURSE_INSTANCE"
 msgstr "course instance"
@@ -1033,6 +1044,16 @@ msgstr "Deadline deviations"
 msgid "SUBMISSION_DEVIATIONS"
 msgstr "Submission deviations"
 
+#: course/templates/course/_course_menu.html
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/staff/list_submissions.html
+#: exercise/templates/exercise/staff/submissions_summary.html
+#: exercise/templatetags/exercise.py
+msgid "ALL_SUBMISSIONS"
+msgstr "All submissions"
+
 #: course/templates/course/_enroll_form.html
 msgid "ENROLL_THROUGH_SIS"
 msgstr ""
@@ -1265,47 +1286,6 @@ msgstr "Late submissions are allowed until %(deadline)s. "
 msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "However, points are only worth %(percent)s%%. "
 
-#: exercise/templates/exercise/_user_results.html
-msgid "POINTS_GOAL"
-msgstr "Points goal"
-
-#: exercise/templates/exercise/_user_results.html
-msgid "POINTS_GOAL_TOOLTIP"
-msgstr "Set a personal points goal for this module. This goal is only visible to you. Once the goal has been reached, the points progress bar changes colour to blue."
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_TITLE"
-msgstr "Set personalized points goal for module"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "LABEL_POINTS_GOAL_INPUT"
-msgstr "Input personalized goal as a percentage or points (e.g., 50% or 150)"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
-msgstr "Succesfully set personalized points goal"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
-msgstr "Failed to set personalized points goal"
-
-#: exercise/templates/exercise/module_goal_modal.html
-msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
-msgstr "Input needs to be a percentage or a number (e.g., 50% or 150)"
-
-msgid "PERSONALIZED_POINTS_GOAL"
-msgstr "Points goal"
-
-msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
-msgstr "You cannot set the personalized points goal to be less than the points required to pass the module"
-
-msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
-msgstr "Succesfully removed personalized points goal"
-
-msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
-msgstr "Failed to remove personalized points goal"
-
-
 #: course/templates/course/staff/_tag_remove_modal.html
 msgid "UNTAG_MULTIPLE_USERS"
 msgstr "Untag multiple users"
@@ -1346,6 +1326,132 @@ msgstr "Cancel"
 msgid "REMOVE_ALL"
 msgstr "Remove all"
 
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
+msgstr "%(count)s submissions."
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
+msgstr ""
+"%(limit)s latest submissions. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Show all</a>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "FILTER_SUBMISSIONS_BY_TAG"
+msgstr "Filter submissions by tag"
+
+#: course/templates/course/staff/all_submissions_table.html exercise/admin.py
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+msgid "SUBMITTERS"
+msgstr "Submitters"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+msgid "TIME"
+msgstr "Time"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "STATUS"
+msgstr "Status"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "GRADE"
+msgstr "Grade"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
+#: edit_course/templates/edit_course/edit_course_base.html
+#: edit_course/templates/edit_course/usertag_add.html
+#: edit_course/templates/edit_course/usertag_delete.html
+#: edit_course/templates/edit_course/usertag_edit.html
+#: edit_course/templates/edit_course/usertag_list.html
+#: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "TAGS"
+msgstr "Tags"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Yes"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "No"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Assessed manually"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+#: exercise/templates/exercise/staff/inspect_submission.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "INSPECT"
+msgstr "Inspect"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: deviations/templates/deviations/override_dl.html
+#: deviations/templates/deviations/override_submissions.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_user_results.html
+msgid "EXERCISE"
+msgstr "Assignment"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+#, python-format
+msgid "LATE_W_PENALTY -- %(percent)s"
+msgstr "Late <small>-%(percent)s%%</small>"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+msgid "NO_SUBMISSIONS"
+msgstr "No submissions"
+
 #: course/templates/course/staff/enroll_students.html
 #: course/templates/course/staff/participants.html
 msgid "ENROLL_STUDENTS"
@@ -1372,6 +1478,7 @@ msgstr "Enrol students in the course"
 #: edit_course/templates/edit_course/submissiontag_list.html
 #: edit_course/templates/edit_course/usertag_delete.html
 #: edit_course/templates/edit_course/usertag_list.html
+#: exercise/templates/exercise/module_goal_modal.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html templates/ajax_search_select.html
 msgid "REMOVE"
@@ -1424,6 +1531,7 @@ msgstr "Edit group members"
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_edit.html
 #: edit_course/templates/edit_course/usertagging_add.html
+#: exercise/templates/exercise/module_goal_modal.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: external_services/templates/external_services/edit_menu.html
 #: news/templates/news/edit.html userprofile/templates/userprofile/profile.html
@@ -1491,25 +1599,6 @@ msgstr "First name"
 #: userprofile/templates/userprofile/teachers.html
 msgid "EMAIL"
 msgstr "Email"
-
-#: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "STATUS"
-msgstr "Status"
-
-#: course/templates/course/staff/participants.html
-#: edit_course/templates/edit_course/edit_course_base.html
-#: edit_course/templates/edit_course/usertag_add.html
-#: edit_course/templates/edit_course/usertag_delete.html
-#: edit_course/templates/edit_course/usertag_edit.html
-#: edit_course/templates/edit_course/usertag_list.html
-#: edit_course/templates/edit_course/usertagging_add.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "TAGS"
-msgstr "Tags"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1787,15 +1876,6 @@ msgid "SUBMITTER"
 msgstr "Submitter"
 
 #: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
-#: deviations/templates/deviations/override_dl.html
-#: deviations/templates/deviations/override_submissions.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_user_results.html
-msgid "EXERCISE"
-msgstr "Assignment"
-
-#: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
 msgid "EXTRA_SECONDS"
 msgstr "Extra seconds"
@@ -1806,20 +1886,6 @@ msgstr "Extra seconds"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "DEADLINE"
 msgstr "Deadline"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Yes"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "No"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
@@ -1847,6 +1913,7 @@ msgstr "Select"
 #: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
+#: exercise/staff_views.py
 msgid "UNKNOWN"
 msgstr "Unknown"
 
@@ -2051,14 +2118,6 @@ msgstr "Filter users"
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
 msgstr "Username"
-
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "GRADE"
-msgstr "Grade"
 
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
@@ -2291,17 +2350,6 @@ msgstr ""
 "When enabled, students from local organization must enrol through SIS. This "
 "option only applies if you first select a course instance from the dropdown "
 "above."
-
-#: edit_course/course_forms.py
-msgid "LABEL_POINTS_GOAL_ENABLED"
-msgstr "Enable personalized points goal feature"
-
-#: edit_course/course_forms.py
-msgid "LABEL_POINTS_GOAL_ENABLED_HELP"
-msgstr ""
-"When enabled, students will be able to specify their own points goals for modules. "
-"This only affects the visual of the points progress bar for students and does not affect "
-"grading."
 
 #: edit_course/course_forms.py
 msgid "LABEL_SLUG"
@@ -2678,7 +2726,8 @@ msgstr "Retrieve latest build log"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "PREV_MODIFICATION_OF_COURSE_INSTANCE_TIME"
-msgstr "This course was previously built or the course settings were modified on"
+msgstr ""
+"This course was previously built or the course settings were modified on"
 
 #: edit_course/templates/edit_course/edit_content.html
 msgid "EXERCISE_CATEGORIES"
@@ -3082,12 +3131,6 @@ msgstr "Real class"
 #: exercise/admin.py userprofile/templates/userprofile/teachers.html
 msgid "COURSE_INSTANCE"
 msgstr "Course instance"
-
-#: exercise/admin.py exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-msgid "SUBMITTERS"
-msgstr "Submitters"
 
 #: exercise/admin.py exercise/forms.py exercise/submission_models.py
 msgid "LABEL_SUBMITTERS"
@@ -3638,6 +3681,10 @@ msgstr "One of the student fields must not be blank"
 msgid "SUBMISSION_CREATE_AND_REVIEW_ERROR_ONLY_ONE_STUDENT_FIELD_CAN_BE_GIVEN"
 msgstr "Only one student field can be given"
 
+#: exercise/forms.py
+msgid "LABEL_POINTS_GOAL_INPUT"
+msgstr "Input personalized goal as a percentage or points (e.g., 50% or 150)"
+
 #: exercise/permissions.py
 msgid "EXERCISE_VISIBILITY_PERMISSION_DENIED_MSG"
 msgstr "Unfortunately, you are not permitted to view this assignment."
@@ -3792,6 +3839,10 @@ msgstr "Regrade task is already running."
 #: exercise/staff_views.py
 msgid "ALL_SUBMITTERS_HAVE_BEEN_ASSESSED"
 msgstr "All submitters have been assessed."
+
+#: exercise/staff_views.py
+msgid "SKIPPED"
+msgstr "Skipped"
 
 #: exercise/staff_views.py
 msgid "ERROR_FAILED_TO_LOAD_RESOURCE"
@@ -4157,9 +4208,14 @@ msgid "POINTS"
 msgstr "Points"
 
 #: exercise/templates/exercise/_points_progress.html
-#: exercise/templates/exercise/save_module_goal.html
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "POINTS_TO_PASS"
 msgstr "Points to pass"
+
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_GOAL"
+msgstr "Points goal"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMISSION_INFO"
@@ -4253,6 +4309,18 @@ msgid "POINTS_REQUIRED_TO_PASS_MODULE -- %(points)s"
 msgstr "%(points)s points required to pass the module. "
 
 #: exercise/templates/exercise/_user_results.html
+msgid "POINTS_GOAL_TOOLTIP"
+msgstr ""
+"Set a personal points goal for this module. This goal is only visible to "
+"you. Once the goal has been reached, the points progress bar changes colour "
+"to blue."
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "POINTS_GOAL"
+msgstr "Points goal"
+
+#: exercise/templates/exercise/_user_results.html
 msgid "CHANGES_ARE_POSSIBLE_IN_EXERCISES_BEFORE_MODULE_OPENING"
 msgstr "There may be changes in the assignments before the module opens!"
 
@@ -4267,14 +4335,6 @@ msgstr "Submissions"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "NO_SUBMISSIONS_YET"
 msgstr "No submissions yet"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "INSPECT"
-msgstr "Inspect"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "MODULE_MODEL_ANSWER_NOT_VISIBLE"
@@ -4379,6 +4439,36 @@ msgstr "Show assignment template"
 #: exercise/templates/exercise/submission_plain.html
 msgid "SUBMISSION_ACCEPTED_FOR_GRADING"
 msgstr "Your submission has been received."
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
+msgstr "Succesfully set personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
+msgstr "Failed to set personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_NOT_NUMBER"
+msgstr "Input needs to be a percentage or a number (e.g., 50% or 150)"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_LESS_THAN_REQUIRED"
+msgstr ""
+"You cannot set the personalized points goal to be less than the points "
+"required to pass the module"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
+msgstr "Succesfully removed personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
+msgstr "Failed to remove personalized points goal"
+
+#: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_TITLE"
+msgstr "Set personalized points goal for module"
 
 #: exercise/templates/exercise/results.html
 msgid "RESULTS"
@@ -4559,57 +4649,12 @@ msgid "DOWNLOAD_SUBMISSIONS"
 msgstr "Download submissions"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s, %(url)s"
-msgstr "%(count)s submissions."
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
-msgstr ""
-"%(limit)s latest submissions. <a class=\"aplus-button--secondary aplus-"
-"button--xs\" role=\"button\" href=\"%(url)s\">Show all</a>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid ""
-"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
-"%(limit)s"
-msgstr ""
-"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
-"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"
 msgstr "Group by submitter"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-msgid "FILTER_SUBMISSIONS_BY_TAG"
-msgstr "Filter submissions by tag"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GRADED"
 msgstr "graded"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "TIME"
-msgstr "Time"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "ASSESSED_MANUALLY"
-msgstr "Assessed manually"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-#, python-format
-msgid "LATE_W_PENALTY -- %(percent)s"
-msgstr "Late <small>-%(percent)s%%</small>"
-
-#: exercise/templates/exercise/staff/_submissions_table.html
-msgid "NO_SUBMISSIONS"
-msgstr "No submissions"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "NUMBER_ABBREVIATED"
@@ -4720,14 +4765,6 @@ msgstr ">= 90%% points"
 #: exercise/templates/exercise/staff/edit_submitters.html
 msgid "EDIT_SUBMITTERS_SID"
 msgstr "Edit submitters SID "
-
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: exercise/templates/exercise/staff/inspect_submission.html
-#: exercise/templates/exercise/staff/list_submissions.html
-#: exercise/templates/exercise/staff/submissions_summary.html
-#: exercise/templatetags/exercise.py
-msgid "ALL_SUBMISSIONS"
-msgstr "All submissions"
 
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: exercise/templates/exercise/staff/inspect_submission.html
@@ -5790,6 +5827,14 @@ msgstr "Select course"
 msgid "TOGGLE_NAVIGATION"
 msgstr "Toggle navigation"
 
+#: templates/base.html
+msgid "CHANGE_LANGUAGE_TO_ENGLISH"
+msgstr "Change language to English"
+
+#: templates/base.html
+msgid "CHANGE_LANGUAGE_TO_FINNISH"
+msgstr "Change language to Finnish"
+
 #: templates/base.html userprofile/templates/userprofile/profile.html
 msgid "PROFILE"
 msgstr "Account"
@@ -5833,14 +5878,6 @@ msgstr "Feedback"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
-
-#: templates/base.html
-msgid "CHANGE_LANGUAGE_TO_ENGLISH"
-msgstr "Change language to English"
-
-#: templates/base.html
-msgid "CHANGE_LANGUAGE_TO_FINNISH"
-msgstr "Change language to Finnish"
 
 #: templates/support_channels.html
 msgid "TEACHERS"

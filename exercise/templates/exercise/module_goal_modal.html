@@ -30,7 +30,7 @@
 		<form id="pointsGoalForm" method="POST"
 			action="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
 			data-module-url="{{module.url|lower}}"
-			data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+			data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL' %}"
 			data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
 			data-points="{{ points }}"
 			data-points-goal={{ points_goal }}
@@ -53,7 +53,7 @@
 					<form id="deletePointsGoalForm" method="DELETE"
 					action="{% url 'delete_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}"
 					data-module-url="{{module.url|lower}}"
-					data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL ' %}"
+					data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL' %}"
 					data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
 					data-points="{{ points }}"
 					data-points-goal={{ points_goal }}

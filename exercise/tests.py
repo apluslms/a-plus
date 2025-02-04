@@ -1524,9 +1524,9 @@ class ExerciseTest(ExerciseTestBase):
     def test_next_unassessed_submitter_view(self):
         # parses the user ID from the URL response of NextUnassessedSubmitterView for convenience. If the URL format is
         # different (e.g. redirect when all have been graded) return just the url
-        def get_url_user_id():
+        def get_url_user_id(args=''):
             response = self.client.get(
-                f"{exercise.get_absolute_url()}submitters/next-unassessed/")
+                f"{exercise.get_absolute_url()}submitters/next-unassessed/{args}")
             try:
                 return int(response.url.split('/submissions/')[1].split('/inspect/')[0])
             except Exception:
@@ -1570,6 +1570,9 @@ class ExerciseTest(ExerciseTestBase):
         user2_submission.grader = self.teacher.userprofile
         user2_submission.save()
         self.assertEqual(user_submission.id, get_url_user_id())
+
+        # test with prev parameter
+        self.assertEqual(user_submission.id, get_url_user_id(f"?prev={self.user2.id}"))
 
         # remove grader for further tests
         user2_submission.grader = None
