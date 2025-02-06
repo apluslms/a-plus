@@ -2,20 +2,20 @@
 {% load course %}
 {% if groups %}
 <li role="presentation" class="menu-groups">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
     <span class="selection">
-      <small>
+      <small class="text-body-secondary">
         {{ selected }}
       </small>
       <span class="caret" aria-hidden="true"></span>
     </span>
     <span class="loader hidden">
-      <small>{% translate "GROUP_LOADER_REGISTERING_SELECTION" %}</small>
+      <small class="text-body-secondary">{% translate "GROUP_LOADER_REGISTERING_SELECTION" %}</small>
     </span>
   </a>
   <ul class="dropdown-menu">
     <li>
-      <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
+      <form class="dropdown-item" id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
         <button type="submit" name="group" value="0" data-group-size="1">
           {% translate "SUBMIT_ALONE" %}

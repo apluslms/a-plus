@@ -300,7 +300,7 @@
         let activeTags = [];
         tagButtonsRef.each(function() {
             //if($(this).children('span').hasClass('glyphicon-check')) activeTags.push(_reverseUsertags[$(this).data('tag-slug')]);
-            if($(this).children('span').hasClass('glyphicon-check')) activeTags.push($(this).data('tag-name'));
+            if($(this).children('i').hasClass('bi-check-square')) activeTags.push($(this).data('tag-name'));
         })
         if($('input[name="tags-operator"]:checked').val() === 'and') {
             dtVar.column(TAGS_COL_ID).search(activeTags.join(" "), false, true );
@@ -333,8 +333,8 @@
             let item = parseInt(_activeSummaryItems[i]) + 1;
 
             let header = (
-                '<th class="stick-on-scroll indicator-heading" colspan="2" ' +
-                'data-toggle="tooltip" data-container="body" title="' +
+                '<th class="stick-on-scroll indicator-heading table-info" colspan="2" ' +
+                'data-bs-toggle="tooltip" data-container="body" title="' +
                 _(summaries[item]['TOOLTIP']) +
                 (summaries[item]['PERCENTAGE_TOOLTIP']
                     ? '\n' + _(summaries[item]['PERCENTAGE_TOOLTIP'])
@@ -949,7 +949,7 @@
         if(tags.length) {
             let html = '';
             tags.split('|').forEach(function(tag) {
-                html += '<span class="colortag colortag-active label label-xs" style="color: ' + _usertags[tag].font_color + '; background-color: ' + _usertags[tag].color + '; margin-right: 5px;">' + _usertags[tag].name + '</span>';
+                html += '<span class="colortag colortag-active badge" style="color: ' + _usertags[tag].font_color + '; background-color: ' + _usertags[tag].color + '; margin-right: 5px;">' + _usertags[tag].name + '</span>';
             })
             return html;
         } else return '';
@@ -967,7 +967,7 @@
 
         selectedModules.each(function() {
             let showModuleClass = '.' + $(this).val();
-            multiSelectSelector.find(showModuleClass).removeClass("hidden disabled");
+            multiSelectSelector.find(showModuleClass).removeClass("d-none disabled");
             multiSelectSelector.find(showModuleClass).prop("selected", true);
             exerciseSelectRef.find(showModuleClass).prop("selected", true);
             if(_displayMode === dm.MODULE) {
@@ -977,7 +977,7 @@
 
         nonSelectedModules.each(function() {
             let hideModuleClass = '.' + $(this).val();
-            multiSelectSelector.find(hideModuleClass).addClass("hidden disabled");
+            multiSelectSelector.find(hideModuleClass).addClass("d-none disabled");
             multiSelectSelector.find(hideModuleClass).prop("selected", false);
             exerciseSelectRef.find(hideModuleClass).prop("selected", false);
         });
@@ -1043,7 +1043,7 @@
                 selected += label + delimiter;
             });
 
-            return selected.substr(0, selected.length - this.delimiterText.length);
+            return selected.substring(0, selected.length - this.delimiterText.length);
         }
     }
 
@@ -1093,7 +1093,7 @@
                 /**
                  * Create column search boxes for other than points columns
                  */
-                $(this).append( '<br><input type="text" class="form-control input-sm textval" style="z-index: 4" placeholder="' + _("Search") + '" />' );
+                $(this).append( '<br><input type="text" class="form-control-sm input textval" style="z-index: 4" placeholder="' + _("Search") + '" />' );
                 $( 'input.textval', this ).on( 'keyup change clear', function () {
                     if ( dtVar.column(realIndex).search() !== this.value ) {
                         recalculateTableDebounced(realIndex, this.value);
@@ -1103,7 +1103,7 @@
                 /**
                  * Create search boxes for points columns
                  */
-                $(this).append( '<br><input type="text" class="form-control input-sm numval" placeholder="' + _("Search") + '" />' );
+                $(this).append( '<br><input type="text" class="form-control-sm input numval" placeholder="' + _("Search") + '" />' );
                 $( 'input.numval', this ).on('keyup change clear', function () {
                     if(this.value === '') delete colSearchVals[realIndex];
                     else colSearchVals[realIndex] = parsePointsSearchVal(this.value);
@@ -1179,27 +1179,27 @@
             }
 
             let columns = [
-                {data: "UserID", title: "UserID", class: "always-hidden col-0", type: "num", searchable: false},
-                {data: "Email", name: "Email", title: "Email", class: "always-hidden col-1", type: "string", searchable: true},
-                {data: "StudentID", title: _("Student ID"), type: "string", class: "student-id stick-on-scroll col-2", render: renderParticipantLink},
-                {data: "Name", title: _("Student name"), class: "student-name stick-on-scroll col-3", type: "html", render: renderParticipantLink},
-                {data: "Tags", title: _("Tags"), class: "tags col-4", render: function(data) { return userTagsToHTML(data); }, type: "html" },
-                {data: "Organization", title: _("Organization"), class: "col-5", type: "string"},
+                {data: "UserID", title: "UserID", className: "always-hidden col-0", type: "num", searchable: false},
+                {data: "Email", name: "Email", title: "Email", className: "always-hidden col-1", type: "string", searchable: true},
+                {data: "StudentID", title: _("Student ID"), type: "string", className: "student-id table-info stick-on-scroll col-2", render: renderParticipantLink},
+                {data: "Name", title: _("Student name"), className: "student-name table-info stick-on-scroll col-3 ", type: "html", render: renderParticipantLink},
+                {data: "Tags", title: _("Tags"), className: "tags col-4", render: function(data) { return userTagsToHTML(data); }, type: "html" },
+                {data: "Organization", title: _("Organization"), className: "col-5", type: "string"},
 
                 // SISU columns. These are only visible in SISU CSV.
                 // Column headers must be exactly correct, and hence not translated.
-                {data: "StudentID", title: "studentNumber", type: "string", class: "always-hidden sisu stick-on-scroll col-6"},
-                {data: "Grade", title: "grade", class: "always-hidden sisu col-7", type: "string", defaultContent: ""},
-                {data: "Credits", title: "credits", class: "always-hidden sisu col-8", type: "string", defaultContent: ""},
-                {data: "AssessmentDate", title: "assessmentDate", class: "always-hidden sisu col-9", type: "string", defaultContent: ""},
-                {data: "CompletionLanguage", title: "completionLanguage", class:"always-hidden sisu col-10", type: "string", defaultContent: ""},
-                {data: "Comment", title: "comment", class: "always-hidden sisu col-11", type: "string", defaultContent: ""},
-                {data: "AdditionalInfo-fi", title: "additionalInfo-fi", class:"always-hidden sisu col-12", type: "string", defaultContent: ""},
-                {data: "AdditionalInfo-sv", title: "additionalInfo-sv", class:"always-hidden sisu col-13", type: "string", defaultContent: ""},
-                {data: "AdditionalInfo-en", title: "additionalInfo-en", class:"always-hidden sisu col-14", type: "string", defaultContent: ""},
+                {data: "StudentID", title: "studentNumber", type: "string", className: "always-hidden sisu stick-on-scroll col-6"},
+                {data: "Grade", title: "grade", className: "always-hidden sisu col-7", type: "string", defaultContent: ""},
+                {data: "Credits", title: "credits", className: "always-hidden sisu col-8", type: "string", defaultContent: ""},
+                {data: "AssessmentDate", title: "assessmentDate", className: "always-hidden sisu col-9", type: "string", defaultContent: ""},
+                {data: "CompletionLanguage", title: "completionLanguage", className: "always-hidden sisu col-10", type: "string", defaultContent: ""},
+                {data: "Comment", title: "comment", className: "always-hidden sisu col-11", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-fi", title: "additionalInfo-fi", className: "always-hidden sisu col-12", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-sv", title: "additionalInfo-sv", className: "always-hidden sisu col-13", type: "string", defaultContent: ""},
+                {data: "AdditionalInfo-en", title: "additionalInfo-en", className: "always-hidden sisu col-14", type: "string", defaultContent: ""},
 
-                {data: "Count", title: "Count", class: "col-15", visible: false, defaultContent: 0, type: "num"},
-                {data: "Total", title: _("Total"), class: "points total col-16", defaultContent: 0, type: "num"}
+                {data: "Count", title: "Count", className: "col-15", visible: false, defaultContent: 0, type: "num"},
+                {data: "Total", title: _("Total"), className: "points total col-16", defaultContent: 0, type: "num"}
             ];
 
             // Store exercises globally
@@ -1209,8 +1209,8 @@
             // Add the actual data columns for datatable
             // Add column numbers so these can be used when searching by column
             exerciseJson[0].results.forEach(function(module) {
-                columns.push({data: 'm' + module.id + ' Count', title: 'm' + module.id + ' Count', class: "always-hidden col-" + columns.length + '"', type: "num", defaultContent: 0, searchable: false, visible: false});
-                columns.push({data: 'm' + module.id + ' Total', title: module.display_name, class: 'points module ' + 'mod-m' + module.id + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
+                columns.push({data: 'm' + module.id + ' Count', title: 'm' + module.id + ' Count', className: "always-hidden col-" + columns.length + '"', type: "num", defaultContent: 0, searchable: false, visible: false});
+                columns.push({data: 'm' + module.id + ' Total', title: module.display_name, className: 'points module ' + 'mod-m' + module.id + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
 
                 moduleSelectRef.append(
                     '<option value="mod-m' + module.id + '"'
@@ -1226,8 +1226,8 @@
                         + '></optgroup'
                     );
                     module.exercises.forEach(function(exercise) {
-                        columns.push({data: exercise.id + ' Count', title: exercise.id + ' Count', class: "always-hidden col-" + columns.length, type: "num", defaultContent: 0, searchable: false, visible: false});
-                        columns.push({data: exercise.id + ' Total', title: exercise.display_name, class: 'points exercise ' + 'ex-' + exercise.id + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
+                        columns.push({data: exercise.id + ' Count', title: exercise.id + ' Count', className: "always-hidden col-" + columns.length, type: "num", defaultContent: 0, searchable: false, visible: false});
+                        columns.push({data: exercise.id + ' Total', title: exercise.display_name, className: 'points exercise ' + 'ex-' + exercise.id + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
                         $("#exercise-selection > optgroup:last-child").append(
                             '<option data-mod-id="m' + module.id + '"'
                             + 'data-ex-id="' + exercise.id + '"'
@@ -1258,7 +1258,7 @@
             // Add columns for difficulty levels. Empty difficulty is labeled as 'No difficulty' in the datatable
             if(Object.keys(_difficulties).length) {
                 for(diff in _difficulties) {
-                    columns.push({data: diff, title: (diff === '' ? _('No difficulty') : diff), class: 'points difficulty diff-' + diff + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
+                    columns.push({data: diff, title: (diff === '' ? _('No difficulty') : diff), className: 'points difficulty diff-' + diff + ' col-' + columns.length, type: "num", defaultContent: 0, visible: true});
                 }
             }
 
@@ -1310,7 +1310,7 @@
             /**
              * If the body has class 'lang-fi', use the Finnish translation for DataTables
              */
-            pageLanguageUrl = $('body').hasClass('lang-fi') ? 'https://cdn.datatables.net/plug-ins/1.10.24/i18n/Finnish.json' : '';
+            pageLanguageUrl = $('body').hasClass('lang-fi') ? 'https://cdn.datatables.net/plug-ins/2.2.1/i18n/fi.json' : '';
 
             /**
              * Removes HTML from Tags and Name columns.
@@ -1321,18 +1321,14 @@
              */
             function removeHtmlFromColumns( data, row, column, node ) {
                 if (typeof(data) === "string") {
-                    // This is expected to be the Tags column
-                    if (data.includes("<span class=\"colortag")) return data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1);
+                    // Column 4 is expected to be the Tags column
                     // The other HTML - rendered columns (name, studentID)
                     // are just cleaned up of HTML
-                    else if (data.includes("<a href")) return data.replace( /<[^>]*>/g, '' );
-                    else return data;
+                    return column === 4 ?
+                    data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1) :
+                    $.fn.dataTable.util.stripHtml(data);
                 }
                 else return data;
-                // When the next version of DataTables.Buttons is released, we can replace the above with:
-                // return column === 2 ?
-                // data.replace( /(<[^>]*>)+/g, ',' ).slice(1,-1) :
-                // column$.fn.dataTable.Buttons.stripData(data);
             }
 
             /**
@@ -1560,11 +1556,11 @@
              */
             $('.filter-users button').on('click', function(event) {
                 event.preventDefault();
-                let icon = $(this).find('.glyphicon');
-                if (icon.hasClass('glyphicon-unchecked')) {
-                    icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+                let icon = $(this).find('i');
+                if (icon.hasClass('bi-square')) {
+                    icon.removeClass('bi-square').addClass('bi-check-square');
                 } else {
-                    icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+                    icon.removeClass('bi-check-square').addClass('bi-square');
                 }
                 searchForSelectedTags();
             });

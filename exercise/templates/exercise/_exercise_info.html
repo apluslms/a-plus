@@ -2,34 +2,36 @@
 {% load course %}
 {% load exercise %}
 
-<div class="well">
-    {% if exercise.category.confirm_the_level %}
-    <p>{% translate "CURRENT_STATUS" %}</p>
-    <p class="exercise-info-points">
-      {% points_badge summary %}
-    </p>
-    {% else %}
-    <p>{% translate "EARNED_POINTS" %}</p>
-    <p><strong class="h2 exercise-info-points">
-        {% format_points summary.official_points summary.feedback_revealed False %}
-        <small>
-            / {{ exercise.max_points }}
-            {% if summary.get_penalty %}
-            <span class="badge">
-                {% translate "LATE" %} -{{ summary.get_penalty|percent }} %
-            </span>
-            {% endif %}
-        </small>
-    </strong></p>
-    {% points_progress summary %}
-    {% endif %}
+<div class="card mb-3">
+	<div class="card-body">
+		{% if exercise.category.confirm_the_level %}
+		<p>{% translate "CURRENT_STATUS" %}</p>
+		<p class="exercise-info-points">
+		{% points_badge summary %}
+		</p>
+		{% else %}
+		<p>{% translate "EARNED_POINTS" %}</p>
+		<p><strong class="h2 exercise-info-points">
+			{% format_points summary.official_points summary.feedback_revealed False %}
+			<small class="text-body-secondary">
+				/ {{ exercise.max_points }}
+				{% if summary.get_penalty %}
+				<span class="badge">
+					{% translate "LATE" %} -{{ summary.get_penalty|percent }} %
+				</span>
+				{% endif %}
+			</small>
+		</strong></p>
+		{% points_progress summary %}
+		{% endif %}
+	</div>
 </div>
 
-<div class="panel panel-primary">
-	<div class="panel-heading">
-			<h4 class="panel-title">{% translate "EXERCISE_INFO" %}</h4>
+<div class="card mb-3">
+	<div class="card-header bg-primary">
+		<h4 class="panel-title">{% translate "EXERCISE_INFO" %}</h4>
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		<dl>
 			{% if exercise.category.status != "hidden" %}
 				<dt>{% translate "EXERCISE_CATEGORY" %}</dt>

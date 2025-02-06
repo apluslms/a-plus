@@ -1,8 +1,8 @@
 // The following classes are used in assets/js/aplus.js. Therefore, you must
 // change the name of the classes in both files.
-@use '../components/icons';
+@use '../components/icons' as icons;
 
-i.icon.glyphicon.glyphicon-new-window {
-	@include icons.glyphicon;
+i.icon.bi-box-arrow-up-right {
+	@include icons.bootstrap-icon;
 	margin-left: 5px;
 }

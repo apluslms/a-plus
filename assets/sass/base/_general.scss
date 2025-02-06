@@ -1,3 +1,5 @@
+@use '../components/icons' as icons;
+
 // This file contains styles that are use throughout the application.
 .kbd,
 kbd {
@@ -19,4 +21,55 @@ kbd {
 	font-size: 0.5em;
 	font-weight: 400;
 	color: #535353;
+}
+
+// Border for code blocks like in BS3
+pre {
+	padding: 0.6rem;
+	border: 1px solid #ccc;
+	border-radius: $border-radius;
+}
+
+code {
+    padding: 2px 4px;
+    background-color: #f9f2f4;
+    border-radius: 4px;
+}
+
+// Heading margins like BS3 (XXX find a better way)
+h1, .h1, h2, .h2, h3, .h3 {
+    margin-top: 1.375rem;
+    margin-bottom: 0.5rem;
+}
+
+// Workaround for the responsive image class changed in BS4
+.img-responsive {
+	@extend .img-fluid;
+}
+
+// BS3's panel class is removed from BS4+, so provide basic 
+// functionality via BS5 card until material is updated.
+.panel {
+	@extend .card;
+}
+.panel-heading {
+	@extend .card-header;
+}
+.panel-body {
+	@extend .card-body;
+}
+
+// Provide workarounds for some common glyphicons
+.glyphicon {
+	font-family: bootstrap-icons;
+	&.glyphicon-file {
+		&:before {
+			@extend .bi-file-earmark-fill;
+		}
+	}
+}
+
+// Django-colortag has hardcoded "label" class, but it's no longer present in BS5
+.colortag.label {
+	@extend .badge;
 }

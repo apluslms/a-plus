@@ -50,7 +50,7 @@
 	</div>
 </div>
 
-<div id="submit-progress" class="hide progress">
+<div id="submit-progress" class="d-none progress">
 	<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%;">
 		{% translate "POSTING_SUBMISSION" %}
 	</div>
@@ -60,7 +60,7 @@
 
 {% include "exercise/_duplicate_submission_modal.html" %}
 
-<div id="loading-indicator" class="hide progress"
+<div id="loading-indicator" class="d-none progress"
 	data-msg-load="{% translate 'LOADING_EXERCISE' %}"
 	data-msg-submit="{% translate 'POSTING_SUBMISSION' %}"
 	data-msg-error="{% translate 'EXERCISE_ERROR_COMMUNICATION' %}">
@@ -86,18 +86,18 @@
 /*$(function() {
 	var forms = $("#exercise-page-content").find("form:not([data-aplus-exercise] form)");
 	forms.on("submit", function(event) {
-		$("#submit-progress").removeClass("hide");
+		$("#submit-progress").removeClass("d-none");
 	});
 });*/
 
 // Add an Ajax exercise event listener to refresh the info column.
 window.addEventListener("message", function (event) {
 	if (event.data.type === "a-plus-refresh-stats") {
-		$("#submit-progress").addClass("hide");
+		$("#submit-progress").addClass("d-none");
 		var $stats = $("#exercise-info"),
 			url = $stats.data("url");
 		$stats.load(url, function() {
-			$stats.find('[data-toggle="tooltip"]').tooltip();
+			$stats.find('[data-bs-toggle="tooltip"]').tooltip();
 		});
 	}
 });

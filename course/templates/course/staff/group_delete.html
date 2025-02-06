@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 {% load course %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block title %}{% translate "REMOVE" %} | {% translate "GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups-edit{% endblock %}
@@ -15,33 +15,35 @@
 {% block columns %}
 <div class="col-md-12">
 
-  <form method="post" class="well form">
-    {% csrf_token %}
-    <legend>{% translate "CONFIRM_GROUP_REMOVAL" %}</legend>
+  <form method="post" class="card form">
+    <div class="card-body">
+      {% csrf_token %}
+      <legend>{% translate "CONFIRM_GROUP_REMOVAL" %}</legend>
 
-    <table class="table table-condensed">
-      <thead>
-        <tr>
-          <th>{% translate "ID" %}</th>
-          <th>{% translate "MEMBERS" %}</th>
-          <th>{% translate "CREATED" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ group.id }}</td>
-          <td>{% profiles group.members.all instance is_teacher %}</td>
-          <td>{{ group.timestamp }}</td>
-        </tr>
-      </tbody>
-    </table>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>{% translate "ID" %}</th>
+            <th>{% translate "MEMBERS" %}</th>
+            <th>{% translate "CREATED" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ group.id }}</td>
+            <td>{% profiles group.members.all instance is_teacher %}</td>
+            <td>{{ group.timestamp }}</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="form-group">
-  		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
-  		<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'groups-list' }}">
-  			{% translate "CANCEL" %}
-  		</a>
-  	</div>
+      <div class="form-group">
+        <input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
+        <a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'groups-list' }}">
+          {% translate "CANCEL" %}
+        </a>
+      </div>
+    </div>
   </form>
 
 </div>

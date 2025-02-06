@@ -55,7 +55,7 @@
 
 		<div class="col-md-9">
 			<div>
-				<a href="{{ exercise|url:'submission-next-unassessed' }}" class="pull-right">
+				<a href="{{ exercise|url:'submission-next-unassessed' }}" class="float-end">
 					{% translate "ASSESS_NEXT_SUBMITTER_MANUALLY" %}
 					{{ request.session.manually_assessed_counter }}
 					<span aria-hidden="true">&raquo;</span>

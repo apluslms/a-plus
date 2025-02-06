@@ -10,18 +10,18 @@
 
 {% block coursecontent %}
 <p class="filter-users">
-  <small>{% translate "FILTER_USERS" %}:</small>
-  <a class="btn btn-success btn-xs" href="?group=internal">
-    <span class="glyphicon glyphicon-{% if group == 'internal' %}check{% else %}unchecked{% endif %}" aria-hidden="true"></span>
+  <small class="text-body-secondary">{% translate "FILTER_USERS" %}:</small>
+  <a class="btn btn-success btn-sm" href="?group=internal">
+    <i class="bi-{% if group == 'internal' %}check{% else %}unchecked{% endif %}" aria-hidden="true"></i>
     {{ internal_user_label|safe }}
   </a>
-  <a class="btn btn-info btn-xs" href="?group=external">
-    <span class="glyphicon glyphicon-{% if group == 'external' %}check{% else %}unchecked{% endif %}" aria-hidden="true"></span>
+  <a class="btn btn-info btn-sm" href="?group=external">
+    <i class="bi-{% if group == 'external' %}check{% else %}unchecked{% endif %}" aria-hidden="true"></i>
     {{ external_user_label|safe }}
   </a>
 </p>
 
-<table class="table table-condensed">
+<table class="table table-sm">
   <tr>
     <th>{% translate "USERNAME" %}</th>
     <th>{% translate "STUDENT_ID" %}</th>

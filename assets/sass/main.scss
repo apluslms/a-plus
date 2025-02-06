@@ -7,16 +7,16 @@
 // First import the custom colours
 @import 'colors/theme';
 // Set some Bootstrap variables
-$brand-primary: $aplus-brand-primary;
+$primary: $aplus-brand-primary;
 $gray-base: $aplus-foreground;
 $body-bg: $aplus-background;
 
 // Next, import the functional colours
 @import 'colors/functional';
-$brand-success: $aplus-success;
-$brand-info: $aplus-info;
-$brand-warning: $aplus-warning;
-$brand-danger: $aplus-danger;
+$success: $aplus-success;
+$info: $aplus-info;
+$warning: $aplus-warning;
+$danger: $aplus-danger;
 // The default $headings-small-color has a low contrast in most of the cases.
 $headings-small-color: #535353;
 
@@ -37,15 +37,61 @@ $font-family-sans-serif: $aplus-font-family-sans-serif;
 $font-family-serif: $aplus-font-family-serif;
 $font-family-monospace: $aplus-font-family-monospace;
 $font-family-base: $aplus-font-family-base;
-$font-size-base:  $aplus-font-size-base;
+//$font-size-base:  $aplus-font-size-base;
 
-@import 'vendor/bootstrap3';
+// Make links look like in Bootstrap 3
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+@import 'vendor/bootstrap5';
+
+// Import Bootstrap Icons (change font file directory from default)
+$bootstrap-icons-font-dir: '../fonts/bootstrap-icons/fonts';
+@import 'vendor/bootstrap-icons/bootstrap-icons';
 
 /*!
  * A+ Legacy Styles
  */
 
 // Start wit the "old" styles, which are going to be progressively replaced.
+//** Deprecated `$screen-sm` as of v3.0.1
+$screen-sm:                  768px !default;
+$screen-sm-min:              $screen-sm !default;
+$screen-xs-max: 575px;//** Point at which the navbar becomes uncollapsed.
+//** Deprecated `$screen-md` as of v3.0.1
+$screen-md:                  992px !default;
+$screen-md-min:              $screen-md !default;
+//** Deprecated `$screen-lg` as of v3.0.1
+$screen-lg:                  1200px !default;
+$screen-lg-min:              $screen-lg !default;
+$screen-md-max:              ($screen-lg-min - 1) !default;
+$screen-sm-max:              ($screen-md-min - 1) !default;
+// Navbar collapse
+//** Point at which the navbar becomes uncollapsed.
+$grid-float-breakpoint:     $screen-sm-min !default;
+//** Point at which the navbar begins collapsing.
+$grid-float-breakpoint-max: ($grid-float-breakpoint - 1) !default;
+$line-height-computed:    floor(($font-size-base * $line-height-base)) !default; // ~20px
+// Basics of a navbar
+$navbar-height:                    3.125rem !default;
+$navbar-margin-bottom:             $line-height-computed !default;
+$navbar-border-radius:             $border-radius !default;
+$navbar-padding-horizontal:        floor(($grid-gutter-width / 2)) !default;
+$navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2) !default;
+$font-size-large:         ceil(($font-size-base * 1.25)) !default; // ~18px
+$font-size-small:         ceil(($font-size-base * .85)) !default; // ~12px
+$gray-base:              #000 !default;
+$gray-darker:            lighten($gray-base, 13.5%) !default; // #222
+$gray-dark:              lighten($gray-base, 20%) !default;   // #333
+$gray:                   lighten($gray-base, 33.5%) !default; // #555
+$gray-light:             lighten($gray-base, 46.7%) !default; // #777
+$gray-lighter:           lighten($gray-base, 93.5%) !default; // #eee
+$nav-link-padding:                          10px 15px !default;
+$cursor-disabled:                not-allowed !default;
+$form-group-margin-bottom:       15px !default;
+$padding-base-vertical:     0.375rem !default;
+$padding-base-horizontal:   0.75rem !default;
+$input-height-base:              ($line-height-computed + ($padding-base-vertical * 2) + 2) !default;
 
 @import 'legacy/main';
 

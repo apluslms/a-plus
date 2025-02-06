@@ -1,26 +1,31 @@
-(function ($) {
-  const set_language_url = (document.currentScript ?
-    $(document.currentScript) :
-    $('script').last()) // Ugly solution for IE11
-    .attr('data-set-lang');
+(function () {
+  const set_language_url = document.currentScript ?
+    document.currentScript.getAttribute('data-set-lang') :
+    document.querySelectorAll('script')[document.querySelectorAll('script').length - 1].getAttribute('data-set-lang');
 
-  $(function () {
-    $('a.change-language').each(function (i, elem) {
-      const $elem = $(elem);
-      const target_lang = $elem.attr('data-target-lang');
-      $elem.on('click', function () {
-        $.post(set_language_url, { language: target_lang })
-          .done(function () {
-            const href = $elem.attr('href');
-            // href="#" means "this page, but in another language"
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('a.change-language').forEach(function (elem) {
+      const target_lang = elem.getAttribute('data-target-lang');
+      elem.addEventListener('click', function (event) {
+        event.preventDefault();
+        fetch(set_language_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ language: target_lang })
+        })
+        .then(function (response) {
+          if (response.ok) {
+            const href = elem.getAttribute('href');
             if (href === '#') {
               window.location.reload();
             } else {
               window.location.href = href;
             }
-          });
-        return false;
+          }
+        });
       });
     });
   });
-})(jQuery);
+})();

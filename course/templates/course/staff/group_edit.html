@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 {% load course %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load static %}
 
 {% block title %}{% translate "EDIT" %} | {% translate "GROUPS" %} | {{ block.super }}{% endblock %}
@@ -15,14 +15,15 @@
 
 {% block columns %}
 <div class="col-md-12">
-
-  <form method="post" class="well form">
+  <form method="post" class="card form">
+    <div class="card-body">
       {% csrf_token %}
       <legend>{% translate "EDIT_GROUP_MEMBERS" %}</legend>
-      {{ form|bootstrap }}
-      <button type="submit" class="aplus-button--default aplus-button--md">
+      {% bootstrap_form form %}
+      <button type="submit" class="aplus-button--default aplus-button--md mt-2">
           {% translate "SAVE" %}
       </button>
+    </div>
   </form>
 
 </div>

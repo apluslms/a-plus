@@ -4,18 +4,29 @@
 .site-message {
   position: relative;
 }
-.site-message .glyphicon {
+.site-message .icon {
   position: absolute;
   top: 19px;
 }
 .site-message .message {
   margin-left: 27px;
 }
-.glyphicon, .label {
+.label, .icon {
     margin-right: 0.2em;
+}
+.icon {
+    margin-left: 5px;
 }
 dl > dt {
     margin-top: 0.5em;
+}
+.dl-horizontal dt {
+    float: left;
+    clear: left;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 iframe {
     border: none;
@@ -26,7 +37,7 @@ iframe {
 .unread {
     font-weight: bold;
 }
-.panel-title .pull-right {
+.panel-title .float-end {
     margin-left: 0.5em;
 }
 .nav .navbar-btn {
@@ -157,6 +168,7 @@ iframe {
     margin-top: 4em;
     background-color: #d9edf7;
     border-color: #bce8f1;
+    padding: 0.5em;
 }
 .course-menu .advert-thumbnail h4 {
     margin-top: 0;
@@ -237,7 +249,7 @@ file for all the components */
     height: 100%;
     border-left: 2px solid black;
 }
-.glyphicon.red {
+.icon.red {
   color: #ff7070;
 }
 .panel-primary>.panel-heading .badge-danger,
@@ -278,8 +290,11 @@ td.submissions-dropdown {
 .exercise-summary .navbar-nav {
 	margin: 0;
 }
+.exercise-summary.navbar {
+    padding: 0 1em;
+}
 .exercise-summary .navbar-nav .navbar-text {
-    margin: 10px 15px 10px 15px;
+    /*margin: 10px 15px 10px 15px;*/
 }
 .exercise-summary .navbar-nav .navbar-text ul {
 	list-style: none;
@@ -292,6 +307,8 @@ collapsed due to narrow viewport) */
 		align-items: stretch;
 		display: flex;
 		flex-wrap: wrap;
+        flex-direction: row;
+        gap: 1em;
 	}
 	.exercise-summary .navbar-nav>li {
 		display: flex;
@@ -326,7 +343,7 @@ collapsed due to narrow viewport) */
     text-decoration: underline;
 }
 .exercise-response {
-  padding: 0 1em;
+  padding: 1em 1em 0 1em;
 }
 [data-aplus-no-summary] .exercise-summary {
     display: none;

@@ -18,7 +18,7 @@
 		</p>
 	{% else %}
 		{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
-			<p class="alert alert-warning"><i class="glyphicon glyphicon-exclamation-sign"></i><span>
+			<p class="alert alert-warning"><i class="bi-exclamation-sign"></i><span>
 		{% else %}
 			<p><span>
 		{% endif %}
@@ -36,7 +36,7 @@
 		{% if is_course_staff %}
 			{% if service.destination_region > service.DESTINATION_REGION.INTERNAL %}
 				<p class="alert alert-{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}warning{% else %}info{% endif %}">
-				<i class="glyphicon glyphicon-exclamation-sign"></i>
+				<i class="bi-exclamation-sign"></i>
 				<span>
 			{% else %}
 				<p><span>
@@ -46,7 +46,7 @@
 			{% endblocktranslate %}
 			</span></p>
 		{% else %}
-			<p class="alert alert-danger"><i class="glyphicon glyphicon-exclamation-sign"></i><span>
+			<p class="alert alert-danger"><i class="bi-exclamation-sign"></i><span>
 				{% blocktranslate trimmed with brand=brand %}
 					EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_STUDENT -- {{ brand }}
 				{% endblocktranslate %}
@@ -69,7 +69,7 @@
 	{% endblocktranslate %}
 {% elif service.destination_region == service.DESTINATION_REGION.EEA %}
 	{% if service.sends_user_info and not service.is_anonymous %}
-		<p class="alert alert-info"><i class="glyphicon glyphicon-exclamation-sign"></i><span>
+		<p class="alert alert-info"><i class="bi-exclamation-sign"></i><span>
 	{% else %}
 		<p><span>
 	{% endif %}
@@ -79,7 +79,7 @@
 {% elif service.destination_region == service.DESTINATION_REGION.PRIVACYSHIELD %}
 	{% if service.sends_user_info %}
 		<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
-		<i class="glyphicon glyphicon-exclamation-sign"></i><span>
+		<i class="bi-exclamation-sign"></i><span>
 	{% else %}
 		<p><span>
 	{% endif %}
@@ -89,7 +89,7 @@
 {% else %}{# global #}
 	{% if service.sends_user_info %}
 		<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
-		<i class="glyphicon glyphicon-exclamation-sign"></i><span>
+		<i class="bi-exclamation-sign"></i><span>
 	{% else %}
 		<p><span>
 	{% endif %}

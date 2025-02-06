@@ -76,19 +76,19 @@
 			<input readonly type="text" class="form-control read-only" id="api-access-token"
 				value="{{ profile.api_token }}">
 			<span class="input-group-btn">
-				<button data-toggle="tooltip" data-placement="bottom"
+				<button data-bs-toggle="tooltip" data-placement="bottom"
 					title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
 					class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
-						class="glyphicon glyphicon-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
+						class="bi-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
 			</span>
 		</div>
 		<div>
 			<form action="{% url 'regenerate-access-token' %}" method="post" class="form">{% csrf_token %}
 				<div class="form-group">
-					<button type="submit" data-toggle="tooltip" data-placement="bottom"
+					<button type="submit" data-bs-toggle="tooltip" data-placement="bottom"
 						title="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}" aria-label="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}"
 						class="aplus-button--secondary aplus-button--md"><span
-							class="glyphicon glyphicon-refresh" aria-hidden="true"></span><span class="">{% translate "REGENERATE" %}</span></button>
+							class="bi-refresh" aria-hidden="true"></span><span class="">{% translate "REGENERATE" %}</span></button>
 				</div>
 			</form>
 		</div>

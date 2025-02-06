@@ -4,7 +4,7 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var Polyglot = require('node-polyglot');
 var defaultLang = 'en';
-var lang = $('html').attr('lang').slice(0, 2) || defaultLang;
+var lang = document.documentElement.lang.slice(0, 2) || defaultLang;
 
 // Give a warning if locale is not english. Return the transformed phrase
 function onMissingKey(key, opts, locale) {
@@ -66,27 +66,27 @@ function djangoToPolyglot(data) {
   return transformedInterpolations;
 }
 function on_ready() {
-  // Load the translation files from the URLs specified in the link tags which
-  // have a data-translation attribute and hreflang matching the current language.
-  var translationFiles = $("link[data-translation][hreflang=".concat(lang, "]")).map(function (i, e) {
-    return $(e).attr('href');
-  });
-  var readyEvent = 'aplus:translation-ready';
-  if (translationFiles.length === 0) {
-    $(document).trigger(readyEvent);
-  }
-  var filesLoaded = 0;
-  translationFiles.each(function (i, path) {
-    $.ajax(path, {
-      dataType: 'json'
-    }).done(function (data) {
-      polyglot.extend(djangoToPolyglot(data));
-      filesLoaded += 1;
-      if (filesLoaded === translationFiles.length) {
-        $(document).trigger(readyEvent);
-      }
-    });
-  });
+	// Load the translation files from the URLs specified in the link tags which
+	// have a data-translation attribute and hreflang matching the current language.
+	var translationFiles = Array.from(document.querySelectorAll(`link[data-translation][hreflang="${lang}"]`)).map(function (e) {
+		return e.getAttribute('href');
+	});
+	var readyEvent = new Event('aplus:translation-ready');
+	if (translationFiles.length === 0) {
+		document.dispatchEvent(readyEvent);
+	}
+	var filesLoaded = 0;
+	translationFiles.forEach(function (path) {
+		fetch(path)
+			.then(response => response.json())
+			.then(data => {
+				polyglot.extend(djangoToPolyglot(data));
+				filesLoaded += 1;
+				if (filesLoaded === translationFiles.length) {
+					document.dispatchEvent(readyEvent);
+				}
+			});
+	});
 }
 
 /* double wrap.. first ready will be on top of the stack and will add the second as last */

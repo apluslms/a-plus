@@ -1,6 +1,6 @@
 .aplus-progress-bar             { @extend .progress-bar; }
 .aplus-progress-bar-striped     { @extend .progress-bar-striped; }
-.aplus-progress-bar-success     { @extend .progress-bar-success; }
-.aplus-progress-bar-info        { @extend .progress-bar-info; }
-.aplus-progress-bar-warning     { @extend .progress-bar-warning; }
-.aplus-progress-bar-danger      { @extend .progress-bar-danger; }
+.aplus-progress-bar-success     { @extend .progress-bar-success !optional; }
+.aplus-progress-bar-info        { @extend .progress-bar-info !optional; }
+.aplus-progress-bar-warning     { @extend .progress-bar-warning !optional; }
+.aplus-progress-bar-danger      { @extend .progress-bar-danger !optional; }

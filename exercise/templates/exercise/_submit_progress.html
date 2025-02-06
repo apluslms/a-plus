@@ -1,12 +1,12 @@
 {% load i18n %}
 
-<div class="quiz-submit-overlay submission-overlay hide"></div>
-<div class="quiz-submit-progress sticky-progress progress hide">
+<div class="quiz-submit-overlay submission-overlay d-none"></div>
+<div class="quiz-submit-progress sticky-progress progress d-none">
 	<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%;">
 		{% translate "POSTING_SUBMISSION" %}
 	</div>
 </div>
 
-<div class="quiz-submit-error alert alert-danger hide">
+<div class="quiz-submit-error alert alert-danger d-none">
 	{% translate "EXERCISE_ERROR_COMMUNICATION" %}
 </div>

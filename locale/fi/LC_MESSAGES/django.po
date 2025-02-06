@@ -4201,7 +4201,7 @@ msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
 msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
-msgstr "Palauttajia: %(number)s <small>%(percentage)s%%</small>"
+msgstr "Palauttajia: %(number)s <small class=\"text-body-secondary\">%(percentage)s%%</small>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -4621,7 +4621,7 @@ msgstr "Arvosteltu manuaalisesti"
 #: exercise/templates/exercise/submission_plain.html
 #, python-format
 msgid "LATE_W_PENALTY -- %(percent)s"
-msgstr "Myöhässä <small>-%(percent)s%%</small>"
+msgstr "Myöhässä <small class=\"text-body-secondary\">-%(percent)s%%</small>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"
@@ -4978,9 +4978,9 @@ msgstr ""
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
-"<span data-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Henkilökohtaiset pidennetyt määräajat: {count}</"
+"<span data-bs-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
+"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Henkilökohtaiset pidennetyt määräajat: {count}</"
 "span></span>"
 
 #: exercise/templatetags/exercise.py
@@ -5278,8 +5278,7 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://getbootstrap."
-"com/docs/3.4/components/#glyphicons"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"

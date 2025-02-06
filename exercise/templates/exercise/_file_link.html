@@ -1,14 +1,14 @@
 {% load i18n %}
 {% if file.exists %}
 	<a href="{{ file.get_absolute_url }}"{% if not file.is_passed %} class="file-modal" role="button" data-modal-title="{{ file.filename }}"{% endif %}>
-		<span class="sr-only">
+		<span class="visually-hidden">
 			{% blocktranslate trimmed with filename=file.filename %}VIEW_FILE -- {{ filename }}{% endblocktranslate %}
 		</span>
 		<span aria-hidden="true">{{ file.filename }}</span>
 	</a>
 	<a href="{{ file.get_absolute_url }}?download=yes" class="aplus-button--secondary aplus-button--xs" title="{% translate 'DOWNLOAD' %}">
-		<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-		<span class="sr-only">
+		<i class="bi-download-alt" aria-hidden="true"></i>
+		<span class="visually-hidden">
 			{% blocktranslate trimmed with filename=file.filename %}DOWNLOAD_FILE -- {{ filename }}{% endblocktranslate %}
 		</span>
 		{{ file.file_object.size|filesizeformat }}
@@ -16,7 +16,7 @@
 {% else %}
 	<span>{{ file.filename }}</span>
 	<button class="aplus-button--secondary aplus-button--xs" disabled>
-		<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+		<i class="bi-download-alt" aria-hidden="true"></i>
 		{% translate "FILE_NOT_FOUND" %}
 	</button>
 {% endif %}

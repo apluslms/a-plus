@@ -1,11 +1,12 @@
 {
-  "name": "aplus-bootstrap",
-  "description": "Bootstrap 3 for A+",
+  "name": "aplus-bootstrap5",
+  "description": "Bootstrap 5 for A+",
   "repository": ".",
   "license": "MIT",
   "version": "1.0.0",
   "dependencies": {
-    "bootstrap-sass": "^3.4.1"
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3"
   },
   "devDependencies": {},
   "scripts": {

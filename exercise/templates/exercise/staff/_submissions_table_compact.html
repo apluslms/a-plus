@@ -2,7 +2,7 @@
 {% load course %}
 {% load exercise %}
 
-<table id="submission-table" class="table table-condensed">
+<table id="submission-table" class="table table-sm">
 	<thead>
 		<tr>
 			<th>{% translate "NUMBER_ABBREVIATED" %}</th>
@@ -35,7 +35,7 @@
 				{{ s.date|date:'DATETIME_SECONDS_FORMAT' }}
 				{% endif %}
 				{% if s.late_penalty_applied %}
-				<span class="label label-warning">
+				<span class="badge text-bg-warning">
 					{% blocktranslate trimmed with percent=s.late_penalty_applied|percent %}
 					LATE_W_PENALTY -- {{ percent }}
 					{% endblocktranslate %}
@@ -51,7 +51,7 @@
 				{% endif %}
 				<span
 					class="badge{% if not s.unofficial %} {% if s.points >= exercise.max_points %}badge-success{% elif s.points >= exercise.points_to_pass %}badge-warning{% else %}badge-danger{% endif %}{% endif %}"
-					data-toggle="tooltip"
+					data-bs-toggle="tooltip"
 					data-placement="bottom"
 					title="{% if s.unofficial %}{% if s.unofficial_submission_type == 'limit_exceeded' %}{% translate 'LIMIT_EXCEEDED' %}{% elif s.unofficial_submission_type == 'deadline_passed' %}{% translate 'DEADLINE_PASSED' %}{% else %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% endif %}{% elif s.points >= exercise.points_to_pass %}{% if exercise.points_to_pass > 0 %}{% translate 'PASSED' %}{% endif %}{% else %}{% blocktranslate trimmed with points=exercise.points_to_pass %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% endif %}"
 				>
@@ -61,22 +61,22 @@
 				{% if s == summary.best_submission %}
 					{% if s.force_exercise_points %}
 					<span
-						class="label label-primary"
-						data-toggle="tooltip"
+						class="badge text-bg-primary"
+						data-bs-toggle="tooltip"
 						title="{% translate 'SUBMISSION_FINAL_TOOLTIP' %}"
 					>{% translate 'FINAL' %}</span>
 					{% else %}
 					<span
-						class="glyphicon glyphicon-star"
-						data-toggle="tooltip"
+						class="bi-star"
+						data-bs-toggle="tooltip"
 						title="{% translate 'SUBMISSION_CHOSEN_TOOLTIP' %}"
 					></span>
 					{% endif %}
 				{% endif %}
 				{% if s.is_assessed %}
 				<span
-					class="label label-warning"
-					data-toggle="tooltip"
+					class="badge text-bg-warning"
+					data-bs-toggle="tooltip"
 					title="{% translate 'SUBMISSION_ASSESSED_TOOLTIP' %}"
 				>{% translate 'ASSESSED' %}</span>
 				{% endif %}
@@ -95,7 +95,7 @@
 		{% if submissions|length > highest_visible_index or lowest_visible_index > 1 %}
 		<tr>
 			<td colspan="5">
-				<button class="aplus-button--secondary aplus-button--xs" data-toggle="visibility" data-target=".submissions-toggle">
+				<button class="aplus-button--secondary aplus-button--xs" data-bs-toggle="visibility" data-bs-target=".submissions-toggle">
 					<span class="submissions-toggle">{% translate "SHOW_ALL_SUBMISSIONS" %}</span>
 					<span class="submissions-toggle hidden">{% translate "HIDE_OTHER_SUBMISSIONS" %}</span>
 				</button>

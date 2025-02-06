@@ -18,7 +18,7 @@
 					<input type="submit" value="{% translate 'ENROLL' %}" class="aplus-button--default aplus-button--md">
 					{% if instance.enrollment_ending_time %}
 						<div>
-							<small>
+							<small class="text-body-secondary">
 								{% blocktranslate trimmed with end=instance.enrollment_ending_time %}
 									ENROLLMENT_OPEN_UNTIL -- {{ end }}
 								{% endblocktranslate %}
