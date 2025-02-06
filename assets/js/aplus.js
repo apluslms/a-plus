@@ -254,7 +254,7 @@ $(function () {
       button.attr(buttonOptions.attrs);
     }
     if (buttonOptions.icon) {
-      const buttonContent = $('<i class="bi-' + buttonOptions.icon + '" aria-hidden="true"></i>');
+      const buttonContent = $('<i aria-hidden="true"></i>').addClass("bi-" + buttonOptions.icon);
       buttonContent.appendTo(button);
       if (buttonOptions.toggle) {
         button.on('click', function () {

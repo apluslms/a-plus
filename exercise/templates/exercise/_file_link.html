@@ -7,7 +7,7 @@
 		<span aria-hidden="true">{{ file.filename }}</span>
 	</a>
 	<a href="{{ file.get_absolute_url }}?download=yes" class="aplus-button--secondary aplus-button--xs" title="{% translate 'DOWNLOAD' %}">
-		<i class="bi-download-alt" aria-hidden="true"></i>
+		<i class="bi-download" aria-hidden="true"></i>
 		<span class="visually-hidden">
 			{% blocktranslate trimmed with filename=file.filename %}DOWNLOAD_FILE -- {{ filename }}{% endblocktranslate %}
 		</span>
@@ -16,7 +16,7 @@
 {% else %}
 	<span>{{ file.filename }}</span>
 	<button class="aplus-button--secondary aplus-button--xs" disabled>
-		<i class="bi-download-alt" aria-hidden="true"></i>
+		<i class="bi-download" aria-hidden="true"></i>
 		{% translate "FILE_NOT_FOUND" %}
 	</button>
 {% endif %}
