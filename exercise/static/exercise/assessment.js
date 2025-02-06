@@ -27,8 +27,8 @@ $(function () {
             if (!element.hasClass('active')) {
               element
                 .find(iconSelector)
-                .toggleClass('glyphicon-unchecked')
-                .toggleClass('glyphicon-check');
+                .toggleClass('bi-square')
+                .toggleClass('bi-check-square');
             }
           });
         };
@@ -36,13 +36,13 @@ $(function () {
         // Synchronize the 'Scroll separately' buttons
         let iconSelector;
         if (localStorageKey === 'submissionSticky') {
-          iconSelector = `.submitted-file-data > div > p > button:contains(${_("Scroll separately")}) > .glyphicon`;
+          iconSelector = `.submitted-file-data > div > p > button:contains(${_("Scroll separately")}) > i`;
         } else {
-          iconSelector = `div > p > button:contains(${_("Scroll separately")}) > .glyphicon`;
+          iconSelector = `div > p > button:contains(${_("Scroll separately")}) > i`;
         }
         toggleSticky(this.parent(), iconSelector);
       },
-      icon: isSticky ? 'check' : 'unchecked',
+      icon: isSticky ? 'check-square' : 'square',
       text: _('Scroll separately'),
       toggle: true,
     };
@@ -50,7 +50,7 @@ $(function () {
     // When the assessment bar changes size (the textarea can be resized by
     // the user), change the --sticky-top variable to adjust the stickied
     // element's size and position. See also: _assessment.scss
-    const panelHeading = $('.assessment-panel .panel-heading');
+    const panelHeading = $('.assessment-panel .card-body');
     const observer = new ResizeObserver(() => {
       $(this).parent().css('--sticky-top', panelHeading.outerHeight() + 'px');
     });
@@ -70,16 +70,16 @@ $(function () {
 
     // Create links for switching between assistant feedback and grader
     // feedback in the assessment bar
-    const feedback1 = $('#id_assistant_feedback').closest('.form-group');
-    const feedback2 = $('#id_feedback').closest('.form-group');
+    const feedback1 = $('#id_assistant_feedback').parent();
+    const feedback2 = $('#id_feedback').parent();
     feedback1.addClass('feedback-toggle');
-    feedback2.addClass('feedback-toggle hidden');
+    feedback2.addClass('feedback-toggle d-none');
     const label1 = feedback1.find('label');
     const label2 = feedback2.find('label');
     const feedbackToggleButton = $('<button class="aplus-button--secondary aplus-button--xs"></button>')
       .attr({
-        'data-toggle': 'visibility',
-        'data-target': '.feedback-toggle'
+        'data-bs-toggle': 'visibility',
+        'data-bs-target': '.feedback-toggle'
       });
     label1.after(feedbackToggleButton.clone().text(label2.text())).after(' | ');
     label2.before(feedbackToggleButton.clone().text(label1.text())).before(' | ');
@@ -102,10 +102,10 @@ $(function () {
           text.highlightCode({extraButtons, compareMode: fileUrl.includes('compare_to=')});
         })
         .fail(function () {
-          element.find('.submitted-file-error').removeClass('hidden');
+          element.find('.submitted-file-error').removeClass('d-none');
         })
         .always(function () {
-          element.find('.submitted-file-progress').addClass('hidden');
+          element.find('.submitted-file-progress').addClass('d-none');
         });
       }
     });

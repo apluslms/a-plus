@@ -25,7 +25,7 @@
 			const lastVisited = lastVisitedObject[$("li.menu-home > a").attr("href")];
 			if (lastVisited) {
 				const alert = $('#left-off-reminder');
-				alert.removeClass("hidden");
+				alert.removeClass("d-none");
 
 				// Add link child
 				const link = $("<a></a>");
@@ -42,7 +42,7 @@
 
 {% include "course/_enroll_form.html" %}
 
-<div id="left-off-reminder" class="alert alert-info hidden">
+<div id="left-off-reminder" class="alert alert-info d-none">
 	<h4>{% translate "LEFT_OFF_REMINDER" %}</h4>
 </div>
 

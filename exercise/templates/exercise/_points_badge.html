@@ -25,7 +25,7 @@
   {% endif %}
 </span>
 {% elif confirmable_points %}
-<span class="badge badge-danger" data-toggle="tooltip" title="{% translate 'CONFIRMABLE_POINTS_DESCRIPTION' %}">
+<span class="badge badge-danger" data-bs-toggle="tooltip" title="{% translate 'CONFIRMABLE_POINTS_DESCRIPTION' %}">
   {% translate "MISSING" %}
 </span>
 {% elif exercise_page %}
@@ -39,7 +39,7 @@
 <span class="difficulty">{{ difficulty }}</span>
 {% endif %}
 <span class="badge{% if submitted and official %} {% if feedback_revealed %}{% if full_score %}badge-success{% elif passed %}badge-warning{% else %}badge-danger{% endif %}{% endif %}{% if unconfirmed %} unconfirmed-points{% endif %}{% endif %}{% if classes %} {{ classes }}{% elif show_zero_points_immediately and best_submission_true_points == 0 %}badge-danger{% endif %}"
-        data-toggle="tooltip" data-placement="bottom"
+        data-bs-toggle="tooltip" data-placement="bottom"
         title="{% if not feedback_revealed %}{{ feedback_hidden_description }}{% elif not official %}{% if unofficial_submission_type == 'limit_exceeded' %}{% translate 'LIMIT_EXCEEDED' %}{% elif unofficial_submission_type == 'deadline_passed' %}{% translate 'DEADLINE_PASSED' %}{% else %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% endif %}{% elif passed %}{% if required > 0 %}{% translate 'PASSED' %}{% endif %}{% elif missing_points %}{% blocktranslate trimmed with points=required %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% elif submitted %}{% translate 'REQUIRED_EXERCISES_NOT_PASSED' %}{% endif %}">
         {% if show_zero_points_immediately and best_submission_true_points == 0 %}
           0 / {{ max }}

@@ -2,11 +2,11 @@
 {% load static %}
 {% if not feedback_revealed %}
 <p class="small">
-	<i class="glyphicon glyphicon-info-sign"></i>
+	<i class="bi-info-sign"></i>
 	{% translate "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN" %}
 </p>
 {% endif %}
-<div class="progress" data-toggle="tooltip" data-html="true" data-placement="bottom"
+<div class="progress" data-bs-toggle="tooltip" data-html="true" data-placement="bottom"
     title="{% translate 'POINTS' %}: <span class='text-nowrap'>{{ formatted_points }} / {{ max }}</span>
     {% if required %}
         <br/>

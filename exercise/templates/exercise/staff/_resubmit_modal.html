@@ -5,12 +5,11 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
-					<span aria-hidden="true">&times;</span>
-				</button>
 				<h4 class="modal-title" id="resubmit-modal-label">
 					{% translate "RE-SUBMIT_TO_SERVICE" %}
 				</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+				</button>
 			</div>
 
 			<div class="modal-body">
@@ -24,7 +23,7 @@
 						class="aplus-button--secondary aplus-button--md"
 						type="button"
 						value="{% translate 'CANCEL' %}"
-						data-dismiss="modal"
+						data-bs-dismiss="modal"
 					/>
 					<input
 						class="aplus-button--default aplus-button--md"

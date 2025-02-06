@@ -73,7 +73,7 @@ class SubmissionReviewForm(forms.Form):
             for field in self.fields.values():
                 field.widget.attrs.update({
                     'aria-label': field.help_text,
-                    'data-toggle': 'tooltip',
+                    'data-bs-toggle': 'tooltip',
                     'data-placement': 'bottom',
                     'data-html': 'true',
                     'data-trigger': 'hover',

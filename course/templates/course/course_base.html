@@ -34,15 +34,15 @@
 <div data-taggings="{{ taggings|join:' ' }}" class="row">
 	{% block course_sidebar %}
 	<button
-		class="hidden hidden-xs course-sidebar-expander"
+		class="d-none course-sidebar-expander"
 		title="{% translate 'OPEN_SIDEBAR' %}"
 		aria-label="{% translate 'OPEN_SIDEBAR' %}"
 	>
-		<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+		<i class="bi-caret-right-fill" aria-hidden="true"></i>
 	</button>
-	<div class="col-sm-2 hidden-xs" id="course-sidebar">
+	<div class="col-sm-2 d-none d-sm-block" id="course-sidebar">
 		<nav class="course-menu" id="main-course-menu" aria-labelledby="course-menu-heading">
-			<ul class="nav nav-pills nav-stacked">
+			<ul class="nav nav-pills nav-stacked flex-column" aria-orientation="vertical">
 				{% include "course/_course_menu.html" %}
 			</ul>
 			{% site_advert as advert %}
@@ -67,7 +67,7 @@
 			<div id="study-calendar"></div>
 			<p>
 				<a href="{{ instance|url:'export-calendar' }}">
-					<small>{% trans "Download calendar (ics)" %}</small>
+					<small class="text-body-secondary">{% trans "Download calendar (ics)" %}</small>
 				</a>
 			</p>
 		</div>
@@ -136,13 +136,13 @@
 		{% endif %}
 		{% block siblings %}{% endblock %}
 		{% block breadcrumb %}
-		<div role="navigation" aria-label="{% translate 'BREADCRUMB' %}">
+		<nav aria-label="{% translate 'BREADCRUMB' %}">
 			<ol class="breadcrumb">
 				{% block breadcrumblist %}
-				<li><a href="{{ instance|url }}">{{ course.code }}</a></li>
+				<li class="breadcrumb-item"><a href="{{ instance|url }}">{{ course.code }}</a></li>
 				{% endblock %}
 			</ol>
-		</div>
+		</nav>
 		{% endblock %}
 		<main class="row">
 			{% block columns %}
@@ -165,12 +165,11 @@
 	<div class="modal-dialog" role="document">
 	  <div class="modal-content">
 		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			</button>
 			<h4 class="modal-title" id="unenroll-modal-title">
 				{% trans "UNENROLL" %}
 			</h4>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+			</button>
 		</div>
 		<div class="modal-body">
 			<p>
@@ -189,7 +188,7 @@
 				<button
 					type="button"
 					class="aplus-button--secondary aplus-button--md"
-					data-dismiss="modal"
+					data-bs-dismiss="modal"
 				>
 					{% trans "CANCEL" %}
 				</button>

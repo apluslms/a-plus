@@ -17,6 +17,7 @@ aplus/secret_key.py
 *.sublime-workspace
 
 venv/
+venv_aplus/
 /static/
 /media/
 

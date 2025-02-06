@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block title %}{% blocktranslate trimmed %}LOG_IN_TO -- {{ brand_name }}{% endblocktranslate %} | {{ block.super }}{% endblock %}
 
@@ -118,7 +118,7 @@
 						{% csrf_token %}
 						{% if form.non_field_errors %}
 							<div class="alert alert-danger">
-								<a class="close" aria-label="{% translate 'CLOSE_ERROR_LIST' %}" data-dismiss="alert">×</a>
+								<a class="close" aria-label="{% translate 'CLOSE_ERROR_LIST' %}" data-bs-dismiss="alert">×</a>
 									{% for error in form.non_field_errors %}
 										<p>{{ error }}</p>
 									{% endfor %}
@@ -152,12 +152,12 @@
 		</section>
 
 		<div class="col-sm-1">
-			<button class="btn btn-default show-extra-login-btn"
+			<button class="btn btn-light show-extra-login-btn"
 				aria-label="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 				title="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 			>
-				<i class="glyphicon glyphicon-chevron-right hidden-xs" focusable="false"></i>
-				<i class="glyphicon glyphicon-chevron-down visible-xs-inline" focusable="false"></i>
+				<i class="bi-caret-right-fill d-none d-sm-block" focusable="false"></i>
+				<i class="bi-caret-down-fill d-block d-sm-none-inline" focusable="false"></i>
 			</button>
 		</div>
 	</div>

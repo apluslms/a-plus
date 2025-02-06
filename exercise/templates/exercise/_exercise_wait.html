@@ -3,7 +3,7 @@
 {% if page.is_wait %}
 {% with ready_url_name=submission_poll_ready_url_name|default:'submission' %}
 <div
-	class="exercise-wait hide progress"
+	class="exercise-wait d-none progress"
 	data-poll-url="{{ submission|url:'submission-poll' }}"
 	data-ready-url="{{ submission|url:ready_url_name }}"
 	data-msg-error="{% translate 'EXERCISE_ERROR_COMMUNICATION' %}"

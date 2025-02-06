@@ -128,7 +128,7 @@
 
     cloneLoader: function(msgType) {
       return $(this.settings.loading_selector)
-        .clone().removeAttr("id").removeClass("hide");
+        .clone().removeAttr("id").removeClass("d-none");
     },
 
     openModal: function(message) {
@@ -568,12 +568,12 @@
     quizSubmission: function(message) {
       var exercise = this;
       if (message == "submit") {
-        exercise.element.find(exercise.settings.quiz_overlay_selector).removeClass("hide");
-        exercise.element.find(exercise.settings.quiz_progress_selector).removeClass("hide");
+        exercise.element.find(exercise.settings.quiz_overlay_selector).removeClass("d-none");
+        exercise.element.find(exercise.settings.quiz_progress_selector).removeClass("d-none");
       } else if (message == "error") {
         exercise.element.find(exercise.settings.quiz_overlay_selector).hide();
         exercise.element.find(exercise.settings.quiz_progress_selector).hide();
-        exercise.element.find(exercise.settings.quiz_error_selector).removeClass("hide");
+        exercise.element.find(exercise.settings.quiz_error_selector).removeClass("d-none");
       } else if (message == "success") {
         exercise.element.find(exercise.settings.quiz_overlay_selector).hide();
         exercise.element.find(exercise.settings.quiz_progress_selector).hide();
@@ -625,7 +625,7 @@
 
             // Look for error alerts in the feedback, but skip the hidden element
             // that is always included: <div class="quiz-submit-error alert alert-danger hide">
-            const alerts = content.find(':not(.site-messages) .alert-danger:not(.hide)');
+            const alerts = content.find(':not(.site-messages) .alert-danger:not(.d-none)');
             output.find(".site-messages").append(alerts);
 
             if (content.find(".exercise-wait").length != 0) {

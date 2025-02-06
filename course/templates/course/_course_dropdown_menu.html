@@ -1,18 +1,18 @@
 {% load i18n %}
-<ul class="dropdown-menu">
+<ul class="dropdown-menu" style="position: absolute; left: 0; right: auto" >
 	{% for entry in instances %}
 	{% if entry.divider %}
-	<li role="presentation" class="divider"></li>
+	<li role="presentation" class="dropdown-divider"></li>
 	{% else %}
 	<li role="presentation">
-		<a href="{{ entry.link }}">
+		<a class="dropdown-item" href="{{ entry.link }}">
 			{{ entry.name }}
 		</a>
 	</li>
 	{% endif %}
 	{% empty %}
 	<li role="presentation">
-		<a href="/">
+		<a class="dropdown-item" href="/">
 			{% translate "COURSE_DROPDOWN_EMPTY_TEXT" %}
 		</a>
 	</li>

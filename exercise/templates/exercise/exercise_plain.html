@@ -14,7 +14,8 @@
 				integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		<script src="{% static 'js/bootstrap3.min.js' %}"></script>
+		<script src="{% static 'js/popper.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
@@ -67,9 +68,9 @@
 				{% elif exercise.is_submittable %}
 					<nav class="exercise-summary navbar navbar-default" aria-label="{{ exercise|parse_localization }}">
 						<ul class="nav navbar-nav exercise-nav">
-							<li>
+							<li class="nav-item">
 								<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
-									class="exercise-nav-points"
+									class="nav-link exercise-nav-points"
 									role="button"
 								>
 									<span>
@@ -80,8 +81,8 @@
 									</span>
 								</a>
 							</li>
-							<li class="dropdown">
-								<a class="dropdown-toggle exercise-nav-submissions" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+							<li class="nav-item dropdown">
+								<a class="dropdown-toggle exercise-nav-submissions" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
 										<span class="badge">
@@ -93,10 +94,10 @@
 										<b class="caret"></b>
 									</span>
 								</a>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu" style="position: absolute; left: 0; right: auto">
 									{% for submission in submissions %}
 										<li>
-											<a href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
+											<a class="dropdown-item" href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
 												{{ forloop.revcounter }}.
 												{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
 												{% points_badge submission%}
@@ -111,18 +112,18 @@
 							</li>
 							{% if not exercise.category.confirm_the_level %}
 								<li class="navbar-text exercise-nav-info">
-									<small>
+									<small class="text-body-secondary">
 										<ul>
 											{% if exercise.points_to_pass > 0 %}
 												<li>
-													<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+													<i class="bi-flag" aria-hidden="true"></i>
 													{% blocktranslate trimmed with points=exercise.points_to_pass %}
 														POINTS_REQUIRED_TO_PASS -- {{ points }}
 													{% endblocktranslate %}
 												</li>
 											{% endif %}
 											<li>
-												<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+												<i class="bi-clock" aria-hidden="true"></i>
 												{% if summary.personal_deadline %}
 													{% translate "PERSONAL_EXTENDED_DEADLINE" %}
 													{{ summary.personal_deadline }}
@@ -142,7 +143,7 @@
 												{% endif %}
 											</li>
 											<li>
-												<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+												<i class="bi-person-fill" aria-hidden="true"></i>
 												{% if exercise.min_group_size == 1 %}
 													{% if exercise.max_group_size == 1 %}
 														{% translate "TO_BE_SUBMITTED_ALONE" %}
@@ -168,7 +169,7 @@
 							{% endcomment %}
 							{% if exercise.model_answers %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+									<i class="bi-file" aria-hidden="true"></i>
 									{% translate "SHOW_MODEL_ANSWER" %}
 								</a>
 							{% endif %}
@@ -176,14 +177,14 @@
 						{% if is_course_staff or is_student %}
 							{% if exercise.templates %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+									<i class="bi-file" aria-hidden="true"></i>
 									{% translate "SHOW_EXERCISE_TEMPLATE" %}
 								</a>
 							{% endif %}
 						{% endif %}
 						{% if is_course_staff %}
 							<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
-								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+								<i class="bi-list" aria-hidden="true"></i>
 								{% translate "VIEW_ALL_SUBMISSIONS" %}
 							</a>
 						{% endif %}

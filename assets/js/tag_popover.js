@@ -26,7 +26,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
 
     const filter_button = {
       id: button_id_prefix + 'filter',
-      classes: 'btn-default btn-xs',
+      classes: 'btn-light btn-sm',
       text: _('Toggle filtering by tag'),
       onclick: function () {
         $('.filter-users button[data-tagslug="' + tag_slug + '"]').trigger('click');
@@ -35,7 +35,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
     };
     const remove_button = {
       id: button_id_prefix + 'remove',
-      classes: 'btn-danger btn-xs',
+      classes: 'btn-danger btn-sm',
       text: _('Remove tagging'),
       onclick: function () {
         const user_ids = get_users_for_user(user_id)();

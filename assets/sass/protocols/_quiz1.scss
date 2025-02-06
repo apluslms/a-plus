@@ -1,4 +1,4 @@
-@use '../components/icons';
+@use '../components/icons' as icons;
 
 /* Mooc-grader questionnaire */
 
@@ -59,34 +59,31 @@ $questionnaire-focus-bg: #bce8f1;
 	fieldset.alert-danger {
 		background-color: $body-bg;
 		color: #333;
-		border: 2px solid $brand-danger;
+		border: 2px solid $danger;
 		font-weight: bold;
 	}
 
 	.quiz1-icon-correct {
-		@include icons.glyphicon;
-		color: #5cb85c;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content: "\e013";
+			@extend .bi-check-circle-fill;
+			color: #5cb85c;
 		}
 	}
 
 	.quiz1-icon-neutral {
-		@include icons.glyphicon;
-		color: #f5bc09;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content:"\e085";
+			@extend .bi-exclamation-circle-fill;
+			color: #f5bc09;
 		}
 	}
 
 	.quiz1-icon-incorrect {
-		@include icons.glyphicon;
-		color: #d9534f;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content: "\e014";
+			@extend .bi-x-circle-fill;
+			color: #d9534f;
 		}
 	}
 
