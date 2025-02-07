@@ -173,6 +173,9 @@ iframe {
 .course-menu .advert-thumbnail h4 {
     margin-top: 0;
 }
+.course-menu .nav>li {
+    max-width: 100%;
+}
 .siblings>.btn {
     max-width: 50%;
     overflow: hidden;
@@ -183,7 +186,7 @@ iframe {
     text-overflow: ellipsis;
 }
 @media (min-width: 768px) {
-    .col-sm-2 .nav a {
+    .col-md-2 .nav a {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

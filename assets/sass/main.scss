@@ -73,7 +73,7 @@ $grid-float-breakpoint:     $screen-sm-min !default;
 $grid-float-breakpoint-max: ($grid-float-breakpoint - 1) !default;
 $line-height-computed:    floor(($font-size-base * $line-height-base)) !default; // ~20px
 // Basics of a navbar
-$navbar-height:                    3.125rem !default;
+$navbar-height:                    2.5rem; // default 3.125rem
 $navbar-margin-bottom:             $line-height-computed !default;
 $navbar-border-radius:             $border-radius !default;
 $navbar-padding-horizontal:        floor(($grid-gutter-width / 2)) !default;

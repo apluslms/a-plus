@@ -40,7 +40,7 @@
 	>
 		<i class="bi-caret-right-fill" aria-hidden="true"></i>
 	</button>
-	<div class="col-sm-2 d-none d-sm-block" id="course-sidebar">
+	<div class="col-md-2 d-none d-md-block" id="course-sidebar">
 		<nav class="course-menu" id="main-course-menu" aria-labelledby="course-menu-heading">
 			<ul class="nav nav-pills nav-stacked flex-column" aria-orientation="vertical">
 				{% include "course/_course_menu.html" %}
@@ -74,7 +74,7 @@
 		{% endcomment %}
 	</div>
 	{% endblock course_sidebar %}
-	<div class="col-sm-10" id="course-content">
+	<div class="col-md-10" id="course-content">
 		{% if instance %}
 		{% course_alert instance %}
 		{% endif %}
@@ -146,11 +146,11 @@
 		{% endblock %}
 		<main class="row">
 			{% block columns %}
-			<div class="col-lg-9">
+			<div class="col-xl-9">
 				{% block coursecontent %}
 				{% endblock %}
 			</div>
-			<div class="col-lg-3">
+			<div class="col-xl-3">
 				{% block sidecontent %}
 				{% endblock %}
 			</div>

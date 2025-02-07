@@ -138,7 +138,7 @@
 		<div class="row resizable-sm">
 			{# Body: left column (submitted files) #}
 			{% if files %}
-			<div class="col-sm-6" style="position: relative">
+			<div class="col-md-6" style="position: relative">
 				<ul class="nav nav-tabs" role="tablist">
 					{% for file in files %}
 					<li class="nav-item {% if forloop.first %}active{% endif %}" role="presentation">
@@ -183,7 +183,7 @@
 
 			{# Body: right column (grader feedback, grader errors and assistant feedback) #}
 			<div
-				class="{% if files %}col-sm-6{% else %}col-sm-12{% endif %}"
+				class="{% if files %}col-md-6{% else %}col-md-12{% endif %}"
 			>
 				{% get_grading_errors submission as grading_errors %}
 
