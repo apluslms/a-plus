@@ -43,6 +43,12 @@ $font-family-base: $aplus-font-family-base;
 $link-decoration: none;
 $link-hover-decoration: underline;
 
+// Make smaller headings smaller to match Bootstrap 3
+$font-size-base:              1rem !default; // Assumes the browser default, typically `16px`
+$h4-font-size:                $font-size-base * 1.25;
+$h5-font-size:                $font-size-base;
+$h6-font-size:                $font-size-base * 0.875;
+
 @import 'vendor/bootstrap5';
 
 // Import Bootstrap Icons (change font file directory from default)
