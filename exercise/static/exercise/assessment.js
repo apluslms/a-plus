@@ -50,7 +50,7 @@ $(function () {
     // When the assessment bar changes size (the textarea can be resized by
     // the user), change the --sticky-top variable to adjust the stickied
     // element's size and position. See also: _assessment.scss
-    const panelHeading = $('.assessment-panel .card-body');
+    const panelHeading = $('.assessment-panel .card-header');
     const observer = new ResizeObserver(() => {
       $(this).parent().css('--sticky-top', panelHeading.outerHeight() + 'px');
     });

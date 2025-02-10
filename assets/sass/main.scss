@@ -49,6 +49,9 @@ $h4-font-size:                $font-size-base * 1.25;
 $h5-font-size:                $font-size-base;
 $h6-font-size:                $font-size-base * 0.875;
 
+// Legacy panel look for BS5 cards
+$card-bg:  #f5f5f5;
+
 @import 'vendor/bootstrap5';
 
 // Import Bootstrap Icons (change font file directory from default)

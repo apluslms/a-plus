@@ -134,15 +134,15 @@
 			</div>
 		</div>
 	</div>
-	<div class="card-body">
+	<div class="card-body" style="background-color: white;">
 		<div class="row resizable-sm">
 			{# Body: left column (submitted files) #}
 			{% if files %}
 			<div class="col-md-6" style="position: relative">
 				<ul class="nav nav-tabs" role="tablist">
 					{% for file in files %}
-					<li class="nav-item {% if forloop.first %}active{% endif %}" role="presentation">
-						<a class="nav-link" href="#file-{{ file.id }}" role="tab" aria-controls="file-{{ file.id }}" data-bs-toggle="tab">{{ file.filename }}</a>
+					<li class="nav-item" role="presentation">
+						<a class="nav-link {% if forloop.first %}active{% endif %}" href="#file-{{ file.id }}" role="tab" aria-controls="file-{{ file.id }}" data-bs-toggle="tab">{{ file.filename }}</a>
 					</li>
 					{% endfor %}
 				</ul>
