@@ -160,6 +160,32 @@ class PrivacyNoticeView(UserProfileView):
         self.show_language_toggle = True
         self.note("privacy_text", "show_language_toggle")
 
+class CookieNoticeView(UserProfileView):
+    access_mode=ACCESS.ANONYMOUS
+    template_name="userprofile/cookies.html"
+
+    def get_common_objects(self):
+        super().get_common_objects()
+        lang = "_" + get_language().lower()
+        key = make_template_fragment_key('cookie_notice', [lang])
+        cookies_text = cache.get(key)
+        if not cookies_text:
+            template_name = "cookie_notice{}.html"
+            template = try_get_template(template_name.format(lang))
+            if not template and len(lang) > 3:
+                template = try_get_template(template_name.format(lang[:3]))
+            if not template:
+                logger.warning("No localized cookie notice for language %s", lang)
+                template = try_get_template(template_name.format(''))
+            if not template:
+                logger.error("No cookie notice at all!")
+
+            cookies_text = template.render() if template else _('NO_COOKIE_NOTICE')
+            cache.set(key, cookies_text)
+        self.cookies_text = cookies_text
+        self.show_language_toggle = True
+        self.note("cookies_text", "show_language_toggle")
+
 
 class AccessibilityStatementView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS
