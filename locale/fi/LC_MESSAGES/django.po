@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-04 12:16+0200\n"
+"POT-Creation-Date: 2025-02-11 13:01+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -5885,6 +5885,10 @@ msgstr "Etusivu"
 msgid "PRIVACY_NOTICE"
 msgstr "Tietosuojailmoitus"
 
+#: templates/base.html userprofile/templates/userprofile/cookies.html
+msgid "COOKIE_NOTICE"
+msgstr "Evästeilmoitus"
+
 #: templates/base.html userprofile/templates/userprofile/accessibility.html
 msgid "ACCESSIBILITY_STATEMENT"
 msgstr "Saavutettavuusseloste"
@@ -6173,6 +6177,10 @@ msgstr "Päättymisaika"
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"
 msgstr "Ei tietosuojailmoitusta. Ota yhteys ylläpitäjään!"
+
+#: userprofile/views.py
+msgid "NO_COOKIE_NOTICE"
+msgstr "Ei evästeilmoitusta. Ota yhteys ylläpitäjään!"
 
 #: userprofile/views.py
 msgid "NO_LOCAL_ACCESSIBILITY_STATEMENT"

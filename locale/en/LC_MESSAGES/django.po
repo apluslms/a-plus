@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-04 12:16+0200\n"
+"POT-Creation-Date: 2025-02-11 13:01+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -5867,6 +5867,10 @@ msgstr "Home"
 msgid "PRIVACY_NOTICE"
 msgstr "Privacy Notice"
 
+#: templates/base.html userprofile/templates/userprofile/cookies.html
+msgid "COOKIE_NOTICE"
+msgstr "Cookie Notice"
+
 #: templates/base.html userprofile/templates/userprofile/accessibility.html
 msgid "ACCESSIBILITY_STATEMENT"
 msgstr "Accessibility Statement"
@@ -6151,6 +6155,10 @@ msgstr "Ending time"
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"
 msgstr "No privacy notice. Please notify administration!"
+
+#: userprofile/views.py
+msgid "NO_COOKIE_NOTICE"
+msgstr "No cookie notice. Please notify administration!"
 
 #: userprofile/views.py
 msgid "NO_LOCAL_ACCESSIBILITY_STATEMENT"

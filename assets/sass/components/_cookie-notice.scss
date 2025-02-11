@@ -1,0 +1,16 @@
+.cookie-notice {
+    position: fixed;
+    bottom: 0;
+    right: 100px;
+    z-index: 1000;
+    background-color: $aplus-background;
+    color: $aplus-foreground;
+    padding: 10px 20px;
+    text-align: center;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    width:400px;
+    @media (max-width: 767px) {
+        right: 50%;
+        transform: translateX(50%);
+    }
+}
