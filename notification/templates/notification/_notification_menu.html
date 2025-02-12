@@ -3,7 +3,7 @@
 <li role="presentation" class="menu-notification nav-item dropdown" id="notification-alert">
   <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
     <i class="bi-envelope" aria-hidden="true"></i>
-    <span class="badge badge-danger">{{ count }}</span> {{ unread_message }}
+    <span class="badge text-bg-danger">{{ count }}</span> {{ unread_message }}
   </a>
   <ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
     {% for entry in notifications %}

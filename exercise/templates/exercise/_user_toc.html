@@ -12,7 +12,7 @@
 		<h3>
 			<a href="{{ module.link }}" class="{% if module.is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
 			{% if module|deadline_extended_exercises_open:now %}
-			<span class="badge">
+			<span class="badge text-bg-secondary">
 				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 			</span>
 			{% endif %}

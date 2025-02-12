@@ -61,7 +61,7 @@
 					<span aria-hidden="true">&raquo;</span>
 				</a>
 				<span class="h4">{% translate "SUBMISSIONS" %}</span>
-				<span class="badge">
+				<span class="badge text-bg-secondary">
 					{{ summary.submission_count }}
 					{% if exercise.max_submissions %}
 					/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}

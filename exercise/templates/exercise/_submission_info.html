@@ -14,7 +14,7 @@
 
 			<dt>{% translate "STATUS" %}</dt>
 			<dd>
-				<span class="badge text-bg-{% if submission.is_graded %}success{% else %}default{% endif %}">
+				<span class="badge rounded-pill text-bg-{% if submission.is_graded %}success{% else %}default{% endif %}">
 					{{ submission.status|submission_status }}
 				</span>
 			</dd>

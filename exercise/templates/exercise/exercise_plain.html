@@ -85,7 +85,7 @@
 								<a class="dropdown-toggle exercise-nav-submissions" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
-										<span class="badge">
+										<span class="badge text-bg-secondary">
 											{{ summary.submission_count }}
 											{% if exercise.max_submissions %}
 												/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}

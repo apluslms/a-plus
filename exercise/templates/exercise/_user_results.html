@@ -45,24 +45,24 @@
 		<h5 class="card-title text-white">
 			{% points_badge module "float-end" %}
 			{% if not accessible %}
-			<span class="badge float-end">
+			<span class="badge text-bg-secondary float-end">
 				{% translate "OPENS ON" %} {{ module.opening_time }}
 			</span>
 			{% elif not after_open %}
-			<span class="badge float-end">
+			<span class="badge text-bg-secondary float-end">
 				{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
 			</span>
-			<span class="badge badge-info float-end">
+			<span class="badge text-bg-info float-end">
 				{% translate "OPEN_FOR_READING" %}
 			</span>
 			{% endif %}
 			{% if module|deadline_extended_exercises_open:now %}
-			<span class="badge float-end">
+			<span class="badge text-bg-secondary float-end">
 				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 			</span>
 			{% endif %}
 			{% if module.requirements|length > 0 %}
-			<span class="badge float-end">
+			<span class="badge text-bg-secondary float-end">
 				{% translate "REQUIRES" %}:
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
@@ -163,7 +163,7 @@
 					</td>
 					<td class="submissions-dropdown dropdown">
 						<a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-							<span class="badge">
+							<span class="badge text-bg-secondary">
 								{% if entry.notified %}
 								<i class="bi-comment{% if entry.unseen %} red{% endif %}"></i>
 								{% endif %}

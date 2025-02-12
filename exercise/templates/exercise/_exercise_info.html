@@ -16,7 +16,7 @@
 			<small class="text-body-secondary">
 				/ {{ exercise.max_points }}
 				{% if summary.get_penalty %}
-				<span class="badge">
+				<span class="badge text-bg-secondary">
 					{% translate "LATE" %} -{{ summary.get_penalty|percent }} %
 				</span>
 				{% endif %}
