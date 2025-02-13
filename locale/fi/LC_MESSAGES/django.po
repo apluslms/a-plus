@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-11 13:01+0200\n"
+"POT-Creation-Date: 2025-02-13 12:37+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -403,10 +403,6 @@ msgid "LABEL_VISIBLE_TO_STUDENTS"
 msgstr "näkyy opiskelijoille"
 
 #: course/models.py
-msgid "LABEL_GROUP_WORK_ALLOWED"
-msgstr "opiskelijat saavat luoda ryhmiä"
-
-#: course/models.py
 msgid "MODEL_NAME_USER_TAG"
 msgstr "käyttäjämerkintä"
 
@@ -535,6 +531,10 @@ msgstr "Kurssikerran nimi"
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Syötä URL-osoitteessa käytettävä tunnus kurssikerralle."
+
+#: course/models.py
+msgid "LABEL_GROUP_WORK_ALLOWED"
+msgstr "opiskelijat saavat luoda ryhmiä"
 
 #: course/models.py
 msgid "LABEL_ENROLLMENT_AUDIENCE"
@@ -5120,20 +5120,27 @@ msgstr ""
 #: external_services/models.py
 msgid "DESTINATION_EEA_PRIVACY_NOTICE"
 msgstr ""
-"Määränpää on ylläpidetty Euroopaan talousalueella. Linkataan "
+"Määränpää on ylläpidetty Euroopan talousalueella. Linkataan "
 "tietosuojailmoitukseen."
 
 #: external_services/models.py
 msgid "DESTINATION_PRIVACYSHIELD_PRIVACY_NOTICE"
 msgstr ""
-"Määränpää on ylläpidetty Euroopaan talousalueen ulkopuolella ja se oli "
+"Määränpää on ylläpidetty Euroopan talousalueen ulkopuolella ja se oli "
 "aiemmin EU-US Privacy Shield -sertifioitu. Privacy Shield -järjestely on "
 "nykyisin kumottu. Linkataan tietosuojailmoitukseen."
 
 #: external_services/models.py
 msgid "DESTINATION_GLOBAL_PRIVACY_NOTICE"
 msgstr ""
-"Määränpää on ylläpidetty Euroopaan talousalueen ulkopuolella. Linkataan "
+"Määränpää on ylläpidetty Euroopan talousalueen ulkopuolella. Linkataan "
+"tietosuojailmoitukseen."
+
+#: external_services/models.py
+msgid "DESTINATION_GLOBAL_GDPR_PRIVACY_NOTICE"
+msgstr ""
+"Määränpää on ylläpidetty Euroopan talousalueen ulkopuolella, mutta noudattaa "
+"GDPR:ää tietosuojailmoituksensa perusteella. Linkataan "
 "tietosuojailmoitukseen."
 
 #: external_services/models.py
@@ -5424,6 +5431,12 @@ msgstr ""
 "tunnistamaan sinut palvelussa."
 
 #: external_services/templates/external_services/_privacy.html
+msgid "EXTERNAL_SERVICE_APLUS_ID_SENT_TO_SERVICE"
+msgstr ""
+"Vain A+ -käyttäjätunnuksesi lähetetään tähän palveluun. Nimeäsi, "
+"sähköpostiosoitettasi tai opiskelijanumeroasi ei lähetetä."
+
+#: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PERSONAL_DATA_SENT_TO_SERVICE"
 msgstr ""
 "Tietoja kuten nimesi ja sähköpostiosoitteesi lähetetään palveluun, joten "
@@ -5496,6 +5509,12 @@ msgstr ""
 "kumonnut päätöksen EU-U.S. Privacy Shield -järjestelyn tietosuojan tason "
 "riittävyydestä. Selvitämme edelleen, kuinka uusi päätös vaikuttaa palvelun "
 "käyttöön. "
+
+#: external_services/templates/external_services/_privacy.html
+msgid "EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT"
+msgstr ""
+"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa GDPR:"
+"ää tietosuojailmoituksensa perusteella."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"

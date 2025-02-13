@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-11 13:01+0200\n"
+"POT-Creation-Date: 2025-02-13 12:37+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -402,10 +402,6 @@ msgid "LABEL_VISIBLE_TO_STUDENTS"
 msgstr "visible to students"
 
 #: course/models.py
-msgid "LABEL_GROUP_WORK_ALLOWED"
-msgstr "students can form groups"
-
-#: course/models.py
 msgid "MODEL_NAME_USER_TAG"
 msgstr "user tag"
 
@@ -534,6 +530,10 @@ msgstr "Instance name"
 #: course/models.py
 msgid "COURSE_INSTANCE_URL_IDENTIFIER_HELPTEXT"
 msgstr "Input an URL identifier for this course instance."
+
+#: course/models.py
+msgid "LABEL_GROUP_WORK_ALLOWED"
+msgstr "students can form groups"
 
 #: course/models.py
 msgid "LABEL_ENROLLMENT_AUDIENCE"
@@ -5122,6 +5122,13 @@ msgstr ""
 "extended privacy notice."
 
 #: external_services/models.py
+msgid "DESTINATION_GLOBAL_GDPR_PRIVACY_NOTICE"
+msgstr ""
+"The destination is hosted outside of the European Economic Area, but is GDPR "
+"compliant according to its privacy notice. Link to an extended privacy "
+"notice."
+
+#: external_services/models.py
 msgid "SERVICE_URL"
 msgstr "The service URL"
 
@@ -5406,6 +5413,12 @@ msgstr ""
 "%(brand)s's administration can if necessary."
 
 #: external_services/templates/external_services/_privacy.html
+msgid "EXTERNAL_SERVICE_APLUS_ID_SENT_TO_SERVICE"
+msgstr ""
+"Only your A+ user id will be sent to the service. Your name, email address "
+"or student ID will not be sent."
+
+#: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PERSONAL_DATA_SENT_TO_SERVICE"
 msgstr ""
 "Information including your name and email address will be sent to the "
@@ -5477,6 +5490,12 @@ msgstr ""
 "Shield</a>, but the European Court of Justice has declared the EU-U.S. "
 "Privacy Shield invalid. We are investigating how this affects the use of the "
 "service."
+
+#: external_services/templates/external_services/_privacy.html
+msgid "EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT"
+msgstr ""
+"This service is hosted outside the European Economics Area, but is GDPR "
+"compliant according to its privacy notice."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"
