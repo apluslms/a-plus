@@ -26,7 +26,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
 
     const filter_button = {
       id: button_id_prefix + 'filter',
-      classes: 'btn-light btn-sm',
+      classes: 'btn-sm',
       text: _('Toggle filtering by tag'),
       onclick: function () {
         $('.filter-users button[data-tagslug="' + tag_slug + '"]').trigger('click');

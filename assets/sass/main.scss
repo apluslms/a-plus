@@ -13,12 +13,10 @@ $body-bg: $aplus-background;
 
 // Next, import the functional colours
 @import 'colors/functional';
-$success: $aplus-success;
+/*$success: $aplus-success;
 $info: $aplus-info;
 $warning: $aplus-warning;
-$danger: $aplus-danger;
-// The default $headings-small-color has a low contrast in most of the cases.
-$headings-small-color: #535353;
+$danger: $aplus-danger;*/
 
 //** Default progress bar color
 $progress-bar-bg: $aplus-brand-primary;
@@ -50,13 +48,23 @@ $h5-font-size:                $font-size-base;
 $h6-font-size:                $font-size-base * 0.875;
 
 // Legacy panel look for BS5 cards
-$card-bg:  #f5f5f5;
+//$card-bg: #f5f5f5;
 
 @import 'vendor/bootstrap5';
 
 // Import Bootstrap Icons (change font file directory from default)
 $bootstrap-icons-font-dir: '../fonts/bootstrap-icons/fonts';
 @import 'vendor/bootstrap-icons/bootstrap-icons';
+
+@import 'vendor/highlightjs/github';
+[data-bs-theme="dark"] {
+    @import 'vendor/highlightjs/github-dark';
+}
+
+@import 'vendor/pygments/default';
+[data-bs-theme="dark"] {
+    @import 'vendor/pygments/vim';
+}
 
 /*!
  * A+ Legacy Styles

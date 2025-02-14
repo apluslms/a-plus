@@ -25,14 +25,14 @@
 	<p class="filter-users">
 		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
-		<button class="btn btn-light btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
+		<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
 			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
 		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_STATUS" %}:</small>
 		{% for status_code, status_label in enrollment_statuses.items %}
-		<button class="btn btn-light btn-sm filter-status" data-status="{{ status_code }}">
+		<button class="btn btn-sm filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
 			<i class="bi-check-square" aria-hidden="true"></i>
 			{% else %}

@@ -49,7 +49,7 @@ class BasePageLocators:
     WARNING_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-warning')]")
     NOTIFICATION_ALERT = (
         By.XPATH,
-        "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'badge-danger')]"
+        "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'text-bg-danger')]"
     )
 
 class HomePageLocators:

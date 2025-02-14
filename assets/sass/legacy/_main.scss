@@ -113,14 +113,14 @@ iframe {
 	clear: both;
 	font-weight: 400;
 	line-height: 1.42857143;
-	color: #333;
+	/*color: #333;*/
 	white-space: nowrap;
 	text-align: left;
 	width: 100%;
 
-	&:hover {
+	/*&:hover {
 		background: #eee;
-	}
+	}*/
 }
 
 /* Skip links */
@@ -166,10 +166,18 @@ iframe {
 }
 .course-menu .advert-thumbnail {
     margin-top: 4em;
-    background-color: #d9edf7;
-    border-color: #bce8f1;
+    background-color: var(--bs-info-bg-subtle, #d9edf7);
+    border-color: var(--bs-info-border-subtle, #bce8f1);
+    border-radius: var(--bs-alert-border-radius, 6px);
+    border: var(--bs-alert-border, 1px solid var(--bs-info-border-subtle, $gray-500));
     padding: 0.5em;
 }
+/*[data-bs-theme="dark"] {
+    .course-menu .advert-thumbnail {
+        background-color: var(--bs-info-bg-subtle, black);
+        border-color: var(--bs-info-border-subtle, #333);
+    }
+}*/
 .course-menu .advert-thumbnail h4 {
     margin-top: 0;
 }
@@ -258,13 +266,13 @@ file for all the components */
 .icon.red {
   color: #ff7070;
 }
-.panel-primary>.panel-heading .badge-danger,
+/*.panel-primary>.panel-heading .badge-danger,
 .panel-primary>.panel-heading .badge-warning,
 .panel-primary>.panel-heading .badge-info,
 .panel-primary>.panel-heading .badge-success {
     border: 1px solid #fff;
     padding: 2px 6px;
-}
+}*/
 .unconfirmed-points {
   opacity: 0.6;
 }

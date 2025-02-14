@@ -221,6 +221,7 @@ $(function() {
         $.each(this.clipboard_fields, function() {
           button.attr('data-' + this, result.data[this]);
         });
+        button.addClass("btn btn-sm btn-secondary");
         this.selection.append(li);
       }
     },

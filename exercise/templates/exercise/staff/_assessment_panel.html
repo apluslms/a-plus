@@ -6,7 +6,7 @@
 {% load static %}
 
 <div class="card assessment-panel mb-3">
-	<div class="card-header" style="background-color: rgb(245, 245, 245)">
+	<div class="card-header" style="background-color: var(--bs-secondary-bg, grey)">
 		{# Heading: default mode #}
 		<div class="row">
 			<div class="assessment-bar assessment-toggle{% if form.errors %} d-none{% endif %}">
@@ -134,7 +134,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="card-body" style="background-color: white;">
+	<div class="card-body">
 		<div class="row resizable-sm">
 			{# Body: left column (submitted files) #}
 			{% if files %}

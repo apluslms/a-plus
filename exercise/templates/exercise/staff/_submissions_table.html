@@ -86,7 +86,7 @@
 <p class="filter-submissions">
 	<small class="text-body-secondary">{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
 	{% for tag in instance.submissiontags.all %}
-	<button class="btn btn-light btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
+	<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
 		<i class="bi-square" aria-hidden="true"></i>
 		{{ tag.name }}
 	</button>

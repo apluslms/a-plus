@@ -13,7 +13,7 @@
 	<div class="input-group">
 		<div class="input-group-btn search-button">
 			<div class="btn-group">
-				<button class="btn btn-light dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
+				<button class="btn btn-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
 					<i class="bi-search" aria-hidden="true"></i>
 				</button>
 				<ul class="dropdown-menu search-options" role="menu">
@@ -53,9 +53,9 @@
 				<button
 					type="button"
 					{% if clipboard_options %}
-					class="btn btn-light dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
+					class="btn btn-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
 					{% else %}
-					class="btn btn-light copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
+					class="btn btn-secondary copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
 					{% endif %}
 				>
 					<i class="bi-copy" aria-hidden="true"></i>

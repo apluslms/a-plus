@@ -32,7 +32,7 @@ pre {
 
 code {
     padding: 2px 4px;
-    background-color: #f9f2f4;
+    background-color: var(--bs-secondary-bg, #f9f2f4);
     border-radius: 4px;
 }
 

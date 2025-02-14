@@ -17,9 +17,9 @@
 		<script src="{% static 'js/popper.min.js' %}"></script>
 		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
+		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
-				crossorigin="anonymous" referrerpolicy="no-referrer" />
+				crossorigin="anonymous" referrerpolicy="no-referrer" />-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
 				integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q=="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -85,7 +85,7 @@
 								<a class="dropdown-toggle exercise-nav-submissions" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
-										<span class="badge text-bg-secondary">
+										<span class="badge {% if summary.submission_count == 0 %}text-bg-light{% else %}text-bg-secondary{% endif %}">
 											{{ summary.submission_count }}
 											{% if exercise.max_submissions %}
 												/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}

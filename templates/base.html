@@ -36,9 +36,9 @@
 			integrity="sha384-e7wK18mMVsIpE/BDLrCQ99c7gROAxr9czDzslePcAHgCLGCRidxq1mrNCLVF2oaj"
 			crossorigin="anonymous" referrerpolicy="no-referrer" />-->
 
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
+	<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 			integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
-			crossorigin="anonymous" referrerpolicy="no-referrer" />
+			crossorigin="anonymous" referrerpolicy="no-referrer" />-->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
 			integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q=="
 			crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -79,6 +79,7 @@
 	<script src="{% static 'js/polyfill-find.js' %}"></script>
 	<script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
 	<script src="{% static 'js/aplus.js' %}"></script>
+	<script src="{% static 'js/color-mode.js' %}"></script>
 	{{ form.media.js }}
 
 	{% block scripts %}
@@ -119,7 +120,7 @@
 				<div class="container-fluid">
 					<div style="display: flex; align-items: center">
 						<a class="navbar-brand" href="{% url 'home' %}">{% brand_name %}</a>
-						<span class="navbar-brand" style="font-size: 0.8em">{{ APLUS_VERSION }}</span>
+						<span class="navbar-brand" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
 						<ul class="navbar-nav navbar-dropdown me-auto">
 							<li role="presentation" class="nav-item dropdown">
 								<a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button"
@@ -139,6 +140,35 @@
 					</div>
 					<div class="d-none d-sm-flex">
 						<ul class="navbar-nav navbar-dropdown user-menu" style="flex-direction: row; align-items: baseline; gap: 1em">
+							<li class="nav-item dropdown">
+								<a href="#" class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
+									<i class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
+									<span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+								</a>
+								<ul class="dropdown-menu dropdown-menu-end" style="position: absolute; right: 0; left: auto" aria-labelledby="bd-theme-text">
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+										<i class="bi bi-sun-fill me-2 opacity-50"><use href="#sun-fill"></use></i>
+										Light
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
+										<i class="bi bi-moon-stars-fill me-2 opacity-50"><use href="#moon-stars-fill"></use></i>
+										Dark
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+										<i class="bi bi-circle-half me-2 opacity-50"><use href="#circle-half"></use></i>
+										Auto
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+								</ul>
+							</li>
 							{% if show_language_toggle %}
 							<li class="nav-item">
 								{% if request.LANGUAGE_CODE == 'fi' %}
@@ -194,7 +224,7 @@
 						<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
 						{% notification_count as n_count %}
 						{% if n_count > 0 %}
-						<span class="badge badge-danger float-end">{{ n_count }}</span>
+						<span class="badge text-bg-danger float-end">{{ n_count }}</span>
 						{% endif %}
 						<span class="navbar-toggler-icon"></span>
 					</button>
@@ -267,7 +297,52 @@
 			</nav>
 		</header>
 		{% endblock header %}
-
+<!--		<div class="alert alert-info">
+			<h4><i class="bi-info"></i> This is an info alert. Consider it an example</h4>
+		</div>
+		<div class="alert alert-primary">
+			<h4><i class="bi-primary"></i> This is an primary alert. Consider it an example</h4>
+		</div>
+		<div class="alert alert-success">
+			<h4><i class="bi-success"></i> This is an success alert. Consider it an example</h4>
+		</div>
+		<div class="alert alert-warning">
+			<h4><i class="bi-warning"></i> This is an warning alert. Consider it an example</h4>
+		</div>
+		<div class="alert alert-danger">
+			<h4><i class="bi-danger"></i> This is an danger alert. Consider it an example</h4>
+		</div>
+		<span class="badge text-bg-primary">Primary</span>
+		<span class="badge text-bg-secondary">Secondary</span>
+		<span class="badge text-bg-success">Success</span>
+		<span class="badge text-bg-danger">Danger</span>
+		<span class="badge text-bg-warning">Warning</span>
+		<span class="badge text-bg-info">Info</span>
+		<span class="badge text-bg-light">Light</span>
+		<span class="badge text-bg-dark">Dark</span>
+<hr>
+		<span class="badge rounded-pill text-bg-primary">Primary</span>
+		<span class="badge rounded-pill text-bg-secondary">Secondary</span>
+		<span class="badge rounded-pill text-bg-success">Success</span>
+		<span class="badge rounded-pill text-bg-danger">Danger</span>
+		<span class="badge rounded-pill text-bg-warning">Warning</span>
+		<span class="badge rounded-pill text-bg-info">Info</span>
+		<span class="badge rounded-pill text-bg-light">Light</span>
+		<span class="badge rounded-pill text-bg-dark">Dark</span>
+<hr>
+<div class="progress">
+<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%">Progress is progress</div>
+</div>
+<div class="progress">
+<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width:100%">Progress is success</div>
+</div>
+<div class="progress">
+<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-warning text-dark" role="progressbar" style="width:100%">Progress is warning</div>
+</div>
+<div class="progress">
+<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width:100%">Progress is danger</div>
+</div>
+<hr>-->
 		{% block container_opening_tag %}
 		<main class="site-content container-fluid" id="content">
 			{% endblock %}
@@ -307,7 +382,7 @@
 						{% translate "EXERCISE_ERROR_COMMUNICATION" %}
 					</div>
 					<div class="progress">
-						<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%"
+						<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%"
 							data-msg-error="{% translate 'LOADING_FAILED' %}">
 							{% translate "LOADING" %}
 						</div>
@@ -327,7 +402,7 @@
 			<div class="modal-content">
 				<div class="modal-progress">
 					<div class="progress">
-						<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%"
+						<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%"
 							data-msg-error="{% translate 'LOADING_FAILED' %}">
 							{% translate "LOADING" %}
 						</div>

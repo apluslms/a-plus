@@ -55,7 +55,7 @@
 			{{ external_user_label|safe }}
 		</button>
 		{% for tag in tags %}
-		<button class="btn btn-light btn-sm" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
+		<button class="btn btn-secondary btn-sm" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
 			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
@@ -75,11 +75,11 @@
 
 	<div id="llama-view-table">
 		<div class="btn-group">
-			<a class="btn btn-light btn-sm" href="#">
+			<a class="btn btn-secondary btn-sm" href="#">
 				<i class="bi-download" aria-hidden="true"></i>
 				{% translate "DOWNLOAD_CSV" %}
 			</a>
-			<button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				
 				<span class="visually-hidden">{% translate "TOGGLE_DROPDOWN" %}</span>
 			</button>
@@ -91,7 +91,7 @@
 
 	<div id="llama-view-learners">
 		<div>
-			<button class="btn btn-light btn-sm">{% translate "CLEAR_SELECTION" %}</button>
+			<button class="btn btn-secondary btn-sm">{% translate "CLEAR_SELECTION" %}</button>
 		</div>
 		<div class="placeholder hidden llama-beacon">
 			<a href="#">

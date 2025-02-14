@@ -2,14 +2,14 @@
 	padding: 8px 15px;
 	margin-bottom: 22px;
 	list-style: none;
-	background-color: #f5f5f5;
+	background-color: var(--bs-secondary-bg, #f5f5f5);
 	border-radius: 4px;
-	> .active {
+	/*> .active {
 		color: #333;
-	}
+	}*/
 }
 .breadcrumb>li+li:before {
 	padding: 0 5px;
-	color: #ccc;
+	//color: #ccc;
 	content: "/ ";
 }
