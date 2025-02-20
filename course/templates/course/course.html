@@ -30,7 +30,7 @@
 				// Add link child
 				const link = $("<a></a>");
 				link.attr("href", escapeHtml(lastVisited.url));
-				link.text(escapeHtml(lastVisited.title));
+				link.text(lastVisited.title);
 				alert.append(link);
 			}
 		}
