@@ -586,6 +586,9 @@ class SubmittedFileView(SubmissionMixin, BaseView):
                 else self.get_compared_submission_file_data(compare_to)
             )
             submitted_data = bytedata.decode('utf-8', 'ignore')
+            # Ensure that both files end with a newline, otherwise the diff output might be mangled
+            submitted_data += '\n' if not submitted_data.endswith('\n') else ''
+            compared_data += '\n' if not compared_data.endswith('\n') else ''
             diff = ndiff(compared_data.splitlines(keepends=True), submitted_data.splitlines(keepends=True))
             diff_text = ''.join([line for line in diff if line[0] != '?'])
             bytedata = diff_text.encode('utf-8')
