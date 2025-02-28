@@ -389,14 +389,20 @@ class AllSubmissionsView(CourseInstanceBaseView):
         super().get_common_objects()
         row_data = []
 
-        submissions_data = Submission.objects.filter(exercise__course_module__course_instance=self.instance.id)
+        submissions_data = Submission.objects.filter(
+            exercise__course_module__course_instance=self.instance.id,
+        ).select_related(
+            'exercise',
+        )
+
+        is_teacher = self.instance.is_teacher(self.request.user)
 
         for submission in submissions_data:
             row_data.append({
                 'submission': submission,
                 'exercise': submission.exercise,
                 'submitters': submission.submitters.all(),
-                'is_teacher': self.instance.is_teacher(self.request.user),
+                'is_teacher': is_teacher,
             })
 
         self.tags = self.instance.submissiontags.all()
