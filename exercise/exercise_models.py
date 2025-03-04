@@ -1376,8 +1376,6 @@ class LTI1p3Exercise(BaseExercise):
         if not students:
             return ExercisePage(self)
 
-        language = get_language()
-        url = self.get_service_url(language)
         parameters = prepare_lti1p3_initiate_login(self.lti_service, students[0].user, self.course_instance, self)
 
         # Render launch button.
@@ -1391,7 +1389,7 @@ class LTI1p3Exercise(BaseExercise):
             'parameters': parameters,
             'exercise': self,
             'is_course_staff': self.course_instance.is_course_staff(request.user),
-            'site': '/'.join(url.split('/')[:3]),
+            'site': '/'.join(self.lti_service.url.split('/')[:3]),
         })
         return page
 
