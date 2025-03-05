@@ -1,4 +1,4 @@
-from .celery import app as celery_app
+from .celery_aplus import app as celery_app
 
 __version__ = '1.28.0'
 """The version of the A-plus platform."""
