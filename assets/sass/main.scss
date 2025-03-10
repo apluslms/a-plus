@@ -63,7 +63,7 @@ $bootstrap-icons-font-dir: '../fonts/bootstrap-icons/fonts';
 
 @import 'vendor/pygments/default';
 [data-bs-theme="dark"] {
-    @import 'vendor/pygments/vim';
+    @import 'vendor/pygments/github-dark';
 }
 
 /*!
