@@ -67,7 +67,7 @@
 			{% for summary in submission_data %}
 			<tr id="summary.submission-{{ summary.submission.id }}">
 				<td>
-					{% profiles summary.submitters instance summary.is_teacher %}
+					{% profiles summary.submission.submitters.all instance summary.is_teacher %}
 				</td>
 				<td data-datetime="{{ summary.submission.submission_time|date:'Y-m-d H:i:s' }}">
 					{{ summary.submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
