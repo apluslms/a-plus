@@ -6,6 +6,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Prefetch
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -22,6 +23,7 @@ from exercise.models import LearningObject
 from exercise.submission_models import Submission
 from lib.helpers import settings_text, remove_query_param_from_url, is_ajax
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
+from userprofile.models import UserProfile
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
 from .models import Course, CourseInstance, CourseModule, Enrollment
@@ -389,14 +391,20 @@ class AllSubmissionsView(CourseInstanceBaseView):
         super().get_common_objects()
         row_data = []
 
-        submissions_data = Submission.objects.filter(exercise__course_module__course_instance=self.instance.id)
+        submissions_data = Submission.objects.filter(
+            exercise__course_module__course_instance=self.instance.id,
+        ).prefetch_related(None).prefetch_related(
+            Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance)),
+            'exercise', 'submission_taggings'
+        )
+
+        is_teacher = self.instance.is_teacher(self.request.user)
 
         for submission in submissions_data:
             row_data.append({
                 'submission': submission,
                 'exercise': submission.exercise,
-                'submitters': submission.submitters.all(),
-                'is_teacher': self.instance.is_teacher(self.request.user),
+                'is_teacher': is_teacher,
             })
 
         self.tags = self.instance.submissiontags.all()
