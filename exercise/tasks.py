@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 
-from aplus.celery import app
+from aplus.celery_aplus import app
 from .exercise_models import BaseExercise, ExerciseTask
 from .submission_models import Submission
 
