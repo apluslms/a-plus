@@ -11,6 +11,7 @@ from course.models import (
     LearningObjectCategory,
     UserTag,
     UserTagging,
+    SubmissionTag,
 )
 from lib.admin_helpers import RecentCourseInstanceListFilter
 
@@ -237,6 +238,32 @@ class UserTaggingAdmin(admin.ModelAdmin):
     )
 
 
+class SubmissionTagAdmin(admin.ModelAdmin):
+    search_fields = (
+        'name',
+        'slug',
+        'course_instance__instance_name',
+        'course_instance__course__name',
+        'course_instance__course__code',
+    )
+    list_display = (
+        'course_instance',
+        'name',
+        'slug',
+        'visible_to_students',
+    )
+    list_display_links = (
+        'name',
+        'slug',
+    )
+    list_filter = (
+        RecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'course_instance',
+    )
+
+
 class CourseHookAdmin(admin.ModelAdmin):
     search_fields = (
         'hook_url',
@@ -256,3 +283,4 @@ admin.site.register(CourseModule, CourseModuleAdmin)
 admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
 admin.site.register(UserTag, UserTagAdmin)
 admin.site.register(UserTagging, UserTaggingAdmin)
+admin.site.register(SubmissionTag, SubmissionTagAdmin)
