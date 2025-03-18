@@ -1,11 +1,17 @@
 import logging
+import json
+
 from django.utils.translation import gettext_lazy as _
 
+from course.models import SubmissionTag
 from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
 from notification.models import Notification
-from .forms import SubmissionCallbackForm
 from lti_tool.utils import send_lti_points
+
+from .forms import SubmissionCallbackForm
+from .models import SubmissionTagging
+
 
 logger = logging.getLogger('aplus.exercise')
 
@@ -42,7 +48,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
             email_course_error(request, exercise, msg, False)
         return {
             "success": False,
-            "errors": errors
+            "errors": errors,
         }
 
     # Grade the submission.
@@ -51,6 +57,32 @@ def _post_async_submission(request, exercise, submission, errors=None):
                               form.cleaned_data["max_points"])
         submission.feedback = form.cleaned_data["feedback"]
         submission.grading_data = post_data
+
+        if 'grading_data' in submission.grading_data:
+            grader_grading_data = json.loads(submission.grading_data['grading_data'])
+            if 'submission_tags' in grader_grading_data:
+                for tag_slug in grader_grading_data['submission_tags'].split(','):
+                    tag_slug = tag_slug.strip()
+                    if tag_slug:
+                        try:
+                            # Try to get the tag and validate it belongs to the course
+                            tag = SubmissionTag.objects.get(
+                                slug=tag_slug,
+                                course_instance=submission.exercise.course_module.course_instance,
+                            )
+                            # Only attempt to create SubmissionTagging if it does not exist already
+                            if not SubmissionTagging.objects.filter(submission=submission, tag=tag).exists():
+                                SubmissionTagging.objects.create(submission=submission, tag=tag)
+                        except SubmissionTag.DoesNotExist:
+                            # Send an email to course instance's technical support emails and teachers
+                            # if the submission tags are misconfigured
+                            if exercise.course_instance.visible_to_students:
+                                msg = (
+                                    f"Failed to tag submission: Submission tag '{tag_slug}' not found "
+                                    "or not part of this course instance."
+                                )
+                                logger.error(msg, extra={"request": request})
+                                email_course_error(request, exercise, msg, True)
 
         # If A+ is used as LTI Tool and the assignment uses the Acos-server,
         # the submission has not been able to save the LTI launch id before
@@ -83,7 +115,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
 
         return {
             "success": True,
-            "errors": []
+            "errors": [],
         }
 
     # Produce error if something goes wrong during saving the points.
@@ -92,5 +124,5 @@ def _post_async_submission(request, exercise, submission, errors=None):
             " for {} and submission id {:d}".format(str(exercise), submission.id));
         return {
             "success": False,
-            "errors": [repr(e)]
+            "errors": [repr(e)],
         }
