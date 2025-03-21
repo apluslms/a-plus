@@ -2,6 +2,7 @@
 html,
 body {
 	height: 100%;
+	padding-top: 30px; /* TODO: Find out what causes extra margin on top */
 }
 .page-wrap {
 	min-height: 100%;

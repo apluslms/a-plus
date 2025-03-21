@@ -93,7 +93,7 @@ $(function () {
 
   var modifyMenu = function () {
     var menu = $('#main-course-menu');
-    if (!menuFixed && !sidebarCollapsed && $(window).scrollTop() > menuHeight) {
+    if (!menuFixed && $(window).scrollTop() > menuHeight) {
       var w = menu.width();
       menu.addClass('fixed');
       menu.css('width', "" + w + "px");
@@ -115,17 +115,18 @@ $(function () {
     }
   };
 
-  $(window).on('scroll', modifyMenu);
-  $(window).on('resize', updateMenu);
+  //$(window).on('scroll', modifyMenu);
+  //$(window).on('resize', updateMenu);
 
   function setSidebarState(collapsed) {
     sidebarCollapsed = collapsed;
     $('#course-content').toggleClass('sidebar-collapsed', collapsed);
-    $('#course-sidebar').toggleClass('d-md-block', !collapsed);
+    $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
     $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
+    $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
     localStorage.setItem('sidebarCollapsed', collapsed);
     if (!collapsed) {
-      modifyMenu();
+      //modifyMenu();
     }
   };
 
@@ -215,10 +216,11 @@ $(function () {
           },
           dataType: "html"
         }).fail(function () {
-          self.selection.show().find("small").text("Error");
+          self.selection.show().find("#group-selection-label").text("Error");
           self.loader.hide();
         }).done(function (data) {
-          self.selection.show().find("small").html(data);
+          self.selection.show().find("#group-selection-icon").html(data.includes("alone") ? '<i class="bi-person-fill"></i>' : '<i class="bi-people-fill"></i>');
+          self.selection.show().find("#group-selection-label").html(data);
           self.loader.hide();
           var id = self.selection.find('[data-group-id]').attr("data-group-id");
           $('.submit-group-selector option[value="' + id + '"]').prop('selected', true);
@@ -841,4 +843,11 @@ $(document).ready(function() {
   });
   // Change "collapse in" to "collapse show" to correct initial visibility with BS5
   $('.collapse.in').removeClass('in').addClass('show');
+});
+
+// Prevent tooltips from showing when the navbar is not minimised
+$(document).on("show.bs.tooltip", function(e) {
+  if (!$("#bs-navbar-collapse").hasClass("minimised")) {
+      return false;
+  }
 });

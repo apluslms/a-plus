@@ -1,23 +1,31 @@
 {% load i18n %}
 {% load course %}
 {% if groups %}
-<li role="presentation" class="menu-groups">
-  <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+<li role="presentation" class="menu-groups nav-item dropdown" style="max-width: 20vw; text-overflow: ellipsis;">
+  <a href="#" class="btn btn-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
     <span class="selection">
-      <small class="text-body-secondary">
+      <span id="group-selection-icon">
+        {% if "alone" in selected %}
+          <i class="bi-person-fill" aria-hidden="true"></i>
+        {% else %}
+          <i class="bi-people-fill" aria-hidden="true"></i>
+        {% endif %}
+      </span>
+      <span id="group-selection-label" class="d-none d-lg-inline">
         {{ selected }}
-      </small>
+      </span>
       <span class="caret" aria-hidden="true"></span>
     </span>
-    <span class="loader hidden">
-      <small class="text-body-secondary">{% translate "GROUP_LOADER_REGISTERING_SELECTION" %}</small>
+    <span class="loader d-none">
+      <small>{% translate "GROUP_LOADER_REGISTERING_SELECTION" %}</small>
     </span>
   </a>
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
     <li>
-      <form class="dropdown-item" id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
+      <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
-        <button type="submit" name="group" value="0" data-group-size="1">
+        <button class="dropdown-item" type="submit" name="group" value="0" data-group-size="1">
+          <i class="bi-person-fill" aria-hidden="true"></i>
           {% translate "SUBMIT_ALONE" %}
         </button>
       </form>
@@ -26,7 +34,8 @@
     <li>
       <form id="group-select-form" method="post" action="{{ instance|url:'group-select' }}">
         {% csrf_token %}
-        <button type="submit" name="group" value="{{ group.id }}" data-group-size="{{ group.size }}">
+        <button class="dropdown-item" type="submit" name="group" value="{{ group.id }}" data-group-size="{{ group.size }}">
+          <i class="bi-people-fill" aria-hidden="true"></i>
           {% blocktranslate trimmed with collaborators=group.collaborators %}
             SUBMIT_WITH -- {{ collaborators }}
           {% endblocktranslate %}

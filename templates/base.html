@@ -116,14 +116,14 @@
 	<div class="page-wrap">
 		{% block header %}
 		<header>
-			<nav class="navbar-header topbar navbar sticky-top visible-xs" aria-label="{% translate 'MAIN' %}">
+			<nav class="navbar-header topbar navbar fixed-top" aria-label="{% translate 'MAIN' %}">
 				<div class="container-fluid">
 					<div style="display: flex; align-items: center">
-						<a class="navbar-brand" href="{% url 'home' %}">{% brand_name %}</a>
-						<span class="navbar-brand" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
+						<a class="navbar-brand btn btn-link py-2 d-flex align-items-center" href="{% url 'home' %}">{% brand_name %}</a>
+						<span class="navbar-brand d-none d-md-flex" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
 						<ul class="navbar-nav navbar-dropdown me-auto">
-							<li role="presentation" class="nav-item dropdown">
-								<a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button"
+							<li role="presentation" class="dropdown">
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									{% if instance %}
 									{{ course|parse_localization }}
@@ -139,11 +139,12 @@
 						</ul>
 					</div>
 					<div class="d-none d-sm-flex">
-						<ul class="navbar-nav navbar-dropdown user-menu" style="flex-direction: row; align-items: baseline; gap: 1em">
+						<ul class="navbar-nav navbar-dropdown user-menu" style="flex-direction: row; align-items: baseline">
 							<li class="nav-item dropdown">
-								<a href="#" class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
-									<i class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
-									<span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" 
+									data-bs-toggle="dropdown" data-bs-display="static" aria-label="Theme">
+									<i id="theme-switcher-icon" class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
+									<span class="d-none d-lg-block ms-2" id="bd-theme-text">Theme</span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-end" style="position: absolute; right: 0; left: auto" aria-labelledby="bd-theme-text">
 									<li>
@@ -156,7 +157,7 @@
 									<li>
 									<button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
 										<i class="bi bi-moon-stars-fill me-2 opacity-50"><use href="#moon-stars-fill"></use></i>
-										Dark
+										Dark (experimental)
 										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
 									</button>
 									</li>
@@ -172,18 +173,12 @@
 							{% if show_language_toggle %}
 							<li class="nav-item">
 								{% if request.LANGUAGE_CODE == 'fi' %}
-								<a class="nav-link" href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										EN
-									</span>
+								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
+									<i class="bi bi-translate" alt=""> EN</i>
 								</a>
 								{% else %}
-								<a class="nav-link" href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										FI
-									</span>
+								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
+									<i class="bi bi-translate" alt=""> FI</i>
 								</a>
 								{% endif %}
 							</li>
@@ -192,15 +187,16 @@
 							{% group_select %}
 							{% notification_menu %}
 							<li role="presentation" class="profile-menu nav-item dropdown">
-								<a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" role="button"
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									<i class="bi-person-fill" aria-hidden="true" data-testid="user-menu"></i>
-									{{ user.first_name }} {{ user.last_name }} 
+									<span class="d-none d-lg-inline">{{ user.first_name }} {{ user.last_name }}</span>
 								</a>
 								<ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
 									<li role="presentation">
 										<a class="dropdown-item" href="{% url 'profile' %}">{% translate "PROFILE" %}</a>
 									</li>
+									<hr>
 									<li role="presentation">
 										<a class="dropdown-item" href="{% url 'logout' %}">
 											<i class="bi-box-arrow-right" aria-hidden="true"></i>
@@ -219,130 +215,15 @@
 							{% endif %}
 						</ul>
 					</div>
-					<button type="button" class="navbar-toggler collapsed d-block d-sm-none" data-bs-toggle="collapse"
+					<button type="button" class="navbar-toggler collapsed d-block d-md-none" data-bs-toggle="offcanvas"
 						data-bs-target="#bs-navbar-collapse" aria-expanded="false">
 						<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
-						{% notification_count as n_count %}
-						{% if n_count > 0 %}
-						<span class="badge text-bg-danger float-end">{{ n_count }}</span>
-						{% endif %}
 						<span class="navbar-toggler-icon"></span>
 					</button>
-					<div class="collapse navbar-collapse" id="bs-navbar-collapse">
-
-						{# Separate menu optimized for mobile users #}
-						<ul class="nav navbar-nav d-block d-sm-none">
-							{% notification_count as n_count %}
-							{% if n_count > 0 %}
-								<li class="header">
-									<h4>{% translate "NOTIFICATION" %}</h4>
-								</li>
-							{% endif %}
-							{% notification_menu %}
-							{% group_select %}
-							{% block mobilemenu %}{% endblock %}
-							<li class="header">
-								<h4>{% translate "SITE" %}</h4>
-							</li>
-							<li>
-								<a class="nav-link" href="{% url 'home' %}">
-									<i class="bi-house-door-fill" aria-hidden="true"></i>
-									{% translate "HOME" %}
-								</a>
-							</li>
-							{% course_menu %}
-							{% if user.is_authenticated %}
-							<li class="nav-item">
-								<a class="nav-link" href="{% url 'profile' %}">
-									<i class="bi-person-fill" aria-hidden="true"></i>
-									{{ user.first_name }} {{ user.last_name }}
-								</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" href="{% url 'logout' %}">
-									<i class="bi-caret-left" aria-hidden="true"></i>
-									{% translate "LOG_OUT"%}
-								</a>
-							</li>
-							{% else %}
-							<li class="nav-item">
-								<a class="nav-link" href="{% url 'login' %}{% login_next %}">
-									<i class="bi-box-arrow-in-right" aria-hidden="true"></i>
-									{% translate "LOG_IN" %}
-								</a>
-							</li>
-							{% endif %}
-							<li>
-								{% if show_language_toggle %}
-								{% if request.LANGUAGE_CODE == 'fi' %}
-								<a href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										EN
-									</span>
-								</a>
-								{% else %}
-								<a href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										FI
-									</span>
-								</a>
-								{% endif %}
-								{% endif %}
-							</li>
-						</ul>
-					</div>
 				</div>
 			</nav>
 		</header>
 		{% endblock header %}
-<!--		<div class="alert alert-info">
-			<h4><i class="bi-info"></i> This is an info alert. Consider it an example</h4>
-		</div>
-		<div class="alert alert-primary">
-			<h4><i class="bi-primary"></i> This is an primary alert. Consider it an example</h4>
-		</div>
-		<div class="alert alert-success">
-			<h4><i class="bi-success"></i> This is an success alert. Consider it an example</h4>
-		</div>
-		<div class="alert alert-warning">
-			<h4><i class="bi-warning"></i> This is an warning alert. Consider it an example</h4>
-		</div>
-		<div class="alert alert-danger">
-			<h4><i class="bi-danger"></i> This is an danger alert. Consider it an example</h4>
-		</div>
-		<span class="badge text-bg-primary">Primary</span>
-		<span class="badge text-bg-secondary">Secondary</span>
-		<span class="badge text-bg-success">Success</span>
-		<span class="badge text-bg-danger">Danger</span>
-		<span class="badge text-bg-warning">Warning</span>
-		<span class="badge text-bg-info">Info</span>
-		<span class="badge text-bg-light">Light</span>
-		<span class="badge text-bg-dark">Dark</span>
-<hr>
-		<span class="badge rounded-pill text-bg-primary">Primary</span>
-		<span class="badge rounded-pill text-bg-secondary">Secondary</span>
-		<span class="badge rounded-pill text-bg-success">Success</span>
-		<span class="badge rounded-pill text-bg-danger">Danger</span>
-		<span class="badge rounded-pill text-bg-warning">Warning</span>
-		<span class="badge rounded-pill text-bg-info">Info</span>
-		<span class="badge rounded-pill text-bg-light">Light</span>
-		<span class="badge rounded-pill text-bg-dark">Dark</span>
-<hr>
-<div class="progress">
-<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%">Progress is progress</div>
-</div>
-<div class="progress">
-<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width:100%">Progress is success</div>
-</div>
-<div class="progress">
-<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-warning text-dark" role="progressbar" style="width:100%">Progress is warning</div>
-</div>
-<div class="progress">
-<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width:100%">Progress is danger</div>
-</div>
-<hr>-->
 		{% block container_opening_tag %}
 		<main class="site-content container-fluid" id="content">
 			{% endblock %}
@@ -355,8 +236,7 @@
 			{% endblock %}
 			{% block container_closing_tag %}
 		</main>
-		{% endblock %}
-
+		{% endblock %}		
 		{% block footer %}
 		<footer class="site-footer footer mt-auto" role="contentinfo">
 			<nav class="navbar navbar-expand sticky-bottom bg-body-tertiary" role="presentation">

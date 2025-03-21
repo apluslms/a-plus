@@ -40,12 +40,26 @@
       const activeThemeIcon = document.querySelector('.theme-icon-active use')
       const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
       const svgOfActiveBtn = btnToActive.querySelector('i use').getAttribute('href')
+      const themeSwitcherIcon = document.querySelector('#theme-switcher-icon')
   
       document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
         element.classList.remove('active')
         element.setAttribute('aria-pressed', 'false')
       })
   
+      // Set the menu icon to match selection
+      themeSwitcherIcon.classList.remove('bi-sun-fill', 'bi-circle-half','bi-moon-stars-fill');
+      switch (theme) {
+        case 'auto':
+          themeSwitcherIcon.classList.add('bi-circle-half');
+          break
+        case 'dark':
+          themeSwitcherIcon.classList.add('bi-moon-stars-fill');
+          break
+        default:
+          themeSwitcherIcon.classList.add('bi-sun-fill');
+          break
+      }
       btnToActive.classList.add('active')
       btnToActive.setAttribute('aria-pressed', 'true')
       activeThemeIcon.setAttribute('href', svgOfActiveBtn)

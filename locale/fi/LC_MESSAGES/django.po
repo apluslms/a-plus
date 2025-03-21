@@ -1003,8 +1003,8 @@ msgid "CHANGE_LANGUAGE"
 msgstr "Vaihda kieli"
 
 #: course/templates/course/_course_menu.html
-msgid "CLOSE_SIDEBAR"
-msgstr "Sulje sivupalkki"
+msgid "MINIMISE_SIDEBAR"
+msgstr "Pienennä sivupalkki"
 
 #: course/templates/course/_course_menu.html
 #: edit_course/templates/edit_course/edit_course_base.html
@@ -1151,11 +1151,11 @@ msgstr ""
 #: course/templates/course/_group_info.html
 #, python-format
 msgid "GROUP_SUBMITTING_WITH -- %(collaborators)s"
-msgstr "Olet nyt palauttamassa ryhmässä, jossa on %(collaborators)s "
+msgstr "Palauttamassa ryhmässä: %(collaborators)s "
 
 #: course/templates/course/_group_info.html
 msgid "GROUP_SUBMITTING_ALONE"
-msgstr "Olet nyt palauttamassa yksin."
+msgstr "Palauttamassa yksin."
 
 #: course/templates/course/_group_select.html
 msgid "GROUP_LOADER_REGISTERING_SELECTION"
@@ -1191,8 +1191,8 @@ msgid "LEFT_OFF_REMINDER"
 msgstr ""
 
 #: course/templates/course/course_base.html
-msgid "OPEN_SIDEBAR"
-msgstr "Avaa sivupalkki"
+msgid "EXPAND_SIDEBAR"
+msgstr "Laajenna sivupalkki"
 
 #: course/templates/course/course_base.html
 msgid "READ_MORE"
