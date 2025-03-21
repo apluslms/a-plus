@@ -14,6 +14,7 @@ from exercise.models import (
     LTI1p3Exercise,
     Submission,
     SubmissionDraft,
+    SubmissionTagging,
     SubmittedFile,
     RevealRule,
     ExerciseTask,
@@ -237,6 +238,48 @@ class SubmissionDraftAdmin(admin.ModelAdmin):
             .defer('submission_data')
             .prefetch_related('exercise', 'submitter')
         )
+
+
+class SubmissionTaggingAdmin(admin.ModelAdmin):
+    search_fields = (
+        'tag__name',
+        'tag__slug',
+        'tag__course_instance__instance_name',
+        'tag__course_instance__course__name',
+        'tag__course_instance__course__code',
+        'submission__id',
+        'submission__exercise__name',
+        'submission__submitters__student_id',
+        'submission__submitters__user__username',
+        'submission__submitters__user__first_name',
+        'submission__submitters__user__last_name',
+        'submission__submitters__user__email',
+    )
+    list_display = (
+        'get_course_instance',
+        'tag',
+        'submission',
+        'get_submitters',
+    )
+    list_display_links = (
+        'tag',
+        'submission',
+    )
+    list_filter = (
+        SubmissionRecentCourseInstanceListFilter,
+    )
+    raw_id_fields = (
+        'tag',
+        'submission',
+    )
+
+    @admin.display(description=_('LABEL_COURSE_INSTANCE'))
+    def get_course_instance(self, obj):
+        return str(obj.submission.exercise.course_module.course_instance)
+
+    @admin.display(description=_('LABEL_SUBMITTERS'))
+    def get_submitters(self, obj):
+        return ', '.join(str(s) for s in obj.submission.submitters.all())
 
 
 class SubmittedFileAdmin(admin.ModelAdmin):
@@ -535,6 +578,7 @@ admin.site.register(LTIExercise, LTIExerciseAdmin)
 admin.site.register(LTI1p3Exercise, LTI1p3ExerciseAdmin)
 admin.site.register(Submission, SubmissionAdmin)
 admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
+admin.site.register(SubmissionTagging, SubmissionTaggingAdmin)
 admin.site.register(SubmittedFile, SubmittedFileAdmin)
 admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
 admin.site.register(RevealRule, RevealRuleAdmin)

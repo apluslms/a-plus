@@ -30,12 +30,15 @@ from course.permissions import (
     OnlyCourseStaffPermission,
 )
 from course.api.mixins import CourseResourceMixin
+from course.models import SubmissionTag
+from exercise.submission_models import SubmissionTagging
 from exercise.async_views import _post_async_submission
 
 from ..cache.points import ExercisePoints
 from ..models import (
     Submission,
     SubmittedFile,
+    SubmissionTag,
     BaseExercise,
     LearningObject,
 )
@@ -521,6 +524,18 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
 
     `GET /submissions/<submission_id>/re-submit/`:
         resubmits a submission for grading.
+
+    `POST /submissions/<submission_id>/tag/`:
+        tags a submission with a submission tag.
+
+    - Request body:
+        - `tag_slug`: the slug of the tag to be added.
+
+    `DELETE /submissions/<submission_id>/tag/`:
+        removes a submission tag from a submission.
+
+    - Request body:
+        - `tag_slug`: the slug of the tag to be removed.
     """
     lookup_field = 'id'
     lookup_url_kwarg = 'submission_id'
@@ -600,6 +615,59 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
             data = {'errors': page.errors}
 
         return Response(data, status=status.HTTP_200_OK, headers=headers)
+
+    @action(
+        detail=True,
+        url_path='tag',
+        url_name='tag',
+        get_permissions = lambda: [OnlyCourseStaffPermission()],
+        methods=['post', 'delete'],
+    )
+    def manage_tag(self, request, *args, **kwargs):
+        """
+        Add or remove a tag from a submission.
+
+        Request data should include 'tag_slug' parameter.
+        """
+        tag_slug = request.data.get('tag_slug')
+        if not tag_slug:
+            return Response({'detail': 'Missing tag_slug parameter'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Try to get the tag and validate it belongs to the course
+            tag = SubmissionTag.objects.get(
+                slug=tag_slug,
+                course_instance=self.submission.exercise.course_module.course_instance,
+            )
+        except SubmissionTag.DoesNotExist:
+            return Response(
+                {'detail': 'Tag not found or not part of this course'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if request.method == 'POST':
+            # Check if the tagging already exists
+            if SubmissionTagging.objects.filter(submission=self.submission, tag=tag).exists():
+                return Response(
+                    {'detail': 'This submission is already tagged with this tag'},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+            SubmissionTagging.objects.create(submission=self.submission, tag=tag)
+            return Response({'detail': 'Tag added successfully'}, status=status.HTTP_201_CREATED)
+
+        elif request.method == 'DELETE':
+            try:
+                # Get the tagging object
+                tagging = SubmissionTagging.objects.get(submission=self.submission, tag=tag)
+                tagging.delete()
+            except SubmissionTagging.DoesNotExist:
+                return Response(
+                    {'detail': 'This submission is not tagged with this tag'},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+        return Response({'detail': 'Tag removed successfully'}, status=status.HTTP_200_OK)
 
 
 class SubmissionFileViewSet(NestedViewSetMixin,
