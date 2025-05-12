@@ -18,10 +18,10 @@ For more information on the JWT token, see [AUTH](AUTH.md).
 
 Easy programming of a custom grader is a priority. The protocol does not limit the
 parties initiating grading. The grader privacy should be secured by keeping
-grader services in private network.
-"Teacher" configures the `service_url` for the exercise.
+grader services in a private network.
+A "teacher" configures the `service_url` for the exercise.
 
-### Upon student viewing the exercise, A+ issues a request:
+### Upon a student viewing the exercise, A+ issues a request:
 
 `HTTP GET service_url` with additional **GET parameters**:
 
@@ -35,7 +35,11 @@ grader services in private network.
 
 * `max_points`
 
-	The maximum points for this exercise set by "teacher" in A+.
+	The maximum points for this exercise set by a "teacher" in A+.
+
+* `max_submissions`
+
+	The maximum submissions for this exercise set by a "teacher" in A+.
 
 * `uid`
 
@@ -51,6 +55,10 @@ grader services in private network.
 	The first submission has ordinal number one. If the exercise changes as
 	the submission count increases, the state of the exercise when viewing it
 	matches the state when a new submission is made and graded.
+
+* `lang`
+
+	Language of the exercise, e.g., "en" or "fi".
 
 The grader service responds with an HTML document. The BODY (or if `<div id="exercise">`
 exists) will be presented to the student. Normally the content will include a FORM
@@ -71,7 +79,11 @@ The FORM must use empty (or `post_url`) as ACTION.
 
 * `max_points`
 
-	The maximum points for this exercise set by "teacher" in A+.
+	The maximum points for this exercise set by a "teacher" in A+.
+
+* `max_submissions`
+
+	The maximum submissions for this exercise set by a "teacher" in A+.
 
 * `uid`
 
@@ -82,6 +94,10 @@ The FORM must use empty (or `post_url`) as ACTION.
 
 	Ordinal number of the new submission that is going to be graded.
 	The first submission has ordinal number one.
+
+* `lang`
+
+	Language of the exercise, e.g., "en" or "fi".
 
 The grader service responds with an HTML document. The BODY (or if `<div id="exercise">`
 exists) will be presented to the student. Normally the content includes feedback
@@ -106,7 +122,7 @@ submission it must use the `post_url` as ACTION. Additionally the following
 * `max_points` (recommended)
 
 	Grades on a different scale than set in A+. If set the final A+ points
-	will be scaled to match the maximum points set by "teacher" in A+.
+	will be scaled to match the maximum points set by a "teacher" in A+.
 
 * `wait` (optional)
 
@@ -144,13 +160,6 @@ submission it must use the `post_url` as ACTION. Additionally the following
 The request must come from an IP address that is resolved from the `service_url`
 set by "teacher" in the A+. A GET request to the `submission_url` is responded
 with JSON describing the current user and exercise status.
-
-
-## ExerciseWithAttachment
-
-A variation of the *BaseExercise* where "teacher" in A+ writes exercise instruction,
-lists the file names for student to submit and loads an exercise attachment file
-for the grader.
 
 ### Upon student viewing the exercise, A+ creates the submission form.
 
