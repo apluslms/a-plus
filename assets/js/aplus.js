@@ -116,7 +116,7 @@ $(function () {
   };
 
   //$(window).on('scroll', modifyMenu);
-  //$(window).on('resize', updateMenu);
+  //$(window).on('resize', updateMenu); // TODO: CHECK FOR REMOVAL #1442
 
   function setSidebarState(collapsed) {
     sidebarCollapsed = collapsed;
@@ -126,7 +126,7 @@ $(function () {
     $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
     localStorage.setItem('sidebarCollapsed', collapsed);
     if (!collapsed) {
-      //modifyMenu();
+      //modifyMenu(); // TODO: CHECK FOR REMOVAL #1442
     }
   };
 

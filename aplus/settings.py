@@ -71,15 +71,7 @@ LTI_TOKEN_LIFETIME = 3600
 # local_templates/possible_path/template_name.html
 ##########################################################################
 SITEWIDE_ALERT_TEXT = None
-SITEWIDE_ADVERT = {
-   'not-before': '2025-01-01', # start showing on 1st
-   'not-after': '2026-01-04', # last visible date is 3rd
-   'title': {'en': "Advert", 'fi': "Mainos"},
-   'text': {'en': "We have open positions",
-            'fi': "Meillä on paikkoja"},
-   'href': "https://apluslms.github.io",
-   'image': "https://apluslms.github.io/assets/images/apluslogo.png",
-}
+SITEWIDE_ADVERT = None
 BRAND_NAME = 'A+'
 BRAND_NAME_LONG = 'Aplus'
 BRAND_DESCRIPTION = 'Virtual Learning Environment'

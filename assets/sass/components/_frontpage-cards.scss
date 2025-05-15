@@ -40,7 +40,7 @@
 		flex-direction: column;
 		width: 400px;
 		/*border: solid 1px #ccc;
-		border-radius: 4px;*/
+		border-radius: 4px;*/ // TODO: CHECK FOR REMOVAL #1442
 		margin: 8px;
 		margin-bottom: 20px;
 		padding: 4px;
@@ -91,7 +91,7 @@
 			}
 			p {
 				color: #333;
-			}*/
+			}*/ // TODO: CHECK FOR REMOVAL #1442
 		}
 		> a > i.icon.bi-box-arrow-up-right {
 			position: absolute;
@@ -113,7 +113,7 @@
 			}
 			p {
 				color: #333;
-			}*/
+			}*/ // TODO: CHECK FOR REMOVAL #1442
 		}
 	}
 	.card-img-top {
@@ -128,7 +128,7 @@
 			font-size: 90px;
 			position: absolute;
 			left: 34%;
-			/*top: 15%;*/
+			/*top: 15%;*/ // TODO: CHECK FOR REMOVAL #1442
 		}
 	}
 	.course-image {
@@ -138,13 +138,13 @@
 			font-size: 90px;
 			position: absolute;
 			left: 34%;
-			/*top: 15%;*/
+			/*top: 15%;*/ // TODO: CHECK FOR REMOVAL #1442
 		}
 	}
 	.card-body {
 		padding: 10px;
 		padding-top: 0px;
-		/*color: #333333;*/
+		/*color: #333333;*/ // TODO: CHECK FOR REMOVAL #1442
 	}
 	.card-title {
 		color: var(--bs-card-title-color, #337ab7);
