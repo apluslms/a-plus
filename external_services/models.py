@@ -22,6 +22,7 @@ class LinkService(ModelWithInheritance):
         ('EEA', 3, _('DESTINATION_EEA_PRIVACY_NOTICE')),
         ('PRIVACYSHIELD', 5, _('DESTINATION_PRIVACYSHIELD_PRIVACY_NOTICE')),
         ('GLOBAL', 6, _('DESTINATION_GLOBAL_PRIVACY_NOTICE')),
+        ('GDPR_COMPLIANT', 7, _('DESTINATION_GLOBAL_GDPR_PRIVACY_NOTICE')),
     ])
     url = models.CharField(
         verbose_name=_('LABEL_URL'),
@@ -150,6 +151,10 @@ class LTIService(LinkService):
         return True
 
     @property
+    def share_name(self):
+        return not self.is_anonymous
+
+    @property
     def is_anonymous(self):
         return self.access_settings == self.LTI_ACCESS.ANON_API_NO
 
@@ -195,6 +200,11 @@ class LTI1p3Service(LinkService):
     class Meta:
         verbose_name = _('MODEL_NAME_LTI1P3_SERVICE')
         verbose_name_plural = _('MODEL_NAME_LTI1P3_SERVICE_PLURAL')
+
+    # Sends A+ user id
+    @property
+    def sends_user_info(self):
+        return True
 
     def get_url(self, replace=None, kwargs=None) -> str:
         return reverse('lti-login', kwargs=kwargs)

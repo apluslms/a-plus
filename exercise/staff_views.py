@@ -395,9 +395,8 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
     """
     access_mode = ACCESS.ASSISTANT
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        # Query submitters who have not been assessed yet.
-        submitter = None
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse: # pylint: disable=too-many-locals
+        # Query submitters who have not been assessed yet
         submitters = (UserProfile.objects
             .filter(submissions__exercise=self.exercise)
             .annotate(
@@ -408,30 +407,63 @@ class NextUnassessedSubmitterView(ExerciseBaseView, BaseRedirectView):
                 earliest_submission=Min('submissions__submission_time'),
             )
             .order_by('earliest_submission'))
-        total_submitters = submitters.count()
-        unassessed_submitters = submitters.filter(count_assessed=0).order_by('earliest_submission')
-        submitter = unassessed_submitters.first()
 
-        assessed_submitters_count = total_submitters - unassessed_submitters.count() + 1
+        total_submitters = submitters.count()
+
+        # Retrieve skipped submitters from the session
+        skipped_submitters = request.session.get('manual_assessment_skipped_submitters', [])
+
+        unskipped_and_unassessed_submitters = (
+            submitters.filter(count_assessed=0).exclude(id__in=skipped_submitters).order_by('earliest_submission')
+        )
+
+        # If no unassessed, unskipped submitters remain, reset skipped submitters list and retry
+        if not unskipped_and_unassessed_submitters.exists() and skipped_submitters:
+            request.session['manual_assessment_skipped_submitters'] = []
+            return self.get(request, *args, **kwargs)
+
+        submitter = unskipped_and_unassessed_submitters.first()
 
         if not submitter:
-            # There are no more unassessed submitters.
+            # There are no more unassessed submitters
             messages.success(request, _('ALL_SUBMITTERS_HAVE_BEEN_ASSESSED'))
             return self.redirect(self.exercise.get_submission_list_url())
 
-        # Find the submitter's best submission using the cache.
+        previous_submitter_id = request.GET.get('prev')
+        if previous_submitter_id:
+            try:
+                previous_submitter_id = int(request.GET.get('prev'))
+            except ValueError:
+                previous_submitter_id = None
+
+        # If user moved on to the next submitter without assessing the previous submitter, skip the current submitter
+        if previous_submitter_id == submitter.id:
+            skipped_submitters = request.session.get('manual_assessment_skipped_submitters', [])
+            if submitter.id not in skipped_submitters:
+                # Save the skipped submitter to the session
+                skipped_submitters.append(submitter.id)
+                request.session['manual_assessment_skipped_submitters'] = skipped_submitters
+            return self.redirect(self.exercise.get_url('submission-next-unassessed'))
+
+        # Find the submitter's best submission using the cache
         cache = CachedPoints(self.instance, submitter.user, True)
         ids = cache.submission_ids(exercise_id=self.exercise.id, best=True, fallback_to_last=True)
         if not ids:
             raise Http404()
+
+        assessed_submitters_count = total_submitters - unskipped_and_unassessed_submitters.count() + 1
+
         percentage = f"{int(assessed_submitters_count / total_submitters * 100)}%" if total_submitters else "0%"
-        self.request.session['manually_assessed_counter'] = (
-            f"{assessed_submitters_count} / {total_submitters} ({percentage})"
-        )
+        counter_str = f"{assessed_submitters_count} / {total_submitters} ({percentage})"
+        if len(skipped_submitters) > 0:
+            counter_str += " (" + _('SKIPPED') + f" {len(skipped_submitters)})"
+        self.request.session['manually_assessed_counter'] = counter_str
+
         url = reverse(
             'submission-inspect',
             kwargs={'submission_id': ids[0], **kwargs},
         )
+
         return self.redirect(url)
 
 

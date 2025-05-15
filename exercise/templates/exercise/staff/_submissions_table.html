@@ -67,7 +67,7 @@
 		{% exercise_text_stats exercise %} |
 		{% if count <= default_limit and not limited %}
 		{% blocktranslate trimmed with count=count url=all_url %}
-			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}, {{ url }}
+			NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}
 		{% endblocktranslate %}
 		{% elif limited %}
 		{% blocktranslate trimmed with limit=default_limit url=all_url %}

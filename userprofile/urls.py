@@ -8,6 +8,8 @@ urlpatterns = [
     re_path(r'^logout/$', views.AplusLogoutView.as_view(), name="logout"),
     re_path(r'^privacy-notice/$', views.PrivacyNoticeView.as_view(),
         name="privacy_notice"),
+    re_path(r'^cookie-notice/$', views.CookieNoticeView.as_view(),
+        name="cookie_notice"),
     re_path(r'^accessibility-statement/$', views.AccessibilityStatementView.as_view(),
         name="accessibility_statement"),
     re_path(r'^support/$', views.SupportView.as_view(),

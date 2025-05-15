@@ -17,20 +17,28 @@
 			{% endblocktranslate %}
 		</p>
 	{% else %}
-		{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
-			<p class="alert alert-warning"><i class="bi-exclamation-sign"></i><span>
+		{% if not service.share_name %}
+			<p class="alert alert-info"><i class="bi-exclamation-sign"></i><span>
+				{% blocktranslate trimmed %}
+					EXTERNAL_SERVICE_APLUS_ID_SENT_TO_SERVICE
+				{% endblocktranslate %}
+			</span></p>
 		{% else %}
-			<p><span>
-		{% endif %}
-		{% blocktranslate trimmed %}
-			EXTERNAL_SERVICE_PERSONAL_DATA_SENT_TO_SERVICE
-		{% endblocktranslate %}
-		{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
+			{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
+				<p class="alert alert-warning"><i class="bi-exclamation-sign"></i><span>
+			{% else %}
+				<p><span>
+			{% endif %}
 			{% blocktranslate trimmed %}
-				EXTERNAL_SERVICE_USE_OPTIONAL_BUT_USEFUL
+				EXTERNAL_SERVICE_PERSONAL_DATA_SENT_TO_SERVICE
 			{% endblocktranslate %}
+			{% if service.destination_region > service.DESTINATION_REGION.ORGANIZATION %}
+				{% blocktranslate trimmed %}
+					EXTERNAL_SERVICE_USE_OPTIONAL_BUT_USEFUL
+				{% endblocktranslate %}
+			{% endif %}
+			</span></p>
 		{% endif %}
-		</span></p>
 	{% endif %}
 	{% if service.api_access %}
 		{% if is_course_staff %}
@@ -85,6 +93,16 @@
 	{% endif %}
 	{% blocktranslate trimmed %}
 		EXTERNAL_SERVICE_PRIVACY_PRIVACYSHIELD
+	{% endblocktranslate %}
+{% elif service.destination_region == service.DESTINATION_REGION.GDPR_COMPLIANT %}
+	{% if service.sends_user_info %}
+	<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
+	<i class="glyphicon glyphicon-exclamation-sign"></i><span>
+	{% else %}
+	<p><span>
+	{% endif %}
+	{% blocktranslate trimmed %}
+	EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT
 	{% endblocktranslate %}
 {% else %}{# global #}
 	{% if service.sends_user_info %}
