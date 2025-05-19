@@ -111,7 +111,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         queryset = Submission.objects.filter(
             exercise_id__in=ids,
             submitters__in=profiles
-        ).prefetch_related('exercise', 'notifications', 'files')
+        ).prefetch_related('exercise', 'notifications', 'files').distinct()
         return self.serialize_submissions(request, queryset, revealed_ids, best=search_args['best'])
 
     def retrieve( # pylint: disable=arguments-differ
