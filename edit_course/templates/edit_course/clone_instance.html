@@ -27,7 +27,7 @@
           <a href="{{ ci|url:'course-clone' }}">{{ ci.instance_name }}</a>
           {% endif %}
           {% if not ci.visible_to_students %}
-          <span class="badge text-bg-default">{% translate "HIDDEN_lowercase" %}</span>
+          <span class="badge text-bg-secondary">{% translate "HIDDEN_lowercase" %}</span>
           {% endif %}
         </td>
         <td>{{ ci.url }}</td>

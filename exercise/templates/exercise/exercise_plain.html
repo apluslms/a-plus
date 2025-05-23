@@ -70,7 +70,7 @@
 						<ul class="nav navbar-nav exercise-nav">
 							<li class="nav-item">
 								<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
-									class="nav-link exercise-nav-points"
+									class="nav-link exercise-nav-points btn"
 									role="button"
 								>
 									<span>
@@ -82,10 +82,10 @@
 								</a>
 							</li>
 							<li class="nav-item dropdown">
-								<a class="dropdown-toggle exercise-nav-submissions" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+								<a class="dropdown-toggle exercise-nav-submissions btn" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 									<span>
 										{% translate "MY_SUBMISSIONS" %}
-										<span class="badge {% if summary.submission_count == 0 %}text-bg-light{% else %}text-bg-secondary{% endif %}">
+										<span class="badge text-bg-{% if summary.submission_count == 0 %}light{% else %}secondary{% endif %}">
 											{{ summary.submission_count }}
 											{% if exercise.max_submissions %}
 												/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}
@@ -105,7 +105,7 @@
 										</li>
 									{% empty %}
 										<li>
-											<a href="#">{% translate "NO_SUBMISSIONS_YET" %}</a>
+											<a href="#" class="dropdown-item">{% translate "NO_SUBMISSIONS_YET" %}</a>
 										</li>
 									{% endfor %}
 								</ul>

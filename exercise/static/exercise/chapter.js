@@ -287,7 +287,7 @@
       first_div.attr("class", "form-group");
 
       var label = $("<label>");
-      label.attr("class", "control-label");
+      label.attr("class", "form-label");
       label.attr("for", id + "_input_id");
       label.html(title);
 

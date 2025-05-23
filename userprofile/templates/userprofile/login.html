@@ -125,7 +125,7 @@
 							</div>
 						{% endif %}
 							<div class="form-group{% if form.username.errors %} has-error{% endif %}">
-								<label class="control-label"
+								<label class="form-label"
 								for="{{ form.username.id_for_label }}">{% translate "USERNAME" %}</label>
 								<input class="form-control" id="{{ form.username.id_for_label }}" type="text"
 								name="{{ form.username.html_name }}" required autocomplete="username" />
@@ -134,7 +134,7 @@
 								{% endfor %}
 							</div>
 							<div class="form-group{% if form.password.errors %} has-error{% endif %}">
-								<label class="control-label"
+								<label class="form-label"
 								for="{{ form.password.id_for_label }}">{% translate "PASSWORD" %}</label>
 								<input class="form-control" id="{{ form.password.id_for_label }}" type="password"
 								name="{{ form.password.html_name }}" required autocomplete="current-password" />
