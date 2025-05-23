@@ -75,12 +75,10 @@
 		<div class="input-group">
 			<input readonly type="text" class="form-control read-only" id="api-access-token"
 				value="{{ profile.api_token }}">
-			<span class="input-group-btn">
-				<button data-bs-toggle="tooltip" data-placement="bottom"
-					title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
-					class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
-						class="bi-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
-			</span>
+			<button data-bs-toggle="tooltip" data-placement="bottom"
+				title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
+				class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
+					class="bi-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
 		</div>
 		<div>
 			<form action="{% url 'regenerate-access-token' %}" method="post" class="form">{% csrf_token %}
