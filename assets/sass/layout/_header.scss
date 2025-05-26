@@ -16,6 +16,10 @@
 	padding-top: 0px;
 	margin-bottom: 22px;
 
+	.nav-link {
+		--bs-nav-link-padding-x: 0.5rem;
+	}
+
 	.navbar-brand,
 	.navbar-dropdown > a,
 	.navbar-nav > li > a,
@@ -23,7 +27,7 @@
 	.navbar-nav > .active > a,
 	.navbar-nav > .active > a:hover {
 		@include focus-with-background-and-color;
-
+		text-decoration:none;
 		color: #ffffff;
 		background: transparent;
 	}
@@ -33,6 +37,7 @@
 		padding-bottom: $navbar-padding-vertical;
 		padding-left: 0.75rem;
 		padding-right: 0.75rem;
+		--bs-btn-active-color:#ffffff;
 	}
 
 	.navbar-brand {
@@ -49,7 +54,7 @@
 			}
 		}
 	}*/ // TODO: CHECK FOR REMOVAL #1442
-/*
+
 	a.navbar-brand:hover,
 	a.navbar-dropdown > a:hover,
 	.navbar-nav > li > a:hover,
@@ -68,7 +73,7 @@
 			background-color: rgba(0,0,0,0.1);
 		}
 	}
-
+/*
 	.navbar-brand + .navbar-text {
 		float: left;
 		font-size: $font-size-small;

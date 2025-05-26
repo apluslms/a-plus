@@ -144,7 +144,7 @@
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" 
 									data-bs-toggle="dropdown" data-bs-display="static" aria-label="Theme">
 									<i id="theme-switcher-icon" class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
-									<span class="d-none d-lg-block ms-2" id="bd-theme-text">Theme</span>
+									<span class="d-none d-lg-block ms-1" id="bd-theme-text">Theme</span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-end" style="position: absolute; right: 0; left: auto" aria-labelledby="bd-theme-text">
 									<li>
@@ -174,11 +174,13 @@
 							<li class="nav-item">
 								{% if request.LANGUAGE_CODE == 'fi' %}
 								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
-									<i class="bi bi-translate" alt=""> EN</i>
+									<i class="bi bi-translate" alt=""></i>
+									<span class="ms-1">EN</span>
 								</a>
 								{% else %}
 								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
-									<i class="bi bi-translate" alt=""> FI</i>
+									<i class="bi bi-translate" alt=""></i>
+									<span class="ms-1">FI</span>
 								</a>
 								{% endif %}
 							</li>
@@ -190,7 +192,7 @@
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									<i class="bi-person-fill" aria-hidden="true" data-testid="user-menu"></i>
-									<span class="d-none d-lg-inline">{{ user.first_name }} {{ user.last_name }}</span>
+									<span class="d-none d-lg-inline ms-1">{{ user.first_name }} {{ user.last_name }}</span>
 								</a>
 								<ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
 									<li role="presentation">
@@ -206,8 +208,8 @@
 								</ul>
 							</li>
 							{% else %}
-							<li role="presentation">
-								<a href="{% url 'login' %}{% login_next %}">
+							<li class="nav-item" role="presentation">
+								<a class="nav-link" href="{% url 'login' %}{% login_next %}">
 									<i class="bi-box-arrow-in-right" aria-hidden="true"></i>
 									{% translate "LOG_IN"%}
 								</a>
