@@ -23,6 +23,12 @@ kbd {
 	color: #535353;
 }
 
+.page-header {
+	padding-bottom: 9px;
+	margin: 40px 0 20px;
+	border-bottom: 1px solid #eee;
+}
+
 // Border for code blocks like in BS3
 pre {
 	padding: 0.6rem;
@@ -31,15 +37,15 @@ pre {
 }
 
 code {
-    padding: 2px 4px;
-    background-color: var(--bs-secondary-bg, #f9f2f4);
-    border-radius: 4px;
+	padding: 2px 4px;
+	background-color: var(--bs-secondary-bg, #f9f2f4);
+	border-radius: 4px;
 }
 
 // Heading margins like BS3 (XXX find a better way)
 h1, .h1, h2, .h2, h3, .h3 {
-    margin-top: 1.375rem;
-    margin-bottom: 0.5rem;
+	margin-top: 1.375rem;
+	margin-bottom: 0.5rem;
 }
 
 // Workaround for the responsive image class changed in BS4
