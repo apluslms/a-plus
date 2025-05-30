@@ -4,7 +4,7 @@
 
 /* Questionnaire uses also error-summary-class from "components/error_summary" */
 
-$questionnaire-focus-bg: #bce8f1;
+$questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 
 .exercise .aplus-quiz1 {
 	.question-area {
@@ -100,6 +100,7 @@ $questionnaire-focus-bg: #bce8f1;
 				background-color: $questionnaire-focus-bg;
 				box-shadow: 0 0 0 3px $questionnaire-focus-bg;
 				font-weight: bold;
+				color: var(--bs-info-text-emphasis, #055160);
 			}
 
 			&:active input + span {
