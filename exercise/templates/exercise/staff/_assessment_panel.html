@@ -5,47 +5,44 @@
 {% load colortag %}
 {% load static %}
 
-<div class="card assessment-panel mb-3">
+<div class="card assessment-panel">
 	<div class="card-header" style="background-color: var(--bs-secondary-bg, grey)">
 		{# Heading: default mode #}
-		<div class="row">
-			<div class="assessment-bar assessment-toggle{% if form.errors %} d-none{% endif %}">
-				<div class="assessment-bar-fill assessment-bar-text">
-					<div class="row">
-						<div class="col-6">
-							{% if submission.grader %}
-							<i class="bi-check-lg" aria-hidden="true"></i>
-							{% if not pseudonymize %}
-								{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
-								ASSESSED_BY -- {{ user }}, {{ time }}
-								{% endblocktranslate %}
-							{% else %}
-								{% translate 'ASSESSED_BY' %} -- {% translate 'SOMEBODY' %}, {{ submission.grading_time }}
-							{% endif %}
-							{% else %}
-							<i class="bi-x-lg" aria-hidden="true"></i>
-							{% translate 'NOT_ASSESSED_MANUALLY' %}
-							{% endif %}
-						</div>
-						<div class="col-6">
-							<div style="display: flex; column-gap: 1em; align-items: center; flex-wrap: wrap">
-								{% translate 'TAGS' %}
-								<p id="submission-tags" class="usertags-container" data-user-id="{{ instance.id }}">
-								{% for tag in submission.submission_taggings.all %}
-								<form method="post" style="display: flex; align-items: center; column-gap: 0.25em" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
-									{% csrf_token %}
+		<div class="assessment-bar assessment-toggle{% if form.errors %} d-none{% endif %}">
+			<div class="assessment-bar-fill assessment-bar-text d-flex flex-row justify-content-between align-items-center">
+				<div class="d-flex flex-nowrap">
+					{% if submission.grader %}
+					<i class="bi-check-lg me-1" aria-hidden="true"></i>
+					{% if not pseudonymize %}
+					{% blocktranslate trimmed with user=submission.grader.user.get_full_name time=submission.grading_time %}
+					ASSESSED_BY -- {{ user }}, {{ time }}
+					{% endblocktranslate %}
+					{% else %}
+					{% translate 'ASSESSED_BY' %} -- {% translate 'SOMEBODY' %}, {{ submission.grading_time }}
+					{% endif %}
+					{% else %}
+					<i class="bi-x-lg" aria-hidden="true"></i>
+					{% translate 'NOT_ASSESSED_MANUALLY' %}
+					{% endif %}
+				</div>
+				<div class="d-flex flex-row justify-content-between align-items-center gap-2">
+					<div class="d-flex flex-wrap gap-3">
+						<p id="submission-tags" class="usertags-container" data-user-id="{{ instance.id }}">
+							{% for tag in submission.submission_taggings.all %}
+							<form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
+								{% csrf_token %}
+								<div class="d-flex flex-nowrap align-items-center gap-1">
 									{{tag.tag|colortag}}
 									<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><i class="bi-x-lg" aria-hidden="true"></i></button>
-								</form>
-								{% endfor %}
-								</p>
-							</div>
-						</div>
+								</div>
+							</form>
+							{% endfor %}
+						</p>
 					</div>
-					<div style="display: flex; column-gap: 1em; align-items: baseline; flex-wrap: wrap">
-						<div class="dropdown mt-2">
+					<div class="d-flex flex-wrap justify-content-end align-items-center gap-2">
+						<div class="dropdown">
 							<button class="aplus-button--secondary aplus-button--sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								{% translate 'ADD_TAGGING' %} 
+								{% translate 'ADD_TAGGING' %}
 							</button>
 							<ul id="submissionTagsList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 								{% for subtag in instance.submissiontags.all %}
@@ -75,7 +72,7 @@
 							{% translate "COMPARE_TO_MODEL" %}
 						</a>
 						{% endif %}
-						<form method="post" action="{{ submission|url:'submission-re-submit' }}" style="display: inline-block">
+						<form class="d-flex flex-nowrap" method="post" action="{{ submission|url:'submission-re-submit' }}">
 							{% csrf_token %}
 							<button
 								class="aplus-button--secondary aplus-button--sm aplus-button--left"
@@ -98,40 +95,38 @@
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-sm-12">
-					{# Heading: assessment mode #}
-					<form class="assessment-bar assessment-toggle{% if not form.errors %} d-none{% endif %}" method="post">
-						{% csrf_token %}
-						<div class="assessment-bar-fill">
-							{% bootstrap_field form.assistant_feedback wrapper_class='mb-0' %}
-							{% bootstrap_field form.feedback wrapper_class='mb-0' %}
-						</div>
-						<div style="flex-basis: 200px">
-							{% bootstrap_field form.points wrapper_class='mb-0' %}
-							{% bootstrap_field form.mark_as_final wrapper_class='mb-0' %}
-						</div>
-						<div class="text-right">
-							<div>
-								<input
-									class="aplus-button--secondary aplus-button--sm"
-									data-bs-toggle="visibility"
-									data-bs-target=".assessment-toggle"
-									type="button"
-									value="{% translate 'CLOSE' %}"
-								/>
-								{% if is_teacher or is_assistant and exercise.allow_assistant_grading %}
-								<input
-									class="aplus-button--default aplus-button--sm"
-									type="submit"
-									value="{% translate 'SUBMIT' %}"
-								/>
-								{% endif %}
-							</div>
-						</div>
-					</form>			
+		</div>
+		<div class="col-sm-12">
+			{# Heading: assessment mode #}
+			<form class="assessment-bar assessment-toggle{% if not form.errors %} d-none{% endif %}" method="post">
+				{% csrf_token %}
+				<div class="assessment-bar-fill">
+					{% bootstrap_field form.assistant_feedback wrapper_class='mb-0' %}
+					{% bootstrap_field form.feedback wrapper_class='mb-0' %}
 				</div>
-			</div>
+				<div style="flex-basis: 200px">
+					{% bootstrap_field form.points wrapper_class='mb-0' %}
+					{% bootstrap_field form.mark_as_final wrapper_class='mb-0' %}
+				</div>
+				<div class="text-right">
+					<div>
+						<input
+							class="aplus-button--secondary aplus-button--sm"
+							data-bs-toggle="visibility"
+							data-bs-target=".assessment-toggle"
+							type="button"
+							value="{% translate 'CLOSE' %}"
+						/>
+						{% if is_teacher or is_assistant and exercise.allow_assistant_grading %}
+						<input
+							class="aplus-button--default aplus-button--sm"
+							type="submit"
+							value="{% translate 'SUBMIT' %}"
+						/>
+						{% endif %}
+					</div>
+				</div>
+			</form>
 		</div>
 	</div>
 	<div class="card-body">

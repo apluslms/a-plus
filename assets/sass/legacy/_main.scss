@@ -27,6 +27,9 @@ dl > dt {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-top: 0;
+    margin-right: 0.5em;
+    width: 150px;
 }
 iframe {
     border: none;
