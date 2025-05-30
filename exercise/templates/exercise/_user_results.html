@@ -39,10 +39,10 @@
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
 <div class="card mb-4 module-panel{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
-	<a class="card-header bg-primary{% if not accessible or not open and after_open %} collapsed{% endif %}"
+	<a class="card-header text-bg-primary{% if not accessible or not open and after_open %} collapsed{% endif %}"
 		role="button" href="#module{{ module.id }}" data-bs-toggle="collapse"
 		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
-		<h5 class="card-title text-white">
+		<h5 class="card-title" style="margin-bottom: 0px">
 			{% points_badge module "float-end" %}
 			{% if not accessible %}
 			<span class="badge text-bg-secondary float-end">
