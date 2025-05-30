@@ -3,7 +3,7 @@
 <div {% include "django/forms/widgets/attrs.html" %}>
 	<ul class="list-inline search-selected">
 		<li>
-			<button>
+			<button class="text-muted bg-secondary-subtle">
 				<span class="name">None</span>
 				<span aria-label="{% translate 'REMOVE' %}">&times;</span>
 			</button>
@@ -12,7 +12,7 @@
 
 	<div class="input-group flex-nowrap">
 		<div class="input-group search-button">
-			<button class="btn btn-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
+			<button class="btn btn-outline-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
 				<i class="bi-search" aria-hidden="true"></i>
 			</button>
 			<ul class="dropdown-menu search-options" role="menu">
@@ -45,9 +45,9 @@
 			title="{% translate 'COPY_SELECTION' %}"
 			aria-label="{% translate 'COPY_SELECTION' %}"
 			{% if clipboard_options %}
-			class="btn btn-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
+			class="btn btn-outline-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
 			{% else %}
-			class="btn btn-secondary copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
+			class="btn btn-outline-secondary copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
 			{% endif %}
 		>
 			<i class="bi-copy" aria-hidden="true"></i>
