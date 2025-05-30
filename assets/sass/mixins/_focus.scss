@@ -8,16 +8,16 @@
 // should be used instead.
 
 @mixin focus-with-outline-only {
-	&.focus-visible {
-		outline: 3px solid $aplus-focus;
+	&:focus-visible {
+		outline: 3px solid $aplus-focus !important;
 	}
 }
 
 @mixin focus-with-background-and-color {
-	&.focus-visible {
-		background-color: $aplus-focus;
-		color: $aplus-foreground;
-		outline: 3px solid rgba(0, 0, 0, 0);
+	&:focus-visible {
+		background-color: $aplus-focus !important;
+		color: $aplus-foreground !important;
+		outline: 3px solid rgba(0, 0, 0, 0) !important;
 		text-decoration: underline;
 	}
 }
