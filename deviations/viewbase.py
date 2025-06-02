@@ -8,7 +8,7 @@ from django import forms
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext
 
-from course.models import CourseModule, UserTag
+from course.models import CourseModule, UserTag, UserTagging
 from course.viewbase import CourseInstanceMixin, CourseInstanceBaseView
 from deviations.models import SubmissionRuleDeviation
 from lib.helpers import is_ajax
@@ -335,3 +335,26 @@ def get_submitters(form_data: Dict[str, Any]) -> models.QuerySet[UserProfile]:
         models.Q(id__in=form_data.get('submitter', []))
         | models.Q(taggings__tag__in=form_data.get('submitter_tag', []))
     ).distinct()
+
+
+def cleanup_dl_usertags(cls, submitter_ids: Iterable[int]) -> None:
+    """
+    Removes 'dl' usertagging for submitters who no longer have any
+    DeadlineRuleDeviations in the given course instance.
+    """
+    try:
+        dl_tag = UserTag.objects.get(course_instance=cls.instance, slug='dl')
+    except UserTag.DoesNotExist:
+        return
+
+    for submitter_id in submitter_ids:
+        has_remaining = cls.deviation_model.objects.filter(
+            submitter_id=submitter_id,
+            exercise__course_module__course_instance=cls.instance,
+        ).exists()
+        if not has_remaining:
+            UserTagging.objects.filter(
+                tag=dl_tag,
+                user_id=submitter_id,
+                course_instance=cls.instance,
+            ).delete()

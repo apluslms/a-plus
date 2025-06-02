@@ -1,7 +1,10 @@
 from typing import Any, Callable, Dict, Optional
 
+from django import forms
 from django.utils.dateparse import parse_datetime
+from django.http import HttpRequest, HttpResponse
 
+from course.models import UserTag, UserTagging
 from .forms import (
     DeadlineRuleDeviationForm,
     RemoveDeviationForm,
@@ -13,6 +16,9 @@ from .viewbase import (
     OverrideDeviationsView,
     RemoveDeviationsByIDView,
     RemoveDeviationsView,
+    get_submitters,
+    get_exercises,
+    cleanup_dl_usertags,
 )
 from .models import DeadlineRuleDeviation, MaxSubmissionsRuleDeviation
 
@@ -53,6 +59,23 @@ class AddDeadlinesView(AddDeviationsView):
     def form_valid(self, form):
         timezone_string = self.request.POST.get('timezone_string')
         form.cleaned_data['timezone_string'] = timezone_string
+
+        dl_tag, _ = UserTag.objects.get_or_create(
+            course_instance=self.instance,
+            name='DL',
+            slug='dl',
+            description="This student has deadline deviations.",
+            color='#F0A8A8',
+        )
+
+        # Add the 'dl' tag to all submitters
+        submitters = get_submitters(form.cleaned_data)
+        for submitter in submitters:
+            UserTagging.objects.get_or_create(
+                tag=dl_tag,
+                user=submitter,
+                course_instance=self.instance,
+            )
         return super().form_valid(form)
 
 
@@ -83,11 +106,34 @@ class OverrideDeadlinesView(OverrideDeviationsView):
 class RemoveDeadlinesByIDView(RemoveDeviationsByIDView):
     deviation_model = DeadlineRuleDeviation
 
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        submitter_ids = list(self.deviation_model.objects.filter(
+            id__in=request.POST.getlist("id"),
+            exercise__course_module__course_instance=self.instance,
+        ).values_list("submitter_id", flat=True).distinct())
+
+        # Let parent handle deletions
+        response = super().post(request, *args, **kwargs)
+        cleanup_dl_usertags(self, submitter_ids)
+        return response
+
+
 
 class RemoveDeadlinesView(RemoveDeviationsView):
     template_name = "deviations/remove_dl.html"
     form_class = RemoveDeviationForm
     deviation_model = DeadlineRuleDeviation
+
+    def form_valid(self, form: forms.BaseForm) -> HttpResponse:
+        submitter_ids = list(self.deviation_model.objects.filter(
+            exercise__in=get_exercises(form.cleaned_data),
+            submitter__in=get_submitters(form.cleaned_data),
+        ).values_list("submitter_id", flat=True).distinct())
+
+        # Let parent handle deletions
+        response = super().form_valid(form)
+        cleanup_dl_usertags(self, submitter_ids)
+        return response
 
 
 class ListSubmissionsView(ListDeviationsView):
