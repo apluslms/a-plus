@@ -22853,7 +22853,7 @@ h1, .h1, h2, .h2, h3, .h3 {
   font-family: bootstrap-icons;
 }
 legend {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);
 }
 
 /* Layout */
