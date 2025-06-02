@@ -845,8 +845,8 @@ $(document).ready(function() {
   $('.collapse.in').removeClass('in').addClass('show');
 });
 
-// Prevent tooltips from showing when the navbar is not minimised
-$(document).on("show.bs.tooltip", function(e) {
+// Prevent tooltips from showing in the sidebar when the navbar is not minimised
+$(document).on("show.bs.tooltip", "#bs-navbar-collapse [data-bs-toggle=\"tooltip\"]", function(e) {
   if (!$("#bs-navbar-collapse").hasClass("minimised")) {
       return false;
   }
