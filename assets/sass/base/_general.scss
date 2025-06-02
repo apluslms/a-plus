@@ -79,3 +79,7 @@ h1, .h1, h2, .h2, h3, .h3 {
 .colortag.label {
 	@extend .badge;
 }
+
+legend {
+	border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);;
+}
