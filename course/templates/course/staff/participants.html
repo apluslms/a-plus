@@ -32,7 +32,7 @@
 		{% endfor %}
 		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_STATUS" %}:</small>
 		{% for status_code, status_label in enrollment_statuses.items %}
-		<button class="btn btn-sm filter-status" data-status="{{ status_code }}">
+		<button class="btn aplus-button--xs aplus-button--secondary filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
 			<i class="bi-check-square" aria-hidden="true"></i>
 			{% else %}
