@@ -15,15 +15,28 @@ function uncheckButton(button) {
 }
 
 function expandModules(skipAnimation) {
+  /* This works, but no animation 
+  $('.module-panel > div').addClass('show');
+  */
   if (skipAnimation) {
-    $(".module-panel > div").addClass("in"); // addClass("in") skips the expand animation
+    $('.module-panel > div').addClass('show');
+  } else {
+    $('.module-panel > div').each(function() {
+      var collapse = bootstrap.Collapse.getOrCreateInstance(this);
+      collapse.show();
+    });
   }
-  $(".module-panel > div").collapse("show");
   checkButton($("#toggle-expand-all-modules"));
 }
 
 function collapseModules() {
-  $(".module-panel, .module-to-collapse > div").collapse("d-none");
+  /* This works, but no animation 
+  $('.module-panel > div').removeClass('show');
+  */
+  $('.module-panel > div').each(function() {
+    var collapse = bootstrap.Collapse.getOrCreateInstance(this);
+    collapse.hide();
+  });
   uncheckButton($("#toggle-expand-all-modules"));
 }
 
@@ -142,7 +155,7 @@ function startListen(course) {
       // Scroll to the first open module if there are no new news items
       const openModules = $(".module-panel:not(.module-to-collapse)");
       if (openModules.length > 0 && JSON.stringify(currentNews) === JSON.stringify(previousNews)) {
-        openModules[0].querySelector(".panel-heading").scrollIntoView({ behavior: autoScrollBehavior });
+        openModules[0].querySelector(".card-header").scrollIntoView({ behavior: autoScrollBehavior });
       }
     }
   }
