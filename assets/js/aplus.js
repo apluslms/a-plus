@@ -121,6 +121,7 @@ $(function () {
   function setSidebarState(collapsed) {
     sidebarCollapsed = collapsed;
     $('#course-content').toggleClass('sidebar-collapsed', collapsed);
+    $('.site-content > .site-messages').toggleClass('sidebar-collapsed', collapsed);
     $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
     $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
     $('.course-sidebar-collapser').toggleClass('d-none', collapsed);

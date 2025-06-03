@@ -83,3 +83,19 @@ h1, .h1, h2, .h2, h3, .h3 {
 legend {
 	border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);;
 }
+
+@media (min-width: 768px) {
+	.site-messages {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.site-content > .site-messages {
+		padding-left: 16%;
+
+		&.sidebar-collapsed {
+			padding-left: 48px;
+		}
+	}
+}
