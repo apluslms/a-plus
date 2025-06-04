@@ -378,7 +378,7 @@ $(function () {
           `
         }
 
-        const getRow = options.compareMode ? getDiffRow : getNormalRow;
+        const getRow = options?.compareMode ? getDiffRow : getNormalRow;
 
         const getLines = (start, end) => {
           const fragment = document.createDocumentFragment();
