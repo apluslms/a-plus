@@ -165,7 +165,7 @@
 						<a class="dropdown-toggle btn" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 							<span class="badge text-bg-secondary">
 								{% if entry.notified %}
-								<i class="bi-comment{% if entry.unseen %} red{% endif %}"></i>
+								<i class="bi-chat-left-fill{% if entry.unseen %} red{% endif %}"></i>
 								{% endif %}
 								{{ entry.submission_count }}
 								{% if entry.max_submissions > 0 %}

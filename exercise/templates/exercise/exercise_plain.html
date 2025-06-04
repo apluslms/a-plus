@@ -169,7 +169,7 @@
 							{% endcomment %}
 							{% if exercise.model_answers %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
-									<i class="bi-file" aria-hidden="true"></i>
+									<i class="bi-file-earmark-fill" aria-hidden="true"></i>
 									{% translate "SHOW_MODEL_ANSWER" %}
 								</a>
 							{% endif %}
@@ -177,7 +177,7 @@
 						{% if is_course_staff or is_student %}
 							{% if exercise.templates %}
 								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
-									<i class="bi-file" aria-hidden="true"></i>
+									<i class="bi-file-earmark-fill" aria-hidden="true"></i>
 									{% translate "SHOW_EXERCISE_TEMPLATE" %}
 								</a>
 							{% endif %}
