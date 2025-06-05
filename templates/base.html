@@ -122,7 +122,7 @@
 						<span class="navbar-brand d-none d-md-flex" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
 						<ul class="navbar-nav navbar-dropdown me-auto">
 							<li role="presentation" class="dropdown">
-								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									{% if instance %}
 									{{ course|parse_localization }}
@@ -137,7 +137,7 @@
 							</li>
 						</ul>
 					</div>
-					<div class="d-none d-sm-flex">
+					<div class="d-flex">
 						<ul class="navbar-nav navbar-dropdown user-menu" style="flex-direction: row; align-items: baseline">
 							<li class="nav-item dropdown">
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" 
@@ -216,10 +216,10 @@
 							{% endif %}
 						</ul>
 					</div>
-					<button type="button" class="navbar-toggler collapsed d-block d-md-none" data-bs-toggle="offcanvas"
+					<button type="button" class="navbar-toggler collapsed d-block d-md-none text-bg-primary" data-bs-toggle="offcanvas"
 						data-bs-target="#bs-navbar-collapse" aria-expanded="false">
 						<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
-						<span class="navbar-toggler-icon"></span>
+						<i class="bi-list" aria-hidden="true"></i>
 					</button>
 				</div>
 			</nav>
