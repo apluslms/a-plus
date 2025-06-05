@@ -52,7 +52,7 @@
 				<span
 					class="badge rounded-pill {% if not s.unofficial %} {% if s.points >= exercise.max_points %}text-bg-success{% elif s.points >= exercise.points_to_pass %}text-bg-warning{% else %}text-bg-danger{% endif %}{% endif %}"
 					data-bs-toggle="tooltip"
-					data-placement="bottom"
+					data-bs-placement="bottom"
 					title="{% if s.unofficial %}{% if s.unofficial_submission_type == 'limit_exceeded' %}{% translate 'LIMIT_EXCEEDED' %}{% elif s.unofficial_submission_type == 'deadline_passed' %}{% translate 'DEADLINE_PASSED' %}{% else %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% endif %}{% elif s.points >= exercise.points_to_pass %}{% if exercise.points_to_pass > 0 %}{% translate 'PASSED' %}{% endif %}{% else %}{% blocktranslate trimmed with points=exercise.points_to_pass %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% endif %}"
 				>
 					{{ s.points }} / {{ exercise.max_points }}

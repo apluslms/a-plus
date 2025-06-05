@@ -53,7 +53,7 @@
   {% if classes %} {{ classes }}
   {% elif show_zero_points_immediately and best_submission_true_points == 0 %}text-bg-danger
   {% endif %}"
-  data-bs-toggle="tooltip" data-placement="bottom"
+  data-bs-toggle="tooltip" data-bs-placement="bottom"
   title="{% if not feedback_revealed %}{{ feedback_hidden_description }}
        {% elif not official %}
          {% if unofficial_submission_type == 'limit_exceeded' %}{% translate 'LIMIT_EXCEEDED' %}

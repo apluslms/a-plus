@@ -101,7 +101,7 @@ class RevealRuleForm(FieldsetModelForm):
 
     def __init__(self, *args: Any, is_submission_feedback: bool = False, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.fields['trigger'].widget.attrs['data-trigger'] = True
+        self.fields['trigger'].widget.attrs['data-bs-trigger'] = True
 
         zero_feedback_triggers = [
             RevealRule.TRIGGER.DEADLINE.value,

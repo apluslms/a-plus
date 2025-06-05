@@ -24,7 +24,7 @@
 		>
 			<i class="bi bi-translate" alt=""data-bs-toggle="tooltip" 
 				data-bs-placement="right" 
-				data-bs-title="{% translate "CHANGE_LANGUAGE" %}">
+				title="{% translate "CHANGE_LANGUAGE" %}">
 				{{LANGUAGE_CODE}}
 			</i>
 		</button>
@@ -57,19 +57,19 @@
 
 <li class="nav-item">
 	<a class="nav-link menu-home" href="{{ instance|url }}">
-		<i class="bi-house-door-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{ course.code }}"></i>
+		<i class="bi-house-door-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ course.code }}"></i>
 		<span class="course-menu-label">{{ course.code }}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-toc" href="{{ instance|url:'toc' }}">
-		<i class="bi-book" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "COURSE_MATERIALS" %}"></i>
+		<i class="bi-book" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "COURSE_MATERIALS" %}"></i>
 		<span class="course-menu-label">{% translate "COURSE_MATERIALS" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-results" href="{{ instance|url:'results' }}">
-		<i class="bi-bar-chart-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "EXERCISE_RESULTS" %}"></i>
+		<i class="bi-bar-chart-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "EXERCISE_RESULTS" %}"></i>
 		<span class="course-menu-label">{% translate "EXERCISE_RESULTS" %}</span>
 	</a>
 </li>
@@ -77,7 +77,7 @@
 {% if instance.group_work_allowed %}
 <li class="nav-item">
 	<a class="nav-link menu-groups" href="{{ instance|url:'groups' }}">
-		<i class="bi-heart-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "FORM_A_GROUP" %}"></i>
+		<i class="bi-heart-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "FORM_A_GROUP" %}"></i>
 		<span class="course-menu-label">{% translate "FORM_A_GROUP" %}</span>
 	</a>
 </li>
@@ -143,14 +143,14 @@
 
 <li class="nav-item">
 	<a class="nav-link menu-participants" href="{{ instance|url:'participants' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "PARTICIPANTS" %}"></i>
+		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "PARTICIPANTS" %}"></i>
 		<span class="course-menu-label">{% translate "PARTICIPANTS" %}</span>
 	</a>
 </li>
 
 <li class="nav-item">
 	<a class="nav-link menu-groups-edit" href="{{ instance|url:'groups-list' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "GROUPS" %}"></i>
+		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "GROUPS" %}"></i>
 		<span class="course-menu-label">{% translate "GROUPS" %}</span>
 	</a>
 </li>
@@ -158,7 +158,7 @@
 {% if instance.coursediplomadesign %}
 <li class="nav-item">
 	<a class="nav-link menu-grades" href="{% url 'diploma-list' instance.coursediplomadesign.id %}">
-		<i class="bi-certificate" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "GRADES" %}"></i>
+		<i class="bi-certificate" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "GRADES" %}"></i>
 		<span class="course-menu-label">{% translate "GRADES" %}</span>
 	</a>
 </li>
@@ -166,25 +166,25 @@
 
 <li class="nav-item">
 	<a class="nav-link menu-all-results" href="{{ instance|url:'all-results' }}">
-		<i class="bi-folder2-open" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "ALL_RESULTS" %}"></i>
+		<i class="bi-folder2-open" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "ALL_RESULTS" %}"></i>
 		<span class="course-menu-label">{% translate "ALL_RESULTS" %}</span>
 	</a>
 </li>
 
 <li class="nav-item">
 	<a class="nav-link menu-analytics" href="{{ instance|url:'analytics' }}">
-		<i class="bi-bar-chart-fill" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "VISUALIZATIONS" %}"></i>
+		<i class="bi-bar-chart-fill" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "VISUALIZATIONS" %}"></i>
 		<span class="course-menu-label">{% translate "VISUALIZATIONS" %}</span>
 	</a>
 </li>
 
-<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "FORM_A_GROUP" %}">
+<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "FORM_A_GROUP" %}">
 	<a class="nav-link menu-pseudonymize" href="{% url 'toggle-pseudonymization' %}">
 		{% if pseudonymize %}
-			<i class="bi-eye-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "UNPSEUDONYMIZE" %}"></i>
+			<i class="bi-eye-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "UNPSEUDONYMIZE" %}"></i>
 			<span class="course-menu-label">{% translate "UNPSEUDONYMIZE" %}</span>
 		{% else %}
-			<i class="bi-eye-slash-fill" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "PSEUDONYMIZE" %}"></i>
+			<i class="bi-eye-slash-fill" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "PSEUDONYMIZE" %}"></i>
 			<span class="course-menu-label">{% translate "PSEUDONYMIZE" %}</span>
 		{% endif %}
 	</a>
@@ -193,31 +193,31 @@
 {% if is_teacher %}
 <li class="nav-item">
 	<a class="nav-link menu-edit-news" href="{{ instance|url:'news-list' }}">
-		<i class="bi-pencil-square" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "EDIT_NEWS" %}"></i>
+		<i class="bi-pencil-square" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "EDIT_NEWS" %}"></i>
 		<span class="course-menu-label">{% translate "EDIT_NEWS" %}</span>
 	</a>
 </li>
 <li class="nav-item menu-edit-course">
 	<a class="nav-link menu-course" href="{{ instance|url:'course-edit' }}">
-		<i class="bi-gear-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "EDIT_COURSE" %}"></i>
+		<i class="bi-gear-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "EDIT_COURSE" %}"></i>
 		<span class="course-menu-label">{% translate "EDIT_COURSE" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-deadline-deviations" href="{{ instance|url:'deviations-list-dl' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "DEADLINE_DEVIATIONS" %}"></i>
+		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "DEADLINE_DEVIATIONS" %}"></i>
 		<span class="course-menu-label">{% translate "DEADLINE_DEVIATIONS" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-submission-deviations" href="{{ instance|url:'deviations-list-submissions' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "SUBMISSION_DEVIATIONS" %}"></i>
+		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "SUBMISSION_DEVIATIONS" %}"></i>
 		<span class="course-menu-label">{% translate "SUBMISSION_DEVIATIONS" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-all-submissions" href="{{ instance|url:'all-submissions' }}?limited=true">
-		<span class="bi-list-ul" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% translate "ALL_SUBMISSIONS" %}"></span>
+		<span class="bi-list-ul" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "ALL_SUBMISSIONS" %}"></span>
 		<span class="course-menu-label">{% translate "ALL_SUBMISSIONS" %}</span>
 	</a>
 </li>
@@ -255,7 +255,7 @@
 </li>
 <li class="menu-unenroll">
 	<a data-bs-toggle="modal" data-bs-target="#unenroll-modal" role="button">
-		<i class="bi-x-lg-sign" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{% trans "UNENROLL" %}"></i>
+		<i class="bi-x-lg-sign" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% trans "UNENROLL" %}"></i>
 		{% trans "UNENROLL" %}
 	</a>
 </li>
