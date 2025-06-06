@@ -33,51 +33,53 @@
 	</button>
 </p>
 
+<div class="accordion" id="modulesAccordion">
 {% for module in modules %}
 {% if module.is_visible or is_teacher %}
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
-<div class="card mb-4 module-panel{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
-	<a class="card-header text-bg-primary{% if not accessible or not open and after_open %} collapsed{% endif %}"
-		role="button" href="#module{{ module.id }}" data-bs-toggle="collapse"
-		aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" aria-controls="#module{{ module.id }}">
-		<h5 style="margin-bottom: 0px">
-			{% points_badge module "float-end" %}
-			{% if not accessible %}
-			<span class="badge text-bg-secondary float-end">
-				{% translate "OPENS ON" %} {{ module.opening_time }}
-			</span>
-			{% elif not after_open %}
-			<span class="badge text-bg-secondary float-end">
-				{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
-			</span>
-			<span class="badge text-bg-info float-end">
-				{% translate "OPEN_FOR_READING" %}
-			</span>
-			{% endif %}
-			{% if module|deadline_extended_exercises_open:now %}
-			<span class="badge text-bg-secondary float-end">
-				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
-			</span>
-			{% endif %}
-			{% if module.requirements|length > 0 %}
-			<span class="badge text-bg-secondary float-end">
-				{% translate "REQUIRES" %}:
-				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
-			</span>
-			{% endif %}
-			{% if not module.is_visible and is_teacher %}
-			<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
-			{% endif %}
-			<div class="module-name">
-				<span class="dropdown-toggle" aria-hidden="true"></span>
-				{{ module.name|parse_localization }}
+<div class="accordion-item mb-4 module-panel" style="border: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);">
+	<div class="accordion-header{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
+		<button class="accordion-button{% if not accessible or not open and after_open %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}" 
+			aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" 
+			aria-controls="#module{{ module.id }}">
+			<div style="display: flex; justify-content: space-between; padding-right: 1em; width: 100%;">
+				<div class="module-name">
+					<strong>{{ module.name|parse_localization }}</strong>
+				</div>
+				{% if not accessible %}
+				<span class="badge text-bg-secondary float-end">
+					{% translate "OPENS ON" %} {{ module.opening_time }}
+				</span>
+				{% elif not after_open %}
+				<span class="badge text-bg-secondary float-end">
+					{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
+				</span>
+				<span class="badge text-bg-info float-end">
+					{% translate "OPEN_FOR_READING" %}
+				</span>
+				{% endif %}
+				{% if module|deadline_extended_exercises_open:now %}
+				<span class="badge text-bg-secondary float-end">
+					{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+				</span>
+				{% endif %}
+				{% if module.requirements|length > 0 %}
+				<span class="badge text-bg-secondary float-end">
+					{% translate "REQUIRES" %}:
+					{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+				</span>
+				{% endif %}
+				{% if not module.is_visible and is_teacher %}
+				<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
+				{% endif %}
+				{% points_badge module "float-end" %}
 			</div>
-		</h5>
-	</a>
+		</button>
+	</div>
 	<div class="collapse{% if accessible and not after_open or open %} show{% endif %}" id="module{{ module.id }}">
-	<div class="panel-body">
+	<div class="accordion-body">
 		<p>
 			{{ module.opening_time }} &ndash; {{ module.closing_time }}
 
@@ -279,6 +281,7 @@
 {% endwith %}
 {% endif %}
 {% endfor %}
+</div>
 
 <script>
 	var aplusPointsTotal = {{ total_json|safe }};

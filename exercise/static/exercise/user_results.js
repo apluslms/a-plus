@@ -15,13 +15,10 @@ function uncheckButton(button) {
 }
 
 function expandModules(skipAnimation) {
-  /* This works, but no animation 
-  $('.module-panel > div').addClass('show');
-  */
   if (skipAnimation) {
     $('.module-panel > div').addClass('show');
   } else {
-    $('.module-panel > div').each(function() {
+    $('.module-panel > div.collapse:not(.show)').each(function() {
       var collapse = bootstrap.Collapse.getOrCreateInstance(this);
       collapse.show();
     });
@@ -30,10 +27,7 @@ function expandModules(skipAnimation) {
 }
 
 function collapseModules() {
-  /* This works, but no animation 
-  $('.module-panel > div').removeClass('show');
-  */
-  $('.module-panel > div').each(function() {
+  $('.module-panel > div.collapse.show').each(function() {
     var collapse = bootstrap.Collapse.getOrCreateInstance(this);
     collapse.hide();
   });
@@ -155,7 +149,7 @@ function startListen(course) {
       // Scroll to the first open module if there are no new news items
       const openModules = $(".module-panel:not(.module-to-collapse)");
       if (openModules.length > 0 && JSON.stringify(currentNews) === JSON.stringify(previousNews)) {
-        openModules[0].querySelector(".card-header").scrollIntoView({ behavior: autoScrollBehavior });
+        openModules[0].querySelector(".accordion-header").scrollIntoView({ behavior: autoScrollBehavior });
       }
     }
   }
