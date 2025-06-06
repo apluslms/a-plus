@@ -1,14 +1,15 @@
 
-/* Bootstrap glyphicons */
+/* Bootstrap-icons */
 
-@mixin glyphicon {
+@mixin bootstrap-icon {
 	position: relative;
 	top: 1px;
 	display: inline-block;
-	font-family: "Glyphicons Halflings";
+	font-family: bootstrap-icons;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 1;
+	vertical-align: -.125em;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }

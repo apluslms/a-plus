@@ -1,0 +1,16 @@
+{
+  "name": "aplus-bootstrap5",
+  "description": "Bootstrap 5 for A+",
+  "repository": ".",
+  "license": "MIT",
+  "version": "1.0.0",
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "install": "./install.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

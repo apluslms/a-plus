@@ -12,7 +12,7 @@
 						<img class="card-img-top" src="{{ instance.image.url }}" alt="" />
 					{% else %}
 					<div class="card-img-top">
-						<i class="glyphicon glyphicon-book"></i>
+						<i class="bi-book"></i>
 					</div>
 					{% endif %}
 				</div>
@@ -27,7 +27,7 @@
 					<p class="card-text">
 						{{ instance.course.code }}
 						{% if not instance.visible_to_students %}
-							<span class="label label-danger">{% translate "HIDDEN_FROM_STUDENTS" %}</span>
+							<span class="badge text-bg-danger">{% translate "HIDDEN_FROM_STUDENTS" %}</span>
 						{% endif %}
 						<br />
 						{{ instance.starting_time|date:"SHORT_DATE_FORMAT" }} &ndash;
@@ -40,10 +40,10 @@
 		{% if not condensed %}
 		<div class="card-footer">
 			{% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
-				<span class="label label-success">{{ internal_user_label|safe }}</span>
+				<span class="badge text-bg-success">{{ internal_user_label|safe }}</span>
 			{% endif %}
 			{% if instance.enrollment_audience == 2 or instance.enrollment_audience == 3 %}
-				<span class="label label-info">{{ external_user_label|safe }}</span>
+				<span class="badge text-bg-info">{{ external_user_label|safe }}</span>
 			{% endif %}
 		</div>
 		{% endif %}

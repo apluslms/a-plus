@@ -22,41 +22,41 @@
 
 	<div id="llama-unit-select" role="navigation" aria-label="{% translate 'MODULE_SELECTION' %}">
 		<ul class="nav nav-tabs">
-			<li role="presentation" class="placeholder hidden">
-				<a href="#"></a>
+			<li role="presentation" class="nav-item placeholder d-none">
+				<a href="#" class="nav-link"></a>
 			</li>
-			<li role="presentation" class="all active">
-				<a href="#all">{% translate "ALL" %}</a>
+			<li role="presentation" class="nav-item all">
+				<a href="#all" class="nav-link active">{% translate "ALL" %}</a>
 			</li>
 		</ul>
 	</div>
 
 	<div id="llama-view-select" role="navigation" aria-label="{% translate 'VIEW_SELECTION' %}">
 		<ul class="nav nav-tabs">
-			<li role="presentation" class="active">
-				<a href="#llama-view-progress">{% translate "COLLECTIVE_PROGRESS" %}</a>
+			<li role="presentation" class="nav-item">
+				<a href="#llama-view-progress" class="nav-link active">{% translate "COLLECTIVE_PROGRESS" %}</a>
 			</li>
-			<li role="presentation">
-				<a href="#llama-view-trajectories">{% translate "LEARNING_TRAJECTORIES" %}</a>
+			<li role="presentation" class="nav-item">
+				<a href="#llama-view-trajectories" class="nav-link">{% translate "LEARNING_TRAJECTORIES" %}</a>
 			</li>
-			<li role="presentation">
-				<a href="#llama-view-table">{% translate "TABLE" %}</a>
+			<li role="presentation" class="nav-item">
+				<a href="#llama-view-table" class="nav-link">{% translate "TABLE" %}</a>
 			</li>
 		</ul>
 	</div>
 
 	<p id="llama-filter-tags">
-		<button class="btn btn-success btn-xs" data-id="aalto">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<button class="btn btn-success btn-sm" data-id="aalto">
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ internal_user_label|safe }}
 		</button>
-		<button class="btn btn-info btn-xs" data-id="mooc">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<button class="btn btn-info btn-sm" data-id="mooc">
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ external_user_label|safe }}
 		</button>
 		{% for tag in tags %}
-		<button class="btn btn-default btn-xs" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<button class="btn btn-secondary btn-sm" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
@@ -75,28 +75,28 @@
 
 	<div id="llama-view-table">
 		<div class="btn-group">
-			<a class="btn btn-default btn-sm" href="#">
-				<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+			<a class="btn btn-secondary btn-sm" href="#">
+				<i class="bi-download" aria-hidden="true"></i>
 				{% translate "DOWNLOAD_CSV" %}
 			</a>
-			<button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="caret"></span>
-				<span class="sr-only">{% translate "TOGGLE_DROPDOWN" %}</span>
+			<button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				
+				<span class="visually-hidden">{% translate "TOGGLE_DROPDOWN" %}</span>
 			</button>
 			<ul class="dropdown-menu">
-				<li><a href="#">{% translate "OPEN_API" %}</a></li>
+				<li><a class="dropdown-item" href="#">{% translate "OPEN_API" %}</a></li>
 			</ul>
 		</div>
 	</div>
 
 	<div id="llama-view-learners">
 		<div>
-			<button class="btn btn-default btn-xs">{% translate "CLEAR_SELECTION" %}</button>
+			<button class="btn btn-secondary btn-sm">{% translate "CLEAR_SELECTION" %}</button>
 		</div>
 		<div class="placeholder hidden llama-beacon">
 			<a href="#">
 				<div class="header">
-					<small>
+					<small class="text-body-secondary">
 						<span class="studentid">123456</span>
 						<span class="name">N. N.</span>
 					</small>

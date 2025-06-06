@@ -115,3 +115,11 @@ $large-height: 24px;
 		border-left: none;
 	}
 }
+
+[data-bs-theme="dark"] {
+	.aplus-button {
+		&--secondary {
+			@include button-color($gray-700, $gray-800);
+		}
+	}
+}

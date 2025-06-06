@@ -958,8 +958,8 @@ msgid "CHANGE_LANGUAGE"
 msgstr "Change language"
 
 #: course/templates/course/_course_menu.html
-msgid "CLOSE_SIDEBAR"
-msgstr "Close sidebar"
+msgid "MINIMISE_SIDEBAR"
+msgstr "Minimise sidebar"
 
 #: course/templates/course/_course_menu.html
 #: edit_course/templates/edit_course/edit_course_base.html
@@ -1115,11 +1115,11 @@ msgstr ""
 #: course/templates/course/_group_info.html
 #, python-format
 msgid "GROUP_SUBMITTING_WITH -- %(collaborators)s"
-msgstr "You are now submitting with %(collaborators)s. "
+msgstr "Submitting with %(collaborators)s. "
 
 #: course/templates/course/_group_info.html
 msgid "GROUP_SUBMITTING_ALONE"
-msgstr "You are now submitting alone."
+msgstr "Submitting alone."
 
 #: course/templates/course/_group_select.html
 msgid "GROUP_LOADER_REGISTERING_SELECTION"
@@ -1155,8 +1155,8 @@ msgid "LEFT_OFF_REMINDER"
 msgstr "Continue where you left off"
 
 #: course/templates/course/course_base.html
-msgid "OPEN_SIDEBAR"
-msgstr "Open sidebar"
+msgid "EXPAND_SIDEBAR"
+msgstr "Expand sidebar"
 
 #: course/templates/course/course_base.html
 msgid "READ_MORE"
@@ -4249,7 +4249,7 @@ msgstr "This assignment has no template."
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
 msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
-msgstr "Submitters: %(number)s <small>%(percentage)s%%</small>"
+msgstr "Submitters: %(number)s <small class='text-body-secondary'>%(percentage)s%%</small>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -5004,9 +5004,9 @@ msgstr ""
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
-"<span data-toggle=\"tooltip\" title=\"Personal extended deadlines: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Personal extended deadlines: {count}</span></"
+"<span data-bs-toggle=\"tooltip\" title=\"Personal extended deadlines: "
+"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Personal extended deadlines: {count}</span></"
 "span>"
 
 #: exercise/templatetags/exercise.py
@@ -5300,13 +5300,12 @@ msgstr "Places menu item under a group label."
 
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_LINK_LABEL_HELPTEXT"
-msgstr "Label for the menu link (else service default)."
+msgstr "badge for the menu link (else service default)."
 
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Menu icon style name (else service default), e.g. star see https://"
-"getbootstrap.com/docs/3.4/components/#glyphicons"
+"Menu icon style name (else service default), e.g. star see https://icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"

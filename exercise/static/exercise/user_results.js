@@ -1,29 +1,36 @@
 function checkButton(button) {
   button
     .attr("aria-pressed", "true")
-    .find("span")
-    .removeClass("glyphicon-unchecked")
-    .addClass("glyphicon-check");
+    .find("i")
+    .removeClass("bi-square")
+    .addClass("bi-check-square");
 }
 
 function uncheckButton(button) {
   button
     .attr("aria-pressed", "false")
-    .find("span")
-    .removeClass("glyphicon-check")
-    .addClass("glyphicon-unchecked");
+    .find("i")
+    .removeClass("bi-check-square")
+    .addClass("bi-square");
 }
 
 function expandModules(skipAnimation) {
   if (skipAnimation) {
-    $(".module-panel > div").addClass("in"); // addClass("in") skips the expand animation
+    $('.module-panel > div').addClass('show');
+  } else {
+    $('.module-panel > div.collapse:not(.show)').each(function() {
+      var collapse = bootstrap.Collapse.getOrCreateInstance(this);
+      collapse.show();
+    });
   }
-  $(".module-panel > div").collapse("show");
   checkButton($("#toggle-expand-all-modules"));
 }
 
 function collapseModules() {
-  $(".module-panel, .module-to-collapse > div").collapse("hide");
+  $('.module-panel > div.collapse.show').each(function() {
+    var collapse = bootstrap.Collapse.getOrCreateInstance(this);
+    collapse.hide();
+  });
   uncheckButton($("#toggle-expand-all-modules"));
 }
 
@@ -38,17 +45,17 @@ function startListen(course) {
     const id = button.attr("data-category");
     if (button.attr("aria-pressed") === "false") {
       checkButton(button);
-      $('.module-panel tr[data-category="' + id + '"]').removeClass("hide");
+      $('.module-panel tr[data-category="' + id + '"]').removeClass("d-none");
     } else {
       uncheckButton(button);
-      $('.module-panel tr[data-category="' + id + '"]').addClass("hide");
+      $('.module-panel tr[data-category="' + id + '"]').addClass("d-none");
     }
     $('.module-panel').each(function(index, panel) {
       const mod = $(panel);
       if (mod.find("tr:not(.hide)").length > 0) {
-        mod.removeClass("hide");
+        mod.removeClass("d-none");
       } else {
-        mod.addClass("hide");
+        mod.addClass("d-none");
       }
     });
   });
@@ -142,7 +149,7 @@ function startListen(course) {
       // Scroll to the first open module if there are no new news items
       const openModules = $(".module-panel:not(.module-to-collapse)");
       if (openModules.length > 0 && JSON.stringify(currentNews) === JSON.stringify(previousNews)) {
-        openModules[0].querySelector(".panel-heading").scrollIntoView({ behavior: autoScrollBehavior });
+        openModules[0].querySelector(".accordion-header").scrollIntoView({ behavior: autoScrollBehavior });
       }
     }
   }

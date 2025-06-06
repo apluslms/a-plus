@@ -34,11 +34,11 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   }
 
   var filter_items = function (participants) {
-    const filterTags = $.makeArray($('.filter-users button.filter-tag:has(.glyphicon-check)'))
+    const filterTags = $.makeArray($('.filter-users button.filter-tag:has(.bi-check-square)'))
       .map(function (elem) {
         return $(elem).attr('data-tagslug');
       });
-    const filterStatuses = $.makeArray($('.filter-users button.filter-status:has(.glyphicon-check)'))
+    const filterStatuses = $.makeArray($('.filter-users button.filter-status:has(.bi-check-square)'))
       .map(function (elem) {
         return $(elem).attr('data-status');
       });
@@ -56,7 +56,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     var remove_participant = function () {
       $.ajax({
         type: 'DELETE',
-        url: api_url + 'students/' + participant.user_id + '/?status=' + status,
+        url: api_url + '/students/' + participant.user_id + '/?status=' + status,
       }).done(function () {
         participant.enrollment_status = status;
         row.find('.status-container a').text(enrollment_statuses[status]);
@@ -77,18 +77,18 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       .text(label)
       .off('click')
       .on('click', remove_participant);
-    $('#enrollment-remove-modal').modal();
+    const enrollmenRemoveModal = new bootstrap.Modal('#enrollment-remove-modal', {});
+    enrollmenRemoveModal.show();
   };
 
   var get_row_action = function (label, icon, action) {
     return $('<button></button>')
       .append(
-        $('<span></span>')
-        .addClass('glyphicon')
-        .addClass('glyphicon-' + icon)
+        $('<i></i>')
+        .addClass('bi-' + icon)
         .attr('aria-hidden', true)
       )
-      .append(label)
+      .append(" " + label)
       .addClass('aplus-button--secondary')
       .addClass('aplus-button--xs')
       .on('click', action);
@@ -99,9 +99,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     participants.forEach(function (participant, i) {
       const $row = $('tr#participant-' + participant.user_id);
       if (show[i]) {
-        $row.removeClass('hidden');
+        $row.removeClass('d-none');
       } else {
-        $row.addClass('hidden');
+        $row.addClass('d-none');
       }
     });
   };
@@ -165,11 +165,11 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       // Store them in an array and wait
       deferredRowActions.push(function() {
         actionsColumn.append(
-          get_row_action(_('Remove'), 'remove', function () {
+          get_row_action(_('Remove'), 'x-lg', function () {
             confirm_remove_participant(participant, row, 'REMOVED', _('Remove'));
           })
         ).append(' ').append(
-          get_row_action(_('Ban'), 'minus-sign', function () {
+          get_row_action(_('Ban'), 'dash-circle-fill', function () {
             confirm_remove_participant(participant, row, 'BANNED', _('Ban'));
           })
         );
@@ -217,11 +217,11 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
 
   $('.filter-users button').on('click', function(event) {
     event.preventDefault();
-    var icon = $(this).find('.glyphicon');
-    if (icon.hasClass('glyphicon-unchecked')) {
-      icon.removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+    var icon = $(this).find('i');
+    if (icon.hasClass('bi-square')) {
+      icon.removeClass('bi-square').addClass('bi-check-square');
     } else {
-      icon.removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+      icon.removeClass('bi-check-square').addClass('bi-square');
     }
     refresh_filters();
   });

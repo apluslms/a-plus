@@ -69,7 +69,7 @@ $(function() {
       const dataDefaultSortOrder = self.element.data('default-sort-order');
       if (dataDefaultSortColumn && dataDefaultSortOrder) {
         const defaultColumnHeader = self.element.find('thead > tr > th').eq(dataDefaultSortColumn);
-        const orderMarker = $('<span class="glyphicon order-marker glyphicon-triangle-bottom" aria-hidden="true"></span>');
+        const orderMarker = $('<span class="order-marker gi-caret-down-fill" aria-hidden="true"></span>');
         defaultColumnHeader.append(orderMarker);
         self.orderTable(dataDefaultSortColumn, dataDefaultSortOrder === 'desc' ? true : false);
       }
@@ -95,12 +95,12 @@ $(function() {
         event.preventDefault();
         const isDescending = $(this).hasClass('desc');
         self.element.find('thead > tr > th > a > .order-marker').remove();
-        const orderMarker = $('<span class="glyphicon order-marker glyphicon-triangle-top" aria-hidden="true"></span>');
+        const orderMarker = $('<span class="order-marker gi-caret-up-fill" aria-hidden="true"></span>');
         if (isDescending) {
           $(this).removeClass('desc');
         } else {
           $(this).addClass('desc');
-          orderMarker.removeClass('glyphicon-triangle-top').addClass('glyphicon-triangle-bottom');
+          orderMarker.removeClass('gi-caret-up-fill').addClass('gi-caret-down-fill');
         }
         $(this).append(orderMarker);
         self.orderTable($(this).data('column'), !isDescending);
@@ -198,7 +198,7 @@ $(function() {
               .on('keyup', filterDelay).on('change', filterDelay);
 
             const filterCell = $(
-              '<td data-toggle="tooltip" title="'
+              '<td data-bs-toggle="tooltip" title="'
               + _(
                 "Comparison operators >, <, >=, <=, !=, == are available — e.g. >=200."
                 + " Datetime comparison is available in format yyyy-mm-dd hh:mm"

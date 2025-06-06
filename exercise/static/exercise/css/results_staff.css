@@ -27,12 +27,13 @@
 	min-width: 6em;
 	width: 15vw;
 	max-width: calc(12em + 26px);
-	background-color: white;
+	/*background-color: white;*/
 	position: -webkit-sticky; /* Safari */
 	position: sticky;
 	top: 0;
 	z-index: 2;
 }
+
 
 #table-heading th.student-id,
 #table-heading th.total {
@@ -49,11 +50,10 @@
 	max-width: 8em;
 }
 
-#table-heading th,
-#table-heading td {
-	border-top-width: 1px;
-	border-bottom-width: 1px;
-} 
+#table-heading th.student-id, #table-heading th.student-id input
+{
+	max-width: 6em;
+}
 
 #table-heading th.stick-on-scroll:not(.indicator-heading) {
     left: 0;
@@ -71,16 +71,10 @@ tbody td.stick-on-scroll {
     z-index: 1;
 }
 
-#table-heading th.stick-on-scroll,
-tbody td.stick-on-scroll {
-	background-color: #d6d6d6 100%;
-}
-
 #table-heading th.stick-on-scroll:nth-child(2),
 tbody td.stick-on-scroll:nth-child(2) {
-    left: min(calc(8em + 10px), calc(14vw + 26px));
+	left: 6em;
 }
-
 
 table#table-points thead td div.ratio {
 	text-align: right;
@@ -94,12 +88,7 @@ table#table-points thead td div.ratio::after {
 .student-id,
 .student-name,
 #table-heading th.indicator-heading {
-    background-color: rgb(188, 232, 241);
     font-weight: bold;
-}
-
-#table-heading th.indicator-heading {
-    filter: brightness(85%);
 }
 
 div.dt-note {

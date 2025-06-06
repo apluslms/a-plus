@@ -42,7 +42,7 @@ $.fn.extend({
       });
 
       $elem.attr({
-        'data-toggle': 'popover',
+        'data-bs-toggle': 'popover',
         'data-content': buttons_html,
         'tabindex': 0
       });

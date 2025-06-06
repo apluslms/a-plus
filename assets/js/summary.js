@@ -172,7 +172,7 @@ var summaryjs = function ($element, model) {
           if ($e.length === 0) {
             $e = $('<div class="text-values text-values-minimized"></div>');
             $e.append(
-              $('<a class="handle" href="#"><span class="glyphicon glyphicon-option-horizontal"></span></a>')
+              $('<a class="handle" href="#"><span class="bi-three-dots"></span></a>')
                 .on('click', onHandleClick)
             );
             $(element).append($e);

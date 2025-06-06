@@ -1,6 +1,6 @@
 {% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load course %}
 {% load editcourse %}
 {% load static %}
@@ -13,12 +13,14 @@
 
 {% block coursecontent %}
 <br />
-<form method="post" enctype="multipart/form-data" class="well">
-    {% csrf_token %}
-    <legend>{% translate "EDIT_COURSE_DETAILS" %}</legend>
-    {{ form|bootstrap }}
-    <button type="submit" class="aplus-button--default aplus-button--md">
-        {% translate "SAVE" %}
-    </button>
+<form method="post" enctype="multipart/form-data" class="card">
+    <div class="card-body">
+        {% csrf_token %}
+        <legend>{% translate "EDIT_COURSE_DETAILS" %}</legend>
+        {% bootstrap_form form %}
+        <button type="submit" class="aplus-button--default aplus-button--md">
+            {% translate "SAVE" %}
+        </button>
+    </div>
 </form>
 {% endblock %}

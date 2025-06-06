@@ -1,7 +1,7 @@
 {% extends "course/course_base.html" %}
 {% load i18n %}
 {% load course %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load static %}
 
 {% block title %}{% translate "ENROLL_STUDENTS" %} | {{ block.super }}{% endblock %}
@@ -18,10 +18,10 @@
   <p>
   {% translate "ENROLL_STUDENTS_MANUALLY_DESCRIPTION" %}
   </p>
-  <form method="post" class="well form">
+  <form method="post" class="card form">
     {% csrf_token %}
     <legend>{% translate "ENROLL_STUDENTS_IN_COURSE" %}</legend>
-    {{ form|bootstrap }}
+    {% bootstrap_form form %}
     <button type="submit" class="aplus-button--default aplus-button--md">
       {% translate "ENROLL_STUDENTS" %}
     </button>

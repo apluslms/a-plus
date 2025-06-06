@@ -964,8 +964,8 @@ msgid "CHANGE_LANGUAGE"
 msgstr "Vaihda kieli"
 
 #: course/templates/course/_course_menu.html
-msgid "CLOSE_SIDEBAR"
-msgstr "Sulje sivupalkki"
+msgid "MINIMISE_SIDEBAR"
+msgstr "Pienennä sivupalkki"
 
 #: course/templates/course/_course_menu.html
 #: edit_course/templates/edit_course/edit_course_base.html
@@ -1122,11 +1122,11 @@ msgstr ""
 #: course/templates/course/_group_info.html
 #, python-format
 msgid "GROUP_SUBMITTING_WITH -- %(collaborators)s"
-msgstr "Olet nyt palauttamassa ryhmässä, jossa on %(collaborators)s "
+msgstr "Palauttamassa ryhmässä: %(collaborators)s "
 
 #: course/templates/course/_group_info.html
 msgid "GROUP_SUBMITTING_ALONE"
-msgstr "Olet nyt palauttamassa yksin."
+msgstr "Palauttamassa yksin."
 
 #: course/templates/course/_group_select.html
 msgid "GROUP_LOADER_REGISTERING_SELECTION"
@@ -1162,8 +1162,8 @@ msgid "LEFT_OFF_REMINDER"
 msgstr ""
 
 #: course/templates/course/course_base.html
-msgid "OPEN_SIDEBAR"
-msgstr "Avaa sivupalkki"
+msgid "EXPAND_SIDEBAR"
+msgstr "Laajenna sivupalkki"
 
 #: course/templates/course/course_base.html
 msgid "READ_MORE"
@@ -4259,7 +4259,7 @@ msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
 msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
-msgstr "Palauttajia: %(number)s <small>%(percentage)s%%</small>"
+msgstr "Palauttajia: %(number)s <small class=\"text-body-secondary\">%(percentage)s%%</small>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -5016,9 +5016,9 @@ msgstr ""
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
-"<span data-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Henkilökohtaiset pidennetyt määräajat: {count}</"
+"<span data-bs-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
+"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Henkilökohtaiset pidennetyt määräajat: {count}</"
 "span></span>"
 
 #: exercise/templatetags/exercise.py
@@ -5323,8 +5323,7 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://getbootstrap."
-"com/docs/3.4/components/#glyphicons"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
