@@ -113,9 +113,13 @@ $(function () {
     const containerElement = $('.grader-container');
     containerElement.find('.grader-tab').each(function () {
       const tabElement = $(this);
+      const tabId = tabElement.attr('id');
+
       // Check if the tab contains a 'pre' element to attach buttons to
       const preElement = tabElement.children('pre');
-      const extraButtons = tabElement.addStickyButton('graderFeedbackSticky');
+
+      const extraButtons = tabId === 'grader-feedback' ? tabElement.addStickyButton('graderFeedbackSticky') : []; // ❌ No button for staff feedback
+
       if (preElement.length === 1) {
         // "Highlight" the grader feedback to get line numbers and buttons
         preElement
@@ -125,8 +129,12 @@ $(function () {
             noDownload: true,
           });
       } else {
-        tabElement.children().wrapAll('<div class="grader-html-output"></div>');
-        $('.grader-html-output').highlightCode({
+        const htmlOutput = tabElement.find('.grader-html-output');
+        if (htmlOutput.length === 0) {
+          // Wrap all tab children in one output container (to avoid multiple highlightCode calls)
+          tabElement.children().wrapAll('<div class="grader-html-output"></div>');
+          }
+          tabElement.find('.grader-html-output').first().highlightCode({
           extraButtons: extraButtons,
           noHighlight: true,
           noWrap: true,
