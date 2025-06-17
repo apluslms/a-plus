@@ -115,7 +115,11 @@ $(function () {
       const tabElement = $(this);
       // Check if the tab contains a 'pre' element to attach buttons to
       const preElement = tabElement.children('pre');
-      const extraButtons = tabElement.addStickyButton('graderFeedbackSticky');
+
+      // Add a sticky button only for the grader feedback tab
+      const tabId = tabElement.attr('id');
+      const extraButtons = tabId === 'grader-feedback' ? tabElement.addStickyButton('graderFeedbackSticky') : [];
+
       if (preElement.length === 1) {
         // "Highlight" the grader feedback to get line numbers and buttons
         preElement
