@@ -310,10 +310,37 @@ def pseudonymize(sender, instance, created, **kwargs): # pylint: disable=unused-
         instance.anon_name = codename
         instance.save(update_fields=['anon_name'])
 
+def check_and_tag_retaking(sender, instance, created, **kwargs): # pylint: disable=unused-argument
+    if not created:
+        return  # Only run when a new enrollment is created
+
+    user = instance.user_profile
+    course = instance.course_instance.course
+    current_instance_id = instance.course_instance.id
+
+    # Check if user is enrolled in other instances of this course
+    other_instances = course.instances.exclude(id=current_instance_id)
+    retaking = Enrollment.objects.filter(course_instance__in=other_instances, user_profile=user).exists()
+
+    if retaking:
+        retaking_tag, _ = UserTag.objects.get_or_create(
+            course_instance=instance.course_instance,
+            name='Retaking',
+            slug='retaking',
+            description="This student is retaking this course.",
+            color='#ffcc00',
+        )
+
+        UserTagging.objects.get_or_create(
+            tag=retaking_tag,
+            user=user,
+            course_instance=instance.course_instance,
+        )
 
 post_save.connect(create_enrollment_code, sender=Enrollment)
 post_save.connect(create_anon_id, sender=Enrollment)
 post_save.connect(pseudonymize, sender=Enrollment)
+post_save.connect(check_and_tag_retaking, sender=Enrollment)
 
 
 class UserTag(UrlMixin, ColorTag):
