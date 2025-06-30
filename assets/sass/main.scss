@@ -29,6 +29,9 @@ $progress-bar-danger-bg: $aplus-danger-status-bg;
 //** Info progress bar color
 $progress-bar-info-bg: $aplus-info-status-bg;
 
+// Make "Your points" accordions slightly less tall to match old BS3 version
+$accordion-button-padding-y: 0.75rem !default;
+
 // Import new font variables
 @import 'variables/typography';
 $font-family-sans-serif: $aplus-font-family-sans-serif;
