@@ -36,26 +36,26 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-	<div class="col-sm-offset-2 col-sm-8 page-header">
-		<h1>
-			{% if user.first_name or user.last_name %}
-				{{ user.first_name }} {{ user.last_name }}
-			{% else %}
-				{% translate "[UNKNOWN_NAME]" %}
-			{% endif %}
-		</h1>
+<div class="offset-sm-2 col-sm-8 col-lg-5">
+	<div class="row">
+		<div class="page-header">
+			<h1>
+				{% if user.first_name or user.last_name %}
+					{{ user.first_name }} {{ user.last_name }}
+				{% else %}
+					{% translate "[UNKNOWN_NAME]" %}
+				{% endif %}
+			</h1>
+		</div>
 	</div>
-</div>
-<div class="row">
-	<div class="col-sm-offset-2 col-sm-8 col-lg-4">
-		<h2>{% blocktranslate trimmed %}BRAND_PREFERENCES -- {{ brand_name }}{% endblocktranslate %}</h2>
+	<h2>{% blocktranslate trimmed %}BRAND_PREFERENCES -- {{ brand_name }}{% endblocktranslate %}</h2>
+	<div class="mb-4">
 		<form action="{% url 'set-user-language' %}" method="post" class="form form-horizontal mb-2">{% csrf_token %}
 			<div class="form-group">
-				<label class="col-xs-12" for="language-profile">{% translate "LANGUAGE" %}</label>
+				<h4 class="col-xs-12">{% translate "LANGUAGE" %}</h4>
 				<div class="d-flex">
 					<div class="col-xs-12 col-sm-8 me-2">
-						<select name="language" class="form-control" id="language-profile">
+						<select name="language" class="form-select" id="language-profile">
 							{% get_current_language as LANGUAGE_CODE %}
 							{% get_available_languages as LANGUAGES %}
 							{% get_language_info_list for LANGUAGES as languages %}
@@ -73,47 +73,49 @@
 				</div>
 			</div>
 		</form>
-		<label for="api-access-token">{% translate "API_ACCESS_TOKEN" %}</label>
+	</div>
+	<div class="mb-4">
+		<h4>{% translate "API_ACCESS_TOKEN" %}</h4>
 		<div class="input-group mb-2">
 			<input readonly type="text" class="form-control read-only" id="api-access-token"
 				value="{{ profile.api_token }}">
 			<button data-bs-toggle="tooltip" data-bs-placement="bottom"
 				title="{% translate 'COPY_API_ACCESS_TOKEN' %}" aria-label="{% translate 'COPY_API_ACCESS_TOKEN' %}"
-				class="aplus-button--secondary aplus-button--md js-copy" type="button"><span
-					class="bi-copy" aria-hidden="true"></span><span class="">{% translate "COPY" %}</span></button>
+				class="aplus-button--secondary aplus-button--md js-copy" type="button">
+					<i class="bi-copy" aria-hidden="true"></i>
+					<span class="">{% translate "COPY" %}</span>
+			</button>
 		</div>
 		<div>
 			<form action="{% url 'regenerate-access-token' %}" method="post" class="form">{% csrf_token %}
 				<div class="form-group">
 					<button type="submit" data-bs-toggle="tooltip" data-bs-placement="bottom"
 						title="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}" aria-label="{% translate 'REGENERATE_API_ACCESS_TOKEN' %}"
-						class="aplus-button--secondary aplus-button--md"><span
-							class="bi-refresh" aria-hidden="true"></span><span class="">{% translate "REGENERATE" %}</span></button>
+						class="aplus-button--secondary aplus-button--md">
+							<i class="bi-arrow-clockwise" aria-hidden="true"></i>
+							<span class="">{% translate "REGENERATE" %}</span></button>
 				</div>
 			</form>
 		</div>
-		<br>
-		<div>
-			<label for="local-storage-services">{% translate "AUTOMATIC_REDIRECTIONS" %}</label>
-			<p id="services-instructions">
-				{% blocktranslate trimmed %}
-					AUTOMATIC_REDIRECTIONS_NO_SERVICES_MARKED_ON_DEVICE
-				{% endblocktranslate %}
-			</p>
-			<ul id="local-storage-services" class="local-storage-fields"
-			data-forget-text="{% translate 'AUTOMATIC_REDIRECTIONS_FORGET' %}" role="group"></ul>
-		</div>
 	</div>
-</div>
-<div class="row">
-	<div class="col-sm-offset-2 col-sm-8 col-md-4">
+	<div class="mb-4">
+		<h4>{% translate "AUTOMATIC_REDIRECTIONS" %}</h4>
+		<p id="services-instructions">
+			{% blocktranslate trimmed %}
+				AUTOMATIC_REDIRECTIONS_NO_SERVICES_MARKED_ON_DEVICE
+			{% endblocktranslate %}
+		</p>
+		<ul id="local-storage-services" class="local-storage-fields"
+		data-forget-text="{% translate 'AUTOMATIC_REDIRECTIONS_FORGET' %}" role="group"></ul>
+	</div>
+	<div class="mb-4">
 		{% if not is_google %}
 			{% brand_institution_name as institution %}
-				<h2>{% blocktranslate trimmed %}INFORMATION_PROVIDED_BY_YOUR_ORGANIZATION{% endblocktranslate %}</h2>
+				<h4>{% blocktranslate trimmed %}INFORMATION_PROVIDED_BY_YOUR_ORGANIZATION{% endblocktranslate %}</h4>
 		{% elif is_google %}
-			<h2>{% translate "INFORMATION_PROVIDED_BY_GOOGLE" %}</h2>
+			<h4>{% translate "INFORMATION_PROVIDED_BY_GOOGLE" %}</h4>
 		{% endif %}
-		<p class="text-warning">{% translate "SETTINGS_CAN_BE_CHANGED_BY_IDENTITY_PROVIDER" %}</p>
+		<p>{% translate "SETTINGS_CAN_BE_CHANGED_BY_IDENTITY_PROVIDER" %}</p>
 		<dl class="dl-horizontal">
 			{% translate "[MISSING]" as miss %}
 			<dt class="provider-information">{% translate "STUDENT_ID" %}</dt>
@@ -126,6 +128,6 @@
 			<dd>{% firstof profile.organization miss %}</dd>
 		</dl>
 	</div>
-</div> <br>
+</div>
 
 {% endblock %}
