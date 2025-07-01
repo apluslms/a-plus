@@ -242,6 +242,9 @@ $(function() {
           });
         }
       });
+
+      // Emit an event when the table is rendered
+      self.element.trigger('aplusTable:rendered');
     },
 
     filterGetType: function(query) {
