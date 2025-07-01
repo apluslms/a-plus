@@ -60,6 +60,14 @@
 	</tr>
 </table>
 
+<div class="float-start">
+	<a class="btn aplus-button--default aplus-button--sm d-flex gap-2" role="button"
+		href="{{ instance|url:'deviations-list-dl' }}?submitter={{ student.get_full_name|urlencode }}">
+		<span class="bi bi-clock" aria-hidden="true"></span>
+		{% translate "DEADLINE_DEVIATIONS" %}
+	</a>
+</div>
+
 <p id="enrollment-and-tags" class="usertags-container" data-user-id="{{ student.id }}">
 	{% for submission in enrollment_submissions %}
 	<a href="{{ submission|url }}" class="page-modal">

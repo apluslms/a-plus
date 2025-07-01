@@ -242,6 +242,9 @@ $(function() {
           });
         }
       });
+
+      // Emit an event when the table is rendered
+      self.element.trigger('aplusTable:rendered');
     },
 
     filterGetType: function(query) {
@@ -326,21 +329,30 @@ $(function() {
         + " If you are using regex, make sure it is correct.");
       this.filters[column] = this.filterGetType(query.trim());
       if (this.filters[column][1] === undefined) {
-        input.popover("destroy")
-          .popover({
-            trigger: "manual",
-            title: popoverTitle,
-            placement: "top"
-          })
-          .popover("toggle");
+        // Dispose existing popover first
+        const existingPopover = bootstrap.Popover.getInstance(input[0]);
+        if (existingPopover) {
+          existingPopover.dispose();
+        }
+
+        // Create new popover
+        const popover = new bootstrap.Popover(input[0], {
+          trigger: "manual",
+          title: popoverTitle,
+          placement: "top"
+        });
+        popover.show();
 
         input.on('hide.bs.popover', function(event) {
           event.preventDefault();
         });
       } else {
         input.off('hide.bs.popover');
-        input.popover("destroy")
-          .removeAttr("title data-original-title");
+        const existingPopover = bootstrap.Popover.getInstance(input[0]);
+        if (existingPopover) {
+          existingPopover.dispose();
+        }
+        input.removeAttr("title data-bs-original-title");
       }
       this.filterTable();
     },
