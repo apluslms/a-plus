@@ -311,6 +311,13 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     .first()
                 )
                 if submission:
+                    if self.feedback_revealed and not submission.feedback:
+                        # We cannot show feedback (grader service was probably down), so load a blank exercise page
+                        return self.exercise.load(
+                            request,
+                            students,
+                            url_name=self.post_url_name,
+                        )
                     if self.feedback_revealed:
                         page = ExercisePage(self.exercise)
                         page.content = submission.feedback
