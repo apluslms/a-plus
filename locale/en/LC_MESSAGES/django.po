@@ -954,12 +954,17 @@ msgid "COURSE"
 msgstr "Course"
 
 #: course/templates/course/_course_menu.html
+msgid "MINIMISE_SIDEBAR"
+msgstr "Minimise sidebar"
+
+#: course/templates/course/_course_menu.html
 msgid "CHANGE_LANGUAGE"
 msgstr "Change language"
 
-#: course/templates/course/_course_menu.html
-msgid "MINIMISE_SIDEBAR"
-msgstr "Minimise sidebar"
+#: course/templates/course/_course_menu.html news/models.py
+#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
+msgid "LANGUAGE"
+msgstr "Language"
 
 #: course/templates/course/_course_menu.html
 #: course/templates/course/_siblings.html exercise/templates/exercise/toc.html
@@ -1035,6 +1040,7 @@ msgstr "Edit course"
 
 #: course/templates/course/_course_menu.html
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/user_results.html
 msgid "DEADLINE_DEVIATIONS"
 msgstr "Deadline deviations"
 
@@ -1129,6 +1135,19 @@ msgstr "Submit alone"
 msgid "SUBMIT_WITH -- %(collaborators)s"
 msgstr "Submit with %(collaborators)s "
 
+#: course/templates/course/_search_courses_form.html
+msgid "SEARCH_COURSES"
+msgstr "Search courses"
+
+#: course/templates/course/_search_courses_form.html
+msgid "CLEAR_SEARCH"
+msgstr "Clear selection"
+
+#: course/templates/course/_search_courses_form.html
+#: templates/ajax_search_select.html
+msgid "SEARCH"
+msgstr "Search"
+
 #: course/templates/course/_siblings.html
 msgid "PAGINATION"
 msgstr "Pagination"
@@ -1144,6 +1163,10 @@ msgstr "Early access"
 #: course/templates/course/archive.html
 msgid "COURSE_ARCHIVE"
 msgstr "Course archive"
+
+#: course/templates/course/archive.html course/templates/course/index.html
+msgid "NO_COURSES_FOUND"
+msgstr "No courses found."
 
 #: course/templates/course/course.html
 msgid "LEFT_OFF_REMINDER"
@@ -1266,10 +1289,6 @@ msgstr "All ongoing courses"
 #: course/templates/course/index.html
 msgid "SEE_ALL_COURSES"
 msgstr "See all courses"
-
-#: course/templates/course/index.html
-msgid "NO_ACTIVE_COURSES"
-msgstr "There are currently no ongoing courses."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
@@ -5656,11 +5675,6 @@ msgstr "Send email to course staff"
 msgid "LABEL_PUBLISH"
 msgstr "publish"
 
-#: news/models.py news/templates/news/list.html
-#: userprofile/templates/userprofile/profile.html
-msgid "LANGUAGE"
-msgstr "Language"
-
 #: news/models.py
 msgid "LABEL_PIN"
 msgstr "pin"
@@ -5818,10 +5832,6 @@ msgstr ""
 #: templates/500.html
 msgid "INTERNAL_SERVER_ERROR_500"
 msgstr "Internal server error"
-
-#: templates/ajax_search_select.html
-msgid "SEARCH"
-msgstr "Search"
 
 #: templates/ajax_search_select.html
 msgid "IMPORT_LIST"

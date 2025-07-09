@@ -960,12 +960,17 @@ msgid "COURSE"
 msgstr "Kurssi"
 
 #: course/templates/course/_course_menu.html
+msgid "MINIMISE_SIDEBAR"
+msgstr "Pienennä sivupalkki"
+
+#: course/templates/course/_course_menu.html
 msgid "CHANGE_LANGUAGE"
 msgstr "Vaihda kieli"
 
-#: course/templates/course/_course_menu.html
-msgid "MINIMISE_SIDEBAR"
-msgstr "Pienennä sivupalkki"
+#: course/templates/course/_course_menu.html news/models.py
+#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
+msgid "LANGUAGE"
+msgstr "Kieli"
 
 #: course/templates/course/_course_menu.html
 #: course/templates/course/_siblings.html exercise/templates/exercise/toc.html
@@ -1041,6 +1046,7 @@ msgstr "Muokkaa kurssia"
 
 #: course/templates/course/_course_menu.html
 #: deviations/templates/deviations/list_dl.html
+#: exercise/templates/exercise/staff/user_results.html
 msgid "DEADLINE_DEVIATIONS"
 msgstr "Määräaikojen poikkeamat"
 
@@ -1136,6 +1142,21 @@ msgstr "Palauta yksin"
 msgid "SUBMIT_WITH -- %(collaborators)s"
 msgstr "Palauta ryhmässä: %(collaborators)s "
 
+#: course/templates/course/_search_courses_form.html
+msgid "SEARCH_COURSES"
+msgstr "Hae kursseja"
+
+#: course/templates/course/_search_courses_form.html
+#, fuzzy
+#| msgid "CLEAR_SELECTION"
+msgid "CLEAR_SEARCH"
+msgstr "Tyhjennä valinta"
+
+#: course/templates/course/_search_courses_form.html
+#: templates/ajax_search_select.html
+msgid "SEARCH"
+msgstr "Hae"
+
 #: course/templates/course/_siblings.html
 msgid "PAGINATION"
 msgstr "Sivuilla siirtyminen"
@@ -1151,6 +1172,10 @@ msgstr "Aikainen pääsy"
 #: course/templates/course/archive.html
 msgid "COURSE_ARCHIVE"
 msgstr "Kurssiarkisto"
+
+#: course/templates/course/archive.html course/templates/course/index.html
+msgid "NO_COURSES_FOUND"
+msgstr "Kursseja ei löytynyt."
 
 #: course/templates/course/course.html
 msgid "LEFT_OFF_REMINDER"
@@ -1274,10 +1299,6 @@ msgstr "Meneillään olevat kurssit"
 #: course/templates/course/index.html
 msgid "SEE_ALL_COURSES"
 msgstr "Näytä kaikki kurssit"
-
-#: course/templates/course/index.html
-msgid "NO_ACTIVE_COURSES"
-msgstr "Tällä hetkellä ei ole meneillään olevia kursseja."
 
 #: course/templates/course/module.html
 #: exercise/templates/exercise/_user_results.html
@@ -5675,11 +5696,6 @@ msgstr "Lähetä sähköpostia kurssihenkilökunnalle"
 msgid "LABEL_PUBLISH"
 msgstr "julkaise"
 
-#: news/models.py news/templates/news/list.html
-#: userprofile/templates/userprofile/profile.html
-msgid "LANGUAGE"
-msgstr "Kieli"
-
 #: news/models.py
 msgid "LABEL_PIN"
 msgstr "kiinnitä listan kärkeen"
@@ -5837,10 +5853,6 @@ msgstr ""
 #: templates/500.html
 msgid "INTERNAL_SERVER_ERROR_500"
 msgstr "Palvelimen sisäinen virhe"
-
-#: templates/ajax_search_select.html
-msgid "SEARCH"
-msgstr "Hae"
 
 #: templates/ajax_search_select.html
 msgid "IMPORT_LIST"

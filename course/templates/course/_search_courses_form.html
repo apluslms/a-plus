@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load course %}
+
+{% load static %}
+{% block scripts %}
+
+<script src="{% static 'course/course_search.js' %}"></script>
+
+{% endblock %}
+
+<form method="get" class="form-inline" id="course-search-form">
+	<div class="d-flex gap-2">
+		<div class="form-group position-relative flex-grow-1">
+			<input type="text"
+				name="search"
+				id="search-input"
+				class="form-control"
+				placeholder="{% translate 'SEARCH_COURSES' %}"
+				value="{{ request.GET.search }}"
+				autocomplete="off"
+				style="{% if request.GET.search %}padding-right: 2em;{% endif %}"
+			/>
+			{% if request.GET.search %}
+				<a
+					id="clear-search"
+					class="btn btn-link position-absolute top-50 end-0 translate-middle-y px-2"
+					aria-label="{% translate 'CLEAR_SEARCH' %}"
+					href="#"
+				>
+					<i class="bi-x-lg" aria-hidden="true"></i>
+				</a>
+			{% endif %}
+		</div>
+		<button type="submit" class="aplus-button--default aplus-button--md">{% translate 'SEARCH' %}</button>
+	</div>
+</form>

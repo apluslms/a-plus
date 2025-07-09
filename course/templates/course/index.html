@@ -32,12 +32,15 @@
 {% endif %}
 
 	<section class="frontpage frontpage-section">
-		<div class="section-heading">
-			<h2>{% translate "ALL_ONGOING_COURSES" %}</h2>
-			<div class="action">
-				{% url 'archive' as url %}
-				<a href="{{ url }}">{% translate "SEE_ALL_COURSES" %}</a>
+		<div class="section-heading flex-column flex-md-row gap-2 gap-md-4">
+			<div class="d-flex flex-grow-1 justify-content-between gap-4">
+				<h2>{% translate "ALL_ONGOING_COURSES" %}</h2>
+				<div class="action">
+					{% url 'archive' as url %}
+					<a href="{{ url }}">{% translate "SEE_ALL_COURSES" %}</a>
+				</div>
 			</div>
+			<div class="mb-2 mt-md-4">{% include "course/_search_courses_form.html" %}</div>
 		</div>
 		<div class="cards">
 			{% site_advert as advert %}
@@ -62,12 +65,12 @@
 			{% endif %}
 			{% if all_instances %}
 				{% include "course/_course_cards.html" with instances=all_instances condensed=False %}
-			{% endif %}	
+			{% endif %}
 		</div>
 		{% if not all_instances and not siteadvert %}
 			<div class="panel-body">
 				<p class="panel-default-text">
-					{% translate "NO_ACTIVE_COURSES" %}
+					{% translate "NO_COURSES_FOUND" %}
 				</p>
 			</div>
 		{% endif %}

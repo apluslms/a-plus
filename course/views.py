@@ -6,7 +6,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -74,7 +74,11 @@ class HomeView(UserProfileView):
                 if instance not in my_instances:
                     my_instances.append(instance)
 
+        query = self.request.GET.get("search", "").strip()
         all_instances = CourseInstance.objects.get_visible(user).filter(ending_time__gte=end_threshold)
+        if query:
+            all_instances = all_instances.filter(Q(course__name__icontains=query) | Q(course__code__icontains=query))
+
         all_instances = [c for c in all_instances if c not in my_instances]
 
         self.all_instances = all_instances
@@ -97,7 +101,10 @@ class ArchiveView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
+        query = self.request.GET.get("search", "").strip()
         self.instances = CourseInstance.objects.get_visible(self.request.user)
+        if query:
+            self.instances = self.instances.filter(Q(course__name__icontains=query) | Q(course__code__icontains=query))
         self.show_language_toggle = True
         self.note("instances", "show_language_toggle")
 
