@@ -34,8 +34,9 @@
 	<section class="frontpage frontpage-section">
 		<div class="section-heading">
 			<h2>{% translate "ALL_ONGOING_COURSES" %}</h2>
+			<h3>{% include "course/_search_courses_form.html" %}</h3>
 			<div class="action">
-				{% url 'archive' as url %}
+			  {% url 'archive' as url %}
 				<a href="{{ url }}">{% translate "SEE_ALL_COURSES" %}</a>
 			</div>
 		</div>
