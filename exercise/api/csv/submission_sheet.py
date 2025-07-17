@@ -53,7 +53,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
     DEFAULT_FIELDS = [
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
-        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen', # Tags as for SubmissionTags
+        'Grade', 'Penalty', 'Graded', 'Tags', 'Testaus', 'GraderEmail', 'Notified', 'NSeen', # Tags as for SubmissionTags
     ]
     sheet = []
     fields = []
@@ -120,7 +120,6 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             ('GraderEmail', grader),
             ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
-            ('WTF', 0)
         ])
         #kaikki parametrit asetetaan luultavasti täällä
         #TODO: tunnisteet ovat grading_datassa: grading_data['grading_data'], jossa on submission_tags json-muodossa
