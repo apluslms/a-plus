@@ -123,7 +123,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         ])
         #kaikki parametrit asetetaan luultavasti täällä
         #TODO: tunnisteet ovat grading_datassa: grading_data['grading_data'], jossa on submission_tags json-muodossa
-  '''      if s.submission_data:
+        '''if s.submission_data:
             for k,v in s.submission_data:
                 if v or k not in files:
                     if k not in fields:
@@ -131,7 +131,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
                     if k in row:
                         row[k] += "|" + str(v)
                     else:
-                        row[k] = str(v) '''
+                        row[k] = str(v)'''
         #palautusten tiedostot tulee tästä
         for f in s.files.all():
             if f.param_name not in files:
