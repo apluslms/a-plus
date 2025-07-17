@@ -577,6 +577,10 @@ class SubmittedFileView(SubmissionMixin, BaseView):
         except ValueError as e:
             raise Http404() from e
 
+    @staticmethod
+    def strip_trailing_whitespace(text: str) -> str:
+        return '\n'.join(line.rstrip() for line in text.splitlines())
+
     def get(self, request, *args, **kwargs):
         try:
             with self.file.file_object.open() as f:
@@ -593,9 +597,15 @@ class SubmittedFileView(SubmissionMixin, BaseView):
                 else self.get_compared_submission_file_data(compare_to)
             )
             submitted_data = bytedata.decode('utf-8', 'ignore')
+
+            if request.GET.get('ignore_trailing_whitespace', 'no') == 'yes':
+                compared_data = self.strip_trailing_whitespace(compared_data)
+                submitted_data = self.strip_trailing_whitespace(submitted_data)
+
             # Ensure that both files end with a newline, otherwise the diff output might be mangled
             submitted_data += '\n' if not submitted_data.endswith('\n') else ''
             compared_data += '\n' if not compared_data.endswith('\n') else ''
+
             diff = ndiff(compared_data.splitlines(keepends=True), submitted_data.splitlines(keepends=True))
             diff_text = ''.join([line for line in diff if line[0] != '?'])
             bytedata = diff_text.encode('utf-8')

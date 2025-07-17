@@ -26,6 +26,12 @@ table.src tr td.old {
 table.src tr td.new {
 	background: #d4edda;
 }
+[data-bs-theme=dark] table.src tr td.old {
+    background: #542326;
+}
+[data-bs-theme=dark] table.src tr td.new {
+    background: #1c4328;
+}
 .highlight {
 	border-radius: var(--bs-border-radius);
 }
