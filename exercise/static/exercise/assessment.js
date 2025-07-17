@@ -90,23 +90,62 @@ $(function () {
       const element = $(this);
       const fileId = element.data('id');
       const fileViewable = element.data('viewable');
-      const fileUrl = element.data('url');
+      let fileUrl = element.data('url');
       if (fileUrl && fileViewable && !loadedFiles.has(fileId)) {
         loadedFiles.add(fileId);
-        $.get(fileUrl, function (data) {
-          const text = $('<pre/>').text(data);
-          text.attr('data-url', fileUrl);
-          text.attr('data-filename', element.data('filename'));
-          element.find('.submitted-file-data').html(text);
-          const extraButtons = element.addStickyButton('submissionSticky');
-          text.highlightCode({extraButtons, compareMode: fileUrl.includes('compare_to=')});
-        })
-        .fail(function () {
-          element.find('.submitted-file-error').removeClass('d-none');
-        })
-        .always(function () {
-          element.find('.submitted-file-progress').addClass('d-none');
-        });
+
+        const loadFileContent = (url) => {
+          element.find('.submitted-file-progress').removeClass('d-none');
+          element.find('.submitted-file-error').addClass('d-none');
+
+          $.get(url, function (data) {
+            const text = $('<pre/>').text(data);
+            text.attr('data-url', url);
+            text.attr('data-filename', element.data('filename'));
+            element.find('.submitted-file-data').html(text);
+            const extraButtons = element.addStickyButton('submissionSticky');
+
+            // Add ignore whitespace toggle button if comparing files
+            if (url.includes('compare_to=')) {
+              const urlObj = new URL(url, window.location.origin);
+              const isIgnoringWhitespace = urlObj.searchParams.get('ignore_trailing_whitespace') === 'yes';
+
+              const whitespaceButton = {
+                action: () => {
+                  // Toggle the parameter in the current file URL
+                  const newFileUrl = new URL(url, window.location.origin);
+                  const currentIgnoring = newFileUrl.searchParams.get('ignore_trailing_whitespace') === 'yes';
+
+                  if (currentIgnoring) {
+                    newFileUrl.searchParams.delete('ignore_trailing_whitespace');
+                  } else {
+                    newFileUrl.searchParams.set('ignore_trailing_whitespace', 'yes');
+                  }
+
+                  // Update the stored URL and reload this specific file
+                  fileUrl = newFileUrl.toString();
+                  element.data('url', fileUrl);
+                  loadFileContent(fileUrl);
+                },
+                icon: isIgnoringWhitespace ? 'check-square' : 'square',
+                text: _('Ignore trailing whitespace'),
+                toggle: true,
+              };
+
+              extraButtons.push(whitespaceButton);
+            }
+
+            text.highlightCode({extraButtons, compareMode: url.includes('compare_to=')});
+          })
+          .fail(function () {
+            element.find('.submitted-file-error').removeClass('d-none');
+          })
+          .always(function () {
+            element.find('.submitted-file-progress').addClass('d-none');
+          });
+        };
+
+        loadFileContent(fileUrl);
       }
     });
 
