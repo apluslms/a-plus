@@ -116,7 +116,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             ('Grade', s.grade if exercise.id in revealed_ids else 0),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
-            ('Tags', [2,5,7]), #tämä ei luultavasti toimi ihan sellaisenaan
+            ('Tags', [2,5,7].mkString("|")), #tämä ei luultavasti toimi ihan sellaisenaan
             ('GraderEmail', grader),
             ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
