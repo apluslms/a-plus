@@ -92,7 +92,14 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
         #extract tags from s.grading_data
-        tags = []
+        tags = ["testing","if","this","shows"]
+        if 'grading_data' in s.grading_data:
+            grader_grading_data = json.loads(s.grading_data['grading_data'])
+            if 'submission_tags' in grader_grading_data:
+                for tag_slug in grader_grading_data['submission_tags'].split(','):
+                    tag_slug = tag_slug.strip()
+                    if tag_slug:
+                        tags.append(tag_slug)
 
 
         n = s.notifications.first()
@@ -116,14 +123,6 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         ])
         #kaikki parametrit asetetaan luultavasti täällä
         #TODO: tunnisteet ovat grading_datassa: grading_data['grading_data'], jossa on submission_tags json-muodossa
-        if 'grading_data' in s.grading_data:
-            grader_grading_data = json.loads(s.grading_data['grading_data'])
-            if 'submission_tags' in grader_grading_data:
-                for tag_slug in grader_grading_data['submission_tags'].split(','):
-                    tag_slug = tag_slug.strip()
-                    if tag_slug:
-                        tags.append(tag_slug)
-
         if s.submission_data:
             for k,v in s.submission_data:
                 if v or k not in files:
