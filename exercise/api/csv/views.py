@@ -83,7 +83,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             return self.instance.students
         return self.instance.course_staff_and_students
 
-    def get_search_args(self, request):
+    def get_search_args(self, request): #tämä on suodatus, joka on mainittu ViewSetin lisäselityksessä
         return {
             'number': request.GET.get('filter'),
             'category_id': int_or_none(request.GET.get('category_id')),
@@ -131,7 +131,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         ).prefetch_related('exercise', 'notifications', 'files')
         return self.serialize_submissions(request, queryset, revealed_ids)
 
-    def serialize_submissions(
+    def serialize_submissions( #tämä muuntaa palautusten tiedot jsoniksi
             self,
             request: Request,
             queryset: QuerySet[Submission],
@@ -143,22 +143,22 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
             submissions = filter_best_submissions(submissions, revealed_ids)
 
         # Pick out a single field.
-        field = request.GET.get('field')
+        field = request.GET.get('field') #miten tämä valitsee vain tiettyjä parametreja? tai toimiiko se edes näin?
         if field:
-            def submitted_field(submission, name):
+            def submitted_field(submission, name): #valitseeko name vain tiettyjä paramentreja kaikista palautuksen tiedoista?
                 for key,val in (submission.submission_data or []):
                     if key == name:
                         return val
                 return ""
             vals = [submitted_field(s, field) for s in submissions]
             return Response([v for v in vals if v != ""])
-
+                      #submission_sheet on se, joka määrittelee mikä tulee välitetty eteenpäin!!
         data,fields = submissions_sheet(request, submissions, revealed_ids)
         self.renderer_fields = fields
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
             response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
-        else:
+        else: #tästä submissiondata/me saa tiedoston ulos
             response['Content-Disposition'] = 'attachment; filename="submissions.json"'
         return response
 

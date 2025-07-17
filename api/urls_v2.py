@@ -64,7 +64,7 @@ with api.register(r'courses',
     courses.register(r'points',
                      exercise.api.views.CoursePointsViewSet,
                      basename='course-points')
-    courses.register(r'submissiondata',
+    courses.register(r'submissiondata', #submissiondata comes from here
                      exercise.api.csv.views.CourseSubmissionDataViewSet,
                      basename='course-submissiondata')
     courses.register(r'aggregatedata',
@@ -125,7 +125,7 @@ urlpatterns = [
     ),
 ]
 
-
+#kutsutaanko näitä ainoastaan debuggauksen aikana?
 if getattr(settings, 'API_DEBUG', False):
     # Print list of api urls
     _urls = [(url.callback.cls.__name__, url.name or '-', url.pattern) for url in api.urls if url.callback]
