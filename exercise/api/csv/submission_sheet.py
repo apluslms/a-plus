@@ -50,10 +50,10 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         submissions: Iterable[Submission],
         revealed_ids: Set[int],
         ) -> Tuple[List[Dict[str, Any]], List[str]]:
-    DEFAULT_FIELDS = [
+    DEFAULT_FIELDS = [ #this serves to render fields, but not the actual data that gets put into them
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
-        'Grade', 'Penalty', 'Graded', 'Tags', 'Testaus', 'GraderEmail', 'Notified', 'NSeen', # Tags as for SubmissionTags
+        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen', # Tags as for SubmissionTags
     ]
     sheet = []
     fields = []
@@ -123,7 +123,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         ])
         #kaikki parametrit asetetaan luultavasti täällä
         #TODO: tunnisteet ovat grading_datassa: grading_data['grading_data'], jossa on submission_tags json-muodossa
-        if s.submission_data:
+  '''      if s.submission_data:
             for k,v in s.submission_data:
                 if v or k not in files:
                     if k not in fields:
@@ -131,14 +131,15 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
                     if k in row:
                         row[k] += "|" + str(v)
                     else:
-                        row[k] = str(v)
+                        row[k] = str(v) '''
         #palautusten tiedostot tulee tästä
         for f in s.files.all():
             if f.param_name not in files:
                 files.append(f.param_name)
             row[f.param_name] = url(s,f)
         #opiskelijoiden parametrit asetetaan tässä
-        for i,profile in enumerate(s.submitters.all()):
+        #ainoastaan tämä tuo dataa suoraan apiin, joten tätä pitää muokata
+        for i,profile in enumerate(s.submitters.all()): #tekee kopioita jokaista asiakasta kohden
             r = row.copy() if i > 0 else row
             r['UserID'] = profile.user.id
             r['StudentID'] = profile.student_id
