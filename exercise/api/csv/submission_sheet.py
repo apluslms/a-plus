@@ -92,14 +92,21 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
         #extract tags from s.grading_data
-        tags = ["testing","if","this","shows"]
+        tags = []
         if 'grading_data' in s.grading_data:
             grader_grading_data = json.loads(s.grading_data['grading_data'])
             if 'submission_tags' in grader_grading_data:
                 for tag_slug in grader_grading_data['submission_tags'].split(','):
                     tag_slug = tag_slug.strip()
                     if tag_slug:
-                        tags.append(tag_slug)
+                        try:
+                            SubmissionTag.objects.get(
+                                slug=tag_slug,
+                                course_instance=s.exercise.course_module.course_instance,
+                            )
+                            tags.append(tag_slug)
+                        except SubmissionTag.DoesNotExist:
+                            pass
 
 
         n = s.notifications.first()
