@@ -18,6 +18,7 @@ from rest_framework_csv.renderers import CSVRenderer
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from lib.api.renderers import CSVExcelRenderer
+from lib.api.core import APlusJSONRenderer
 from lib.api.mixins import MeUserMixin
 from lib.api.constants import REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
@@ -158,7 +159,7 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         response = Response(data)
         if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
             response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
-        else:
+        elif isinstance(getattr(request, 'accepted_renderer'), APlusJSONRenderer):
             response['Content-Disposition'] = 'attachment; filename="submissions.json"'
         return response
 
