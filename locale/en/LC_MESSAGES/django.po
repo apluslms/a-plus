@@ -1150,6 +1150,10 @@ msgstr "Early access"
 msgid "COURSE_ARCHIVE"
 msgstr "Course archive"
 
+msgid "SEARCH_COURSES"
+msgstr "Search courses..."
+
+
 #: course/templates/course/course.html
 msgid "LEFT_OFF_REMINDER"
 msgstr "Continue where you left off"
