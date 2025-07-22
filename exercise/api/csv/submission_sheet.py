@@ -44,7 +44,6 @@ def filter_best_submissions(
             filtered.append(submissions[i])
     return filtered
 
-#TODO: tänne pitää lisätä tunnisteet
 def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
@@ -53,7 +52,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
     DEFAULT_FIELDS = [ #this serves to render fields, but not the actual data that gets put into them
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
-        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen', # Tags as for SubmissionTags
+        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen',
     ]
     sheet = []
     fields = []
@@ -91,7 +90,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         if not grader and t and t.startswith("\n<p>\nReviewer:"):
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
-        #extract tags from s.grading_data
+        #extract tags from s.grading_data, validate they belong to the course
         tags = []
         if 'grading_data' in s.grading_data:
             grader_grading_data = json.loads(s.grading_data['grading_data'])
@@ -110,7 +109,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
 
 
         n = s.notifications.first()
-        row = OrderedDict([ #TODO: tänne myös polku siihen, mistä saa tunnisteita
+        row = OrderedDict([
             ('ExerciseID', exercise.id),
             ('Category', exercise.category.name),
             ('Exercise', str(exercise)),
@@ -123,13 +122,12 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             ('Grade', s.grade if exercise.id in revealed_ids else 0),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
-            ('Tags', '|'.join(tags)), #tämä ei luultavasti toimi ihan sellaisenaan
+            ('Tags', '|'.join(tags)),
             ('GraderEmail', grader),
             ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
         ])
-        #kaikki parametrit asetetaan luultavasti täällä
-        #TODO: tunnisteet ovat grading_datassa: grading_data['grading_data'], jossa on submission_tags json-muodossa
+
         if s.submission_data:
             for k,v in s.submission_data:
                 if v or k not in files:
@@ -139,19 +137,17 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
                         row[k] += "|" + str(v)
                     else:
                         row[k] = str(v)
-        #palautusten tiedostot tulee tästä
+
         for f in s.files.all():
             if f.param_name not in files:
                 files.append(f.param_name)
             row[f.param_name] = url(s,f)
-        #opiskelijoiden parametrit asetetaan tässä
-        #ainoastaan tämä tuo dataa suoraan apiin, joten tätä pitää muokata
-        for i,profile in enumerate(s.submitters.all()): #tekee kopioita jokaista asiakasta kohden
+
+        for i,profile in enumerate(s.submitters.all()):
             r = row.copy() if i > 0 else row
             r['UserID'] = profile.user.id
             r['StudentID'] = profile.student_id
             r['Email'] = profile.user.email
             sheet.append(r)
-#DEFAULT_FIELDS on luultavasti mistä tulee eri kenttien nimet jsoniin
-    #sheet on se, mikä oikeasti näkyy apissa
+
     return sheet, DEFAULT_FIELDS + fields + files

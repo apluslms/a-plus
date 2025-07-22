@@ -350,9 +350,9 @@ class SubmissionProto(UrlMixin):
     def get_inspect_url(self):
         return self.get_url("submission-inspect")
 
-#TODO: tunnisteet todennäköisesti tänne, jotta submission_sheet voi hakea niitä
+
 @register_jwt_accessible_class("submission")
-class Submission(SubmissionProto, models.Model): #lisätäänkö tunnisteet tänne?
+class Submission(SubmissionProto, models.Model):
     """
     A submission to some course exercise from one or more submitters.
     """
@@ -447,8 +447,8 @@ class Submission(SubmissionProto, models.Model): #lisätäänkö tunnisteet tän
         verbose_name=_('LABEL_SUBMISSION_DATA'),
         blank=True,
     )
-    #TODO: tunnisteet ovat tässä, joten niitä on pakko jotenkin saada ulos
-    grading_data = JSONField( #tämä on grading-basen asettama rivi
+
+    grading_data = JSONField(
         verbose_name=_('LABEL_GRADING_DATA'),
         blank=True,
     )
@@ -713,7 +713,7 @@ class Submission(SubmissionProto, models.Model): #lisätäänkö tunnisteet tän
         except PendingSubmission.DoesNotExist:
             pass
 
-class SubmissionTagging(models.Model): #submission tags!
+class SubmissionTagging(models.Model):
     tag = models.ForeignKey(SubmissionTag,
         verbose_name=_('LABEL_SUBMISSION_TAG'),
         on_delete=models.CASCADE,

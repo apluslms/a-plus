@@ -58,7 +58,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.feedback = form.cleaned_data["feedback"]
         submission.grading_data = post_data
 
-        if 'grading_data' in submission.grading_data: #tunnisteille apissa: jos tämä tunniste ei kuulu kurssille, jätä se vain huomiotta
+        if 'grading_data' in submission.grading_data:
             grader_grading_data = json.loads(submission.grading_data['grading_data'])
             if 'submission_tags' in grader_grading_data:
                 for tag_slug in grader_grading_data['submission_tags'].split(','):
