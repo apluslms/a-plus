@@ -49,7 +49,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         submissions: Iterable[Submission],
         revealed_ids: Set[int],
         ) -> Tuple[List[Dict[str, Any]], List[str]]:
-    DEFAULT_FIELDS = [ #this serves to render fields, but not the actual data that gets put into them
+    DEFAULT_FIELDS = [
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
         'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen',
