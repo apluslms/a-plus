@@ -91,7 +91,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
         #extract tags from s.grading_data, validate they belong to the course
-        tags = ["tag","here"]
+        tags = []
         if 'grading_data' in s.grading_data:
             grader_grading_data = json.loads(s.grading_data['grading_data'])
             if 'submission_tags' in grader_grading_data:
