@@ -153,7 +153,6 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
                 return ""
             vals = [submitted_field(s, field) for s in submissions]
             return Response([v for v in vals if v != ""])
-
         data,fields = submissions_sheet(request, submissions, revealed_ids)
         self.renderer_fields = fields
         response = Response(data)
