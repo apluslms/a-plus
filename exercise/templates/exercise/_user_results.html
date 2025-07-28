@@ -41,40 +41,42 @@
 {% exercise_accessible module as exercise_accessible %}
 <div class="accordion-item mb-4 module-panel" style="border: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);">
 	<div class="accordion-header{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
-		<button class="accordion-button{% if not accessible or not open and after_open %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}" 
-			aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}" 
+		<button class="accordion-button{% if not accessible or not open and after_open %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}"
+			aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}"
 			aria-controls="#module{{ module.id }}">
-			<div style="display: flex; justify-content: space-between; padding-right: 1em; width: 100%;">
+			<div class="d-flex justify-content-between me-3 w-100">
 				<div class="module-name">
 					<strong>{{ module.name|parse_localization }}</strong>
 				</div>
-				{% if not accessible %}
-				<span class="badge text-bg-secondary float-end">
-					{% translate "OPENS ON" %} {{ module.opening_time }}
-				</span>
-				{% elif not after_open %}
-				<span class="badge text-bg-secondary float-end">
-					{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
-				</span>
-				<span class="badge text-bg-info float-end">
-					{% translate "OPEN_FOR_READING" %}
-				</span>
-				{% endif %}
-				{% if module|deadline_extended_exercises_open:now %}
-				<span class="badge text-bg-secondary float-end">
-					{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
-				</span>
-				{% endif %}
-				{% if module.requirements|length > 0 %}
-				<span class="badge text-bg-secondary float-end">
-					{% translate "REQUIRES" %}:
-					{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
-				</span>
-				{% endif %}
-				{% if not module.is_visible and is_teacher %}
-				<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
-				{% endif %}
-				{% points_badge module "float-end" %}
+				<div class="d-inline-flex align-items-center gap-1">
+					{% if not module.is_visible and is_teacher %}
+					<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
+					{% endif %}
+					{% if module.requirements|length > 0 %}
+					<span class="badge text-bg-secondary float-end">
+						{% translate "REQUIRES" %}:
+						{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
+					</span>
+					{% endif %}
+					{% if module|deadline_extended_exercises_open:now %}
+					<span class="badge text-bg-secondary float-end">
+						{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+					</span>
+					{% endif %}
+					{% if not accessible %}
+					<span class="badge text-bg-secondary float-end">
+						{% translate "OPENS ON" %} {{ module.opening_time }}
+					</span>
+					{% elif not after_open %}
+					<span class="badge text-bg-secondary float-end">
+						{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
+					</span>
+					<span class="badge text-bg-info float-end">
+						{% translate "OPEN_FOR_READING" %}
+					</span>
+					{% endif %}
+					{% points_badge module "float-end" %}
+				</div>
 			</div>
 		</button>
 	</div>

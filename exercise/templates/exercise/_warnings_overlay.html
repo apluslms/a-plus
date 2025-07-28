@@ -1,18 +1,19 @@
 {% load i18n %}
 {% load course %}
 <div class="overlay exercise-warnings-overlay" id="overlay-{{ exercise.id }}">
-    <div class="card text-bg-warning">
-        <div class="card-header">
-            {% translate "CANNOT_SUMBIT_EXERCISE_WARNING" %}
+    <div class="card alert alert-warning" role="alert">
+        <div class="alert-heading">
+            <strong>{% translate "CANNOT_SUMBIT_EXERCISE_WARNING" %}</strong>
         </div>
-        <div class="panel-body">
+        <hr>
+        <div>
             {% for issue in issues %}
             <p>{{ issue }}</p>
             {% endfor %}
             <div class="btn-toolbar" role="toolbar">
                 <button
                     type="button"
-                    class="aplus-button--secondary aplus-button--md"
+                    class="aplus-button--secondary aplus-button--md me-2"
                     id="overlay-dismiss-{{ exercise.id }}"
                 >
                     {% translate "SHOW_ANYWAY" %}

@@ -70,11 +70,11 @@
 						<div class="container-fluid">
 							<ul class="navbar-nav exercise-nav">
 								<li class="nav-item">
-									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
-										class="nav-link exercise-nav-points btn"
+									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}javascript:void(0);{% endif %}"
+										class="exercise-nav-points btn"
 										role="button"
 									>
-										<span>
+										<span class="d-inline-flex align-items-center gap-1">
 											{% if not exercise.category.confirm_the_level %}
 												{% translate "POINTS" %}
 											{% endif %}
@@ -86,7 +86,7 @@
 									<a class="dropdown-toggle exercise-nav-submissions btn" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 										<span>
 											{% translate "MY_SUBMISSIONS" %}
-											<span class="badge text-bg-{% if summary.submission_count == 0 %}light{% else %}secondary{% endif %}">
+											<span class="badge text-bg-secondary">
 												{{ summary.submission_count }}
 												{% if exercise.max_submissions %}
 													/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}

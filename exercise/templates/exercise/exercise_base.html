@@ -41,7 +41,7 @@
 	{% if exercise.is_submittable %}
 	<nav>
 		<ul class="nav nav-tabs">
-			<li class="nav-item menu-exercise">
+			<li class="menu-exercise nav-item">
 				<a class="nav-link" href="{{ exercise|url:exercise_url_name }}">
 					{% translate "EXERCISE_DESCRIPTION" %}
 				</a>
@@ -73,7 +73,7 @@
 			open it due to personal extensions. However, this saves some database queries.
 			{% endcomment %}
 			{% if exercise.model_answers %}
-			<li class="nav-item menu-model">
+			<li class="menu-model nav-item">
 				<a class="nav-link" href="{{ exercise|url:'exercise-model' }}">
 					{% translate "MODEL_ANSWER" %}
 				</a>
@@ -82,7 +82,7 @@
 			{% endif %}
 			{% if is_course_staff or is_student %}
 				{% if exercise.templates %}
-					<li class="nav-item menu-template">
+					<li class="menu-template nav-item">
 						<a class="nav-link" href="{{ exercise|url:'exercise-template' }}">
 							{% translate "EXERCISE_TEMPLATE" %}
 						</a>
@@ -91,7 +91,7 @@
 			{% endif %}
 			{% if is_course_staff %}
 			<li>
-				<p class="navbar-text navbar-btn">
+				<p class="navbar-text navbar-btn my-0 mx-1">
 					{% if submission and not disable_staff_nav %}
 					<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
 						<i class="bi-zoom-in" aria-hidden="true"></i>

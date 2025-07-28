@@ -18,7 +18,7 @@
 		{% for s in submissions reversed %}
 		<tr
 			{% if forloop.counter < lowest_visible_index or forloop.counter > highest_visible_index %}
-			class="submissions-toggle hidden"
+			class="submissions-toggle d-none"
 			{% elif forloop.counter == index %}
 			class="table-active"
 			{% endif %}
@@ -50,7 +50,7 @@
 					<span class="difficulty">{{ exercise.difficulty }}</span>
 				{% endif %}
 				<span
-					class="badge rounded-pill {% if not s.unofficial %} {% if s.points >= exercise.max_points %}text-bg-success{% elif s.points >= exercise.points_to_pass %}text-bg-warning{% else %}text-bg-danger{% endif %}{% endif %}"
+					class="badge text-bg-secondary rounded-pill {% if not s.unofficial %} {% if s.points >= exercise.max_points %}text-bg-success{% elif s.points >= exercise.points_to_pass %}text-bg-warning{% else %}text-bg-danger{% endif %}{% endif %}"
 					data-bs-toggle="tooltip"
 					data-bs-placement="bottom"
 					title="{% if s.unofficial %}{% if s.unofficial_submission_type == 'limit_exceeded' %}{% translate 'LIMIT_EXCEEDED' %}{% elif s.unofficial_submission_type == 'deadline_passed' %}{% translate 'DEADLINE_PASSED' %}{% else %}{% translate 'UNOFFICIAL_DESCRIPTION' %}{% endif %}{% elif s.points >= exercise.points_to_pass %}{% if exercise.points_to_pass > 0 %}{% translate 'PASSED' %}{% endif %}{% else %}{% blocktranslate trimmed with points=exercise.points_to_pass %}POINTS_REQUIRED_TO_PASS -- {{ points }}{% endblocktranslate %}{% endif %}"
@@ -97,7 +97,7 @@
 			<td colspan="5">
 				<button class="aplus-button--secondary aplus-button--xs" data-bs-toggle="visibility" data-bs-target=".submissions-toggle">
 					<span class="submissions-toggle">{% translate "SHOW_ALL_SUBMISSIONS" %}</span>
-					<span class="submissions-toggle hidden">{% translate "HIDE_OTHER_SUBMISSIONS" %}</span>
+					<span class="submissions-toggle d-none">{% translate "HIDE_OTHER_SUBMISSIONS" %}</span>
 				</button>
 			</td>
 		</tr>

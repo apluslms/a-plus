@@ -38,8 +38,8 @@
 {% if difficulty %}
 <span class="difficulty">{{ difficulty }}</span>
 {% endif %}
-<span class="badge rounded-pill 
-  {% if submitted and official %} 
+<span class="badge rounded-pill
+  {% if submitted and official %}
     {% if feedback_revealed %}
       {% if full_score %}text-bg-success
       {% elif passed %}text-bg-warning
@@ -48,7 +48,7 @@
     {% endif %}
     {% if unconfirmed %} unconfirmed-points
     {% endif %}
-  {% else %}text-bg-light
+  {% else %}text-bg-secondary
   {% endif %}
   {% if classes %} {{ classes }}
   {% elif show_zero_points_immediately and best_submission_true_points == 0 %}text-bg-danger
