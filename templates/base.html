@@ -116,11 +116,11 @@
 		{% block header %}
 		<header>
 			<nav class="navbar-header topbar navbar fixed-top" aria-label="{% translate 'MAIN' %}">
-				<div class="container-fluid">
-					<div class="d-flex align-items-center">
-						<a class="navbar-brand btn btn-link py-2 d-flex align-items-center" href="{% url 'home' %}">{% brand_name %}</a>
+				<div class="container-fluid flex-nowrap py-1">
+					<div class="d-flex align-items-center ps-2">
+						<a class="navbar-brand btn btn-link py-1" href="{% url 'home' %}">{% brand_name %}</a>
 						<span class="navbar-brand d-none d-md-flex" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
-						<ul class="navbar-nav navbar-dropdown me-auto">
+						<ul class="navbar-nav navbar-dropdown">
 							<li role="presentation" class="dropdown">
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
@@ -137,13 +137,13 @@
 							</li>
 						</ul>
 					</div>
-					<div class="d-flex gap-3">
-						<ul class="navbar-nav navbar-dropdown user-menu" style="flex-direction: row; align-items: baseline">
+					<div class="d-flex gap-2">
+						<ul class="navbar-nav navbar-dropdown user-menu flex-row align-items-center">
 							<li class="nav-item dropdown">
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false"
 									data-bs-toggle="dropdown" data-bs-display="static" aria-label="Theme">
 									<i id="theme-switcher-icon" class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
-									<span class="d-none d-lg-block ms-1" id="bd-theme-text">Theme</span>
+									<span class="d-none d-md-block ms-1" id="bd-theme-text">{% translate "THEME" %}</span>
 								</a>
 								<ul class="dropdown-menu dropdown-menu-end" style="position: absolute; right: 0; left: auto" aria-labelledby="bd-theme-text">
 									<li>
@@ -191,7 +191,7 @@
 								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									<i class="bi-person-fill" aria-hidden="true" data-testid="user-menu"></i>
-									<span class="d-none d-lg-inline ms-1">{{ user.first_name }} {{ user.last_name }}</span>
+									<span class="d-none d-md-inline ms-1">{{ user.first_name }} {{ user.last_name }}</span>
 								</a>
 								<ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
 									<li role="presentation">
@@ -208,14 +208,14 @@
 							</li>
 							{% else %}
 							<li class="nav-item" role="presentation">
-								<a class="nav-link" href="{% url 'login' %}{% login_next %}">
+								<a class="nav-link btn btn-link d-flex" href="{% url 'login' %}{% login_next %}">
 									<i class="bi-box-arrow-in-right" aria-hidden="true"></i>
-									{% translate "LOG_IN"%}
+									<span class="d-none d-md-block ms-1">{% translate "LOG_IN"%}</span>
 								</a>
 							</li>
 							{% endif %}
 						</ul>
-						<button type="button" class="navbar-toggler collapsed d-block d-md-none text-bg-primary" data-bs-toggle="offcanvas"
+						<button type="button" class="navbar-toggler collapsed d-block d-md-none border-0" data-bs-toggle="offcanvas"
 							data-bs-target="#bs-navbar-collapse" aria-expanded="false">
 							<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
 							<i class="bi-list" aria-hidden="true"></i>

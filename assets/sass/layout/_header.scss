@@ -22,8 +22,8 @@
 
 	.navbar-brand,
 	.navbar-dropdown > a,
+	.navbar-toggler,
 	.navbar-nav > li > a,
-	.navbar-toggle,
 	.navbar-nav > .active > a,
 	.navbar-nav > .active > a:hover {
 		@include focus-with-background-and-color;
@@ -57,6 +57,7 @@
 
 	a.navbar-brand:hover,
 	a.navbar-dropdown > a:hover,
+	.navbar-toggler:hover,
 	.navbar-nav > li > a:hover,
 	.navbar-nav > .open > a,
 	.navbar-nav > .open > a:focus,
@@ -147,7 +148,7 @@
 
 		@media (max-width: $screen-xs-max) {
 			li.dropdown > a.dropdown-toggle {
-				max-width: 55vw;
+				max-width: 45vw;
 			}
 
 			li.open > ul.dropdown-menu {

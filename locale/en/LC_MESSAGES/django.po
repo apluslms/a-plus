@@ -948,10 +948,10 @@ msgstr "Begin by enrolling in a course."
 msgid "SKIP_COURSE_NAVIGATION"
 msgstr "Skip course navigation"
 
-#: course/templates/course/_course_menu.html news/models.py
-#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
-msgid "LANGUAGE"
-msgstr "Language"
+#: course/templates/course/_course_menu.html
+#: edit_course/templates/edit_course/edit_course_base.html
+msgid "COURSE"
+msgstr "Course"
 
 #: course/templates/course/_course_menu.html
 msgid "CHANGE_LANGUAGE"
@@ -960,11 +960,6 @@ msgstr "Change language"
 #: course/templates/course/_course_menu.html
 msgid "MINIMISE_SIDEBAR"
 msgstr "Minimise sidebar"
-
-#: course/templates/course/_course_menu.html
-#: edit_course/templates/edit_course/edit_course_base.html
-msgid "COURSE"
-msgstr "Course"
 
 #: course/templates/course/_course_menu.html
 #: course/templates/course/_siblings.html exercise/templates/exercise/toc.html
@@ -1805,6 +1800,13 @@ msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
 msgstr "max submissions rule deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "REMOVE_SELECTED_DEVIATIONS"
+msgstr "Remove selected deviations"
+
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_duplicate_submission_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_late_submission_approval_modal.html
@@ -1814,12 +1816,6 @@ msgstr "max submissions rule deviations"
 #: templates/base.html
 msgid "CLOSE"
 msgstr "Close"
-
-#: deviations/templates/deviations/_remove_modal.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
-msgid "REMOVE_SELECTED_DEVIATIONS"
-msgstr "Remove selected deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
 msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
@@ -4249,7 +4245,9 @@ msgstr "This assignment has no template."
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
 msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
-msgstr "Submitters: %(number)s <small class='text-body-secondary'>%(percentage)s%%</small>"
+msgstr ""
+"Submitters: %(number)s <small class='text-body-secondary'>%(percentage)s%%</"
+"small>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -4280,6 +4278,21 @@ msgstr "Automatic scrolling"
 msgid "AUTO_SCROLL_BEHAVIOR_INSTANT"
 msgstr "Instant scrolling"
 
+#: exercise/templates/exercise/_user_results.html templates/base.html
+msgid "HIDDEN_capitalized"
+msgstr "Hidden"
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
+msgid "REQUIRES"
+msgstr "Requires"
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/_user_toc.html
+msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
+msgstr "Assignments with personal deadline extensions"
+
 #: exercise/templates/exercise/_user_results.html
 msgid "OPENS ON"
 msgstr "Opens on"
@@ -4291,21 +4304,6 @@ msgstr "Exercises open on"
 #: exercise/templates/exercise/_user_results.html
 msgid "OPEN_FOR_READING"
 msgstr "Open for reading"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/_user_toc.html
-msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
-msgstr "Assignments with personal deadline extensions"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/_user_toc.html
-#: lti_tool/templates/lti_tool/lti_course.html
-msgid "REQUIRES"
-msgstr "Requires"
-
-#: exercise/templates/exercise/_user_results.html templates/base.html
-msgid "HIDDEN_capitalized"
-msgstr "Hidden"
 
 #: exercise/templates/exercise/_user_results.html
 #, python-format
@@ -4402,6 +4400,14 @@ msgstr ""
 "technology users)"
 
 #: exercise/templates/exercise/exercise_plain.html
+msgid "SHOW_MODEL_ANSWER"
+msgstr "Show model answer"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "SHOW_EXERCISE_TEMPLATE"
+msgstr "Show assignment template"
+
+#: exercise/templates/exercise/exercise_plain.html
 #, python-format
 msgid "PENALTY_AFTER -- %(penalty)s, %(deadline)s"
 msgstr "-%(penalty)s%% penalty after %(deadline)s"
@@ -4429,14 +4435,6 @@ msgstr "To be submitted in groups of %(size)s"
 #, python-format
 msgid "TO_BE_SUBMITTED_GROUPS -- %(min)s, %(max)s"
 msgstr "To be submitted in groups of %(min)s-%(max)s"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "SHOW_MODEL_ANSWER"
-msgstr "Show model answer"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "SHOW_EXERCISE_TEMPLATE"
-msgstr "Show assignment template"
 
 #: exercise/templates/exercise/exercise_plain.html
 #: exercise/templates/exercise/submission.html
@@ -5005,9 +5003,8 @@ msgstr ""
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
 "<span data-bs-toggle=\"tooltip\" title=\"Personal extended deadlines: "
-"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></"
-"span><span class=\"visually-hidden\">Personal extended deadlines: {count}</span></"
-"span>"
+"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></span><span "
+"class=\"visually-hidden\">Personal extended deadlines: {count}</span></span>"
 
 #: exercise/templatetags/exercise.py
 msgid "LATEST_SUBMISSIONS"
@@ -5305,7 +5302,8 @@ msgstr "badge for the menu link (else service default)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Menu icon style name (else service default), e.g. star see https://icons.getbootstrap.com/"
+"Menu icon style name (else service default), e.g. star see https://icons."
+"getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5655,6 +5653,11 @@ msgstr "Send email to course staff"
 msgid "LABEL_PUBLISH"
 msgstr "publish"
 
+#: news/models.py news/templates/news/list.html
+#: userprofile/templates/userprofile/profile.html
+msgid "LANGUAGE"
+msgstr "Language"
+
 #: news/models.py
 msgid "LABEL_PIN"
 msgstr "pin"
@@ -5846,8 +5849,8 @@ msgid "SELECT_COURSE"
 msgstr "Select course"
 
 #: templates/base.html
-msgid "TOGGLE_NAVIGATION"
-msgstr "Toggle navigation"
+msgid "THEME"
+msgstr "Theme"
 
 #: templates/base.html
 msgid "CHANGE_LANGUAGE_TO_ENGLISH"
@@ -5870,16 +5873,8 @@ msgid "LOG_IN"
 msgstr "Log in"
 
 #: templates/base.html
-msgid "NOTIFICATION"
-msgstr "Notification"
-
-#: templates/base.html
-msgid "SITE"
-msgstr "Site"
-
-#: templates/base.html
-msgid "HOME"
-msgstr "Home"
+msgid "TOGGLE_NAVIGATION"
+msgstr "Toggle navigation"
 
 #: templates/base.html userprofile/templates/userprofile/privacy.html
 msgid "PRIVACY_NOTICE"
