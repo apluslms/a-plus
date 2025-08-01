@@ -309,7 +309,11 @@ file for all the components */
   opacity: 0.6;
 }
 td.submissions-dropdown {
-  text-align:center;
+    text-align:center;
+}
+  
+td.submissions-dropdown .btn {
+    padding: 0px;
 }
 
 /* exercise wells */
