@@ -5,40 +5,46 @@
 {% brand_name_long as brand_long %}
 {% brand_institution_name as institution %}
 
-<section class="frontpage frontpage-section" aria-label="{% translate "SUPPORT" %}">
-	<div class="cards">
-		<section class="widecard frontpage" aria-label="{% translate "TEACHERS" %}">
-			<div class="card-body">
-				<h2>{% translate "TEACHERS" %}</h2>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://plus.cs.aalto.fi/aplus-manual/master/">
-						{% blocktranslate trimmed %}
-							MANUAL -- {{ brand_long }}
-						{% endblocktranslate %}
-					</a>
-					{% translate "MANUAL_DESCRIPTION" %}
-				</p>
-				<p class="card-text">
-					{% translate "CONTACT_SUPPORT_BY_EMAIL" %}
-					<a rel="noopener" href="mailto:aplusguru@cs.aalto.fi" style="display: inline;">
-						aplusguru@cs.aalto.fi
-					</a>
-				</p>
-				<p class="card-text">
-					<a target="_blank" rel="noopener" href="https://link.webropol.com/s/aplus-feedback">
-						{% translate "GIVE_FEEDBACK" %}
-					</a>
-				</p>
+<section aria-label="{% translate "SUPPORT" %}">
+	<div class="container mb-2">
+		<div class="row">
+			<div class="col">
+				<div class="card bg-secondary-subtle" aria-label="{% translate "TEACHERS" %}">
+					<div class="card-body">
+						<h4 class="card-title">{% translate "TEACHERS" %}</h4>
+						<p class="card-text">
+							<a target="_blank" rel="noopener" href="https://plus.cs.aalto.fi/aplus-manual/master/">
+								{% blocktranslate trimmed %}
+									MANUAL -- {{ brand_long }}
+								{% endblocktranslate %}
+							</a>
+							{% translate "MANUAL_DESCRIPTION" %}
+						</p>
+						<p class="card-text">
+							{% translate "CONTACT_SUPPORT_BY_EMAIL" %}
+							<a rel="noopener" href="mailto:aplusguru@cs.aalto.fi" style="display: inline;">
+								aplusguru@cs.aalto.fi
+							</a>
+						</p>
+						<p class="card-text">
+							<a target="_blank" rel="noopener" href="https://link.webropol.com/s/aplus-feedback">
+								{% translate "GIVE_FEEDBACK" %}
+							</a>
+						</p>
+					</div>
+				</div>
 			</div>
-		</section>
-		<section class="widecard frontpage" aria-label="{% translate "STUDENTS" %}">
-			<div class="card-body">
-				<h2>{% translate "STUDENTS" %}</h2>
-				<p class="card-text">
-					{% translate "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS" %}
-				</p>
+			<div class="col">
+				<div class="card bg-secondary-subtle" aria-label="{% translate "STUDENTS" %}">
+					<div class="card-body">
+						<h4 class="card-title">{% translate "STUDENTS" %}</h4>
+						<p class="card-text">
+							{% translate "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS" %}
+						</p>
+					</div>
+				</div>
 			</div>
-		</section>
+		</div>
 	</div>
 </section>
 

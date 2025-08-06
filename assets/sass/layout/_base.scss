@@ -2,7 +2,6 @@
 html,
 body {
 	height: 100%;
-	padding-top: 30px; /* TODO: Find out what causes extra margin on top */
 }
 .page-wrap {
 	min-height: 100%;
@@ -10,6 +9,7 @@ body {
 }
 .site-content {
 	padding-bottom: 70px;
+	padding-top: 60px;
 	@media (max-width: $grid-float-breakpoint-max) {
 		padding-bottom: 250px;
 	}
