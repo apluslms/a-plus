@@ -30,7 +30,8 @@
 #bs-navbar-collapse.minimised
 {
 	width: 44px;
-	overflow-x: hidden;
+	overflow: visible;
+	pointer-events: auto;
 	.course-menu-label {
 		display: none;
 	}

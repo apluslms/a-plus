@@ -140,16 +140,16 @@ iframe {
 
 .skip-link:focus {
 	@include focus-with-background-and-color;
-    position: static;
-    width: 100%;
+    position: absolute;
+    z-index: 2000;
+    width: auto;
     min-height: 50px;
     height: auto;
-    margin: inherit;
     overflow: visible;
     clip: auto;
     padding: 15px;
     display: flex;
-    justify-content: center;
+    justify-content: left;
 }
 
 .page-skip-link:focus {

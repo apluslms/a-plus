@@ -215,11 +215,13 @@
 							</li>
 							{% endif %}
 						</ul>
-						<button type="button" class="navbar-toggler collapsed d-block d-md-none border-0" data-bs-toggle="offcanvas"
-							data-bs-target="#bs-navbar-collapse" aria-expanded="false">
-							<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
-							<i class="bi-list" aria-hidden="true"></i>
-						</button>
+						{% if course %}
+							<button type="button" class="navbar-toggler collapsed d-block d-md-none border-0" data-bs-toggle="offcanvas"
+								data-bs-target="#bs-navbar-collapse" aria-expanded="false">
+								<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
+								<i class="bi-list" aria-hidden="true"></i>
+							</button>
+						{% endif %}
 					</div>
 				</div>
 			</nav>

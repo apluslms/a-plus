@@ -182,6 +182,14 @@ $(function () {
     const targetSelector = $(this).data('bs-target');
     $(targetSelector).toggleClass('d-none');
   });
+
+  // Always set sidebar as expanded when opening the mobile menu
+  const offcanvasSidebar = document.getElementById('bs-navbar-collapse')
+  if (offcanvasSidebar) {
+    offcanvasSidebar.addEventListener('show.bs.offcanvas', event => {
+      setSidebarState(false);
+    })
+  }
 });
 
 /**
