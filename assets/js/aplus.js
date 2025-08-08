@@ -155,12 +155,6 @@ $(function () {
     link.setAttribute('rel', linkTypes.join(' ').trim());
   }
 
-  function addExternalLinkIcon(link) {
-    if (!link.querySelector('.icon')) {
-      link.insertAdjacentHTML('beforeend', `<span class="bi-box-arrow-up-right" aria-hidden="true"></span>`);
-    }
-  }
-
   function addScreenReaderMessage(link, message) {
     if (!link.querySelector('.visually-hidden')) {
       link.insertAdjacentHTML('beforeend', `<span class="visually-hidden"> (${message})</span>`);
@@ -169,7 +163,7 @@ $(function () {
   $(document).on("aplus:translation-ready", function () {
     document.querySelectorAll('a[target="_blank"]').forEach(link => {
       addLinkType(link, 'noopener');
-      addExternalLinkIcon(link);
+      link.insertAdjacentHTML('beforeend', `<span class="bi-box-arrow-up-right new-tab-link" aria-hidden="true"></span>`);
       addScreenReaderMessage(link, _('opens in a new tab'));
     });
   });

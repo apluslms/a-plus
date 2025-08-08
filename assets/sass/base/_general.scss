@@ -75,6 +75,13 @@ h1, .h1, h2, .h2, h3, .h3 {
 	}
 }
 
+// Make open to new tab icons stand out more from regular icons
+.new-tab-link {
+	font-size: 0.8rem;
+	vertical-align: super;
+	padding-left: 3px;
+}
+
 // Django-colortag has hardcoded "label" class, but it's no longer present in BS5
 .colortag.label {
 	@extend .badge;
