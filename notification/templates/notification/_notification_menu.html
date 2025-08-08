@@ -1,15 +1,14 @@
 {% load course %}
 {% if count > 0 %}
-<li role="presentation" class="menu-notification dropdown" id="notification-alert">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-    <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-    <span class="badge badge-danger">{{ count }}</span> {{ unread_message }}
-    <span class="caret" aria-hidden="true"></span>
+<li role="presentation" class="menu-notification nav-item dropdown" id="notification-alert" style="list-style: none">
+  <a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+    <i class="bi-envelope" aria-hidden="true"></i>
+    <span class="badge text-bg-danger">{{ count }}</span> <span class="d-none d-xl-inline">{{ unread_message }}</span>
   </a>
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
     {% for entry in notifications %}
     <li>
-      <a href="{{ entry.link }}" class="page-modal">
+      <a href="{{ entry.link }}" class="dropdown-item page-modal">
         {{ entry.name|parse_localization }}
       </a>
     </li>

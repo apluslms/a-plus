@@ -1,8 +1,8 @@
 {% if messages %}
-	<div class="site-messages">
+	<div class="site-messages" style="display: flex; justify-content: center;">
 		{% for message in messages %}
-			<div class="alert alert-{% if message.level == 10 %}success{% elif message.level == 40 %}danger{% else %}{{ message.tags }}{% endif %} clearfix site-message" role="alert">
-				<span class="glyphicon glyphicon-{% if message.level == 25 %}check{% else %}warning-sign{% endif %}" aria-hidden="true"></span>
+			<div class="alert alert-{% if message.level == 10 %}success{% elif message.level == 40 %}danger{% else %}{{ message.tags }}{% endif %} clearfix d-flex site-message" role="alert">
+				<i class="bi-{% if message.level == 25 %}check{% else %}exclamation-triangle-fill{% endif %}" aria-hidden="true"></i>
 				<div class="message">{{ message|safe }}</div>
 			</div>
 		{% endfor %}

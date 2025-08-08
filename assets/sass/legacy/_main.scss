@@ -4,18 +4,32 @@
 .site-message {
   position: relative;
 }
-.site-message .glyphicon {
+.site-message .icon {
   position: absolute;
   top: 19px;
 }
 .site-message .message {
   margin-left: 27px;
 }
-.glyphicon, .label {
+.label, .icon {
     margin-right: 0.2em;
+}
+.icon {
+    margin-left: 5px;
 }
 dl > dt {
     margin-top: 0.5em;
+}
+.dl-horizontal dt {
+    float: left;
+    clear: left;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 0;
+    margin-right: 0.5em;
+    width: 150px;
 }
 iframe {
     border: none;
@@ -26,7 +40,7 @@ iframe {
 .unread {
     font-weight: bold;
 }
-.panel-title .pull-right {
+.panel-title .float-end {
     margin-left: 0.5em;
 }
 .nav .navbar-btn {
@@ -79,7 +93,7 @@ iframe {
 }
 
 /* Menu groups */
-.navbar-nav > li.menu-groups {
+/*.navbar-nav > li.menu-groups {
 	> a.dropdown-toggle {
 		background: rgba(255, 0, 0, 0.3);
 		&:hover {
@@ -91,7 +105,7 @@ iframe {
 			background: rgba(255, 0, 0, 0.4);
 		}
 	}
-}
+}*/ // TODO: CHECK FOR REMOVAL #1442
 
 /* dropdown menu */
 .dropdown-menu > li button {
@@ -102,14 +116,14 @@ iframe {
 	clear: both;
 	font-weight: 400;
 	line-height: 1.42857143;
-	color: #333;
+	/*color: #333;*/
 	white-space: nowrap;
 	text-align: left;
 	width: 100%;
 
-	&:hover {
+	/*&:hover {
 		background: #eee;
-	}
+	}*/
 }
 
 /* Skip links */
@@ -126,14 +140,16 @@ iframe {
 
 .skip-link:focus {
 	@include focus-with-background-and-color;
-    position: static;
-    width: 100%;
+    position: absolute;
+    z-index: 2000;
+    width: auto;
     min-height: 50px;
     height: auto;
-    margin: inherit;
     overflow: visible;
     clip: auto;
     padding: 15px;
+    display: flex;
+    justify-content: left;
 }
 
 .page-skip-link:focus {
@@ -144,22 +160,55 @@ iframe {
 /* menus */
 .course-menu .nav>li>a {
 	@include focus-with-background-and-color;
-    padding: 2px 2px 2px 5px;
+    padding: 2px 6px;
 }
-#main-course-menu.fixed {
-    position: fixed;
-    top: 20px;
-    bottom: 50px;
-    max-height: 100%;
-    overflow: auto;
+/* Make sidebar expand/collapse buttons keyboard-focusable */
+.course-menu .aplus-button--secondary, #bs-navbar-collapse .aplus-button--secondary {
+	@include focus-with-background-and-color;
+}
+@media (min-width: 768px) {
+    #bs-navbar-collapse {
+        display: block;
+        position: fixed;
+        top: 60px;
+        bottom: 50px;
+        max-height: 100%;
+        width: 16vw;
+        max-width: 16vw;
+        overflow: auto;
+        .minimised {
+            width: 44px;
+            margin-left: -10px;
+        }
+        a.nav-link {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+}
+#bs-navbar-collapse.minimised a.nav-link {
+    text-overflow: clip;
 }
 .course-menu .advert-thumbnail {
     margin-top: 4em;
-    background-color: #d9edf7;
-    border-color: #bce8f1;
+    background-color: var(--bs-info-bg-subtle, #d9edf7);
+    border-color: var(--bs-info-border-subtle, #bce8f1);
+    border-radius: var(--bs-alert-border-radius, 6px);
+    border: var(--bs-alert-border, 1px solid var(--bs-info-border-subtle, $gray-500));
+    padding: 0.5em;
 }
+/*[data-bs-theme="dark"] {
+    .course-menu .advert-thumbnail {
+        background-color: var(--bs-info-bg-subtle, black);
+        border-color: var(--bs-info-border-subtle, #333);
+    }
+}*/ // TODO: CHECK FOR REMOVAL #1442
 .course-menu .advert-thumbnail h4 {
     margin-top: 0;
+}
+.course-menu .nav>li {
+    max-width: 100%;
 }
 .siblings>.btn {
     max-width: 50%;
@@ -170,13 +219,17 @@ iframe {
     max-width: 50%;
     text-overflow: ellipsis;
 }
-@media (min-width: 768px) {
-    .col-sm-2 .nav a {
+/* TODO: This should be moved from main to a proper place */
+.exercise-nav {
+    align-items: center;
+}
+/*@media (min-width: 768px) {
+    .col-md-2 .nav a {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
-}
+}*/ // TODO: CHECK FOR REMOVAL #1442
 .toc li {
     list-style: none;
 }
@@ -184,10 +237,15 @@ iframe {
 	@include focus-with-background-and-color;
 }
 @media (min-width: 768px) {
-	#course-content.sidebar-collapsed {
-		width: 100%;
-		padding-left: 40px;
+	#course-content {
+        padding-left: 16%;
+        &.sidebar-collapsed {
+            padding-left: 48px;
+        }
 	}
+}
+#main-course-menu li.header {
+    padding-top: 0.5rem;
 }
 
 /* panels */
@@ -237,26 +295,31 @@ file for all the components */
     height: 100%;
     border-left: 2px solid black;
 }
-.glyphicon.red {
+.icon.red {
   color: #ff7070;
 }
-.panel-primary>.panel-heading .badge-danger,
+/*.panel-primary>.panel-heading .badge-danger,
 .panel-primary>.panel-heading .badge-warning,
 .panel-primary>.panel-heading .badge-info,
 .panel-primary>.panel-heading .badge-success {
     border: 1px solid #fff;
     padding: 2px 6px;
-}
+}*/ // TODO: CHECK FOR REMOVAL #1442
 .unconfirmed-points {
   opacity: 0.6;
 }
 td.submissions-dropdown {
-  text-align:center;
+    text-align:center;
+}
+  
+td.submissions-dropdown .btn {
+    padding: 0px;
 }
 
 /* exercise wells */
 [data-aplus-exercise] {
-    border: 1px solid #bce8f1;/*grey #e3e3e3;*/
+    /*border: 1px solid #bce8f1;/*grey #e3e3e3;*/
+    border: 1px solid var(--bs-border-color-translucent, #e3e3e3);
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
     box-shadow: 0 1px 1px rgba(0,0,0,.05);
@@ -278,8 +341,11 @@ td.submissions-dropdown {
 .exercise-summary .navbar-nav {
 	margin: 0;
 }
+.exercise-summary.navbar {
+    padding: 0 1em;
+}
 .exercise-summary .navbar-nav .navbar-text {
-    margin: 10px 15px 10px 15px;
+    /*margin: 10px 15px 10px 15px;*/ // TODO: CHECK FOR REMOVAL #1442
 }
 .exercise-summary .navbar-nav .navbar-text ul {
 	list-style: none;
@@ -292,6 +358,8 @@ collapsed due to narrow viewport) */
 		align-items: stretch;
 		display: flex;
 		flex-wrap: wrap;
+        flex-direction: row;
+        gap: 1em;
 	}
 	.exercise-summary .navbar-nav>li {
 		display: flex;
@@ -326,7 +394,7 @@ collapsed due to narrow viewport) */
     text-decoration: underline;
 }
 .exercise-response {
-  padding: 0 1em;
+  padding: 1em 1em 0 1em;
 }
 [data-aplus-no-summary] .exercise-summary {
     display: none;
@@ -339,4 +407,9 @@ collapsed due to narrow viewport) */
 
 table.results-table .category-row {
     font-weight: bold;
+}
+
+div.rst-tabs div.html-box {
+	padding: 1em;
+    border: 1px solid var(--bs-border-color, #dee2e6);
 }

@@ -7,9 +7,10 @@
 // It's preferable to use component-specific focus styles where
 // possible, and they should be mixed into all new components.
 
-.js-focus-visible a,
-.js-focus-visible input,
-.js-focus-visible select,
-.js-focus-visible div {
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+div:focus-visible {
 	@include focus-with-outline-only;
 }

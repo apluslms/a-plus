@@ -1,8 +1,0 @@
-// The following classes are used in assets/js/aplus.js. Therefore, you must
-// change the name of the classes in both files.
-@use '../components/icons';
-
-i.icon.glyphicon.glyphicon-new-window {
-	@include icons.glyphicon;
-	margin-left: 5px;
-}

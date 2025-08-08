@@ -1,19 +1,18 @@
 /**
  * Autosave functionality for exercises.
  */
- (function($, window) {
+(function(window) {
   "use strict";
 
   const pluginName = "aplusAutoSave";
-  var defaults = {
+  const defaults = {
     autoSaveIndicatorClasses: "small",
     autoSaveInterval: 10000, // ms
   };
 
   function AplusAutoSave(element, options) {
     this.dom_element = element;
-    this.element = $(element);
-    this.settings = $.extend({}, defaults, options);
+    this.settings = Object.assign({}, defaults, options);
     this.autoSaveTimeoutHandle = null;
     this.autoSaveRequest = null;
     this.autoSaveUrl = null;
@@ -21,33 +20,33 @@
     this.init();
   }
 
-  $.extend(AplusAutoSave.prototype, {
+  AplusAutoSave.prototype = {
     /**
      * Initializes the autosave functionality for this form.
      */
     init: function() {
       const self = this;
 
-      const submitUrl = new URL(self.element.attr("action"), window.location);
+      const submitUrl = new URL(self.dom_element.getAttribute("action"), window.location);
       self.autoSaveUrl = new URL("draft/", submitUrl).href;
 
-      self.autoSaveIndicator = $("<div></div>")
-        .addClass(self.settings.autoSaveIndicatorClasses)
-        .appendTo(self.element);
+      self.autoSaveIndicator = document.createElement("div");
+      self.autoSaveIndicator.className = self.settings.autoSaveIndicatorClasses;
+      self.dom_element.appendChild(self.autoSaveIndicator);
 
-      const timestamp = self.element.data("draft-timestamp");
+      const timestamp = self.dom_element.dataset.draftTimestamp;
       if (timestamp) {
         self.setIndicatorSaveDate(new Date(timestamp));
       }
 
-      self.element.on("input", function() {
+      self.dom_element.addEventListener("input", function() {
         self.scheduleAutoSave();
       });
-      self.element.on("submit", function() {
+      self.dom_element.addEventListener("submit", function() {
         // Cancel the autosave (if it was scheduled) when an actual submission
         // is made.
         clearTimeout(self.autoSaveTimeoutHandle);
-        self.autoSaveIndicator.text("");
+        self.autoSaveIndicator.textContent = "";
       });
     },
 
@@ -72,7 +71,7 @@
       // If a save HTTP request is currently active, wait until it's done
       // before scheduling the next save.
       if (self.autoSaveRequest) {
-        self.autoSaveRequest.always(scheduleAutoSaveInternal);
+        self.autoSaveRequest.finally(scheduleAutoSaveInternal);
       } else {
         scheduleAutoSaveInternal();
       }
@@ -84,19 +83,19 @@
      */
     doAutoSave: function() {
       const self = this;
-      self.autoSaveIndicator.text(_("Saving draft..."));
+      self.autoSaveIndicator.textContent = "Saving draft...";
 
-      self.autoSaveRequest = $.ajax({
-        url: self.autoSaveUrl,
-        type: "POST",
-        data: new FormData(self.dom_element),
-        contentType: false,
-        processData: false,
-      }).fail(function() {
-        self.autoSaveIndicator.text(_("Failed to save draft"));
-      }).done(function() {
+      self.autoSaveRequest = fetch(self.autoSaveUrl, {
+        method: "POST",
+        body: new FormData(self.dom_element),
+      }).then(function(response) {
+        if (!response.ok) {
+          throw new Error("Failed to save draft");
+        }
         self.setIndicatorSaveDate(new Date());
-      }).always(function() {
+      }).catch(function() {
+        self.autoSaveIndicator.textContent = "Failed to save draft";
+      }).finally(function() {
         // Allow new autosave requests.
         self.autoSaveRequest = null;
       });
@@ -117,15 +116,13 @@
         language = "en-GB";
       }
       const dateString = date.toLocaleString(language);
-      this.autoSaveIndicator.text(_("Draft saved") + " " + dateString);
+      this.autoSaveIndicator.textContent = "Draft saved " + dateString;
     },
-  });
-
-  $.fn[pluginName] = function(options) {
-    return this.each(function() {
-      if (!$.data(this, "plugin_" + pluginName)) {
-        $.data(this, "plugin_" + pluginName, new AplusAutoSave(this, options));
-      }
-    });
   };
-})(jQuery, window);
+
+  window[pluginName] = function(element, options) {
+    if (!element[pluginName]) {
+      element[pluginName] = new AplusAutoSave(element, options);
+    }
+  };
+})(window);

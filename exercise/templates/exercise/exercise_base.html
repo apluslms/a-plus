@@ -38,44 +38,43 @@
 
 {% block columns %}
 <div class="{% if exercise.use_wide_column %}col-lg-12{% else %}col-lg-9{% endif %} exercise-column">
-
 	{% if exercise.is_submittable %}
-	<ul class="nav nav-tabs">
-			<li class="menu-exercise">
-					<a href="{{ exercise|url:exercise_url_name }}">
-							{% translate "EXERCISE_DESCRIPTION" %}
-					</a>
+	<nav>
+		<ul class="nav nav-tabs">
+			<li class="menu-exercise nav-item">
+				<a class="nav-link" href="{{ exercise|url:exercise_url_name }}">
+					{% translate "EXERCISE_DESCRIPTION" %}
+				</a>
 			</li>
-			<li class="dropdown menu-submission">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button"
-							aria-haspopup="true" aria-expanded="false">
-							{% translate "MY_SUBMISSIONS" %}
-							({{ summary.submission_count }}{% if exercise.max_submissions %}/{{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}{% endif %})
-							<span class="caret"></span>
-					</a>
-					<ul class="dropdown-menu">
-							{% for submission in submissions %}
-							<li>
-									<a href="{{ submission|url:submission_url_name }}" data-hash="{{ submission.hash }}">
-											{{ forloop.revcounter }}.
-											{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
-											{% points_badge submission %}
-									</a>
-							</li>
-							{% empty %}
-							<li>
-									<a href="#">{% translate "NO_SUBMISSIONS_YET" %}</a>
-							</li>
-							{% endfor %}
-					</ul>
+			<li class="nav-item dropdown menu-submission">
+				<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button"
+					aria-haspopup="true" aria-expanded="false">
+					{% translate "MY_SUBMISSIONS" %}
+					({{ summary.submission_count }}{% if exercise.max_submissions %}/{{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}{% endif %})
+				</a>
+				<ul class="dropdown-menu">
+					{% for submission in submissions %}
+					<li>
+						<a class="dropdown-item" href="{{ submission|url:submission_url_name }}" data-hash="{{ submission.hash }}">
+							{{ forloop.revcounter }}.
+							{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
+							{% points_badge submission %}
+						</a>
+					</li>
+					{% empty %}
+					<li>
+						<a class="dropdown-item" href="#">{% translate "NO_SUBMISSIONS_YET" %}</a>
+					</li>
+					{% endfor %}
+				</ul>
 			</li>
 			{% if is_course_staff or is_student and model_revealed %}
 			{% comment %} The model solution link is shown even if the student can not
 			open it due to personal extensions. However, this saves some database queries.
 			{% endcomment %}
 			{% if exercise.model_answers %}
-			<li class="menu-model">
-				<a href="{{ exercise|url:'exercise-model' }}">
+			<li class="menu-model nav-item">
+				<a class="nav-link" href="{{ exercise|url:'exercise-model' }}">
 					{% translate "MODEL_ANSWER" %}
 				</a>
 			</li>
@@ -83,8 +82,8 @@
 			{% endif %}
 			{% if is_course_staff or is_student %}
 				{% if exercise.templates %}
-					<li class="menu-template">
-						<a href="{{ exercise|url:'exercise-template' }}">
+					<li class="menu-template nav-item">
+						<a class="nav-link" href="{{ exercise|url:'exercise-template' }}">
 							{% translate "EXERCISE_TEMPLATE" %}
 						</a>
 					</li>
@@ -92,31 +91,32 @@
 			{% endif %}
 			{% if is_course_staff %}
 			<li>
-					<p class="navbar-text navbar-btn">
-							{% if submission and not disable_staff_nav %}
-							<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-									<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
-									{% translate "INSPECT_SUBMISSION" %}
-							</a>
-							{% elif is_teacher and not disable_staff_nav %}
-							{% load editcourse %}
-							<a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-									{% translate "EDIT_EXERCISE" %}
-							</a>
-							{% endif %}
-							{% if not disable_staff_nav %}
-								{% if is_teacher or exercise.allow_assistant_viewing %}
-								<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
-										<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-										{% translate "VIEW_ALL_SUBMISSIONS" %}
-								</a>
-								{% endif %}
-							{% endif %}
-					</p>
+				<p class="navbar-text navbar-btn my-0 mx-1">
+					{% if submission and not disable_staff_nav %}
+					<a href="{{ submission|url:'submission-inspect' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+						<i class="bi-zoom-in" aria-hidden="true"></i>
+						{% translate "INSPECT_SUBMISSION" %}
+					</a>
+					{% elif is_teacher and not disable_staff_nav %}
+					{% load editcourse %}
+					<a href="{{ exercise|editurl:'exercise' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+						<i class="bi-pencil-square" aria-hidden="true"></i>
+						{% translate "EDIT_EXERCISE" %}
+					</a>
+					{% endif %}
+					{% if not disable_staff_nav %}
+						{% if is_teacher or exercise.allow_assistant_viewing %}
+						<a href="{{ exercise|url:'submission-list' }}" role="button" class="aplus-button--secondary aplus-button--xs">
+							<i class="bi-list" aria-hidden="true"></i>
+							{% translate "VIEW_ALL_SUBMISSIONS" %}
+						</a>
+						{% endif %}
+					{% endif %}
+				</p>
 			</li>
 			{% endif %}
-	</ul>
+		</ul>
+	</nav>
 	{% endif %}
 
 	{% block exercisecontent %}{% endblock %}
