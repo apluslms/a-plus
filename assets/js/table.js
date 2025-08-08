@@ -69,7 +69,7 @@ $(function() {
       const dataDefaultSortOrder = self.element.data('default-sort-order');
       if (dataDefaultSortColumn && dataDefaultSortOrder) {
         const defaultColumnHeader = self.element.find('thead > tr > th').eq(dataDefaultSortColumn);
-        const orderMarker = $('<span class="order-marker gi-caret-down-fill" aria-hidden="true"></span>');
+        const orderMarker = $('<span class="order-marker bi-caret-down-fill" aria-hidden="true"></span>');
         defaultColumnHeader.append(orderMarker);
         self.orderTable(dataDefaultSortColumn, dataDefaultSortOrder === 'desc' ? true : false);
       }
@@ -95,12 +95,12 @@ $(function() {
         event.preventDefault();
         const isDescending = $(this).hasClass('desc');
         self.element.find('thead > tr > th > a > .order-marker').remove();
-        const orderMarker = $('<span class="order-marker gi-caret-up-fill" aria-hidden="true"></span>');
+        const orderMarker = $('<span class="order-marker bi-caret-up-fill" aria-hidden="true"></span>');
         if (isDescending) {
           $(this).removeClass('desc');
         } else {
           $(this).addClass('desc');
-          orderMarker.removeClass('gi-caret-up-fill').addClass('gi-caret-down-fill');
+          orderMarker.removeClass('bi-caret-up-fill').addClass('bi-caret-down-fill');
         }
         $(this).append(orderMarker);
         self.orderTable($(this).data('column'), !isDescending);

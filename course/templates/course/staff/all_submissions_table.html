@@ -92,16 +92,16 @@
         </td>
         <td>
           {% if summary.submission.grader %}
-            <span class="gi-check"></span>
+            <span class="bi-check"></span>
             {% translate "YES" %}
           {% else %}
-            <span class="gi-x"></span>
+            <span class="bi-x"></span>
             {% translate "NO" %}
           {% endif %}
         </td>
         <td>
           <a href="{{ summary.submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--xs">
-            <span class="gi-zoom-in" aria-hidden="true"></span>
+            <span class="bi-zoom-in" aria-hidden="true"></span>
             {% translate "INSPECT" %}
           </a>
         </td>

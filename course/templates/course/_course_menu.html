@@ -108,11 +108,13 @@
 </li>
 {% for entry in group.items %}
 {% if entry.enabled %}
-<li>
+<li class="nav-item d-flex">
 	{% is_external_menu_url entry.url as is_external_menu_url_flag %}
 	<a href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
-		<span class="gi-{{ entry.icon_class }}" aria-hidden="true"></span>
+		<span class="bi-{{ entry.icon_class }}" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></span>
+		{% else %}
+		<span class="bi-link" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></span>
 		{% endif %}
 		<span class="course-menu-label">{{ entry.label|parse_localization }}</span>
 	</a>

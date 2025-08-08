@@ -157,7 +157,7 @@ $(function () {
 
   function addExternalLinkIcon(link) {
     if (!link.querySelector('.icon')) {
-      link.insertAdjacentHTML('beforeend', `<i class="icon bi-box-arrow-up-right"></i>`);
+      link.insertAdjacentHTML('beforeend', `<span class="bi-box-arrow-up-right" aria-hidden="true"></span>`);
     }
   }
 
@@ -183,7 +183,8 @@ $(function () {
     $(targetSelector).toggleClass('d-none');
   });
 
-  // Always set sidebar as expanded when opening the mobile menu
+  // Always set sidebar as expanded when opening the mobile menu to prevent
+  // rendering issues
   const offcanvasSidebar = document.getElementById('bs-navbar-collapse')
   if (offcanvasSidebar) {
     offcanvasSidebar.addEventListener('show.bs.offcanvas', event => {
