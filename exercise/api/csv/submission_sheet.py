@@ -1,3 +1,5 @@
+import json
+
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Set, Tuple
 
@@ -5,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.reverse import reverse
 
 from ...models import BaseExercise, Submission
+from course.models import SubmissionTag
 
 
 def filter_best_submissions(
@@ -41,7 +44,6 @@ def filter_best_submissions(
             filtered.append(submissions[i])
     return filtered
 
-
 def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
@@ -50,7 +52,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
     DEFAULT_FIELDS = [
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
-        'Grade', 'Penalty', 'Graded', 'GraderEmail', 'Notified', 'NSeen',
+        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen',
     ]
     sheet = []
     fields = []
@@ -88,6 +90,24 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         if not grader and t and t.startswith("\n<p>\nReviewer:"):
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
+        #extract tags from s.grading_data, validate they belong to the course
+        tags = []
+        if 'grading_data' in s.grading_data:
+            grader_grading_data = json.loads(s.grading_data['grading_data'])
+            if 'submission_tags' in grader_grading_data:
+                for tag_slug in grader_grading_data['submission_tags'].split(','):
+                    tag_slug = tag_slug.strip()
+                    if tag_slug:
+                        try:
+                            SubmissionTag.objects.get(
+                                slug=tag_slug,
+                                course_instance=s.exercise.course_module.course_instance,
+                            )
+                            tags.append(tag_slug)
+                        except SubmissionTag.DoesNotExist:
+                            pass
+
+
         n = s.notifications.first()
         row = OrderedDict([
             ('ExerciseID', exercise.id),
@@ -102,6 +122,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             ('Grade', s.grade if exercise.id in revealed_ids else 0),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
+            ('Tags', '|'.join(tags)),
             ('GraderEmail', grader),
             ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
