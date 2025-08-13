@@ -158,3 +158,14 @@
 	</form>
 </div>
 {% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'deviations/filter_deviations_by_submitter.js' %}"></script>
+<script>
+const submitterLabel = "{% trans 'SUBMITTER'|upper %}";
+$(document).on('aplusTable:rendered', '.filtered-table', function() {
+	filterBySubmitter(submitterLabel);
+});
+</script>
+{% endblock %}
