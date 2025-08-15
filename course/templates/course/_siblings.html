@@ -2,57 +2,59 @@
 {% load course %}
 {% load exercise %}
 <nav class="row siblings" aria-label="{% translate 'PAGINATION' %}">
-
-	{% if previous %}
-	{% if previous.submittable %}
-	{% exercise_accessible previous as accessible %}
-	{% else %}
-	{% module_accessible previous as accessible %}
-	{% endif %}
-	{% if accessible and previous.is_revealed or accessible and previous.type == "module" %}
-	<a href="{{ previous.link }}" class="nav-flex-left">
-		<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
-	</a>
-	{% else %}
-	<span class="pull-left disabled">
-		<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
-		{% if is_course_staff %}
-		<a href="{{ previous.link }}">
-			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-			{% translate "EARLY_ACCESS" %}
-		</a>
+	<div class="col-4 text-start">
+		{% if previous %}
+		{% if previous.submittable %}
+		{% exercise_accessible previous as accessible %}
+		{% else %}
+		{% module_accessible previous as accessible %}
 		{% endif %}
-	</span>
-	{% endif %}
-	{% endif %}
+		{% if accessible and previous.is_revealed or accessible and previous.type == "module" %}
+		<a href="{{ previous.link }}" class="nav-flex-left">
+			<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
+		</a>
+		{% else %}
+		<span class="text-muted disabled">
+			<span aria-hidden="true">&laquo;</span> {{ previous.name|parse_localization }}
+			{% if is_course_staff %}
+			<a href="{{ previous.link }}">
+				<i class="bi-lock" aria-hidden="true"></i>
+				{% translate "EARLY_ACCESS" %}
+			</a>
+			{% endif %}
+		</span>
+		{% endif %}
+		{% endif %}
+	</div>
 
-	<span class="hidden-md hidden-sm hidden-xs" style="display: block; margin: auto; text-align: center;">
+	<div class="col-4 text-center">
 		<a href="{{ instance|url:'toc' }}">
 			{% translate "COURSE_MATERIALS" %}
 		</a>
-	</span>
+	</div>
 
-	{% if next %}
-	{% if next.submittable %}
-	{% exercise_accessible next as accessible %}
-	{% else %}
-	{% module_accessible next as accessible %}
-	{% endif %}
-	{% if accessible and next.is_revealed or accessible and next.type == "module" %}
-	<a href="{{ next.link }}" class="nav-flex-right">
-		{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
-	</a>
-	{% else %}
-	<span class="pull-right disabled">
-		{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
-		{% if is_course_staff %}
-		<a href="{{ next.link }}">
-			<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-			{% translate "EARLY_ACCESS" %}
-		</a>
+	<div class="col-4 text-end">
+		{% if next %}
+		{% if next.submittable %}
+		{% exercise_accessible next as accessible %}
+		{% else %}
+		{% module_accessible next as accessible %}
 		{% endif %}
-	</span>
-	{% endif %}
-	{% endif %}
-
+		{% if accessible and next.is_revealed or accessible and next.type == "module" %}
+		<a href="{{ next.link }}" class="nav-flex-right">
+			{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
+		</a>
+		{% else %}
+		<span class="text-muted disabled">
+			{{ next.name|parse_localization }} <span aria-hidden="true">&raquo;</span>
+			{% if is_course_staff %}
+			<a href="{{ next.link }}">
+				<i class="bi-lock" aria-hidden="true"></i>
+				{% translate "EARLY_ACCESS" %}
+			</a>
+			{% endif %}
+		</span>
+		{% endif %}
+		{% endif %}
+	</div>
 </nav>

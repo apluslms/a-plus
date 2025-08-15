@@ -9,6 +9,7 @@ body {
 }
 .site-content {
 	padding-bottom: 70px;
+	padding-top: 60px;
 	@media (max-width: $grid-float-breakpoint-max) {
 		padding-bottom: 250px;
 	}

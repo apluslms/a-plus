@@ -1,10 +1,10 @@
-@use '../components/icons';
+@use '../components/icons' as icons;
 
 /* Mooc-grader questionnaire */
 
 /* Questionnaire uses also error-summary-class from "components/error_summary" */
 
-$questionnaire-focus-bg: #bce8f1;
+$questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 
 .exercise .aplus-quiz1 {
 	.question-area {
@@ -18,6 +18,10 @@ $questionnaire-focus-bg: #bce8f1;
 
 	.question-description {
 		margin-bottom: 5px;
+	}
+
+	.question-description:has(.help-block) {
+		margin-bottom: -5px;
 	}
 
 	.question-feedback {
@@ -45,13 +49,13 @@ $questionnaire-focus-bg: #bce8f1;
 	.error-text {
 		margin-top: 5px;
 		margin-bottom: 5px;
-		color: #a94442;
+		color: var(--bs-danger);
 		font-weight: bold;
 		margin-bottom: 0px;
 	}
 
-	.has-error .radio,
-	.has-error .checkbox {
+	.is-invalid .radio,
+	.is-invalid .checkbox {
 		color: #333;
 	}
 
@@ -59,34 +63,31 @@ $questionnaire-focus-bg: #bce8f1;
 	fieldset.alert-danger {
 		background-color: $body-bg;
 		color: #333;
-		border: 2px solid $brand-danger;
+		border: 2px solid $danger;
 		font-weight: bold;
 	}
 
 	.quiz1-icon-correct {
-		@include icons.glyphicon;
-		color: #5cb85c;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content: "\e013";
+			@extend .bi-check-circle-fill;
+			color: #5cb85c;
 		}
 	}
 
 	.quiz1-icon-neutral {
-		@include icons.glyphicon;
-		color: #f5bc09;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content:"\e085";
+			@extend .bi-exclamation-circle-fill;
+			color: #f5bc09;
 		}
 	}
 
 	.quiz1-icon-incorrect {
-		@include icons.glyphicon;
-		color: #d9534f;
-
+		@include icons.bootstrap-icon;
 		&:before {
-			content: "\e014";
+			@extend .bi-x-circle-fill;
+			color: #d9534f;
 		}
 	}
 
@@ -103,6 +104,7 @@ $questionnaire-focus-bg: #bce8f1;
 				background-color: $questionnaire-focus-bg;
 				box-shadow: 0 0 0 3px $questionnaire-focus-bg;
 				font-weight: bold;
+				color: var(--bs-info-text-emphasis, #055160);
 			}
 
 			&:active input + span {

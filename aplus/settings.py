@@ -78,7 +78,7 @@ BRAND_DESCRIPTION = 'Virtual Learning Environment'
 BRAND_INSTITUTION_NAME = 'Aalto University'
 BRAND_INSTITUTION_NAME_FI = 'Aalto-yliopisto'
 
-WELCOME_TEXT = 'Welcome to A+ <small>modern learning environment</small>'
+WELCOME_TEXT = 'Welcome to A+ <small class="text-body-secondary">modern learning environment</small>'
 SHIBBOLETH_TITLE_TEXT = 'Aalto University users'
 SHIBBOLETH_BODY_TEXT = (
     'Log in with your Aalto University user account by clicking on the button below. '
@@ -100,7 +100,7 @@ LOGIN_USER_DATA_INFO = (
     'For additional information, please see <a href="{privacy_url}">the privacy notice</a>.'
 )
 
-WELCOME_TEXT_FI = 'A+ <small>verkkopohjainen oppimisympäristö</small>'
+WELCOME_TEXT_FI = 'A+ <small class="text-body-secondary">verkkopohjainen oppimisympäristö</small>'
 SHIBBOLETH_TITLE_TEXT_FI = 'Aalto-yliopiston käyttäjät'
 SHIBBOLETH_BODY_TEXT_FI = (
     'Kirjaudu palveluun Aalto-yliopiston käyttäjätunnuksella alla olevasta painikkeesta. '
@@ -166,7 +166,7 @@ INSTALLED_APPS = (
     'django.forms',
 
     # 3rd party applications
-    'bootstrapform',
+    'django_bootstrap5',
     'rest_framework',
     'rest_framework.authtoken',
     'pylti1p3.contrib.django.lti1p3_tool_config',

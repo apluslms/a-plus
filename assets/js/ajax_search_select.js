@@ -183,7 +183,7 @@ $(function() {
             values of the form field. */
             self.result.append(
               $('<li>').append(
-                $('<a href="#">').text(result.name)
+                $('<a class="dropdown-item" href="#">').text(result.name)
               ).click(function(event) {
                 event.preventDefault();
                 self.addSelection(result);
@@ -195,7 +195,7 @@ $(function() {
           if (numOfEntries > shownEntries){
              self.result.append(
               $('<li>').append(
-                $('<a href="#">').text((numOfEntries - shownEntries) + _(" results more"))
+                $('<a class="dropdown-item" href="#">').text((numOfEntries - shownEntries) + _(" results more"))
               )
             );
           }
@@ -221,6 +221,7 @@ $(function() {
         $.each(this.clipboard_fields, function() {
           button.attr('data-' + this, result.data[this]);
         });
+        button.addClass("btn btn-sm btn-secondary");
         this.selection.append(li);
       }
     },

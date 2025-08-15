@@ -18,49 +18,49 @@
     <nav aria-label="{% translate 'EDIT_COURSE' %}">
     <ul class="nav nav-tabs">
         {% if GITMANAGER_ENABLED %}
-        <li role="presentation" class="menu-gitmanager-details">
-            <a href="{{ instance|url:'gitmanager-details' }}">
+        <li role="presentation" class="menu-gitmanager-details nav-item">
+            <a class="nav-link" href="{{ instance|url:'gitmanager-details' }}">
                 {% translate "GITMANAGER" %}
             </a>
         </li>
         {% endif %}
-        <li role="presentation" class="menu-course-clone">
-            <a href="{{ instance|url:'course-clone' }}">
+        <li role="presentation" class="menu-course-clone nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-clone' }}">
                 {% translate "INSTANCES" %}
             </a>
         </li>
-        <li role="presentation" class="menu-course-details">
-            <a href="{{ instance|url:'course-details' }}">
+        <li role="presentation" class="menu-course-details nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-details' }}">
                 {% translate "COURSE" %}
             </a>
         </li>
-        <li role="presentation" class="menu-course-index">
-            <a href="{{ instance|url:'course-index' }}">
+        <li role="presentation" class="menu-course-index nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-index' }}">
                 {% translate "INDEX" %}
             </a>
         </li>
-        <li role="presentation" class="menu-edit-content">
-            <a href="{{ instance|url:'course-edit' }}">
+        <li role="presentation" class="menu-edit-content nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-edit' }}">
                 {% translate "CONTENT" %}
             </a>
         </li>
-        <li role="presentation" class="menu-menu">
-            <a href="{{ instance|url:'external-services-list-menu' }}">
+        <li role="presentation" class="menu-menu nav-item">
+            <a class="nav-link" href="{{ instance|url:'external-services-list-menu' }}">
                 {% translate "MENU" %}
             </a>
         </li>
-        <li role="presentation" class="menu-course-tags">
-            <a href="{{ instance|url:'course-tags' }}">
+        <li role="presentation" class="menu-course-tags nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-tags' }}">
                 {% translate "TAGS" %}
             </a>
         </li>
-		<li role="presentation" class="menu-course-submission-tags">
-            <a href="{{ instance|url:'course-submission-tags' }}">
+		<li role="presentation" class="menu-course-submission-tags nav-item">
+            <a class="nav-link" href="{{ instance|url:'course-submission-tags' }}">
                 {% translate "SUBMISSION_TAGS" %}
             </a>
         </li>
-        <li role="presentation" class="menu-batch-assess">
-            <a href="{{ instance|url:'batch-assess' }}">
+        <li role="presentation" class="menu-batch-assess nav-item">
+            <a class="nav-link" href="{{ instance|url:'batch-assess' }}">
                 {% translate "BATCH_ASSESS" %}
             </a>
         </li>

@@ -56,7 +56,7 @@ $(function () {
   // Mark active menu item
   $("[class^=menu-] a").each(function () {
     if ($(this)[0].pathname === location.pathname) {
-      $(this).parent().addClass("active");
+      $(this).addClass("active");
     }
   });
 
@@ -69,7 +69,7 @@ $(function () {
     }
   }
 
-  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-bs-toggle="tooltip"]').tooltip();
   $('.menu-groups').aplusGroupSelect();
   $('.ajax-tail-list').aplusListTail();
   $('.page-modal').aplusModalLink();
@@ -93,7 +93,7 @@ $(function () {
 
   var modifyMenu = function () {
     var menu = $('#main-course-menu');
-    if (!menuFixed && !sidebarCollapsed && $(window).scrollTop() > menuHeight) {
+    if (!menuFixed && $(window).scrollTop() > menuHeight) {
       var w = menu.width();
       menu.addClass('fixed');
       menu.css('width', "" + w + "px");
@@ -115,17 +115,19 @@ $(function () {
     }
   };
 
-  $(window).on('scroll', modifyMenu);
-  $(window).on('resize', updateMenu);
+  //$(window).on('scroll', modifyMenu);
+  //$(window).on('resize', updateMenu); // TODO: CHECK FOR REMOVAL #1442
 
   function setSidebarState(collapsed) {
     sidebarCollapsed = collapsed;
     $('#course-content').toggleClass('sidebar-collapsed', collapsed);
-    $('#course-sidebar').toggleClass('hidden', collapsed);
-    $('.course-sidebar-expander').toggleClass('hidden', !collapsed);
+    $('.site-content > .site-messages').toggleClass('sidebar-collapsed', collapsed);
+    $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
+    $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
+    $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
     localStorage.setItem('sidebarCollapsed', collapsed);
     if (!collapsed) {
-      modifyMenu();
+      //modifyMenu(); // TODO: CHECK FOR REMOVAL #1442
     }
   };
 
@@ -153,33 +155,36 @@ $(function () {
     link.setAttribute('rel', linkTypes.join(' ').trim());
   }
 
-  function addExternalLinkIcon(link) {
-    if (!link.querySelector('.icon')) {
-      link.insertAdjacentHTML('beforeend', `<i class="icon glyphicon glyphicon-new-window"></i>`);
-    }
-  }
-
   function addScreenReaderMessage(link, message) {
-    if (!link.querySelector('.sr-only')) {
-      link.insertAdjacentHTML('beforeend', `<span class="sr-only"> (${message})</span>`);
+    if (!link.querySelector('.visually-hidden')) {
+      link.insertAdjacentHTML('beforeend', `<span class="visually-hidden"> (${message})</span>`);
     }
   }
   $(document).on("aplus:translation-ready", function () {
     document.querySelectorAll('a[target="_blank"]').forEach(link => {
       addLinkType(link, 'noopener');
-      addExternalLinkIcon(link);
+      link.insertAdjacentHTML('beforeend', `<span class="bi-box-arrow-up-right new-tab-link" aria-hidden="true"></span>`);
       addScreenReaderMessage(link, _('opens in a new tab'));
     });
   });
 
-  // Simple visibility toggling: add data-toggle="visibility" and
-  // data-target="<selector>" to toggle the visibility of all elements that
+  // Simple visibility toggling: add data-bs-toggle="visibility" and
+  // data-bs-target="<selector>" to toggle the visibility of all elements that
   // match <selector>.
-  $(document).on('click', '[data-toggle="visibility"]', function (event) {
+  $(document).on('click', '[data-bs-toggle="visibility"]', function (event) {
     event.preventDefault();
-    const targetSelector = $(this).data('target');
-    $(targetSelector).toggleClass('hidden');
+    const targetSelector = $(this).data('bs-target');
+    $(targetSelector).toggleClass('d-none');
   });
+
+  // Always set sidebar as expanded when opening the mobile menu to prevent
+  // rendering issues
+  const offcanvasSidebar = document.getElementById('bs-navbar-collapse')
+  if (offcanvasSidebar) {
+    offcanvasSidebar.addEventListener('show.bs.offcanvas', event => {
+      setSidebarState(false);
+    })
+  }
 });
 
 /**
@@ -205,7 +210,7 @@ $(function () {
       this.element.find("form").on("submit", function (event) {
         event.preventDefault();
         self.selection.hide();
-        self.loader.removeClass("hidden").show();
+        self.loader.removeClass("d-none").show();
         var form = $(this);
         $.ajax(form.attr("action"), {
           type: "POST",
@@ -215,10 +220,11 @@ $(function () {
           },
           dataType: "html"
         }).fail(function () {
-          self.selection.show().find("small").text("Error");
+          self.selection.show().find("#group-selection-label").text("Error");
           self.loader.hide();
         }).done(function (data) {
-          self.selection.show().find("small").html(data);
+          self.selection.show().find("#group-selection-icon").html(data.includes("alone") ? '<i class="bi-person-fill"></i>' : '<i class="bi-people-fill"></i>');
+          self.selection.show().find("#group-selection-label").html(data);
           self.loader.hide();
           var id = self.selection.find('[data-group-id]').attr("data-group-id");
           $('.submit-group-selector option[value="' + id + '"]').prop('selected', true);
@@ -254,16 +260,16 @@ $(function () {
       button.attr(buttonOptions.attrs);
     }
     if (buttonOptions.icon) {
-      const buttonContent = $('<span class="glyphicon" aria-hidden="true"></span>').addClass('glyphicon-' + buttonOptions.icon);
+      const buttonContent = $('<i aria-hidden="true"></i>').addClass("bi-" + buttonOptions.icon);
       buttonContent.appendTo(button);
       if (buttonOptions.toggle) {
         button.on('click', function () {
-          buttonContent.toggleClass('glyphicon-check glyphicon-unchecked');
+          buttonContent.toggleClass('bi-square bi-check-square');
         });
       }
     }
     if (buttonOptions.text) {
-      const buttonText = $('<span></span>').text(buttonOptions.text);
+      const buttonText = $('<span></span>').text(' ' + buttonOptions.text);
       buttonText.appendTo(button);
     }
     button.appendTo(buttonContainer);
@@ -375,7 +381,7 @@ $(function () {
           `
         }
 
-        const getRow = options.compareMode ? getDiffRow : getNormalRow;
+        const getRow = options?.compareMode ? getDiffRow : getNormalRow;
 
         const getLines = (start, end) => {
           const fragment = document.createDocumentFragment();
@@ -427,8 +433,8 @@ $(function () {
             if (!element.hasClass('active')) {
               element
                 .find(iconSelector)
-                .toggleClass('glyphicon-unchecked')
-                .toggleClass('glyphicon-check');
+                .toggleClass('bi-square')
+                .toggleClass('bi-check-square');
             }
           });
         };
@@ -436,12 +442,12 @@ $(function () {
         let action, iconSelector, localStorageKey;
         if ($('.submission-container').find(buttonContainer).length > 0) {
           // buttonContainer is related to submitted files on inspect submission page
-          iconSelector = `.submitted-file-data > div > p > button:contains(${_("Word wrap")}) > .glyphicon`;
+          iconSelector = `.submitted-file-data > div > p > button:contains(${_("Word wrap")}) > i`;
           localStorageKey = 'fileWrap';
           action = () => toggleWrap($('.submission-container'), iconSelector, localStorageKey);
         } else if ($('.grader-container').find(buttonContainer).length > 0) {
           // buttonContainer is related to feedback and errors on inspect submission page
-          iconSelector = `div > p > button:contains(${_("Word wrap")}) > .glyphicon`;
+          iconSelector = `div > p > button:contains(${_("Word wrap")}) > i`;
           localStorageKey = 'graderFeedbackWrap';
           action = () => toggleWrap($('.grader-container'), iconSelector, localStorageKey);
         } else {
@@ -461,7 +467,7 @@ $(function () {
 
         addButton(buttonContainer, {
           action: action,
-          icon: doWrap ? 'check' : 'unchecked',
+          icon: doWrap ? 'check-square' : 'square',
           text: _('Word wrap'),
           toggle: true,
         });
@@ -478,7 +484,7 @@ $(function () {
               console.error("Download button clicked, but there is no data-url set on the downloadable pre content. Can not download.");
             }
           },
-          icon: 'download-alt',
+          icon: 'download',
           text: _('Download'),
         });
       }
@@ -715,12 +721,12 @@ $(function () {
       const perPage = this.element.attr(settings.per_page_attr);
       if (this.element.find(settings.entry_selector).length >= perPage) {
         var tail = this.element.find(settings.more_selector);
-        tail.removeClass("hide").on("click", function (event) {
+        tail.removeClass("d-none").on("click", function (event) {
           event.preventDefault();
           var link = tail.find(settings.link_selector)
             .hide();
           var loader = tail.find(settings.loader_selector)
-            .removeClass("hide").show();
+            .removeClass("d-none").show();
           var url = link.attr("href");
           $.get(url, function (html) {
             loader.hide();
@@ -797,31 +803,6 @@ $(function () {
 })(jQuery, document);
 
 /*
-* Change bootstrap dropdowns to dropups when appropriate, copied from
-* https://stackoverflow.com/questions/21232685/bootstrap-drop-down-menu-auto-dropup-according-to-screen-position
-*/
-(function ($, window, document) {
-  "use strict";
-
-  $(document).on("shown.bs.dropdown", ".dropdown", function () {
-    // calculate the required sizes, spaces
-    var $ul = $(this).children(".dropdown-menu");
-    var $button = $(this).children(".dropdown-toggle");
-    var ulOffset = $ul.offset();
-    // how much space would be left on the top if the dropdown opened that direction
-    var spaceUp = (ulOffset.top - $button.height() - $ul.height()) - $(window).scrollTop();
-    // how much space is left at the bottom
-    var spaceDown = $(window).scrollTop() + $(window).height() - (ulOffset.top + $ul.height());
-    // switch to dropup only if there is no space at the bottom AND there is space at the top, or there isn't either but it would be still better fit
-    if (spaceDown < 0 && (spaceUp >= 0 || spaceUp > spaceDown))
-      $(this).addClass("dropup");
-  }).on("hidden.bs.dropdown", ".dropdown", function () {
-    // always reset after close
-    $(this).removeClass("dropup");
-  });
-})(jQuery, window, document);
-
-/*
 * Listen to link click events and copy the hl query parameter from
 * the current url to the next.
 * Note! The hl parameter is used to force translations to a certain language
@@ -839,7 +820,7 @@ $(function () {
       // The link may be opened from the context menu too, thus the hl parameter
       // should be copied.
       (event.type != "mousedown" || event.which == 2) &&
-      $(this).attr("data-toggle") != "dropdown" &&
+      $(this).attr("data-bs-toggle") != "dropdown" &&
       this.protocol === window.location.protocol &&
       this.host === window.location.host // hostname:port
     ) {
@@ -855,3 +836,22 @@ function changeLanguage(lang) {
     url.searchParams.set('hl', lang);
     window.location.href = url.toString();
 }
+
+// Some automatic conversion for material that is not yet updated to BS5
+$(document).ready(function() {
+  // Change any old-style data-toggle attributes to BS5 namespaced format
+  $('[data-toggle]').each(function() {
+    const value = $(this).attr('data-toggle');
+    $(this).attr('data-bs-toggle', value);
+    $(this).removeAttr('data-toggle');
+  });
+  // Change "collapse in" to "collapse show" to correct initial visibility with BS5
+  $('.collapse.in').removeClass('in').addClass('show');
+});
+
+// Prevent tooltips from showing in the sidebar when the navbar is not minimised
+$(document).on("show.bs.tooltip", "#bs-navbar-collapse [data-bs-toggle=\"tooltip\"]", function(e) {
+  if (!$("#bs-navbar-collapse").hasClass("minimised")) {
+      return false;
+  }
+});

@@ -15,25 +15,25 @@
 <div class="col-md-12">
 	<p>
 		<a class="aplus-button--default aplus-button--xs" href="{{ instance|url:'deviations-add-submissions' }}">
-			<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+			<i class="bi-plus-lg" aria-hidden="true"></i>
 			{% translate "ADD_NEW_SUBMISSION_DEVIATIONS" %}
 		</a>
 		<a class="aplus-button--default aplus-button--xs" href="{{ instance|url:'deviations-remove-submissions' }}">
-			<span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+			<i class="bi-dash-circle-fill" aria-hidden="true"></i>
 			{% translate "REMOVE_SUBMISSION_DEVIATIONS" %}
 		</a>
-		<a class="aplus-button--danger aplus-button--xs pull-right" id="remove-selected-button" data-toggle="modal" data-target="#remove-selected-modal" role="button">
-			<span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+		<a class="aplus-button--danger aplus-button--xs float-end" id="remove-selected-button" data-bs-toggle="modal" data-bs-target="#remove-selected-modal" role="button">
+			<i class="bi-dash-circle-fill" aria-hidden="true"></i>
 			{% translate "REMOVE_SELECTED_DEVIATIONS" %}
 		</a>
 	</p>
 	<form method="post" class="form-horizontal">
 		{% csrf_token %}
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<h3 class="panel-title">{% translate "SUBMISSION_DEVIATIONS" %}</h3>
+		<div class="card">
+			<div class="card-header bg-primary">
+				<h5 class="card-title text-white">{% translate "SUBMISSION_DEVIATIONS" %}</h5>
 			</div>
-			<table class="table table-striped table-bordered table-condensed filtered-table ordered-table grouped-table" data-default-sort-column="4" data-default-sort-order="desc">
+			<table class="table table-striped table-bordered table-sm filtered-table ordered-table grouped-table mb-0" data-default-sort-column="4" data-default-sort-order="desc">
 				<thead>
 					<tr>
 						<th>{% translate "SUBMITTER" %}</th>

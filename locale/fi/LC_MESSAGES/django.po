@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-13 12:37+0200\n"
+"POT-Creation-Date: 2025-08-15 16:56+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -954,23 +954,18 @@ msgstr "Aloita ilmoittautumalla jollekin kurssille."
 msgid "SKIP_COURSE_NAVIGATION"
 msgstr "Ohita kurssivalikko"
 
-#: course/templates/course/_course_menu.html news/models.py
-#: news/templates/news/list.html userprofile/templates/userprofile/profile.html
-msgid "LANGUAGE"
-msgstr "Kieli"
+#: course/templates/course/_course_menu.html
+#: edit_course/templates/edit_course/edit_course_base.html
+msgid "COURSE"
+msgstr "Kurssi"
 
 #: course/templates/course/_course_menu.html
 msgid "CHANGE_LANGUAGE"
 msgstr "Vaihda kieli"
 
 #: course/templates/course/_course_menu.html
-msgid "CLOSE_SIDEBAR"
-msgstr "Sulje sivupalkki"
-
-#: course/templates/course/_course_menu.html
-#: edit_course/templates/edit_course/edit_course_base.html
-msgid "COURSE"
-msgstr "Kurssi"
+msgid "MINIMISE_SIDEBAR"
+msgstr "Pienennä sivupalkki"
 
 #: course/templates/course/_course_menu.html
 #: course/templates/course/_siblings.html exercise/templates/exercise/toc.html
@@ -1122,11 +1117,11 @@ msgstr ""
 #: course/templates/course/_group_info.html
 #, python-format
 msgid "GROUP_SUBMITTING_WITH -- %(collaborators)s"
-msgstr "Olet nyt palauttamassa ryhmässä, jossa on %(collaborators)s "
+msgstr "Palauttamassa ryhmässä: %(collaborators)s "
 
 #: course/templates/course/_group_info.html
 msgid "GROUP_SUBMITTING_ALONE"
-msgstr "Olet nyt palauttamassa yksin."
+msgstr "Palauttamassa yksin."
 
 #: course/templates/course/_group_select.html
 msgid "GROUP_LOADER_REGISTERING_SELECTION"
@@ -1162,8 +1157,8 @@ msgid "LEFT_OFF_REMINDER"
 msgstr ""
 
 #: course/templates/course/course_base.html
-msgid "OPEN_SIDEBAR"
-msgstr "Avaa sivupalkki"
+msgid "EXPAND_SIDEBAR"
+msgstr "Laajenna sivupalkki"
 
 #: course/templates/course/course_base.html
 msgid "READ_MORE"
@@ -1816,6 +1811,13 @@ msgid "MODEL_NAME_MAX_SUBMISSIONS_RULE_DEVIATION_PLURAL"
 msgstr "enimmäispalautuskertojen poikkeamat"
 
 #: deviations/templates/deviations/_remove_modal.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+msgid "REMOVE_SELECTED_DEVIATIONS"
+msgstr "Poista valitut poikkeamat"
+
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
 #: exercise/templates/exercise/_duplicate_submission_modal.html
 #: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_late_submission_approval_modal.html
@@ -1825,12 +1827,6 @@ msgstr "enimmäispalautuskertojen poikkeamat"
 #: templates/base.html
 msgid "CLOSE"
 msgstr "Sulje"
-
-#: deviations/templates/deviations/_remove_modal.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
-msgid "REMOVE_SELECTED_DEVIATIONS"
-msgstr "Poista valitut poikkeamat"
 
 #: deviations/templates/deviations/_remove_modal.html
 msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
@@ -3927,11 +3923,13 @@ msgstr "Ei vaikuta arvosteluun"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "DEADLINE_PASSED"
 msgstr "Palautettu määräajan jälkeen"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "LIMIT_EXCEEDED"
 msgstr "Palautuskertojen enimmäismäärä ylitetty"
 
@@ -4162,6 +4160,7 @@ msgstr "Tälle tehtävälle ei ole annettu malliratkaisua."
 
 #: exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "UNOFFICIAL_DESCRIPTION"
 msgstr ""
 "Palautettu määräajan jälkeen tai palautuskertojen enimmäismäärä ylitetty"
@@ -4192,22 +4191,6 @@ msgstr "Puuttuu"
 #: exercise/templates/exercise/staff/analytics.html
 msgid "NOT_SUBMITTED"
 msgstr "Ei palautuksia"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "PASSED"
-msgstr "Läpäisty"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/exercise_plain.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#, python-format
-msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
-msgstr "Läpäisyyn vaaditaan %(points)s pistettä"
-
-#: exercise/templates/exercise/_points_badge.html
-msgid "REQUIRED_EXERCISES_NOT_PASSED"
-msgstr "Kaikkia pakollisia tehtäviä ei ole läpäisty"
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templatetags/exercise.py
@@ -4259,7 +4242,9 @@ msgstr "Tällä tehtävällä ei ole pohjatiedostoa."
 #: exercise/templates/exercise/_text_stats.html
 #, python-format
 msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
-msgstr "Palauttajia: %(number)s <small>%(percentage)s%%</small>"
+msgstr ""
+"Palauttajia: %(number)s <small class=\"text-body-"
+"secondary\">%(percentage)s%%</small>"
 
 #: exercise/templates/exercise/_user_last.html
 #, python-format
@@ -4292,6 +4277,21 @@ msgstr "Automaattinen vieritys"
 msgid "AUTO_SCROLL_BEHAVIOR_INSTANT"
 msgstr "Nopea vieritys"
 
+#: exercise/templates/exercise/_user_results.html templates/base.html
+msgid "HIDDEN_capitalized"
+msgstr "Piilotettu"
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/_user_toc.html
+#: lti_tool/templates/lti_tool/lti_course.html
+msgid "REQUIRES"
+msgstr "Vaaditaan"
+
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/_user_toc.html
+msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
+msgstr "Tehtäviä henkilökohtaisella määräaikapidennyksellä"
+
 #: exercise/templates/exercise/_user_results.html
 msgid "OPENS ON"
 msgstr "Avautuu"
@@ -4303,21 +4303,6 @@ msgstr "Tehtävät avautuvat"
 #: exercise/templates/exercise/_user_results.html
 msgid "OPEN_FOR_READING"
 msgstr "Lukumateriaali avoinna"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/_user_toc.html
-msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
-msgstr "Tehtäviä henkilökohtaisella määräaikapidennyksellä"
-
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/_user_toc.html
-#: lti_tool/templates/lti_tool/lti_course.html
-msgid "REQUIRES"
-msgstr "Vaaditaan"
-
-#: exercise/templates/exercise/_user_results.html templates/base.html
-msgid "HIDDEN_capitalized"
-msgstr "Piilotettu"
 
 #: exercise/templates/exercise/_user_results.html
 #, python-format
@@ -4413,6 +4398,21 @@ msgstr ""
 "avustavan teknologian käyttäjille)"
 
 #: exercise/templates/exercise/exercise_plain.html
+msgid "SHOW_MODEL_ANSWER"
+msgstr "Näytä esimerkkiratkaisu"
+
+#: exercise/templates/exercise/exercise_plain.html
+msgid "SHOW_EXERCISE_TEMPLATE"
+msgstr "Näytä pohjatiedosto"
+
+#: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+#, python-format
+msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
+msgstr "Läpäisyyn vaaditaan %(points)s pistettä"
+
+#: exercise/templates/exercise/exercise_plain.html
 #, python-format
 msgid "PENALTY_AFTER -- %(penalty)s, %(deadline)s"
 msgstr "-%(penalty)s%% pistevähennys alkaen %(deadline)s"
@@ -4440,14 +4440,6 @@ msgstr "Palautetaan %(size)s hengen ryhmissä"
 #, python-format
 msgid "TO_BE_SUBMITTED_GROUPS -- %(min)s, %(max)s"
 msgstr "Palautetaan %(min)s-%(max)s hengen ryhmissä"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "SHOW_MODEL_ANSWER"
-msgstr "Näytä esimerkkiratkaisu"
-
-#: exercise/templates/exercise/exercise_plain.html
-msgid "SHOW_EXERCISE_TEMPLATE"
-msgstr "Näytä pohjatiedosto"
 
 #: exercise/templates/exercise/exercise_plain.html
 #: exercise/templates/exercise/submission.html
@@ -4680,6 +4672,11 @@ msgstr "Nro"
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "COMPARE"
 msgstr "Vertaa"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+msgid "PASSED"
+msgstr "Läpäisty"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
@@ -5016,10 +5013,10 @@ msgstr ""
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
-"<span data-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt määräajat: "
-"{count}\"><span class=\"glyphicon glyphicon-time\" aria-hidden=\"true\"></"
-"span><span class=\"sr-only\">Henkilökohtaiset pidennetyt määräajat: {count}</"
-"span></span>"
+"<span data-bs-toggle=\"tooltip\" title=\"Henkilökohtaiset pidennetyt "
+"määräajat: {count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></"
+"span><span class=\"visually-hidden\">Henkilökohtaiset pidennetyt määräajat: "
+"{count}</span></span>"
 
 #: exercise/templatetags/exercise.py
 msgid "LATEST_SUBMISSIONS"
@@ -5030,13 +5027,17 @@ msgid "NO_SUBMISSIONS_FOR_COURSE"
 msgstr "Ei vielä palautuksia tälle kurssille."
 
 #: exercise/templatetags/exercise.py exercise/viewbase.py
+msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Tulokset on tällä hetkellä piilotettu."
+
+#: exercise/templatetags/exercise.py
+msgid "REQUIRED_EXERCISES_NOT_PASSED"
+msgstr "Kaikkia pakollisia tehtäviä ei ole läpäisty"
+
+#: exercise/templatetags/exercise.py exercise/viewbase.py
 #, python-brace-format
 msgid "RESULTS_WILL_BE_REVEALED -- {time}"
 msgstr "Tulokset paljastetaan viimeistään {time}."
-
-#: exercise/templatetags/exercise.py exercise/viewbase.py
-msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
-msgstr "Tulokset on tällä hetkellä piilotettu."
 
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
@@ -5323,8 +5324,8 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://getbootstrap."
-"com/docs/3.4/components/#glyphicons"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons."
+"getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5674,6 +5675,11 @@ msgstr "Lähetä sähköpostia kurssihenkilökunnalle"
 msgid "LABEL_PUBLISH"
 msgstr "julkaise"
 
+#: news/models.py news/templates/news/list.html
+#: userprofile/templates/userprofile/profile.html
+msgid "LANGUAGE"
+msgstr "Kieli"
+
 #: news/models.py
 msgid "LABEL_PIN"
 msgstr "kiinnitä listan kärkeen"
@@ -5865,8 +5871,20 @@ msgid "SELECT_COURSE"
 msgstr "Valitse kurssi"
 
 #: templates/base.html
-msgid "TOGGLE_NAVIGATION"
-msgstr "Näytä valikko"
+msgid "THEME"
+msgstr "Teema"
+
+#: templates/base.html
+msgid "LIGHT"
+msgstr "Vaalea"
+
+#: templates/base.html
+msgid "DARK"
+msgstr "Tumma (kokeellinen)"
+
+#: templates/base.html
+msgid "SYSTEM"
+msgstr "Järjestelmä"
 
 #: templates/base.html
 msgid "CHANGE_LANGUAGE_TO_ENGLISH"
@@ -5889,16 +5907,8 @@ msgid "LOG_IN"
 msgstr "Kirjaudu sisään"
 
 #: templates/base.html
-msgid "NOTIFICATION"
-msgstr "Ilmoitus"
-
-#: templates/base.html
-msgid "SITE"
-msgstr "Sivusto"
-
-#: templates/base.html
-msgid "HOME"
-msgstr "Etusivu"
+msgid "TOGGLE_NAVIGATION"
+msgstr "Näytä valikko"
 
 #: templates/base.html userprofile/templates/userprofile/privacy.html
 msgid "PRIVACY_NOTICE"

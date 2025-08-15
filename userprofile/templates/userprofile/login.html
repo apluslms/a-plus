@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block title %}{% blocktranslate trimmed %}LOG_IN_TO -- {{ brand_name }}{% endblocktranslate %} | {{ block.super }}{% endblock %}
 
@@ -117,15 +117,15 @@
 					<form method="post" role="form">
 						{% csrf_token %}
 						{% if form.non_field_errors %}
-							<div class="alert alert-danger">
-								<a class="close" aria-label="{% translate 'CLOSE_ERROR_LIST' %}" data-dismiss="alert">×</a>
-									{% for error in form.non_field_errors %}
-										<p>{{ error }}</p>
-									{% endfor %}
+							<div class="alert alert-danger alert-dismissible">
+								{% for error in form.non_field_errors %}
+									<p>{{ error }}</p>
+								{% endfor %}
+								<button type="button" class="btn-close" aria-label="{% translate 'CLOSE_ERROR_LIST' %}" data-bs-dismiss="alert"></button>
 							</div>
 						{% endif %}
-							<div class="form-group{% if form.username.errors %} has-error{% endif %}">
-								<label class="control-label"
+							<div class="form-group{% if form.username.errors %} is-invalid{% endif %}">
+								<label class="form-label"
 								for="{{ form.username.id_for_label }}">{% translate "USERNAME" %}</label>
 								<input class="form-control" id="{{ form.username.id_for_label }}" type="text"
 								name="{{ form.username.html_name }}" required autocomplete="username" />
@@ -133,8 +133,8 @@
 									<span class="help-block">{{ error }}</span>
 								{% endfor %}
 							</div>
-							<div class="form-group{% if form.password.errors %} has-error{% endif %}">
-								<label class="control-label"
+							<div class="form-group{% if form.password.errors %} is-invalid{% endif %}">
+								<label class="form-label"
 								for="{{ form.password.id_for_label }}">{% translate "PASSWORD" %}</label>
 								<input class="form-control" id="{{ form.password.id_for_label }}" type="password"
 								name="{{ form.password.html_name }}" required autocomplete="current-password" />
@@ -142,7 +142,7 @@
 										<span class="help-block">{{ error }}</span>
 									{% endfor %}
 							</div>
-						<div class="form-group">
+						<div class="form-group mt-2">
 							<button type="submit"
 								class="aplus-button--secondary aplus-button--lg">{% translate "LOG_IN" %}</button>
 						</div>
@@ -152,12 +152,12 @@
 		</section>
 
 		<div class="col-sm-1">
-			<button class="btn btn-default show-extra-login-btn"
+			<button class="btn show-extra-login-btn"
 				aria-label="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 				title="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 			>
-				<i class="glyphicon glyphicon-chevron-right hidden-xs" focusable="false"></i>
-				<i class="glyphicon glyphicon-chevron-down visible-xs-inline" focusable="false"></i>
+				<i class="bi-caret-right-fill d-none d-sm-block" focusable="false"></i>
+				<i class="bi-caret-down-fill d-block d-sm-none-inline" focusable="false"></i>
 			</button>
 		</div>
 	</div>

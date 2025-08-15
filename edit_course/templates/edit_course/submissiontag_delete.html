@@ -1,6 +1,6 @@
 {% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load course %}
 {% load editcourse %}
 {% load colortag %}
@@ -14,7 +14,7 @@
 
 {% block coursecontent %}
 <br />
-<form method="post" class="well form-horizontal">
+<form method="post" class="card form-horizontal">
 	{% csrf_token %}
 	<legend>
 		{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION" %}

@@ -175,6 +175,50 @@ def compared_submission_param(compared_submission) -> str:
     return param + compared_submission
 
 
+def get_badge_classes(data, extra_classes=None):
+    classes = []
+    if data["submitted"] and data["official"]:
+        if data["feedback_revealed"]:
+            if data["full_score"]:
+                classes.append("text-bg-success")
+            elif data["passed"]:
+                classes.append("text-bg-warning")
+            else:
+                classes.append("text-bg-danger")
+        if data.get("unconfirmed"):
+            classes.append("unconfirmed-points")
+    else:
+        classes.append("text-bg-secondary")
+    if extra_classes:
+        classes.append(extra_classes)
+    elif data.get("show_zero_points_immediately") and data.get("best_submission_true_points") == 0:
+        classes.append("text-bg-danger")
+    return " ".join(classes)
+
+def get_badge_title(data):
+    if not data.get('feedback_revealed'):
+        return data.get('feedback_hidden_description', _('RESULTS_ARE_CURRENTLY_HIDDEN'))
+    elif not data.get('official'):
+        t = data.get('unofficial_submission_type')
+        if t == 'limit_exceeded':
+            return _('LIMIT_EXCEEDED')
+        elif t == 'deadline_passed':
+            return _('DEADLINE_PASSED')
+        else:
+            return _('UNOFFICIAL_DESCRIPTION')
+    elif data.get('passed'):
+        if data.get('required', 0) > 0:
+            return _('PASSED')
+        else:
+            return ''
+    elif data.get('missing_points'):
+        points = data.get('required', 0)
+        # You may want to use Django's translation with variables here
+        return _('POINTS_REQUIRED_TO_PASS -- %(points)s') % {'points': points}
+    elif data.get('submitted'):
+        return _('REQUIRED_EXERCISES_NOT_PASSED')
+    return ''
+
 AnyPointsEntry = Union[
     CachedPointsData,
     ModulePoints,
@@ -262,7 +306,8 @@ def _points_data(
         else:
             feedback_hidden_description = _('RESULTS_ARE_CURRENTLY_HIDDEN')
     data.update({
-        'classes': classes,
+        'classes': get_badge_classes(data, classes),
+        'badge_title': get_badge_title(data),
         'percentage': percentage,
         'required_percentage': required_percentage,
         'feedback_hidden_description': feedback_hidden_description,

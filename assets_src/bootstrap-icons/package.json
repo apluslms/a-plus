@@ -1,0 +1,15 @@
+{
+  "name": "aplus-bootstrap-icons",
+  "description": "bootstrap-icons for A+",
+  "repository": ".",
+  "license": "MIT",
+  "version": "1.0.0",
+  "dependencies": {
+    "bootstrap-icons": "^1.11.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "install": "./install.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

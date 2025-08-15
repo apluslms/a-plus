@@ -12,38 +12,38 @@
 		<h3>
 			<a href="{{ module.link }}" class="{% if module.is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
 			{% if module|deadline_extended_exercises_open:now %}
-			<span class="badge">
+			<span class="badge text-bg-secondary">
 				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 			</span>
 			{% endif %}
 		</h3>
 		<h4>
 			{% if module.requirements|length > 0 %}
-			<span class="label label-info">
+			<span class="badge text-bg-info">
 				{% translate "REQUIRES" %}:
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
 			{% endif %}
-			<small>{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
+			<small class="text-body-secondary">{{ module.opening_time }} &ndash; {{ module.closing_time }}</small>
 		</h4>
 		{% else %}
 		<h3>
 			{{ module.name|parse_localization }}
 			{% if is_course_staff %}
 			<a href="{{ module.link }}">
-				<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+				<i class="bi-lock" aria-hidden="true"></i>
 				{% translate "EARLY_ACCESS" %}
 			</a>
 			{% endif %}
 		</h3>
 		<h4>
 			{% if module.requirements|length > 0 %}
-			<span class="label label-info">
+			<span class="badge text-bg-info">
 				{% translate "REQUIRES" %}:
 				{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 			</span>
 			{% endif %}
-			<span class="label label-info">{% translate "OPENS" %} {{ module.opening_time }}</span> <small>&ndash; {{ module.closing_time }}</small>
+			<span class="badge text-bg-info">{% translate "OPENS" %} {{ module.opening_time }}</span> <small class="text-body-secondary">&ndash; {{ module.closing_time }}</small>
 		</h4>
 		{% endif %}
 		{% include "exercise/_children.html" with children=module.flatted accessible=accessible exercise_accessible=exercise_accessible %}

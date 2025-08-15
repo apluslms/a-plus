@@ -1,6 +1,6 @@
 {% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load editcourse %}
 
 {% block editbreadcrumblist %}
@@ -11,23 +11,25 @@
 
 {% block coursecontent %}
 <br />
-<form id="gitmanager-form" method="post" class="well">
-    {% csrf_token %}
-    <legend>{% translate "EDIT_GITMANAGER" %}</legend>
-    <a style="float: right" role="button" value="{{ gitmanager_url }}" href="javascript:;" id="gitmanager-link">
-        {% translate "OPEN_IN_GITMANAGER" %}
-    </a>
-    <p>
-        {% translate "EDIT_GITMANAGER_DESCRIPTION" %}
-    </p>
-    {{ form|bootstrap }}
-    <button type="submit" class="aplus-button--default aplus-button--md">
-        {% translate "SUBMIT" %}
-    </button>
-    <div class="hidden progress">
-      <div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%;">
-        {% translate "UPDATING_GITMANAGER" %}
-      </div>
+<form id="gitmanager-form" method="post" class="card">
+    <div class="card-body">
+        {% csrf_token %}
+        <legend>{% translate "EDIT_GITMANAGER" %}</legend>
+        <a style="float: right" role="button" value="{{ gitmanager_url }}" href="javascript:;" id="gitmanager-link">
+            {% translate "OPEN_IN_GITMANAGER" %}
+        </a>
+        <p>
+            {% translate "EDIT_GITMANAGER_DESCRIPTION" %}
+        </p>
+        {% bootstrap_form form %}
+        <button type="submit" class="aplus-button--default aplus-button--md">
+            {% translate "SUBMIT" %}
+        </button>
+        <div class="d-none progress">
+        <div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%;">
+            {% translate "UPDATING_GITMANAGER" %}
+        </div>
+        </div>
     </div>
 </form>
 {% endblock %}
@@ -39,7 +41,7 @@ $(function() {
     var form = $("#gitmanager-form");
     form.on("submit", function(event) {
         form.find('[type="submit"]').attr("disabled", true);
-        form.find('.progress').removeClass("hidden");
+        form.find('.progress').removeClass("d-none");
     });
 
     $("#gitmanager-link").on("click", async function(event) {

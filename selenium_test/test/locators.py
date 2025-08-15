@@ -33,11 +33,11 @@ class FirstPageLocators:
     SHOW_LOGIN_BUTTON = (By.XPATH, "//*[contains(@class, 'show-extra-login-btn')]")
 
 class BasePageLocators:
-    COURSE_BANNER = (By.XPATH, "//div[@class='navbar-header']/ul/li[@class='dropdown']/a")
-    FOOTER = (By.XPATH, "//div[contains(@class, 'site-footer')]")
+    COURSE_BANNER = (By.XPATH, "//nav[contains(@class, 'navbar-header')]//ul/li[contains(@class, 'dropdown')]/a")
+    FOOTER = (By.XPATH, "//footer[contains(@class, 'site-footer')]")
     HOME_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-home')]/a")
     CALENDAR_FEED_LINK = (By.XPATH, "//*[contains(@class, 'calendar-view')]/p/a[contains(@href, '/export-calendar/')]")
-    RESULTS_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-results')]/a")
+    RESULTS_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li/a[contains(@class, 'menu-results')]")
     USER_LINK = (By.XPATH, "//*[contains(@class, 'course-menu')]/ul/li[contains(@class, 'menu-notifications')]/a")
     TEACHERS_VIEW_LINK = (
         By.XPATH,
@@ -49,15 +49,18 @@ class BasePageLocators:
     WARNING_BANNER = (By.XPATH, "//div[contains(@class, 'alert alert-warning')]")
     NOTIFICATION_ALERT = (
         By.XPATH,
-        "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'badge-danger')]"
+        "//*[contains(@class, 'menu-notification')]//span[contains(@class, 'text-bg-danger')]"
     )
 
 class HomePageLocators:
-    MAIN_SCORE = (By.XPATH, "//div[contains(@class, 'well')]/p/strong[contains(@class, 'h2')]")
+    MAIN_SCORE = (By.XPATH, "//div[contains(@class, 'card')]/p/strong[contains(@class, 'h2')]")
 
 class ExercisePageLocators:
     MAIN_TITLE = (By.XPATH, "//*[@id='title']")
-    EXERCISE_SCORE = (By.XPATH, "//*[@id='exercise-info']/div[@class='well']/p/strong[contains(@class, 'h2')]")
+    EXERCISE_SCORE = (
+        By.XPATH,
+        ".//*[@id='exercise-info']/div[contains(@class,'card')]/div/p/strong[contains(@class,'exercise-info-points')]"
+    )
     NUMBER_OF_SUBMITTERS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[contains(@class, 'exercise-info-submitters')]")
     ALLOWED_SUBMISSIONS = (By.XPATH, "//*[@id='exercise-info']//dl/dd[contains(@class, 'exercise-info-submissions')]")
     MY_SUBMISSIONS_LIST = (By.XPATH, "//li[contains(@class, 'menu-submission')]/ul[@class='dropdown-menu']/li")
@@ -127,7 +130,7 @@ class StudentFeedbackPageLocators:
 class InspectionPageLocators:
     ASSESSMENT_BUTTON = (
         By.XPATH,
-        "//div[contains(@class, 'assessment-bar')]//button[contains(text(), 'Assess manually')]"
+        "//div[contains(@class, 'assessment-panel')]//button[contains(text(), 'Assess manually')]"
     )
     ASSISTANT_FEEDBACK_TOGGLE = (
         By.XPATH,

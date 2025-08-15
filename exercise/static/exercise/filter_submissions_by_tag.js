@@ -3,12 +3,12 @@ $(document).ready(function() {
     $('button.filter-tag').click(function() {
         var tagSlug = $(this).data('tagslug');
 
-        if ($(this).find('.glyphicon').hasClass('glyphicon-unchecked')) {
-            $(this).find('.glyphicon').removeClass('glyphicon-unchecked').addClass('glyphicon-check');
+        if ($(this).find('i').hasClass('bi-square')) {
+            $(this).find('i').removeClass('bi-square').addClass('bi-check-square');
             checked_buttons.push(tagSlug);
             filterSubmissions(checked_buttons)
         } else {
-            $(this).find('.glyphicon').removeClass('glyphicon-check').addClass('glyphicon-unchecked');
+            $(this).find('i').removeClass('bi-check-square').addClass('bi-square');
             var index = checked_buttons.indexOf(tagSlug);
             if (index !== -1) {
                 checked_buttons.splice(index, 1);

@@ -14,11 +14,12 @@
 				integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-		<script src="{% static 'js/bootstrap3.min.js' %}"></script>
+		<script src="{% static 'js/popper.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
+		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
-				crossorigin="anonymous" referrerpolicy="no-referrer" />
+				crossorigin="anonymous" referrerpolicy="no-referrer" />--> <!-- TODO: CHECK FOR REMOVAL #1442 -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
 				integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q=="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -65,130 +66,134 @@
 					{% include 'exercise/_exercisecollection.html' %}
 
 				{% elif exercise.is_submittable %}
-					<nav class="exercise-summary navbar navbar-default" aria-label="{{ exercise|parse_localization }}">
-						<ul class="nav navbar-nav exercise-nav">
-							<li>
-								<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
-									class="exercise-nav-points"
-									role="button"
-								>
-									<span>
-										{% if not exercise.category.confirm_the_level %}
-											{% translate "POINTS" %}
-										{% endif %}
-										{% points_badge summary%}
-									</span>
-								</a>
-							</li>
-							<li class="dropdown">
-								<a class="dropdown-toggle exercise-nav-submissions" data-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
-									<span>
-										{% translate "MY_SUBMISSIONS" %}
-										<span class="badge">
-											{{ summary.submission_count }}
-											{% if exercise.max_submissions %}
-												/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}
+					<nav class="navbar navbar-expand-sm bg-body-secondary" aria-label="{{ exercise|parse_localization }}">
+						<div class="container-fluid">
+							<ul class="navbar-nav exercise-nav">
+								<li class="nav-item">
+									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}javascript:void(0);{% endif %}"
+										class="exercise-nav-points btn"
+										role="button"
+									>
+										<span class="d-inline-flex align-items-center gap-1">
+											{% if not exercise.category.confirm_the_level %}
+												{% translate "POINTS" %}
 											{% endif %}
+											{% points_badge summary%}
 										</span>
-										<b class="caret"></b>
-									</span>
-								</a>
-								<ul class="dropdown-menu">
-									{% for submission in submissions %}
-										<li>
-											<a href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
-												{{ forloop.revcounter }}.
-												{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
-												{% points_badge submission%}
-											</a>
-										</li>
-									{% empty %}
-										<li>
-											<a href="#">{% translate "NO_SUBMISSIONS_YET" %}</a>
-										</li>
-									{% endfor %}
-								</ul>
-							</li>
-							{% if not exercise.category.confirm_the_level %}
-								<li class="navbar-text exercise-nav-info">
-									<small>
-										<ul>
-											{% if exercise.points_to_pass > 0 %}
-												<li>
-													<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
-													{% blocktranslate trimmed with points=exercise.points_to_pass %}
-														POINTS_REQUIRED_TO_PASS -- {{ points }}
-													{% endblocktranslate %}
-												</li>
-											{% endif %}
-											<li>
-												<span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-												{% if summary.personal_deadline %}
-													{% translate "PERSONAL_EXTENDED_DEADLINE" %}
-													{{ summary.personal_deadline }}
-													{% if module.late_submission_penalty > 0 and summary.personal_deadline_has_penalty %}
-													({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
-														PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
-													{% endblocktranslate %})
-													{% endif %}
-												{% elif exercise.is_late_submission_open %}
-													{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
-													{% if module.late_submission_penalty > 0 %}
-													(-{{ module.late_submission_penalty|percent }}%)
-													{% endif %}
-												{% else %}
-													{% translate "DEADLINE" %}
-													{{ module.closing_time }}
-												{% endif %}
-											</li>
-											<li>
-												<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-												{% if exercise.min_group_size == 1 %}
-													{% if exercise.max_group_size == 1 %}
-														{% translate "TO_BE_SUBMITTED_ALONE" %}
-													{% elif exercise.max_group_size == 2 %}
-														{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
-													{% else %}
-														{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
-													{% endif %}
-												{% elif exercise.min_group_size == exercise.max_group_size %}
-													{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
-												{% else %}
-													{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
-												{% endif %}
-											</li>
-										</ul>
-									</small>
+									</a>
 								</li>
-							{% endif %}
-						</ul>
-						{% if is_course_staff or is_student and model_revealed %}
-							{% comment %} The model solution link is shown even if the student can not
-							open it due to personal extensions. However, this saves some database queries.
-							{% endcomment %}
-							{% if exercise.model_answers %}
-								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-									{% translate "SHOW_MODEL_ANSWER" %}
-								</a>
-							{% endif %}
-						{% endif %}
-						{% if is_course_staff or is_student %}
-							{% if exercise.templates %}
-								<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
-									<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-									{% translate "SHOW_EXERCISE_TEMPLATE" %}
-								</a>
-							{% endif %}
-						{% endif %}
-						{% if is_course_staff %}
-							<a class="aplus-button--secondary aplus-button--md page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
-								<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-								{% translate "VIEW_ALL_SUBMISSIONS" %}
-							</a>
-						{% endif %}
+								<li class="nav-item dropdown">
+									<a class="dropdown-toggle exercise-nav-submissions btn" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+										<span>
+											{% translate "MY_SUBMISSIONS" %}
+											<span class="badge text-bg-secondary">
+												{{ summary.submission_count }}
+												{% if exercise.max_submissions %}
+													/ {{ summary.personal_max_submissions|default_if_none:exercise.max_submissions }}
+												{% endif %}
+											</span>
+											<b class="caret"></b>
+										</span>
+									</a>
+									<ul class="dropdown-menu" style="position: absolute; left: 0; right: auto">
+										{% for submission in submissions %}
+											<li>
+												<a class="dropdown-item" href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
+													{{ forloop.revcounter }}.
+													{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
+													{% points_badge submission%}
+												</a>
+											</li>
+										{% empty %}
+											<li>
+												<a href="#" class="dropdown-item">{% translate "NO_SUBMISSIONS_YET" %}</a>
+											</li>
+										{% endfor %}
+									</ul>
+								</li>
+								<li class="nav-item">
+									{% if is_course_staff or is_student and model_revealed %}
+										{% comment %} The model solution link is shown even if the student can not
+										open it due to personal extensions. However, this saves some database queries.
+										{% endcomment %}
+										{% if exercise.model_answers %}
+											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
+												<i class="bi-file-earmark-check" aria-hidden="true"></i>
+												{% translate "SHOW_MODEL_ANSWER" %}
+											</a>
+										{% endif %}
+									{% endif %}
+									{% if is_course_staff or is_student %}
+										{% if exercise.templates %}
+											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
+												<i class="bi-file-post-fill" aria-hidden="true"></i>
+												{% translate "SHOW_EXERCISE_TEMPLATE" %}
+											</a>
+										{% endif %}
+									{% endif %}
+									{% if is_course_staff %}
+										<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
+											<i class="bi-files" aria-hidden="true"></i>
+											{% translate "VIEW_ALL_SUBMISSIONS" %}
+										</a>
+									{% endif %}
+								</li>
+							</ul>
+						</div>
 					</nav>
 				{% endif %}
+				<div class="container-fluid bg-info-subtle text-info-emphasis" style="border-top: 1px solid var(--bs-info);">
+					{% if not exercise.category.confirm_the_level %}
+						<div class="exercise-nav-info">
+							<small style="display: flex; align-items: center; justify-content: space-between;">
+								{% if exercise.points_to_pass > 0 %}
+									<span>
+									<i class="bi-flag" aria-hidden="true"></i>
+									{% blocktranslate trimmed with points=exercise.points_to_pass %}
+										POINTS_REQUIRED_TO_PASS -- {{ points }}
+									{% endblocktranslate %}
+									</span>
+								{% endif %}
+								<span>
+								<i class="bi-clock" aria-hidden="true"></i>
+								{% if summary.personal_deadline %}
+									{% translate "PERSONAL_EXTENDED_DEADLINE" %}
+									{{ summary.personal_deadline }}
+									{% if module.late_submission_penalty > 0 and summary.personal_deadline_has_penalty %}
+									({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
+										PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
+									{% endblocktranslate %})
+									{% endif %}
+								{% elif exercise.is_late_submission_open %}
+									{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
+									{% if module.late_submission_penalty > 0 %}
+									(-{{ module.late_submission_penalty|percent }}%)
+									{% endif %}
+								{% else %}
+									{% translate "DEADLINE" %}
+									{{ module.closing_time }}
+								{% endif %}
+								</span>
+								<span>
+								<i class="bi-person-fill" aria-hidden="true"></i>
+								{% if exercise.min_group_size == 1 %}
+									{% if exercise.max_group_size == 1 %}
+										{% translate "TO_BE_SUBMITTED_ALONE" %}
+									{% elif exercise.max_group_size == 2 %}
+										{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
+									{% else %}
+										{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+									{% endif %}
+								{% elif exercise.min_group_size == exercise.max_group_size %}
+									{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
+								{% else %}
+									{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+								{% endif %}
+								</span>
+							</small>
+						</div>
+					{% endif %}
+				</div>
 
 				<div
 					class="exercise-response"
