@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-13 12:37+0200\n"
+"POT-Creation-Date: 2025-08-15 16:56+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -3923,11 +3923,13 @@ msgstr "Ei vaikuta arvosteluun"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "DEADLINE_PASSED"
 msgstr "Palautettu määräajan jälkeen"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "LIMIT_EXCEEDED"
 msgstr "Palautuskertojen enimmäismäärä ylitetty"
 
@@ -4158,6 +4160,7 @@ msgstr "Tälle tehtävälle ei ole annettu malliratkaisua."
 
 #: exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "UNOFFICIAL_DESCRIPTION"
 msgstr ""
 "Palautettu määräajan jälkeen tai palautuskertojen enimmäismäärä ylitetty"
@@ -4188,22 +4191,6 @@ msgstr "Puuttuu"
 #: exercise/templates/exercise/staff/analytics.html
 msgid "NOT_SUBMITTED"
 msgstr "Ei palautuksia"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "PASSED"
-msgstr "Läpäisty"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/exercise_plain.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#, python-format
-msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
-msgstr "Läpäisyyn vaaditaan %(points)s pistettä"
-
-#: exercise/templates/exercise/_points_badge.html
-msgid "REQUIRED_EXERCISES_NOT_PASSED"
-msgstr "Kaikkia pakollisia tehtäviä ei ole läpäisty"
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templatetags/exercise.py
@@ -4417,6 +4404,13 @@ msgstr "Näytä esimerkkiratkaisu"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "SHOW_EXERCISE_TEMPLATE"
 msgstr "Näytä pohjatiedosto"
+
+#: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+#, python-format
+msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
+msgstr "Läpäisyyn vaaditaan %(points)s pistettä"
 
 #: exercise/templates/exercise/exercise_plain.html
 #, python-format
@@ -4678,6 +4672,11 @@ msgstr "Nro"
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "COMPARE"
 msgstr "Vertaa"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+msgid "PASSED"
+msgstr "Läpäisty"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
@@ -5028,13 +5027,17 @@ msgid "NO_SUBMISSIONS_FOR_COURSE"
 msgstr "Ei vielä palautuksia tälle kurssille."
 
 #: exercise/templatetags/exercise.py exercise/viewbase.py
+msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Tulokset on tällä hetkellä piilotettu."
+
+#: exercise/templatetags/exercise.py
+msgid "REQUIRED_EXERCISES_NOT_PASSED"
+msgstr "Kaikkia pakollisia tehtäviä ei ole läpäisty"
+
+#: exercise/templatetags/exercise.py exercise/viewbase.py
 #, python-brace-format
 msgid "RESULTS_WILL_BE_REVEALED -- {time}"
 msgstr "Tulokset paljastetaan viimeistään {time}."
-
-#: exercise/templatetags/exercise.py exercise/viewbase.py
-msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
-msgstr "Tulokset on tällä hetkellä piilotettu."
 
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
@@ -5870,6 +5873,18 @@ msgstr "Valitse kurssi"
 #: templates/base.html
 msgid "THEME"
 msgstr "Teema"
+
+#: templates/base.html
+msgid "LIGHT"
+msgstr "Vaalea"
+
+#: templates/base.html
+msgid "DARK"
+msgstr "Tumma (kokeellinen)"
+
+#: templates/base.html
+msgid "SYSTEM"
+msgstr "Järjestelmä"
 
 #: templates/base.html
 msgid "CHANGE_LANGUAGE_TO_ENGLISH"

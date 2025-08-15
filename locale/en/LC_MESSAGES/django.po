@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-13 12:37+0200\n"
+"POT-Creation-Date: 2025-08-15 16:56+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -3914,11 +3914,13 @@ msgstr "No effect on grading"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "DEADLINE_PASSED"
 msgstr "Submitted after deadline"
 
 #: exercise/submission_models.py exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "LIMIT_EXCEEDED"
 msgstr "Submission limit exceeded"
 
@@ -4149,6 +4151,7 @@ msgstr "No model answer has been supplied for this assignment."
 
 #: exercise/templates/exercise/_points_badge.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
 msgid "UNOFFICIAL_DESCRIPTION"
 msgstr "Submitted after deadline or exceeded submission limit"
 
@@ -4178,22 +4181,6 @@ msgstr "Missing"
 #: exercise/templates/exercise/staff/analytics.html
 msgid "NOT_SUBMITTED"
 msgstr "Not submitted"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-msgid "PASSED"
-msgstr "Passed"
-
-#: exercise/templates/exercise/_points_badge.html
-#: exercise/templates/exercise/exercise_plain.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#, python-format
-msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
-msgstr "%(points)s points required to pass"
-
-#: exercise/templates/exercise/_points_badge.html
-msgid "REQUIRED_EXERCISES_NOT_PASSED"
-msgstr "Required exercises are not passed"
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templatetags/exercise.py
@@ -4406,6 +4393,13 @@ msgstr "Show model answer"
 #: exercise/templates/exercise/exercise_plain.html
 msgid "SHOW_EXERCISE_TEMPLATE"
 msgstr "Show assignment template"
+
+#: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+#, python-format
+msgid "POINTS_REQUIRED_TO_PASS -- %(points)s"
+msgstr "%(points)s points required to pass"
 
 #: exercise/templates/exercise/exercise_plain.html
 #, python-format
@@ -4665,6 +4659,11 @@ msgstr "No."
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "COMPARE"
 msgstr "Compare"
+
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templatetags/exercise.py
+msgid "PASSED"
+msgstr "Passed"
 
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
 msgid "SUBMISSION_FINAL_TOOLTIP"
@@ -5015,13 +5014,17 @@ msgid "NO_SUBMISSIONS_FOR_COURSE"
 msgstr "No submissions for this course."
 
 #: exercise/templatetags/exercise.py exercise/viewbase.py
+msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
+msgstr "Results are currently hidden."
+
+#: exercise/templatetags/exercise.py
+msgid "REQUIRED_EXERCISES_NOT_PASSED"
+msgstr "Required exercises are not passed"
+
+#: exercise/templatetags/exercise.py exercise/viewbase.py
 #, python-brace-format
 msgid "RESULTS_WILL_BE_REVEALED -- {time}"
 msgstr "Results will be revealed at the latest on {time}."
-
-#: exercise/templatetags/exercise.py exercise/viewbase.py
-msgid "RESULTS_ARE_CURRENTLY_HIDDEN"
-msgstr "Results are currently hidden."
 
 #: exercise/templatetags/exercise.py
 msgid "EXCEL_COMPATIBLE_CSV"
@@ -5851,6 +5854,18 @@ msgstr "Select course"
 #: templates/base.html
 msgid "THEME"
 msgstr "Theme"
+
+#: templates/base.html
+msgid "LIGHT"
+msgstr "Light"
+
+#: templates/base.html
+msgid "DARK"
+msgstr "Dark (experimental)"
+
+#: templates/base.html
+msgid "SYSTEM"
+msgstr "System"
 
 #: templates/base.html
 msgid "CHANGE_LANGUAGE_TO_ENGLISH"

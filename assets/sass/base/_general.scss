@@ -53,7 +53,7 @@ h1, .h1, h2, .h2, h3, .h3 {
 	@extend .img-fluid;
 }
 
-// BS3's panel class is removed from BS4+, so provide basic 
+// BS3's panel class is removed from BS4+, so provide basic
 // functionality via BS5 card until material is updated.
 .panel {
 	@extend .card;
@@ -63,6 +63,14 @@ h1, .h1, h2, .h2, h3, .h3 {
 }
 .panel-body {
 	@extend .card-body;
+}
+
+// Provide a workaround for the removed help-block class from BS3
+.help-block {
+	@extend .form-text;
+}
+.is-invalid .help-block {
+	color: var(--bs-danger);
 }
 
 // Provide workarounds for some common glyphicons

@@ -20,6 +20,10 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 		margin-bottom: 5px;
 	}
 
+	.question-description:has(.help-block) {
+		margin-bottom: -5px;
+	}
+
 	.question-feedback {
 		margin-top: 5px;
 	}
@@ -45,13 +49,13 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 	.error-text {
 		margin-top: 5px;
 		margin-bottom: 5px;
-		color: #a94442;
+		color: var(--bs-danger);
 		font-weight: bold;
 		margin-bottom: 0px;
 	}
 
-	.has-error .radio,
-	.has-error .checkbox {
+	.is-invalid .radio,
+	.is-invalid .checkbox {
 		color: #333;
 	}
 
