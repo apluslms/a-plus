@@ -38,3 +38,11 @@ def upload_submission(page: Page, chapter_name: str, exercise_name: str, files: 
     expect(page.locator("#page-modal")
            ).to_contain_text("Total points:", timeout=10000)
     page.get_by_role("button", name="Close", exact=True).click()
+
+def navigate_to_default_course(page: Page):
+    # If not at the site root, navigate to it
+    if page.url != "http://localhost:8000/?hl=en":
+        page.goto("http://localhost:8000/?hl=en")
+
+    # Navigate to the default course
+    page.get_by_role("link", name="Def. Course Current DEF000 1.").click()

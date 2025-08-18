@@ -16,6 +16,7 @@ $(function() {
 * certain screen size, and otherwise stack them vertically.
 *
 * Note: the child elements must have min-width values.
+* Note 2: the parent element to resize-handle must have position: relative.
 */
 (function($, document) {
   "use strict";

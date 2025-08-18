@@ -1,7 +1,7 @@
 @import "../mixins/sticky_submission_scroll";
 
 .assessment-panel {
-	& > .panel-heading {
+	& > .card-header {
 		position: sticky;
 		top: 0;
 		z-index: 10;
@@ -32,7 +32,7 @@
 		}
 	}
 
-	& > .panel-body {
+	& > .card-body {
 		& > .row > * {
 			// Minimum width for resizable columns
 			min-width: 200px;
@@ -76,7 +76,7 @@
 		// column, so the columns line up nicely.
 		margin-bottom: $form-group-margin-bottom;
 		& > li > a {
-			height: $input-height-base;
+			/*height: $input-height-base;*/
 			padding: $padding-base-vertical $padding-base-horizontal;
 		}
 	}

@@ -1,0 +1,12 @@
+{
+  "name": "aplus-pygments-scss",
+  "description": "Pygments SCSS themes for A+",
+  "repository": ".",
+  "license": "MIT",
+  "version": "1.0.0",
+  "devDependencies": {},
+  "scripts": {
+    "install": "./install.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

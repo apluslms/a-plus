@@ -3,20 +3,22 @@
 .site-footer {
 	position: absolute;
 	bottom: 0;
+	width: 100%;
 	min-height: 50px;
 	z-index: 990;
 
 	.nav > li > a {
 		@include focus-with-background-and-color;
-		color: $aplus-brand-primary;
+		color: var(--bs-body-color, $aplus-brand-primary);
 		&:focus,
 		&:hover {
-			color: #236aa7;
+			color: var(--bs-emphasis-color, #236aa7);
 		}
 	}
 
 	.navbar-text {
-		color: $gray;
+		color: var(--bs-secondary-text-emphasis, $gray);
+		size: 0.85em;
 
 		@media (max-width: $grid-float-breakpoint-max) {
 			// Use the same layout as the navbar links.

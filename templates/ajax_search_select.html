@@ -3,80 +3,69 @@
 <div {% include "django/forms/widgets/attrs.html" %}>
 	<ul class="list-inline search-selected">
 		<li>
-			<button>
+			<button class="aplus-button--secondary aplus-button--sm">
 				<span class="name">None</span>
 				<span aria-label="{% translate 'REMOVE' %}">&times;</span>
 			</button>
 		</li>
 	</ul>
 
-	<div class="input-group">
-		<div class="input-group-btn search-button">
-			<div class="btn-group">
-				<button class="btn btn-default dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
-					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-				</button>
-				<ul class="dropdown-menu search-options" role="menu">
-					{% if clipboard_options %}
-					{% for option in clipboard_options %}
-					<li class="paste-option" data-field="{{ option.field }}">
-						<a href="#">{% translate 'IMPORT_LIST' %} ({{ option.label }})</a>
-					</li>
-					{% endfor %}
-					{% else %}
-					<li class="paste-option">
-						<a href="#">{% translate 'IMPORT_LIST' %}</a>
-					</li>
-					{% endif %}
-					<li class="not-found">
-						<a href="#">{% translate "NO_MATCHES" %}</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<input
-			type="text"
-			id="{{ widget.input_id }}"
-			aria-label="{% translate 'SEARCH_OR_PASTE' %}"
-			class="form-control"
-			placeholder="{% translate 'SEARCH_OR_PASTE' %}"
-		/>
-		<div class="input-group-btn">
-			{# The copy button acts as a dropdown if there are multiple search clipboard options, otherwise it copies IDs directly. #}
-			<div
-				class="btn-group"
-				data-container="body"
-				data-toggle="tooltip"
-				aria-label="{% translate 'COPY_SELECTION' %}"
-				title="{% translate 'COPY_SELECTION' %}"
-			>
-				<button
-					type="button"
-					{% if clipboard_options %}
-					class="btn btn-default dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown"
-					{% else %}
-					class="btn btn-default copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
-					{% endif %}
-				>
-					<span class="glyphicon glyphicon-copy" aria-hidden="true"></span>
-				</button>
+	<div class="input-group flex-nowrap">
+		<div class="input-group search-button">
+			<button class="btn btn-outline-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown" type="button" aria-label="{% translate 'SEARCH' %}">
+				<i class="bi-search" aria-hidden="true"></i>
+			</button>
+			<ul class="dropdown-menu search-options" role="menu">
 				{% if clipboard_options %}
-				<ul class="dropdown-menu dropdown-menu-right" role="menu">
-					{% for option in clipboard_options %}
-					<li>
-						<a href="#" class="copy-option" data-field="{{ option.field }}" data-clipboard-target="#{{ widget.attrs.id }} input">
-							{{ option.label }}
-						</a>
-					</li>
-					{% endfor %}
-				</ul>
+				{% for option in clipboard_options %}
+				<li class="paste-option" data-field="{{ option.field }}">
+					<a class="dropdown-item" href="#">{% translate 'IMPORT_LIST' %} ({{ option.label }})</a>
+				</li>
+				{% endfor %}
+				{% else %}
+				<li class="paste-option">
+					<a class="dropdown-item" href="#">{% translate 'IMPORT_LIST' %}</a>
+				</li>
 				{% endif %}
-			</div>
+				<li class="not-found">
+					<a class="dropdown-item" href="#">{% translate "NO_MATCHES" %}</a>
+				</li>
+			</ul>
+			<input
+				type="text"
+				id="{{ widget.input_id }}"
+				aria-label="{% translate 'SEARCH_OR_PASTE' %}"
+				class="form-control rounded-0"
+				placeholder="{% translate 'SEARCH_OR_PASTE' %}"
+			/>
 		</div>
+		{# The copy button acts as a dropdown if there are multiple search clipboard options, otherwise it copies IDs directly. #}
+		<button
+			type="button"
+			title="{% translate 'COPY_SELECTION' %}"
+			aria-label="{% translate 'COPY_SELECTION' %}"
+			{% if clipboard_options %}
+			class="btn btn-outline-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown"
+			{% else %}
+			class="btn btn-outline-secondary copy-option" data-clipboard-target="#{{ widget.attrs.id }} input"
+			{% endif %}
+		>
+			<i class="bi-copy" aria-hidden="true"></i>
+		</button>
+		{% if clipboard_options %}
+		<ul class="dropdown-menu dropdown-menu-end" role="menu">
+			{% for option in clipboard_options %}
+			<li>
+				<a href="#" class="dropdown-item copy-option" data-field="{{ option.field }}" data-clipboard-target="#{{ widget.attrs.id }} input">
+					{{ option.label }}
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
 	</div>
 
-	<div class="hidden">
+	<div class="d-none">
 		{% include "django/forms/widgets/select.html" with widget=inner_widget %}
 	</div>
 </div>
-

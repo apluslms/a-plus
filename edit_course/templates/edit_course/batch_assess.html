@@ -1,7 +1,7 @@
 {% extends "edit_course/edit_course_base.html" %}
 {% load i18n %}
 {% load course %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block edittitle %}{% translate "BATCH_ASSESS_SUBMISSIONS" %}{% endblock %}
 {% block view_tag %}edit-course,batch-assess{% endblock %}
@@ -13,9 +13,9 @@
 
 {% block coursecontent %}
 <br />
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">{% translate "BATCH_CREATE_AND_ASSESS_SUBMISSIONS" %}</h3>
+<div class="card">
+    <div class="card-header bg-primary">
+        <h5 class="card-title text-white">{% translate "BATCH_CREATE_AND_ASSESS_SUBMISSIONS" %}</h5>
     </div>
     <div class="panel-body">
         {% blocktranslate trimmed with profile.id as id %}

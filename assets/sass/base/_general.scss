@@ -1,3 +1,5 @@
+@use '../components/icons' as icons;
+
 // This file contains styles that are use throughout the application.
 .kbd,
 kbd {
@@ -19,4 +21,96 @@ kbd {
 	font-size: 0.5em;
 	font-weight: 400;
 	color: #535353;
+}
+
+.page-header {
+	padding-bottom: 9px;
+	margin: 40px 0 20px;
+	border-bottom: 1px solid var(--bs-secondary-bg, #f9f2f4);
+}
+
+// Border for code blocks like in BS3
+pre {
+	padding: 0.6rem;
+	border: 1px solid #ccc;
+	border-radius: $border-radius;
+}
+
+code {
+	padding: 2px 4px;
+	background-color: var(--bs-secondary-bg, #f9f2f4);
+	border-radius: 4px;
+}
+
+// Heading margins like BS3 (XXX find a better way)
+h1, .h1, h2, .h2, h3, .h3 {
+	margin-top: 1.375rem;
+	margin-bottom: 0.5rem;
+}
+
+// Workaround for the responsive image class changed in BS4
+.img-responsive {
+	@extend .img-fluid;
+}
+
+// BS3's panel class is removed from BS4+, so provide basic
+// functionality via BS5 card until material is updated.
+.panel {
+	@extend .card;
+}
+.panel-heading {
+	@extend .card-header;
+}
+.panel-body {
+	@extend .card-body;
+}
+
+// Provide a workaround for the removed help-block class from BS3
+.help-block {
+	@extend .form-text;
+}
+.is-invalid .help-block {
+	color: var(--bs-danger);
+}
+
+// Provide workarounds for some common glyphicons
+.glyphicon {
+	font-family: bootstrap-icons;
+	&.glyphicon-file {
+		&:before {
+			@extend .bi-file-earmark-fill;
+		}
+	}
+}
+
+// Make open to new tab icons stand out more from regular icons
+.new-tab-link {
+	font-size: 0.8rem;
+	vertical-align: super;
+	padding-left: 3px;
+}
+
+// Django-colortag has hardcoded "label" class, but it's no longer present in BS5
+.colortag.label {
+	@extend .badge;
+}
+
+legend {
+	border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);;
+}
+
+@media (min-width: 768px) {
+	.site-messages {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.site-content > .site-messages {
+		padding-left: 16%;
+
+		&.sidebar-collapsed {
+			padding-left: 48px;
+		}
+	}
 }

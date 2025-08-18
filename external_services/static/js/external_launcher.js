@@ -7,7 +7,7 @@
  *   the service is launched automatically on the next page load.
  *   However, this is disabled if the destination is a blank page.
  */
-(function($) {
+(function() {
     'use strict';
 
     function json_parse(data) {
@@ -28,12 +28,12 @@
     };
 
     function connect_form_automation(name="<unknown>") {
-        const element = $(this);
-        if (element.data(settings.ext_service_connected) === "true") return;
-        element.data(settings.ext_service_connected, "true");
-        const ext_serv = element.data(settings.ext_serv_key);
-        const ext_title = element.data(settings.ext_serv_title);
-        const params_hash = element.data(settings.ext_params_hash_key);
+        const element = this;
+        if (element.dataset[settings.ext_service_connected] === "true") return;
+        element.dataset[settings.ext_service_connected] = "true";
+        const ext_serv = element.dataset[settings.ext_serv_key];
+        const ext_title = element.dataset[settings.ext_serv_title];
+        const params_hash = element.dataset[settings.ext_params_hash_key];
         if (!ext_serv) {
             console.log("Invalid external service element:");
             console.dir(this);
@@ -43,22 +43,22 @@
         }
         const storage = window.localStorage;
         const storage_key = "external_service_" + ext_serv;
-        const form = element.find('form');
-        const auto_accept_box = element.find(settings.auto_accept_selector);
-        const auto_accept = auto_accept_box.find('input[type=checkbox]');
-        const target = form.attr('target');
+        const form = element.querySelector('form');
+        const auto_accept_box = element.querySelector(settings.auto_accept_selector);
+        const auto_accept = auto_accept_box.querySelector('input[type=checkbox]');
+        const target = form.getAttribute('target');
 
-        form.on("submit", function() {
+        form.addEventListener("submit", function() {
             if (target && target.charAt(0) !== '_') {
-                const iframe = element.find("iframe[name='" + target + "']");
+                const iframe = element.querySelector("iframe[name='" + target + "']");
                 /* show the iframe if the external service is opened in one */
-                iframe.show();
+                iframe.style.display = 'block';
 
                 /* hide the warning message and the form */
-                element.find(settings.message_area_selector).hide();
+                element.querySelector(settings.message_area_selector).style.display = 'none';
             }
             /* remember the accepted state via a local storage */
-            if (auto_accept.prop('checked')) {
+            if (auto_accept.checked) {
                 const local_value = json_parse(storage.getItem(storage_key)) ||
                     {id: ext_serv, title: ext_title, ok: []};
                 if (local_value.ok.indexOf(params_hash) < 0) {
@@ -85,7 +85,7 @@
         if (target === "_blank") {
             /* hide the automatic accept checkbox when the automatic launch
                is disabled due to pop-up blockers */
-            auto_accept_box.hide();
+            auto_accept_box.style.display = 'none';
         } else if (local_value !== null &&
                    local_value.ok.indexOf(params_hash) >= 0) {
             /* automatically submit data, if form with current data,
@@ -95,17 +95,18 @@
     }
 
     function find_and_connect(dom, name) {
-        $(dom).find('div.external-service').each(function() {
-            connect_form_automation.call(this, name);
+        dom.querySelectorAll('div.external-service').forEach(function(element) {
+            connect_form_automation.call(element, name);
         });
     }
 
-    $(document).on('aplus:exercise-ready', function(e) {
+    document.addEventListener('aplus:exercise-ready', function(e) {
         const exercise = e.target;
-        const name = exercise.dataset.aplusExercise || exercise.dataset.aplusChapter || "<unknown exercise>";
+        const name = exercise.dataset.aplusExercise || exercise.dataset.aplusChapter || "<unknown exercise>";
         find_and_connect(exercise, name);
     });
-    $(function() {
+
+    document.addEventListener('DOMContentLoaded', function() {
         find_and_connect(document, "<redirect-page>");
     });
-})(jQuery);
+})();

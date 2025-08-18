@@ -5,12 +5,11 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="{% translate "CLOSE" %}">
-					<span aria-hidden="true">&times;</span>
-				</button>
 				<h4 class="modal-title" id="remove-selected-modal-label">
 					{% translate "REMOVE_SELECTED_DEVIATIONS" %}
 				</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+				</button>
 			</div>
 
 			<div class="modal-body">
@@ -28,7 +27,7 @@
 					class="aplus-button--secondary aplus-button--md"
 					type="button"
 					value="{% translate 'CANCEL' %}"
-					data-dismiss="modal"
+					data-bs-dismiss="modal"
 				/>
 				<input
 					id="remove-selected-submit-button"
@@ -48,12 +47,12 @@
 		const form = modal.closest("form");
 		modal.on('shown.bs.modal', function() {
 			const hiddenSelected = form.find('tr.hidden-filter input[name="id"]:checked');
-			$("#remove-selected-hidden-warning").toggleClass("hidden", hiddenSelected.length === 0);
+			$("#remove-selected-hidden-warning").toggleClass("d-none", hiddenSelected.length === 0);
 
 			const selected = form.find('input[name="id"]:checked');
-			$("#remove-selected-no-selection-warning").toggleClass("hidden", selected.length > 0);
+			$("#remove-selected-no-selection-warning").toggleClass("d-none", selected.length > 0);
 			$("#remove-selected-confirmation")
-			.toggleClass("hidden", selected.length === 0)
+			.toggleClass("d-none", selected.length === 0)
 			.text(
 				_("Are you sure you want to remove the selected deviation? |||| Are you sure you want to remove the %{smart_count} selected deviations?",
 				{ smart_count: selected.length })

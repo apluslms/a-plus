@@ -5,35 +5,35 @@
 {% load colortag %}
 
 <div class="clearfix">
-	<div class="pull-right">
+	<div class="float-end">
 		{% if allow_regrade %}
-			<button type="button" class="aplus-button--secondary aplus-button--xs" data-toggle="modal" data-target="#regrade-modal">
+			<button type="button" class="aplus-button--secondary aplus-button--xs" data-bs-toggle="modal" data-bs-target="#regrade-modal">
 				{{ regrade_button }}
 			</button>
 		{% endif %}
 
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
-			<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+			<i class="bi-check-lg" aria-hidden="true"></i>
 			{% translate "START_MANUAL_ASSESSMENT" %}
 		</a>
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-summary' }}">
-			<span class="glyphicon glyphicon-stats" aria-hidden="true"></span>
+			<i class="bi-bar-chart-fill" aria-hidden="true"></i>
 			{% translate "SUMMARY" %}
 		</a>
 		<span class="dropdown">
 			<button
 				class="aplus-button--secondary aplus-button--xs dropdown-toggle"
 				type="button"
-				data-toggle="dropdown"
+				data-bs-toggle="dropdown"
 				id="download-data"
 			>
 				{% translate "DOWNLOAD_POINTS" %} <span class="caret"></span>
 			</button>
-			<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-data">
+			<ul class="dropdown-menu dropdown-menu-end" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
 				{% for format in formats %}
 				<li>
-					<a href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
+					<a class="dropdown-item" href="{% url 'api:course-submissiondata-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
 						{{ format.verbose_name }}
 					</a>
 				</li>
@@ -45,16 +45,16 @@
 				<button
 					class="aplus-button--secondary aplus-button--xs dropdown-toggle"
 					type="button"
-					data-toggle="dropdown"
+					data-bs-toggle="dropdown"
 					id="download-zip-data"
 				>
 					{% translate "DOWNLOAD_SUBMISSIONS" %} <span class="caret"></span>
 				</button>
-				<ul class="dropdown-menu dropdown-menu-right" aria-labeledby="download-zip-data">
+				<ul class="dropdown-menu dropdown-menu-end" aria-labeledby="download-zip-data">
 					{% get_zip_info_list "all best" as types %}
 					{% for type in types %}
 					<li>
-						<a href="{% url 'api:exercise-submissions-zip' version=2 exercise_id=exercise.id %}?best={{ type.best }}">
+						<a class="dropdown-item" href="{% url 'api:exercise-submissions-zip' version=2 exercise_id=exercise.id %}?best={{ type.best }}">
 							{{ type.verbose_name }}
 						</a>
 					</li>
@@ -84,10 +84,10 @@
 	</p>
 </div>
 <p class="filter-submissions">
-	<small>{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
+	<small class="text-body-secondary">{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
 	{% for tag in instance.submissiontags.all %}
-	<button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
-		<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+	<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
+		<i class="bi-square" aria-hidden="true"></i>
 		{{ tag.name }}
 	</button>
 	{% endfor %}
@@ -119,7 +119,7 @@
 						<td data-datetime="{{ submission.submission_time|date:'Y-m-d H:i:s' }}">
 								{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
 								{% if submission.late_penalty_applied %}
-								<span class="label label-warning">
+								<span class="badge text-bg-warning">
 										{% blocktranslate trimmed with percent=submission.late_penalty_applied|percent %}
 											LATE_W_PENALTY -- {{ percent }}
 										{% endblocktranslate %}
@@ -139,16 +139,16 @@
 						</td>
 						<td>
 								{% if submission.grader %}
-										<span class="glyphicon glyphicon-ok"></span>
+										<i class="bi-check-lg"></i>
 										{% translate "YES" %}
 								{% else %}
-										<span class="glyphicon glyphicon-remove"></span>
+										<i class="bi-x-lg"></i>
 										{% translate "NO" %}
 								{% endif %}
 						</td>
 						<td>
 								<a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--xs">
-										<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>
+										<i class="bi-zoom-in" aria-hidden="true"></i>
 										{% translate "INSPECT" %}
 								</a>
 						</td>

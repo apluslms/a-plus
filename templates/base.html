@@ -25,18 +25,20 @@
 			integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
 			crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-	<script src="{% static 'js/bootstrap3.min.js' %}"></script>
+	<script src="{% static 'js/popper.min.js' %}"></script>
+	<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
-	<link href="https://use.fontawesome.com/releases/v5.15.4/css/solid.css" rel="stylesheet"
+	<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">--> <!-- TODO: CHECK FOR REMOVAL #1442 -->
+	<!--<link href="https://use.fontawesome.com/releases/v5.15.4/css/solid.css" rel="stylesheet"
 			integrity="sha384-Tv5i09RULyHKMwX0E8wJUqSOaXlyu3SQxORObAI08iUwIalMmN5L6AvlPX2LMoSE"
 			crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link href="https://use.fontawesome.com/releases/v5.15.4/css/regular.css" rel="stylesheet"
 			integrity="sha384-e7wK18mMVsIpE/BDLrCQ99c7gROAxr9czDzslePcAHgCLGCRidxq1mrNCLVF2oaj"
-			crossorigin="anonymous" referrerpolicy="no-referrer" />
+			crossorigin="anonymous" referrerpolicy="no-referrer" />--> <!-- TODO: CHECK FOR REMOVAL #1442 -->
 
-	<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
+	<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
 			integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
-			crossorigin="anonymous" referrerpolicy="no-referrer" />
+			crossorigin="anonymous" referrerpolicy="no-referrer" />--> <!-- TODO: CHECK FOR REMOVAL #1442 -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
 			integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q=="
 			crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -75,8 +77,8 @@
 	<link rel="stylesheet" href="{% static 'css/submission.css' %}" />
 	<link rel="stylesheet" href="{% static 'django_colortag.css' %}" />
 	<script src="{% static 'js/polyfill-find.js' %}"></script>
-	<script src="{% static 'js/focus-visible-polyfill.min.js' %}"></script>
 	<script src="{% static 'js/aplus.js' %}"></script>
+	<script src="{% static 'js/color-mode.js' %}"></script>
 	{{ form.media.js }}
 
 	{% block scripts %}
@@ -113,162 +115,118 @@
 	<div class="page-wrap">
 		{% block header %}
 		<header>
-			<nav class="topbar navbar navbar-inverse navbar-static-top" aria-label="{% translate 'MAIN' %}">
-				<div class="container-fluid">
-					<div class="navbar-header">
-						<a class="navbar-brand" href="{% url 'home' %}">{% brand_name %}</a>
-						<p class="navbar-text">{{ APLUS_VERSION }}</p>
-						<ul class="nav navbar-dropdown">
-							<li role="separator" class="divider"></li>
+			<nav class="navbar-header topbar navbar fixed-top" aria-label="{% translate 'MAIN' %}">
+				<div class="container-fluid flex-nowrap py-1">
+					<div class="d-flex align-items-center ps-2">
+						<a class="navbar-brand btn btn-link py-1" href="{% url 'home' %}">{% brand_name %}</a>
+						<span class="navbar-brand d-none d-md-flex" style="font-size: 0.85em">{{ APLUS_VERSION }}</span>
+						<ul class="navbar-nav navbar-dropdown">
 							<li role="presentation" class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
 									{% if instance %}
 									{{ course|parse_localization }}
 									{% if not instance.visible_to_students %}
-									<span class="label label-danger">{% translate "HIDDEN_capitalized" %}</span>
+									<span class="badge text-bg-danger">{% translate "HIDDEN_capitalized" %}</span>
 									{% endif %}
 									{% else %}
 									{% translate "SELECT_COURSE" %}
 									{% endif %}
-									<span class="caret"></span>
 								</a>
 								{% course_menu %}
 							</li>
 						</ul>
-						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-							data-target="#bs-navbar-collapse" aria-expanded="false">
-							<span class="sr-only">{% translate "TOGGLE_NAVIGATION" %}</span>
-							{% notification_count as n_count %}
-							{% if n_count > 0 %}
-							<span class="badge badge-danger pull-right">{{ n_count }}</span>
-							{% endif %}
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
 					</div>
-					<div class="collapse navbar-collapse" id="bs-navbar-collapse">
-						<ul class="user-menu nav navbar-nav navbar-right hidden-xs">
-							<li>
-								{% if show_language_toggle %}
+					<div class="d-flex gap-2">
+						<ul class="navbar-nav navbar-dropdown user-menu flex-row align-items-center">
+							<li class="nav-item dropdown">
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false"
+									data-bs-toggle="dropdown" data-bs-display="static" aria-label="Theme">
+									<i id="theme-switcher-icon" class="bi bi-moon-stars-fill theme-icon-active"><use href="#moon-stars-fill"></use></i>
+									<span class="d-none d-md-block ms-1" id="bd-theme-text">{% translate "THEME" %}</span>
+								</a>
+								<ul class="dropdown-menu dropdown-menu-end" style="position: absolute; right: 0; left: auto" aria-labelledby="bd-theme-text">
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+										<i class="bi bi-sun-fill me-2 opacity-50"><use href="#sun-fill"></use></i>
+										{% translate "LIGHT" %}
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
+										<i class="bi bi-moon-stars-fill me-2 opacity-50"><use href="#moon-stars-fill"></use></i>
+										{% translate "DARK" %}
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+									<li>
+									<button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+										<i class="bi bi-circle-half me-2 opacity-50"><use href="#circle-half"></use></i>
+										{% translate "SYSTEM" %}
+										<i class="bi bi-check2 ms-auto d-none"><use href="#check2"></use></i>
+									</button>
+									</li>
+								</ul>
+							</li>
+							{% if show_language_toggle %}
+							<li class="nav-item">
 								{% if request.LANGUAGE_CODE == 'fi' %}
-								<a href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										EN
-									</span>
+								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
+									<i class="bi bi-translate" alt=""></i>
+									<span class="ms-1">EN</span>
 								</a>
 								{% else %}
-								<a href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										FI
-									</span>
+								<a class="btn btn-link py-2 px-2 px-lg-2 d-flex align-items-center" href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
+									<i class="bi bi-translate" alt=""></i>
+									<span class="ms-1">FI</span>
 								</a>
 								{% endif %}
-								{% endif %}
 							</li>
+							{% endif %}
 							{% if user.is_authenticated %}
 							{% group_select %}
 							{% notification_menu %}
-							<li role="presentation" class="profile-menu dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+							<li role="presentation" class="profile-menu nav-item dropdown">
+								<a href="#" class="btn btn-link py-2 px-2 px-lg-2 dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false">
-									<span class="glyphicon glyphicon-user" aria-hidden="true" data-testid="user-menu"></span>
-									{{ user.first_name }} {{ user.last_name }} <span class="caret"></span>
+									<i class="bi-person-fill" aria-hidden="true" data-testid="user-menu"></i>
+									<span class="d-none d-md-inline ms-1">{{ user.first_name }} {{ user.last_name }}</span>
 								</a>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu" style="position: absolute; right: 0; left: auto">
 									<li role="presentation">
-										<a href="{% url 'profile' %}">{% translate "PROFILE" %}</a>
+										<a class="dropdown-item" href="{% url 'profile' %}">{% translate "PROFILE" %}</a>
 									</li>
-									<li role="separator" class="divider"></li>
+									<hr>
 									<li role="presentation">
-										<a href="{% url 'logout' %}">
-											<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+										<a class="dropdown-item" href="{% url 'logout' %}">
+											<i class="bi-box-arrow-right" aria-hidden="true"></i>
 											{% translate "LOG_OUT"%}
 										</a>
 									</li>
 								</ul>
 							</li>
 							{% else %}
-							<li role="presentation">
-								<a href="{% url 'login' %}{% login_next %}">
-									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-									{% translate "LOG_IN"%}
+							<li class="nav-item" role="presentation">
+								<a class="nav-link btn btn-link d-flex" href="{% url 'login' %}{% login_next %}">
+									<i class="bi-box-arrow-in-right" aria-hidden="true"></i>
+									<span class="d-none d-md-block ms-1">{% translate "LOG_IN"%}</span>
 								</a>
 							</li>
 							{% endif %}
 						</ul>
-
-						{# Separate menu optimized for mobile users #}
-						<ul class="nav navbar-nav visible-xs">
-							{% notification_count as n_count %}
-							{% if n_count > 0 %}
-								<li class="header">
-									<h4>{% translate "NOTIFICATION" %}</h4>
-								</li>
-							{% endif %}
-							{% notification_menu %}
-							{% group_select %}
-							{% block mobilemenu %}{% endblock %}
-							<li class="header">
-								<h4>{% translate "SITE" %}</h4>
-							</li>
-							<li>
-								<a href="{% url 'home' %}">
-									<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
-									{% translate "HOME" %}
-								</a>
-							</li>
-							{% course_menu %}
-							{% if user.is_authenticated %}
-							<li>
-								<a href="{% url 'profile' %}">
-									<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-									{{ user.first_name }} {{ user.last_name }}
-								</a>
-							</li>
-							<li>
-								<a href="{% url 'logout' %}">
-									<span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
-									{% translate "LOG_OUT"%}
-								</a>
-							</li>
-							{% else %}
-							<li>
-								<a href="{% url 'login' %}{% login_next %}">
-									<span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
-									{% translate "LOG_IN" %}
-								</a>
-							</li>
-							{% endif %}
-							<li>
-								{% if show_language_toggle %}
-								{% if request.LANGUAGE_CODE == 'fi' %}
-								<a href="?hl=en" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_ENGLISH' %}" hreflang="en" onclick="changeLanguage('en'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										EN
-									</span>
-								</a>
-								{% else %}
-								<a href="?hl=fi" role="button" aria-label="{% translate 'CHANGE_LANGUAGE_TO_FINNISH' %}" hreflang="fi" onclick="changeLanguage('fi'); return false;">
-									<span>
-										<img src="{% static 'images/uls_white.svg' %}" alt="">
-										FI
-									</span>
-								</a>
-								{% endif %}
-								{% endif %}
-							</li>
-						</ul>
+						{% if course %}
+							<button type="button" class="navbar-toggler collapsed d-block d-md-none border-0" data-bs-toggle="offcanvas"
+								data-bs-target="#bs-navbar-collapse" aria-expanded="false">
+								<span class="visually-hidden">{% translate "TOGGLE_NAVIGATION" %}</span>
+								<i class="bi-list" aria-hidden="true"></i>
+							</button>
+						{% endif %}
 					</div>
 				</div>
 			</nav>
 		</header>
 		{% endblock header %}
-
 		{% block container_opening_tag %}
 		<main class="site-content container-fluid" id="content">
 			{% endblock %}
@@ -282,22 +240,21 @@
 			{% block container_closing_tag %}
 		</main>
 		{% endblock %}
-
 		{% block footer %}
-		<footer role="contentinfo">
-			<div class="site-footer navbar navbar-default navbar-fixed-bottom" role="presentation">
+		<footer class="site-footer footer mt-auto" role="contentinfo">
+			<nav class="navbar navbar-expand sticky-bottom bg-body-tertiary" role="presentation">
 				<div class="container-fluid">
-					<ul class="nav navbar-nav">
+					<ul class="nav navbar-nav" style="align-items: center">
 						{% block footercontent %}{% endblock %}
-						<li><a href="{% url 'privacy_notice' %}">{% translate "PRIVACY_NOTICE" %}</a></li>
-						<li><a href="{% url 'cookie_notice' %}">{% translate "COOKIE_NOTICE" %}</a></li>
-						<li><a href="{% url 'accessibility_statement' %}">{% translate "ACCESSIBILITY_STATEMENT" %}</a></li>
-						<li><a href="{% url 'support_channels' %}">{% translate "SUPPORT" %}</a></li>
-						<li><a href="https://link.webropol.com/s/aplus-feedback" target="_blank">{% translate "FEEDBACK" %}</a></li>
-						<li><p class="navbar-text">{% brand_name %} {{ APLUS_VERSION }}</p></li>
+						<li class="nav-item"><a class="nav-link" href="{% url 'privacy_notice' %}">{% translate "PRIVACY_NOTICE" %}</a></li>
+						<li class="nav-item"><a class="nav-link" href="{% url 'cookie_notice' %}">{% translate "COOKIE_NOTICE" %}</a></li>
+						<li class="nav-item"><a class="nav-link" href="{% url 'accessibility_statement' %}">{% translate "ACCESSIBILITY_STATEMENT" %}</a></li>
+						<li class="nav-item"><a class="nav-link" href="{% url 'support_channels' %}">{% translate "SUPPORT" %}</a></li>
+						<li class="nav-item"><a class="nav-link" href="https://link.webropol.com/s/aplus-feedback" target="_blank">{% translate "FEEDBACK" %}</a></li>
+						<li class="nav-item"><span class="navbar-text">{% brand_name %} {{ APLUS_VERSION }}</span></li>
 					</ul>
 				</div>
-			</div>
+			</nav>
 		</footer>
 		{% endblock %}
 	</div>
@@ -309,7 +266,7 @@
 						{% translate "EXERCISE_ERROR_COMMUNICATION" %}
 					</div>
 					<div class="progress">
-						<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%"
+						<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%"
 							data-msg-error="{% translate 'LOADING_FAILED' %}">
 							{% translate "LOADING" %}
 						</div>
@@ -317,7 +274,7 @@
 				</div>
 				<div class="modal-body"></div>
 				<div class="modal-footer">
-					<button type="button" class="aplus-button--secondary aplus-button--md" data-dismiss="modal">
+					<button type="button" class="aplus-button--secondary aplus-button--md" data-bs-dismiss="modal">
 						{% translate "CLOSE" %}
 					</button>
 				</div>
@@ -329,17 +286,16 @@
 			<div class="modal-content">
 				<div class="modal-progress">
 					<div class="progress">
-						<div class="aplus-progress-bar aplus-progress-bar-striped active" role="progressbar" style="width:100%"
+						<div class="aplus-progress-bar aplus-progress-bar-striped progress-bar-animated" role="progressbar" style="width:100%"
 							data-msg-error="{% translate 'LOADING_FAILED' %}">
 							{% translate "LOADING" %}
 						</div>
 					</div>
 				</div>
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="{% translate 'CLOSE' %}">
-						<span aria-hidden="true">&times;</span>
-					</button>
 					<h4 class="modal-title"></h4>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate "CLOSE" %}">
+					</button>
 				</div>
 				<div class="modal-body"></div>
 			</div>

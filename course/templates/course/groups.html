@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load course %}
 {% load exercise %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 {% block title %}{% translate "MY_GROUPS" %} | {{ block.super }}{% endblock %}
 {% block view_tag %}groups{% endblock %}
@@ -24,17 +24,19 @@
     {% endblocktranslate %}
   </div>
 
-  <form method="post" class="well form-horizontal">
-    {% csrf_token %}
-    <p>
-      {% blocktranslate trimmed %}
-        GROUP_CREATION_INSTRUCTIONS
-      {% endblocktranslate %}
-    </p>
-    {{ form|bootstrap_horizontal }}
-    <button type="submit" class="aplus-button--default aplus-button--md">
-        {% translate "GROUP_FORM_NEW" %}
-    </button>
+  <form method="post" class="card form-horizontal">
+    <div class="card-body">
+      {% csrf_token %}
+      <p>
+        {% blocktranslate trimmed %}
+          GROUP_CREATION_INSTRUCTIONS
+        {% endblocktranslate %}
+      </p>
+      {% bootstrap_form form %}
+      <button type="submit" class="aplus-button--default aplus-button--md mt-2">
+          {% translate "GROUP_FORM_NEW" %}
+      </button>
+    </div>
   </form>
 
   {% else %}
@@ -45,11 +47,11 @@
 </div>
 <div class="col-md-5">
 
-  <div class="panel panel-primary">
-    <div class="panel-heading">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
       {% translate "MY_GROUPS" %}
     </div>
-    <table class="table">
+    <table class="table mb-0">
       {% for group in groups %}
       <tr>
         <td>{{ group.members.all|names }}</td>

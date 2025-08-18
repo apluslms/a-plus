@@ -17,26 +17,26 @@
 	{% if is_teacher %}
 	<p>
 		<a class="aplus-button--secondary aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
-			<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+			<i class="bi-person-fill" aria-hidden="true"></i>
 			{% translate "ENROLL_STUDENTS" %}
 		</a>
 	</p>
 	{% endif %}
 	<p class="filter-users">
-		<small>{% trans "FILTER_USERS_BY_TAG" %}:</small>
+		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
-		<button class="btn btn-default btn-xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+		<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
-		<small>{% trans "FILTER_USERS_BY_STATUS" %}:</small>
+		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_STATUS" %}:</small>
 		{% for status_code, status_label in enrollment_statuses.items %}
-		<button class="btn btn-default btn-xs filter-status" data-status="{{ status_code }}">
+		<button class="btn aplus-button--xs aplus-button--secondary filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
-			<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+			<i class="bi-check-square" aria-hidden="true"></i>
 			{% else %}
-			<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
+			<i class="bi-square" aria-hidden="true"></i>
 			{% endif %}
 			{{ status_label }}
 		</button>
@@ -53,7 +53,7 @@
 		{% endif %}
 	</p>
 
-	<table class="table table-condensed filtered-table ordered-table">
+	<table class="table table-sm filtered-table ordered-table">
 		<thead>
 			<tr>
 				{% if is_teacher %}
@@ -86,14 +86,6 @@
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button
-					type="button"
-					class="close"
-					data-dismiss="modal"
-					aria-label="close"
-				>
-					<span aria-hidden="true">&times;</span>
-				</button>
 				<h4 class="modal-title" id="enrollment-remove-modal-label">
 					<span id="enrollment-remove-modal-remove-title">
 						{% translate "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE" %}
@@ -102,6 +94,13 @@
 						{% translate "ENROLLMENT_REMOVE_MODAL_BAN_TITLE" %}
 					</span>
 				</h4>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="close"
+				>
+				</button>
 			</div>
 			<div class="modal-body">
 				<div id="enrollment-remove-modal-remove-description">
@@ -118,14 +117,14 @@
 				<button
 					type="button"
 					class="aplus-button--secondary aplus-button--md"
-					data-dismiss="modal"
+					data-bs-dismiss="modal"
 				>
 					{% translate "CANCEL" %}
 				</button>
 				<button
 					type="button"
 					class="aplus-button--danger aplus-button--md"
-					data-dismiss="modal"
+					data-bs-dismiss="modal"
 					id="enrollment-remove-modal-button"
 				>
 				</button>

@@ -12,26 +12,52 @@
 	-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25),
 		inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+	padding-bottom: 0px;
+	padding-top: 0px;
+	margin-bottom: 22px;
+
+	.nav-link {
+		--bs-nav-link-padding-x: 0.5rem;
+	}
 
 	.navbar-brand,
 	.navbar-dropdown > a,
+	.navbar-toggler,
 	.navbar-nav > li > a,
-	.navbar-toggle,
 	.navbar-nav > .active > a,
 	.navbar-nav > .active > a:hover {
 		@include focus-with-background-and-color;
-
+		text-decoration:none;
 		color: #ffffff;
 		background: transparent;
 	}
 
-	.navbar-dropdown > li.dropdown > a.dropdown-toggle {
+	.navbar-brand, .navbar-dropdown > li.dropdown > a.dropdown-toggle {
 		padding-top: $navbar-padding-vertical;
 		padding-bottom: $navbar-padding-vertical;
+		padding-left: 0.75rem;
+		padding-right: 0.75rem;
+		--bs-btn-active-color:#ffffff;
 	}
+
+	.navbar-brand {
+		margin-left: -12px;
+	}
+
+	/*.user-menu.navbar-nav {
+		li {
+			a {
+				padding-top: $navbar-padding-vertical;
+				padding-bottom: $navbar-padding-vertical;
+				padding-left: 0.75rem;
+				padding-right: 0.75rem;
+			}
+		}
+	}*/ // TODO: CHECK FOR REMOVAL #1442
 
 	a.navbar-brand:hover,
 	a.navbar-dropdown > a:hover,
+	.navbar-toggler:hover,
 	.navbar-nav > li > a:hover,
 	.navbar-nav > .open > a,
 	.navbar-nav > .open > a:focus,
@@ -48,7 +74,7 @@
 			background-color: rgba(0,0,0,0.1);
 		}
 	}
-
+/*
 	.navbar-brand + .navbar-text {
 		float: left;
 		font-size: $font-size-small;
@@ -94,7 +120,7 @@
 			}
 		}
 	}
-
+*/ // TODO: CHECK FOR REMOVAL #1442
 	.navbar-dropdown {
 		div.dropdown-backdrop {
 			display: none;
@@ -105,17 +131,18 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 			max-width: 70vw;
+			display: block;
 		}
 
 		@media (max-width: $screen-md-max) {
 			li.dropdown > a.dropdown-toggle {
-				max-width: 65vw;
+				max-width: 55vw;
 			}
 		}
 
 		@media (max-width: $screen-sm-max) {
 			li.dropdown > a.dropdown-toggle {
-				max-width: 55vw;
+				max-width: 45vw;
 			}
 		}
 
@@ -131,7 +158,7 @@
 			}
 		}
 	}
-
+/*
 	ul.visible-xs {
 		margin: 0;
 
@@ -177,4 +204,5 @@
 			}
 		}
 	}
+*/ // TODO: CHECK FOR REMOVAL #1442
 }

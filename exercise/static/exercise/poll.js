@@ -32,7 +32,7 @@
      * Constructs contained exercise elements.
      */
     init: function() {
-      this.element.removeClass("hide");
+      this.element.removeClass("d-none");
       this.url = this.element.attr(this.settings.poll_url_attr);
       this.schedule();
     },

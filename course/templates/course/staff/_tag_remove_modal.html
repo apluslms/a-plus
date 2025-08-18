@@ -9,17 +9,16 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="close"
-                >
-                    <span aria-hidden="true">&times;</span>
-                </button>
                 <h4 class="modal-title" id="tag-remove-modal-label">
                     {% translate "UNTAG_MULTIPLE_USERS" %}
                 </h4>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="close"
+                >
+                </button>
             </div>
             <div class="modal-body">
                 {% blocktranslate trimmed %}
@@ -30,14 +29,14 @@
                 <button
                     type="button"
                     class="aplus-button--secondary aplus-button--md"
-                    data-dismiss="modal"
+                    data-bs-dismiss="modal"
                 >
                     {% translate "CANCEL" %}
                 </button>
                 <button
                     type="button"
                     class="aplus-button--danger aplus-button--md"
-                    data-dismiss="modal"
+                    data-bs-dismiss="modal"
                     id="tag-remove-modal-button"
                 >
                     {% translate "REMOVE_ALL" %}
