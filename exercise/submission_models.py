@@ -447,6 +447,7 @@ class Submission(SubmissionProto, models.Model):
         verbose_name=_('LABEL_SUBMISSION_DATA'),
         blank=True,
     )
+
     grading_data = JSONField(
         verbose_name=_('LABEL_GRADING_DATA'),
         blank=True,

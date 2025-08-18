@@ -1,3 +1,5 @@
+import json
+
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Set, Tuple
 
@@ -5,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.reverse import reverse
 
 from ...models import BaseExercise, Submission
+from course.models import SubmissionTag
 
 
 def filter_best_submissions(
@@ -41,7 +44,6 @@ def filter_best_submissions(
             filtered.append(submissions[i])
     return filtered
 
-
 def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
@@ -50,7 +52,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
     DEFAULT_FIELDS = [
         'ExerciseID', 'Category', 'Exercise', 'SubmissionID', 'Time',
         'UserID', 'StudentID', 'Email', 'Status',
-        'Grade', 'Penalty', 'Graded', 'GraderEmail', 'Notified', 'NSeen',
+        'Grade', 'Penalty', 'Graded', 'Tags', 'GraderEmail', 'Notified', 'NSeen',
     ]
     sheet = []
     fields = []
@@ -88,6 +90,8 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
         if not grader and t and t.startswith("\n<p>\nReviewer:"):
             grader = t[t.find("<a href=\"mailto:")+16:t.find("\">")]
 
+        tags = [st.tag.slug for st in s.submission_taggings.all()]
+
         n = s.notifications.first()
         row = OrderedDict([
             ('ExerciseID', exercise.id),
@@ -102,6 +106,7 @@ def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
             ('Grade', s.grade if exercise.id in revealed_ids else 0),
             ('Penalty', s.late_penalty_applied),
             ('Graded', str(s.grading_time)),
+            ('Tags', '|'.join(tags)),
             ('GraderEmail', grader),
             ('Notified', n is not None),
             ('NSeen', n.seen if n else False),
