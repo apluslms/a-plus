@@ -61,9 +61,8 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 
 	/* Incorrectly answered question group with 'group_errors' grading. */
 	fieldset.alert-danger {
-		background-color: $body-bg;
-		color: #333;
-		border: 2px solid $danger;
+		background-color: var(--bs-body-bg);
+		border: 2px solid var(--bs-danger);
 		font-weight: bold;
 	}
 

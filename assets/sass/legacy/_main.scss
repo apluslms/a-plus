@@ -70,9 +70,8 @@ iframe {
 }
 
 .alert-default {
-    background-color: #fff;
-    color: #333;
-    border: 2px solid #333;
+    background-color: var(--bs-body-bg);
+    border: 2px solid var(--bs-border-color);
     font-weight: bold;
 
     /* only used once and should be moved if .alert is re-implemented */
@@ -311,7 +310,7 @@ file for all the components */
 td.submissions-dropdown {
     text-align:center;
 }
-  
+
 td.submissions-dropdown .btn {
     padding: 0px;
 }
@@ -394,7 +393,7 @@ collapsed due to narrow viewport) */
     text-decoration: underline;
 }
 .exercise-response {
-  padding: 1em 1em 0 1em;
+  padding: 1em 1em 1em 1em;
 }
 [data-aplus-no-summary] .exercise-summary {
     display: none;

@@ -26,7 +26,7 @@
         data-bs-toggle="tooltip" title="{% translate 'CLEAR_CONTENT_CACHE_TOOLTIP' %}">{% translate "CLEAR_CONTENT_CACHE" %}</button>
     </form>
     {% if instance.build_log_url %}
-    <a class="aplus-button--secondary aplus-button--md page-modal" href="{{ instance|url:'course-build-log' }}" role="button">
+    <a class="aplus-button--secondary aplus-button--md page-modal mt-1" href="{{ instance|url:'course-build-log' }}" role="button">
       {% translate "RETRIEVE_LATEST_BUILD_LOG" %}
     </a>
     {% endif %}

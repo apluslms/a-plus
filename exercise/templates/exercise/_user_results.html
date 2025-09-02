@@ -107,16 +107,18 @@
 			{% endif %}
 		</p>
 
-		<div id="progress-{{module.url|lower}}" style="width: 100%;">
+		<div id="progress-{{module.url|lower}}" class="d-flex align-items-center w-100">
+			<div class="flex-grow-1">
+				{% points_progress module instance.points_goal_enabled %}
+			</div>
 			{% csrf_token %}
 			{% if user.id %}
 				{% if module.max_points > 0 and user.id and instance.points_goal_enabled %}
-					<a class="page-modal aplus-button--secondary aplus-button--xs" style="float: right; margin-left: 5px;" role="button" href="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}" data-module-id="{{ module.id }}" title="{% translate 'POINTS_GOAL_TOOLTIP' %}" data-bs-toggle="tooltip">
+					<a class="page-modal aplus-button--secondary aplus-button--xs ms-2" role="button" href="{% url 'save_points_goal_form_view' course_slug=course.url instance_slug=instance.url module_slug=module.url %}" data-module-id="{{ module.id }}" title="{% translate 'POINTS_GOAL_TOOLTIP' %}" data-bs-toggle="tooltip">
 						<span class="bi-bullseye" aria-hidden="true"></span> {% translate 'POINTS_GOAL' %}
 					</a>
 				{% endif %}
 			{% endif %}
-			{% points_progress module instance.points_goal_enabled %}
 		</div>
 
 		{{ module.introduction|safe }}

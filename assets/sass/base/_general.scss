@@ -99,18 +99,20 @@ legend {
 	border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);;
 }
 
-@media (min-width: 768px) {
-	.site-messages {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-	}
+.site-messages {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
 
+@media (min-width: 768px) {
 	.site-content > .site-messages {
-		padding-left: 16%;
+		padding-left: 16vw;
+		margin-left: -12px;
 
 		&.sidebar-collapsed {
-			padding-left: 48px;
+			padding-left: 36px;
+			margin-left: 0px;
 		}
 	}
 }

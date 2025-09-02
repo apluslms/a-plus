@@ -1,22 +1,22 @@
 $width: 100%;
-$padding-amount: 5px;  
+$padding-amount: 5px;
 $margin: 20px;
 
 
 .error-summary {
 	background: repeating-linear-gradient(
 		45deg,
-		$aplus-danger,
-		$aplus-danger $padding-amount,
-		$aplus-background $padding-amount,
-		$aplus-background $padding-amount * 2
+		var(--bs-danger),
+		var(--bs-danger) $padding-amount,
+		var(--bs-body-bg) $padding-amount,
+		var(--bs-body-bg) $padding-amount * 2
 	);
 	padding: $padding-amount;
-	color: $aplus-danger;
-	margin: $margin 0px;	
+	color: var(--bs-danger);
+	margin: $margin 0px;
 	&__text {
-		color: $aplus-danger;
-		background: $aplus-background;
+		color: var(--bs-danger);
+		background: var(--bs-body-bg);
 		padding: $padding-amount * 2;
 		padding-left: $padding-amount * 3;
 		ul {
