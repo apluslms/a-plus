@@ -1,16 +1,21 @@
 .course-sidebar-expander {
-	span {
-		margin: 0;
-		line-height: 18px;
-		color: var(--bs-secondary-color, #54595d);
+	border-radius: var(--bs-border-radius);
+	@media (max-width: 767px) {
+		display: none;
 	}
 }
 
 .course-sidebar-collapser {
-	span {
-		margin: 0;
-		line-height: 18px;
-		color: var(--bs-secondary-color, #54595d);
+	border-radius: var(--bs-border-radius);
+	@media (max-width: 767px) {
+		display: none;
+	}
+}
+
+#sidebar-lang-dropdown {
+	padding: 3px 6px 3px 6px;
+	@media (max-width: 767px) {
+		display: none;
 	}
 }
 
@@ -27,8 +32,7 @@
 	background-color: var(--bs-secondary-bg, #f9f2f4);
 }
 
-#bs-navbar-collapse.minimised
-{
+#bs-navbar-collapse.minimised {
 	width: 44px;
 	overflow: visible;
 	pointer-events: auto;
@@ -36,12 +40,17 @@
 	.course-menu-label {
 		display: none;
 	}
+	.new-tab-link {
+		display: none;
+	}
 	ul.nav-stacked {
 		margin-left: -3px;
 	}
+	li.header {
+		padding-top: 0;
+	}
 	.sidebar-lang-menu {
-		margin-left: -7px;
-		padding-top: 2px;
+		margin-top: 6px;
 	}
 	div.offcanvas-body {
 		width: 24px;
@@ -50,9 +59,9 @@
 		margin-left: -4px;
 	}
 }
-@media (max-width: 768px) {
-	#bs-navbar-collapse.minimised
-	{
+
+@media (max-width: 767px) {
+	#bs-navbar-collapse.minimised {
 		width: auto;
 		.course-menu-label {
 			display: block;
@@ -60,30 +69,35 @@
 		ul.nav-stacked {
 			margin-left: inherit;
 		}
-		.sidebar-lang-menu {
-			margin-left: inherit;
-			padding-top: inherit;
-		}
 		div.offcanvas-body {
 			width: auto;
 		}
 		.course-sidebar-expander {
 			margin-left: inherit;
 		}
-
 	}
 }
-#bs-navbar-collapse.show {
+
+#bs-navbar-collapse.show, #bs-navbar-collapse.showing {
+	overflow-y: hidden;
+	padding-right: 0;
+	padding-left: 0;
 	button.course-sidebar-expander, button.course-sidebar-collapser {
 		display: none;
 	}
 	button.btn-close {
 		display: block !important;
 	}
-	.sidebar-lang-menu {
-		margin-right: 1em;
+	#sidebar-lang-dropdown {
+		display: block;
 	}
 }
+
 #bs-navbar-collapse div.offcanvas-body {
 	display: block;
+	@media (max-width: 767px) {
+		li {
+			line-height: 30px;
+		}
+	}
 }

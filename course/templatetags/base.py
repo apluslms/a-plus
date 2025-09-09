@@ -72,7 +72,7 @@ def site_alert():
     alerts = SiteAlert.objects.filter(status=SiteAlert.STATUS.ACTIVE)
     return mark_safe(
         ''.join(
-            '<div class="alert alert-danger">{}</div>'.format(pick_localized(alert.alert))
+            '<div class="alert alert-danger site-alert">{}</div>'.format(pick_localized(alert.alert))
             for alert in alerts
         )
     )

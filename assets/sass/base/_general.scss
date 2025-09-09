@@ -116,3 +116,13 @@ legend {
 		}
 	}
 }
+
+@media (min-width: 768px) {
+	.site-content > .site-alert {
+		margin-left: calc(16vw - 12px);
+
+		&.sidebar-collapsed {
+			margin-left: 36px;
+		}
+	}
+}

@@ -82,16 +82,16 @@ $large-height: 24px;
 .aplus-button {
 	&--default {
 		@include button-basics;
-		@include button-color($aplus-success, saturate($aplus-success, 20%));
+		@include button-color($aplus-success);
 		font-weight: bold;
 	}
 	&--secondary {
 		@include button-basics;
-		@include button-color($gray-lighter, $gray-light);
+		@include button-color($gray-300, $gray-500);
 	}
 	&--danger {
 		@include button-basics;
-		@include button-color($aplus-background, $aplus-danger, $aplus-danger);
+		@include button-color($danger, transparent, $aplus-background);
 	}
 	&--xs {
 		@include button-size($extra-small-height, 0px);
@@ -119,7 +119,7 @@ $large-height: 24px;
 [data-bs-theme="dark"] {
 	.aplus-button {
 		&--secondary {
-			@include button-color($gray-700, $gray-800);
+			@include button-color($gray-700, $gray-650);
 		}
 	}
 }

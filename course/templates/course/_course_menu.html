@@ -14,36 +14,8 @@
 		{% translate "SKIP_COURSE_NAVIGATION" %}
 	</a>
 </li>
-<div style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.5rem;">
+<div class="d-flex justify-content-between align-baseline">
 	<h4 class="course-menu-label" id="course-menu-heading">{% translate "COURSE" %}</h4>
-	{% if instance.language|first != "|" %}
-	<div class="sidebar-lang-menu d-none d-sm-block dropdown">
-		<button class="aplus-button--secondary aplus-button--xs" id="sidebar-lang-dropdown" type="button"
-			data-bs-toggle="dropdown" title="{% translate "CHANGE_LANGUAGE" %}"
-			aria-label="{% translate "CHANGE_LANGUAGE" %}" aria-haspopup="true" aria-expanded="false"
-		>
-			<i class="bi bi-translate" alt=""data-bs-toggle="tooltip" 
-				data-bs-placement="right" 
-				title="{% translate "CHANGE_LANGUAGE" %}">
-				{{LANGUAGE_CODE}}
-			</i>
-		</button>
-		<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sidebar-lang-dropdown">
-			{% for language in instance.language|list_languages %}
-			<li>
-				<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
-					{% csrf_token %}
-					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
-					<input name="language" type="hidden" value="{{ language }}" />
-					<button type="submit" class="btn" {% if LANGUAGE_CODE == language %}aria-current="true"{% endif %}>
-						{{ language|language_name_local }} {% if LANGUAGE_CODE == language %}<span class="bi bi-check"></span>{% endif %}
-					</button>
-				</form>
-			</li>
-			{% endfor %}
-		</ul>
-	</div>
-	{% endif %}
 	<div class="course-sidebar-button d-none d-md-block">
 		<button
 			class="aplus-button--secondary course-sidebar-collapser"
@@ -54,6 +26,35 @@
 		</button>
 	</div>
 </div>
+
+{% if instance.language|first != "|" %}
+<div class="sidebar-lang-menu d-block dropdown mb-2">
+	<button class="aplus-button--secondary aplus-button--sm" id="sidebar-lang-dropdown" type="button"
+		data-bs-toggle="dropdown" title="{% translate "CHANGE_LANGUAGE" %}"
+		aria-label="{% translate "CHANGE_LANGUAGE" %}" aria-haspopup="true" aria-expanded="false"
+	>
+		<i class="bi bi-translate" alt="" data-bs-toggle="tooltip"
+			data-bs-placement="right"
+			title="{% translate "CHANGE_LANGUAGE" %}">
+		</i>
+		<span id="sidebar-lang-dropdown-label">{% translate "LANGUAGE" %}</span>
+	</button>
+	<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sidebar-lang-dropdown" style="min-width: 8rem;">
+		{% for language in instance.language|list_languages %}
+		<li class="dropdown-item p-0">
+			<form action="{{ instance|url:'set-enrollment-language' }}" method="post">
+				{% csrf_token %}
+				<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+				<input name="language" type="hidden" value="{{ language }}" />
+				<button type="submit" {% if LANGUAGE_CODE == language %}aria-current="true"{% endif %}>
+					{{ language|language_name_local }} {% if LANGUAGE_CODE == language %}<span class="bi bi-check"></span>{% endif %}
+				</button>
+			</form>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
 
 <li class="nav-item">
 	<a class="nav-link menu-home" href="{{ instance|url }}">
@@ -87,11 +88,13 @@
 {% if group.label == '' %}
 {% for entry in group.items %}
 {% if entry.enabled %}
-<li>
+<li class="nav-item">
 	{% is_external_menu_url entry.url as is_external_menu_url_flag %}
-	<a href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
+	<a class="nav-link d-flex align-items-center gap-1" href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
-		<i class="bi-{{ entry.icon_class }}" aria-hidden="true" title="{{ entry.label|parse_localization }}"></i>
+		<i class="bi-{{ entry.icon_class }}" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></i>
+		{% else %}
+		<i class="bi-pin-angle-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></i>
 		{% endif %}
 		<span class="course-menu-label">{{ entry.label|parse_localization }}</span>
 	</a>
@@ -108,13 +111,13 @@
 </li>
 {% for entry in group.items %}
 {% if entry.enabled %}
-<li class="nav-item d-flex">
+<li class="nav-item">
 	{% is_external_menu_url entry.url as is_external_menu_url_flag %}
-	<a href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
+	<a class="nav-link d-flex align-items-center gap-1" href="{{ entry.url }}" {% if is_external_menu_url_flag or entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
 		<span class="bi-{{ entry.icon_class }}" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></span>
 		{% else %}
-		<span class="bi-link" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></span>
+		<span class="bi-pin-angle-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></span>
 		{% endif %}
 		<span class="course-menu-label">{{ entry.label|parse_localization }}</span>
 	</a>
@@ -145,14 +148,14 @@
 
 <li class="nav-item">
 	<a class="nav-link menu-participants" href="{{ instance|url:'participants' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "PARTICIPANTS" %}"></i>
+		<i class="bi-list-ul" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "PARTICIPANTS" %}"></i>
 		<span class="course-menu-label">{% translate "PARTICIPANTS" %}</span>
 	</a>
 </li>
 
 <li class="nav-item">
 	<a class="nav-link menu-groups-edit" href="{{ instance|url:'groups-list' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "GROUPS" %}"></i>
+		<i class="bi-list-ul" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "GROUPS" %}"></i>
 		<span class="course-menu-label">{% translate "GROUPS" %}</span>
 	</a>
 </li>
@@ -207,19 +210,19 @@
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-deadline-deviations" href="{{ instance|url:'deviations-list-dl' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "DEADLINE_DEVIATIONS" %}"></i>
+		<i class="bi-list-ul" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "DEADLINE_DEVIATIONS" %}"></i>
 		<span class="course-menu-label">{% translate "DEADLINE_DEVIATIONS" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-submission-deviations" href="{{ instance|url:'deviations-list-submissions' }}">
-		<i class="bi-list" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "SUBMISSION_DEVIATIONS" %}"></i>
+		<i class="bi-list-ul" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "SUBMISSION_DEVIATIONS" %}"></i>
 		<span class="course-menu-label">{% translate "SUBMISSION_DEVIATIONS" %}</span>
 	</a>
 </li>
 <li class="nav-item">
 	<a class="nav-link menu-all-submissions" href="{{ instance|url:'all-submissions' }}?limited=true">
-		<span class="bi-list-ul" aria-hidden="true"  data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "ALL_SUBMISSIONS" %}"></span>
+		<span class="bi-list-ul" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "ALL_SUBMISSIONS" %}"></span>
 		<span class="course-menu-label">{% translate "ALL_SUBMISSIONS" %}</span>
 	</a>
 </li>
@@ -235,12 +238,14 @@
 {% for entry in group.items %}
 {% if entry.enabled %}
 {% if is_teacher or entry|is_assistant_link %}
-<li>
-	<a href="{{ entry.url }}" {% if entry.blank %} target="_blank" {% endif %}>
+<li class="nav-item">
+	<a class="nav-link d-flex align-items-center gap-1" href="{{ entry.url }}" {% if entry.blank %} target="_blank" {% endif %}>
 		{% if entry.icon_class %}
-		<i class="bi-{{ entry.icon_class }}" aria-hidden="true"></i>
+		<i class="bi-{{ entry.icon_class }}" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></i>
+		{% else %}
+		<i class="bi-pin-angle-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ entry.label|parse_localization }}"></i>
 		{% endif %}
-		{{ entry.label|parse_localization }}
+		<span class="course-menu-label">{{ entry.label|parse_localization }}</span>
 	</a>
 </li>
 {% endif %}

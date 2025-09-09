@@ -122,9 +122,12 @@ $(function () {
     sidebarCollapsed = collapsed;
     $('#course-content').toggleClass('sidebar-collapsed', collapsed);
     $('.site-content > .site-messages').toggleClass('sidebar-collapsed', collapsed);
+    $('.site-content > .site-alert').toggleClass('sidebar-collapsed', collapsed);
     $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
     $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
     $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
+    $('#sidebar-lang-dropdown-label').toggleClass('d-none', !collapsed);
+    $('#sidebar-lang-dropdown-label').toggleClass('d-none', collapsed);
     localStorage.setItem('sidebarCollapsed', collapsed);
     if (!collapsed) {
       //modifyMenu(); // TODO: CHECK FOR REMOVAL #1442
@@ -224,7 +227,12 @@ $(function () {
           self.loader.hide();
         }).done(function (data) {
           self.selection.show().find("#group-selection-icon").html(data.includes("alone") ? '<i class="bi-person-fill"></i>' : '<i class="bi-people-fill"></i>');
-          self.selection.show().find("#group-selection-label").html(data);
+
+          // Wrap the content in a span for truncation
+          const labelElement = self.selection.find("#group-selection-label");
+          const wrappedContent = '<span style="max-width: 15vw; text-overflow: ellipsis; overflow: hidden;">' + data + '</span>';
+          labelElement.html(wrappedContent);
+
           self.loader.hide();
           var id = self.selection.find('[data-group-id]').attr("data-group-id");
           $('.submit-group-selector option[value="' + id + '"]').prop('selected', true);
@@ -847,6 +855,14 @@ $(document).ready(function() {
   });
   // Change "collapse in" to "collapse show" to correct initial visibility with BS5
   $('.collapse.in').removeClass('in').addClass('show');
+
+  // If the sidebar menu is not in the DOM, apply different margin for site-alert and site-messages
+  const sidebarElement = document.getElementById('bs-navbar-collapse');
+  if (!sidebarElement) {
+      // Element is not in DOM, apply different margin
+      document.querySelector('.site-content > .site-alert').style.marginLeft = '0px';
+      document.querySelector('.site-content > .site-messages').style.paddingLeft = '12px';
+  }
 });
 
 // Prevent tooltips from showing in the sidebar when the navbar is not minimised

@@ -37,13 +37,13 @@
 			<td>{{ tag|colortag }}</td>
 			<td>{{ tag.slug }}</td>
 			<td>{{ tag.description }}</td>
-			<td>{% if tag.visible_to_students %}<span style="color: #00B000;">yes</span>{% else %}<span style="color: #B00000;">no</span>{% endif %}</td>
+			<td>{% if tag.visible_to_students %}<span>yes</span>{% else %}<span>no</span>{% endif %}</td>
 			<td>
 				<a href="{{ tag|url:'course-tags-edit' }}" class="aplus-button--secondary aplus-button--xs" role="button">
 					<i class="bi-pencil-square" aria-hidden="true"></i>
 					{% translate "EDIT" %}
 				</a>
-				<a href="{{ tag|url:'course-tags-remove' }}" class="aplus-button--secondary aplus-button--xs" role="button">
+				<a href="{{ tag|url:'course-tags-remove' }}" class="aplus-button--danger aplus-button--xs" role="button">
 					<i class="bi-x-lg" aria-hidden="true"></i>
 					{% translate "REMOVE" %}
 				</a>

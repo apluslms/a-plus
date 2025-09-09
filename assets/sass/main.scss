@@ -51,6 +51,14 @@ $h5-font-size:                $font-size-base;
 $h6-font-size:                $font-size-base * 0.875;
 $legend-margin-bottom:        1rem !default;
 
+// Overwrite some BS5 default values
+$offcanvas-horizontal-width: 100vw;
+$offcanvas-vertical-height: 100vh;
+$offcanvas-border-width: 0px;
+$offcanvas-padding-y: 1.5rem;
+$offcanvas-padding-x: 1.5rem;
+$card-title-spacer-y: 0px;
+
 // Legacy panel look for BS5 cards
 //$card-bg: #f5f5f5;
 
@@ -113,6 +121,9 @@ $form-group-margin-bottom:       15px !default;
 $padding-base-vertical:     0.375rem !default;
 $padding-base-horizontal:   0.75rem !default;
 $input-height-base:              ($line-height-computed + ($padding-base-vertical * 2) + 2) !default;
+
+// Secondary button dark mode border color (600 is too light and 700 too dark)
+$gray-650: #5B636A;
 
 @import 'legacy/main';
 

@@ -27,7 +27,7 @@
 	.navbar-nav > .active > a,
 	.navbar-nav > .active > a:hover {
 		@include focus-with-background-and-color;
-		text-decoration:none;
+		text-decoration: none;
 		color: #ffffff;
 		background: transparent;
 	}

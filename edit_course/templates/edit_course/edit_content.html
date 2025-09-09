@@ -54,7 +54,7 @@
                         {% translate "EDIT_CATEGORY" %}
                     </a>
                     {% if category.count_lobjects == 0 %}
-                    <a class="aplus-button--secondary aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
+                    <a class="aplus-button--danger aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
                     	<i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
@@ -92,7 +92,7 @@
                         <i class="bi-pencil-square" aria-hidden="true"></i> {% translate "EDIT_MODULE" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
-                    <a class="aplus-button--secondary aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
+                    <a class="aplus-button--danger aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
                     	<i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
@@ -114,7 +114,7 @@
                       <i class="bi-pencil-square" aria-hidden="true"></i>
                       {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CHAPTER" %}{% endif %}
                     </a>
-                    <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
+                    <a class="aplus-button--danger aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
                         <i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     <a class="btn btn-link btn-sm" href="{{ lobject|url }}">
