@@ -74,11 +74,11 @@
 										class="exercise-nav-points btn"
 										role="button"
 									>
-										<span class="d-inline-flex align-items-center gap-1">
+										<span class="text-nowrap">
 											{% if not exercise.category.confirm_the_level %}
 												{% translate "POINTS" %}
 											{% endif %}
-											{% points_badge summary%}
+											{% points_badge summary %}
 										</span>
 									</a>
 								</li>
@@ -111,13 +111,13 @@
 										{% endfor %}
 									</ul>
 								</li>
-								<li class="nav-item">
+								<li class="nav-item d-flex flex-wrap gap-1">
 									{% if is_course_staff or is_student and model_revealed %}
 										{% comment %} The model solution link is shown even if the student can not
 										open it due to personal extensions. However, this saves some database queries.
 										{% endcomment %}
 										{% if exercise.model_answers %}
-											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button my-1" role="button" href="{{ exercise|url:'exercise-model' }}">
+											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-model' }}">
 												<i class="bi-file-earmark-check" aria-hidden="true"></i>
 												{% translate "SHOW_MODEL_ANSWER" %}
 											</a>
@@ -125,14 +125,14 @@
 									{% endif %}
 									{% if is_course_staff or is_student %}
 										{% if exercise.templates %}
-											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button my-1" role="button" href="{{ exercise|url:'exercise-template' }}">
+											<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'exercise-template' }}">
 												<i class="bi-file-post-fill" aria-hidden="true"></i>
 												{% translate "SHOW_EXERCISE_TEMPLATE" %}
 											</a>
 										{% endif %}
 									{% endif %}
 									{% if is_course_staff %}
-										<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button my-1" role="button" href="{{ exercise|url:'submission-list' }}">
+										<a class="nav-link aplus-button--secondary aplus-button--sm page-modal exercise-nav-button" role="button" href="{{ exercise|url:'submission-list' }}">
 											<i class="bi-files" aria-hidden="true"></i>
 											{% translate "VIEW_ALL_SUBMISSIONS" %}
 										</a>

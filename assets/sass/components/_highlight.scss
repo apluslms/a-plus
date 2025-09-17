@@ -2,11 +2,14 @@
 	padding: 0;
 }
 table.src tr td.num {
-	color: #ccc;
-	background: #fff;
-	border-right: 1px solid #ccc;
+	color: #6a737d;
+	border-right: 1px solid var(--bs-border-color);
 	vertical-align: top;
-	padding:0 0.4em;
+	padding: 0 0.4em;
+	text-align: right;
+}
+[data-bs-theme=dark] table.src tr td.num {
+    color: #8b949e;
 }
 table.src tr td.src {
 	padding:0 0.4em;
@@ -22,4 +25,7 @@ table.src tr td.old {
 }
 table.src tr td.new {
 	background: #d4edda;
+}
+.highlight {
+	border-radius: var(--bs-border-radius);
 }

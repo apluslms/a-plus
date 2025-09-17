@@ -32,10 +32,10 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 		display: block;
 		margin-top: 5px;
 		margin-bottom: 5px;
-		color: #4a4a4a;
+		padding: 5px;
+		color: var(--bs-secondary-text-emphasis);
 		font-style: normal;
-		background-color: #ffefaa;
-		box-shadow: 0 0 0 3px #ffefaa;
+		background-color: var(--bs-warning-bg-subtle);
 	}
 
 	.hint-checkbox {

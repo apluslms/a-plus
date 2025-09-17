@@ -1,8 +1,6 @@
 @import "../mixins/sticky_submission_scroll";
 
 .assessment-panel {
-	padding-bottom: 1em;
-
 	& > .card-header {
 		position: sticky;
 		top: 0;
@@ -61,6 +59,7 @@
 	.grader-container {
 		--sticky-top: 0;
 		flex-grow: 1;
+		margin-bottom: 1rem;
 		.grader-tab > div > button {
 			margin-bottom: 10px;
 		}

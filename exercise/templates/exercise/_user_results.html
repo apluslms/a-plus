@@ -33,15 +33,15 @@
 	</button>
 </p>
 
-<div class="accordion" id="modulesAccordion">
+<div class="accordion spaced-accordion" id="modulesAccordion">
 {% for module in modules %}
 {% if module.is_visible or is_teacher %}
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}
 {% module_accessible module as accessible %}
 {% exercise_accessible module as exercise_accessible %}
-<div class="accordion-item mb-4 module-panel" style="border: var(--bs-accordion-border-width) solid var(--bs-accordion-border-color);">
+<div class="accordion-item module-panel">
 	<div class="accordion-header{% if not accessible or not open and after_open %} module-to-collapse{% endif %}">
-		<button class="accordion-button{% if not accessible or not open and after_open %} collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}"
+		<button class="accordion-button{% if not accessible or not open and after_open %} collapsed{% endif %} text-white" type="button" data-bs-toggle="collapse" data-bs-target="#module{{ module.id }}"
 			aria-expanded="{% if accessible and not after_open or open %}true{% else %}false{% endif %}"
 			aria-controls="#module{{ module.id }}">
 			<div class="d-flex justify-content-between me-3 w-100">
@@ -53,29 +53,29 @@
 					<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
 					{% endif %}
 					{% if module.requirements|length > 0 %}
-					<span class="badge text-bg-secondary float-end">
+					<span class="badge text-primary bg-white float-end">
 						{% translate "REQUIRES" %}:
 						{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 					</span>
 					{% endif %}
 					{% if module|deadline_extended_exercises_open:now %}
-					<span class="badge text-bg-secondary float-end">
+					<span class="badge text-primary bg-white float-end">
 						{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 					</span>
 					{% endif %}
 					{% if not accessible %}
-					<span class="badge text-bg-secondary float-end">
+					<span class="badge text-primary bg-white float-end">
 						{% translate "OPENS ON" %} {{ module.opening_time }}
 					</span>
 					{% elif not after_open %}
-					<span class="badge text-bg-secondary float-end">
+					<span class="badge text-primary bg-white float-end">
 						{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
 					</span>
-					<span class="badge text-bg-info float-end">
+					<span class="badge text-primary bg-white float-end">
 						{% translate "OPEN_FOR_READING" %}
 					</span>
 					{% endif %}
-					{% points_badge module "float-end" %}
+					{% points_badge module "float-end text-primary bg-white" %}
 				</div>
 			</div>
 		</button>

@@ -32,8 +32,8 @@ kbd {
 // Border for code blocks like in BS3
 pre {
 	padding: 0.6rem;
-	border: 1px solid #ccc;
-	border-radius: $border-radius;
+	border: 1px solid var(--bs-border-color);
+	border-radius: var(--bs-border-radius);
 }
 
 code {

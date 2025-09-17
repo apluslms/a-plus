@@ -5,7 +5,7 @@
 	.resize-handle {
 		// Appearance
 		width: 8px;
-		border-color: #ccc;
+		border-color: var(--bs-border-color);
 		border-style: none solid;
 		border-width: 1px;
 		cursor: col-resize;
