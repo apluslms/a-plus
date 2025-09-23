@@ -1,3 +1,14 @@
+// Since the top navbar is sticky, apply scroll-margin-top to all potential scroll targets to avoid them being hidden behind the navbar
+h1, h2, h3, h4, h5, h6,
+#modulesAccordion .accordion-header,
+[id]:not(html):not(body),
+.anchor,
+.scroll-target,
+section,
+article {
+    scroll-margin-top: 60px;
+}
+
 .navbar-dropdown {
 	@extend .navbar-nav;
 	margin: 0;

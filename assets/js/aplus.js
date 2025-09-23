@@ -126,12 +126,13 @@ $(function () {
     $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
     $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
     $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
-    $('#sidebar-lang-dropdown-label').toggleClass('d-none', !collapsed);
     $('#sidebar-lang-dropdown-label').toggleClass('d-none', collapsed);
-    localStorage.setItem('sidebarCollapsed', collapsed);
-    if (!collapsed) {
-      //modifyMenu(); // TODO: CHECK FOR REMOVAL #1442
+    if (collapsed) {
+      $('#sidebar-lang-dropdown').css("width", "28px").css("height", "28px");
+    } else {
+      $('#sidebar-lang-dropdown').css("width", "").css("height", "");
     }
+    localStorage.setItem('sidebarCollapsed', collapsed);
   };
 
   if (localStorage.getItem('sidebarCollapsed') === 'true') {

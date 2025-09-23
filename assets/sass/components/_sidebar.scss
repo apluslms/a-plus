@@ -1,4 +1,6 @@
 .course-sidebar-expander {
+	width: 28px;
+	height: 28px;
 	border-radius: var(--bs-border-radius);
 	@media (max-width: 767px) {
 		display: none;
@@ -6,6 +8,8 @@
 }
 
 .course-sidebar-collapser {
+	width: 28px;
+	height: 28px;
 	border-radius: var(--bs-border-radius);
 	@media (max-width: 767px) {
 		display: none;
@@ -44,7 +48,7 @@
 		display: none;
 	}
 	ul.nav-stacked {
-		margin-left: -3px;
+		margin-left: -4px;
 	}
 	li.header {
 		padding-top: 0;

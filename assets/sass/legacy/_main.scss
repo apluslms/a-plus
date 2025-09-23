@@ -352,68 +352,6 @@ td.submissions-dropdown .btn {
     margin-bottom: 10px;
     min-height: 150px;
 }
-.exercise-summary {
-    background-color: #d9edf7;/*primary #337ab7;*/
-    border-color: #bce8f1;/*primary #2e6da4;*/
-    border-radius: 0;
-}
-[data-aplus-exercise] .exercise-summary {
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-}
-.exercise-summary .navbar-nav {
-	margin: 0;
-}
-.exercise-summary.navbar {
-    padding: 0 1em;
-}
-.exercise-summary .navbar-nav .navbar-text {
-    /*margin: 10px 15px 10px 15px;*/ // TODO: CHECK FOR REMOVAL #1442
-}
-.exercise-summary .navbar-nav .navbar-text ul {
-	list-style: none;
-	padding-left: 0;
-}
-/* Use flexbox to align header navbar sections (when the navbar is not
-collapsed due to narrow viewport) */
-@media (min-width: $grid-float-breakpoint) {
-	.exercise-summary .navbar-nav {
-		align-items: stretch;
-		display: flex;
-		flex-wrap: wrap;
-        flex-direction: row;
-        gap: 1em;
-	}
-	.exercise-summary .navbar-nav>li {
-		display: flex;
-	}
-	.exercise-summary .navbar-nav>li>a {
-		align-items: center;
-		display: flex;
-	}
-}
-.exercise-summary .navbar-nav>li>a,
-.exercise-summary .navbar-nav>.active>a,
-.exercise-summary .navbar-nav>.active>a:focus,
-.exercise-summary .navbar-nav>.active>a:hover,
-.exercise-summary .navbar-nav .navbar-text {
-    color: #31708f;
-    background-color: transparent;
-}
-.exercise-summary .navbar-nav>li>a:hover,
-.exercise-summary .navbar-nav>.open>a,
-.exercise-summary .navbar-nav>.open>a:focus,
-.exercise-summary .navbar-nav>.open>a:hover {
-    background-color: rgba(0,0,0,0.04);
-}
-@media (max-width: $grid-float-breakpoint-max) {
-	.exercise-summary .navbar-nav .open .dropdown-menu > li > a {
-		color: #555555;
-	}
-}
 .navbar-nav>li>a.file-modal {
     display: inline;
     padding: 0;

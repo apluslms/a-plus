@@ -17,9 +17,6 @@
 		<script src="{% static 'js/popper.min.js' %}"></script>
 		<script src="{% static 'js/bootstrap5.min.js' %}"></script>
 
-		<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"
-				integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
-				crossorigin="anonymous" referrerpolicy="no-referrer" />--> <!-- TODO: CHECK FOR REMOVAL #1442 -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"
 				integrity="sha512-rdhY3cbXURo13l/WU9VlaRyaIYeJ/KBakckXIvJNAQde8DgpOmE+eZf7ha4vdqVjTtwQt69bD2wH2LXob/LB7Q=="
 				crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -66,12 +63,12 @@
 					{% include 'exercise/_exercisecollection.html' %}
 
 				{% elif exercise.is_submittable %}
-					<nav class="navbar navbar-expand-sm bg-body-secondary" aria-label="{{ exercise|parse_localization }}">
+					<nav class="exercise-summary navbar navbar-expand-sm bg-body-secondary" aria-label="{{ exercise|parse_localization }}">
 						<div class="container-fluid">
 							<ul class="navbar-nav exercise-nav">
 								<li class="nav-item">
 									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}javascript:void(0);{% endif %}"
-										class="exercise-nav-points btn"
+										class="exercise-nav-points btn page-modal"
 										role="button"
 									>
 										<span class="text-nowrap">
@@ -95,10 +92,10 @@
 											<b class="caret"></b>
 										</span>
 									</a>
-									<ul class="dropdown-menu" style="position: absolute; left: 0; right: auto">
+									<ul class="dropdown-menu position-absolute start-0">
 										{% for submission in submissions %}
 											<li>
-												<a class="dropdown-item" href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
+												<a class="dropdown-item page-modal" href="{{ submission|url:'submission-plain' }}" data-hash="{{ submission.hash }}">
 													{{ forloop.revcounter }}.
 													{{ submission.date|date:'DATETIME_SECONDS_FORMAT' }}
 													{% points_badge submission%}
@@ -141,59 +138,60 @@
 							</ul>
 						</div>
 					</nav>
-				{% endif %}
-				<div class="container-fluid bg-info-subtle text-info-emphasis" style="border-top: 1px solid var(--bs-info);">
-					{% if not exercise.category.confirm_the_level %}
-						<div class="exercise-nav-info">
-							<small style="display: flex; align-items: center; justify-content: space-between;">
-								{% if exercise.points_to_pass > 0 %}
+
+					<div class="container-fluid bg-info-subtle text-info-emphasis" style="border-top: 1px solid var(--bs-info);">
+						{% if not exercise.category.confirm_the_level %}
+							<div class="exercise-nav-info">
+								<small class="d-flex align-items-center justify-content-between">
+									{% if exercise.points_to_pass > 0 %}
+										<span>
+										<i class="bi-flag" aria-hidden="true"></i>
+										{% blocktranslate trimmed with points=exercise.points_to_pass %}
+											POINTS_REQUIRED_TO_PASS -- {{ points }}
+										{% endblocktranslate %}
+										</span>
+									{% endif %}
 									<span>
-									<i class="bi-flag" aria-hidden="true"></i>
-									{% blocktranslate trimmed with points=exercise.points_to_pass %}
-										POINTS_REQUIRED_TO_PASS -- {{ points }}
-									{% endblocktranslate %}
-									</span>
-								{% endif %}
-								<span>
-								<i class="bi-clock" aria-hidden="true"></i>
-								{% if summary.personal_deadline %}
-									{% translate "PERSONAL_EXTENDED_DEADLINE" %}
-									{{ summary.personal_deadline }}
-									{% if module.late_submission_penalty > 0 and summary.personal_deadline_has_penalty %}
-									({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
-										PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
-									{% endblocktranslate %})
-									{% endif %}
-								{% elif exercise.is_late_submission_open %}
-									{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
-									{% if module.late_submission_penalty > 0 %}
-									(-{{ module.late_submission_penalty|percent }}%)
-									{% endif %}
-								{% else %}
-									{% translate "DEADLINE" %}
-									{{ module.closing_time }}
-								{% endif %}
-								</span>
-								<span>
-								<i class="bi-person-fill" aria-hidden="true"></i>
-								{% if exercise.min_group_size == 1 %}
-									{% if exercise.max_group_size == 1 %}
-										{% translate "TO_BE_SUBMITTED_ALONE" %}
-									{% elif exercise.max_group_size == 2 %}
-										{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
+									<i class="bi-clock" aria-hidden="true"></i>
+									{% if summary.personal_deadline %}
+										{% translate "PERSONAL_EXTENDED_DEADLINE" %}
+										{{ summary.personal_deadline }}
+										{% if module.late_submission_penalty > 0 and summary.personal_deadline_has_penalty %}
+										({% blocktranslate trimmed with penalty=module.late_submission_penalty|percent deadline=module.closing_time %}
+											PENALTY_AFTER -- {{ penalty }}, {{ deadline }}
+										{% endblocktranslate %})
+										{% endif %}
+									{% elif exercise.is_late_submission_open %}
+										{% translate "LATE_SUBMISSION_DEADLINE" %} {{ module.late_submission_deadline }}
+										{% if module.late_submission_penalty > 0 %}
+										(-{{ module.late_submission_penalty|percent }}%)
+										{% endif %}
 									{% else %}
-										{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+										{% translate "DEADLINE" %}
+										{{ module.closing_time }}
 									{% endif %}
-								{% elif exercise.min_group_size == exercise.max_group_size %}
-									{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
-								{% else %}
-									{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
-								{% endif %}
-								</span>
-							</small>
-						</div>
-					{% endif %}
-				</div>
+									</span>
+									<span>
+									<i class="bi-person-fill" aria-hidden="true"></i>
+									{% if exercise.min_group_size == 1 %}
+										{% if exercise.max_group_size == 1 %}
+											{% translate "TO_BE_SUBMITTED_ALONE" %}
+										{% elif exercise.max_group_size == 2 %}
+											{% blocktranslate trimmed with size=2 %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ size }}{% endblocktranslate %}
+										{% else %}
+											{% blocktranslate trimmed with min=2 max=exercise.max_group_size %}TO_BE_SUBMITTED_ALONE_OR_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+										{% endif %}
+									{% elif exercise.min_group_size == exercise.max_group_size %}
+										{% blocktranslate trimmed with size=exercise.min_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ size }}{% endblocktranslate %}
+									{% else %}
+										{% blocktranslate trimmed with min=exercise.min_group_size max=exercise.max_group_size %}TO_BE_SUBMITTED_GROUPS -- {{ min }}, {{ max }}{% endblocktranslate %}
+									{% endif %}
+									</span>
+								</small>
+							</div>
+						{% endif %}
+					</div>
+				{% endif %}
 
 				<div
 					class="exercise-response"
