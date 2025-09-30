@@ -861,8 +861,8 @@ $(document).ready(function() {
   const sidebarElement = document.getElementById('bs-navbar-collapse');
   if (!sidebarElement) {
       // Element is not in DOM, apply different margin
-      document.querySelector('.site-content > .site-alert').style.marginLeft = '0px';
-      document.querySelector('.site-content > .site-messages').style.paddingLeft = '12px';
+      document.querySelector('.site-content > .site-alert')?.style.setProperty('marginLeft', '0px');
+      document.querySelector('.site-content > .site-messages')?.style.setProperty('paddingLeft', '12px');
   }
 });
 
