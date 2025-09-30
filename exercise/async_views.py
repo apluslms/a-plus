@@ -59,30 +59,34 @@ def _post_async_submission(request, exercise, submission, errors=None):
         submission.grading_data = post_data
 
         if 'grading_data' in submission.grading_data:
-            grader_grading_data = json.loads(submission.grading_data['grading_data'])
-            if 'submission_tags' in grader_grading_data:
-                for tag_slug in grader_grading_data['submission_tags'].split(','):
-                    tag_slug = tag_slug.strip()
-                    if tag_slug:
-                        try:
-                            # Try to get the tag and validate it belongs to the course
-                            tag = SubmissionTag.objects.get(
-                                slug=tag_slug,
-                                course_instance=submission.exercise.course_module.course_instance,
-                            )
-                            # Only attempt to create SubmissionTagging if it does not exist already
-                            if not SubmissionTagging.objects.filter(submission=submission, tag=tag).exists():
-                                SubmissionTagging.objects.create(submission=submission, tag=tag)
-                        except SubmissionTag.DoesNotExist:
-                            # Send an email to course instance's technical support emails and teachers
-                            # if the submission tags are misconfigured
-                            if exercise.course_instance.visible_to_students:
-                                msg = (
-                                    f"Failed to tag submission: Submission tag '{tag_slug}' not found "
-                                    "or not part of this course instance."
+            try:
+                grader_grading_data = json.loads(submission.grading_data['grading_data'])
+                if 'submission_tags' in grader_grading_data:
+                    for tag_slug in grader_grading_data['submission_tags'].split(','):
+                        tag_slug = tag_slug.strip()
+                        if tag_slug:
+                            try:
+                                # Try to get the tag and validate it belongs to the course
+                                tag = SubmissionTag.objects.get(
+                                    slug=tag_slug,
+                                    course_instance=submission.exercise.course_module.course_instance,
                                 )
-                                logger.error(msg, extra={"request": request})
-                                email_course_error(request, exercise, msg, True)
+                                # Only attempt to create SubmissionTagging if it does not exist already
+                                if not SubmissionTagging.objects.filter(submission=submission, tag=tag).exists():
+                                    SubmissionTagging.objects.create(submission=submission, tag=tag)
+                            except SubmissionTag.DoesNotExist:
+                                # Send an email to course instance's technical support emails and teachers
+                                # if the submission tags are misconfigured
+                                if exercise.course_instance.visible_to_students:
+                                    msg = (
+                                        f"Failed to tag submission: Submission tag '{tag_slug}' not found "
+                                        "or not part of this course instance."
+                                    )
+                                    logger.error(msg, extra={"request": request})
+                                    email_course_error(request, exercise, msg, True)
+            except json.JSONDecodeError:
+                # If the grading data is not valid JSON, we cannot extract submission tags
+                pass
 
         # If A+ is used as LTI Tool and the assignment uses the Acos-server,
         # the submission has not been able to save the LTI launch id before
