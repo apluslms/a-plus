@@ -1,10 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
-import re
 
 from django import template
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.utils.html import strip_tags
 from django.utils.translation import get_language
 
 from course.models import CourseInstance, UserTagging

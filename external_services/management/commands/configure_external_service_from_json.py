@@ -15,7 +15,7 @@ class Command(BaseCommand):
         parser.add_argument('path', metavar="PATH_TO_JSON",
                             help="Path to a json file with a lti service configuration")
 
-    def handle(self, *args, **options): # pylint: disable=too-many-locals # noqa: MC0001
+    def handle(self, *args, **options): # pylint: disable=too-many-locals too-many-branches # noqa: MC0001
         if options['course']:
             course_s = options['course'].strip().strip('/')
             if course_s == 'all':

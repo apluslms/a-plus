@@ -1,5 +1,3 @@
-import json
-
 from collections import OrderedDict
 from typing import Any, Dict, Iterable, List, Set, Tuple
 
@@ -7,7 +5,6 @@ from rest_framework.request import Request
 from rest_framework.reverse import reverse
 
 from ...models import BaseExercise, Submission
-from course.models import SubmissionTag
 
 
 def filter_best_submissions(
@@ -44,7 +41,7 @@ def filter_best_submissions(
             filtered.append(submissions[i])
     return filtered
 
-def submissions_sheet( # pylint: disable=too-many-locals # noqa: MC0001
+def submissions_sheet( # pylint: disable=too-many-locals too-many-branches # noqa: MC0001
         request: Request,
         submissions: Iterable[Submission],
         revealed_ids: Set[int],

@@ -25,7 +25,8 @@ class Command(BaseCommand):
             help="Limit results to courses, which are currently visible "
                  "to students")
 
-    def handle(self, *args, **options): # pylint: disable=too-many-locals # noqa: MC0001
+    # pylint: disable-next=too-many-locals too-many-branches too-many-statements
+    def handle(self, *args, **options): # noqa: MC0001
         services = {}
         content_types = {}
 

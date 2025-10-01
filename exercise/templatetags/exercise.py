@@ -198,26 +198,25 @@ def get_badge_classes(data, extra_classes=None):
 def get_badge_title(data):
     if not data.get('feedback_revealed'):
         return data.get('feedback_hidden_description', _('RESULTS_ARE_CURRENTLY_HIDDEN'))
-    elif not data.get('official'):
+    if not data.get('official'):
         t = data.get('unofficial_submission_type')
         if t == 'limit_exceeded':
             return _('LIMIT_EXCEEDED')
-        elif t == 'deadline_passed':
+        if t == 'deadline_passed':
             return _('DEADLINE_PASSED')
-        else:
-            return _('UNOFFICIAL_DESCRIPTION')
-    elif data.get('passed'):
+        return _('UNOFFICIAL_DESCRIPTION')
+    if data.get('passed'):
         if data.get('required', 0) > 0:
             return _('PASSED')
-        else:
-            return ''
-    elif data.get('missing_points'):
+        return ''
+    if data.get('missing_points'):
         points = data.get('required', 0)
         # You may want to use Django's translation with variables here
         return _('POINTS_REQUIRED_TO_PASS -- %(points)s') % {'points': points}
-    elif data.get('submitted'):
+    if data.get('submitted'):
         return _('REQUIRED_EXERCISES_NOT_PASSED')
     return ''
+
 
 AnyPointsEntry = Union[
     CachedPointsData,

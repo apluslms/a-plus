@@ -337,6 +337,7 @@ def check_and_tag_retaking(sender, instance, created, **kwargs): # pylint: disab
             course_instance=instance.course_instance,
         )
 
+
 post_save.connect(create_enrollment_code, sender=Enrollment)
 post_save.connect(create_anon_id, sender=Enrollment)
 post_save.connect(pseudonymize, sender=Enrollment)

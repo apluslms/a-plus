@@ -16,7 +16,7 @@ from .models import SubmissionTagging
 logger = logging.getLogger('aplus.exercise')
 
 
-def _post_async_submission(request, exercise, submission, errors=None):
+def _post_async_submission(request, exercise, submission, errors=None): # pylint: disable=too-many-branches
     """
     Creates or grades a submission.
 
@@ -52,7 +52,7 @@ def _post_async_submission(request, exercise, submission, errors=None):
         }
 
     # Grade the submission.
-    try:
+    try: # pylint: disable=too-many-nested-blocks
         submission.set_points(form.cleaned_data["points"],
                               form.cleaned_data["max_points"])
         submission.feedback = form.cleaned_data["feedback"]

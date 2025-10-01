@@ -16,7 +16,7 @@ class ShibbolethAuthBackend(ModelBackend):
     Creates a new user or updates changed fields on an existing user.
 
     """
-    # pylint: disable-next=too-many-locals arguments-differ
+    # pylint: disable-next=too-many-locals too-many-branches too-many-statements arguments-differ
     def authenticate(self, request, shibd_meta=None): # noqa: MC0001
         if not shibd_meta:
             return None

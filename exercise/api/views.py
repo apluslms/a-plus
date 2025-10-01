@@ -336,7 +336,7 @@ class ExerciseSubmissionsViewSet(NestedViewSetMixin,
         url_name='zip',
         methods=['get'],
     )
-    def zip(self, request, exercise_id, *args, **kwargs): # pylint: disable=too-many-locals # noqa: MC0001
+    def zip(self, request, exercise_id, *args, **kwargs): # pylint: disable=too-many-locals too-many-statements # noqa: MC0001
         if not self.instance.is_course_staff(request.user):
             return Response(
                 'Only course staff can download submissions via this API',
@@ -656,7 +656,7 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
             SubmissionTagging.objects.create(submission=self.submission, tag=tag)
             return Response({'detail': 'Tag added successfully'}, status=status.HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 # Get the tagging object
                 tagging = SubmissionTagging.objects.get(submission=self.submission, tag=tag)

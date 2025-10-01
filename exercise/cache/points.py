@@ -647,7 +647,7 @@ class ExercisePoints(LearningObjectPoints):
                     submission.feedback_revealed = True
 
     # pylint: disable-next=too-many-locals
-    def _generate_data( # noqa: MC0001
+    def _generate_data( # pylint: disable=too-many-branches too-many-statements # noqa: MC0001
             self,
             precreated: ProxyManager,
             prefetched_data: ExercisePoints.DBCLS,
