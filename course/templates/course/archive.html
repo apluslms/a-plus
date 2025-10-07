@@ -8,7 +8,14 @@
 {% block content %}
   <div class="frontpage-panel">
     <div class="page-header">
-        <h1>{% translate "COURSE_ARCHIVE" %}
+      <div class="row">
+        <div class="col-sm-4">
+          <h1>{% translate "COURSE_ARCHIVE" %}</h1>
+        </div>
+        <div class="col-sm-8">
+          <h3>{% include "course/_search_courses_form.html" %}</h3>
+        </div>
+      </div>
     </div>
     {% regroup instances by starting_time|date:"Y" as instances_by_year %}
 
@@ -22,5 +29,13 @@
         </div>
       </section> 
     {% endfor %}
+
+    {% if not instances and not siteadvert %}
+			<div class="panel-body">
+				<p class="panel-default-text">
+					{% translate "NO_ACTIVE_COURSES" %}
+				</p>
+			</div>
+		{% endif %}
   </div>
 {% endblock %}
