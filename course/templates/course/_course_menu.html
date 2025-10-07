@@ -27,7 +27,7 @@
 	</div>
 </div>
 
-{% if instance.language|first != "|" %}
+{% if instance.language|first == "|" %}
 <div class="sidebar-lang-menu d-block dropdown mb-2">
 	<button class="aplus-button--secondary aplus-button--sm" id="sidebar-lang-dropdown" type="button"
 		data-bs-toggle="dropdown" title="{% translate "CHANGE_LANGUAGE" %}"
