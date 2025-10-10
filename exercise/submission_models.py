@@ -31,7 +31,7 @@ from lib.localization_syntax import pick_localized
 from lib.models import UrlMixin
 from lti_tool.utils import has_lti_access_to_course
 from userprofile.models import UserProfile
-from aplus.celery import retry_submissions
+from aplus.celery_aplus import retry_submissions
 from . import exercise_models
 from .exercise_models import LearningObjectProto
 
