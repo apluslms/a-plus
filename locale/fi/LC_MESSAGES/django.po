@@ -1147,10 +1147,8 @@ msgid "SEARCH_COURSES"
 msgstr "Hae kursseja"
 
 #: course/templates/course/_search_courses_form.html
-#, fuzzy
-#| msgid "CLEAR_SELECTION"
 msgid "CLEAR_SEARCH"
-msgstr "Tyhjennä valinta"
+msgstr "Tyhjennä haku"
 
 #: course/templates/course/_search_courses_form.html
 #: templates/ajax_search_select.html

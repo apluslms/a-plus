@@ -1141,7 +1141,7 @@ msgstr "Search courses"
 
 #: course/templates/course/_search_courses_form.html
 msgid "CLEAR_SEARCH"
-msgstr "Clear selection"
+msgstr "Clear search"
 
 #: course/templates/course/_search_courses_form.html
 #: templates/ajax_search_select.html
