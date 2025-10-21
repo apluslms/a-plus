@@ -96,7 +96,13 @@ class RevealRuleForm(FieldsetModelForm):
 
     class Meta:
         model = RevealRule
-        fields = ['trigger', 'delay_minutes', 'time', 'currently_revealed', 'show_zero_points_immediately']
+        fields = [
+            'trigger',
+            'delay_minutes',
+            'time',
+            'currently_revealed',
+            'show_zero_points_immediately',
+        ]
         widgets = {'time': DateTimeLocalInput}
 
     def __init__(self, *args: Any, is_submission_feedback: bool = False, **kwargs: Any) -> None:

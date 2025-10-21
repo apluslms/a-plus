@@ -276,7 +276,7 @@ def _points_data(
         'module_goal_points': module_goal_points,
         'module_goal_percentage': module_goal_percentage,
         'module_goal_achieved': module_goal_achieved,
-        'show_zero_points_immediately': getattr(obj, 'show_zero_points_immediately',  False),
+        'show_zero_points_immediately': getattr(obj, 'show_zero_points_immediately', False),
         'best_submission_true_points': best_submission_true_points,
     }
     reveal_time = getattr(obj, 'feedback_reveal_time', None)

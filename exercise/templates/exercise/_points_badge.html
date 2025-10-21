@@ -38,7 +38,7 @@
 {% if difficulty %}
 <span class="difficulty align-middle">{{ difficulty }}</span>
 {% endif %}
-<span class="badge rounded-pill {{ classes }}"
+<span class="badge text-bg-secondary rounded-pill {{ classes }}"
   {% if badge_title %}data-bs-toggle="tooltip" data-bs-placement="bottom"{% endif %}
   title="{{ badge_title }}">
   {% if show_zero_points_immediately and best_submission_true_points == 0 %}
