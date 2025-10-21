@@ -41,7 +41,7 @@
             <i class="bi-pencil-square" aria-hidden="true"></i>
             {% translate "EDIT" %}
           </a>
-          <a class="aplus-button--secondary aplus-button--xs" role="button" href="{% url 'groups-delete' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
+          <a class="aplus-button--danger aplus-button--xs" role="button" href="{% url 'groups-delete' course_slug=course.url instance_slug=instance.url group_id=group.id %}">
             <i class="bi-x-lg" aria-hidden="true"></i>
             {% translate "REMOVE" %}
           </a>

@@ -89,7 +89,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         .attr('aria-hidden', true)
       )
       .append(" " + label)
-      .addClass('aplus-button--secondary')
+      .addClass('aplus-button--danger')
       .addClass('aplus-button--xs')
       .on('click', action);
   };
