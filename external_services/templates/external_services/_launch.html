@@ -29,25 +29,29 @@ E.g. {% static 'js/external_launcher.js' ‰}
 		{% else %}
 			<h4>{% blocktranslate trimmed with name=service_label|parse_localization %}EXTERNAL_SERVICE_LAUNCH_EXERCISE_HOSTED_ON -- {{ name }}{% endblocktranslate %}</h4>
 		{% endif %}
-		<div class="card">
-			{% include "external_services/_privacy.html" %}
+		<div class="card bg-info-subtle">
+			<div class="card-body">
+				{% include "external_services/_privacy.html" %}
+			</div>
 		</div>
-		<p class="external-service-auto">
-			<input id="extserv-auto-{{ form_id }}" name="auto_accept" type="checkbox" value="1" />
-			<label for="extserv-auto-{{ form_id }}">
-				{% if exercise %}
-					{% if exercise.open_in_iframe %}
-						{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_LOAD_EXERCISE_NEXT_TIME" %}
+		<div class="card bg-secondary-subtle mt-2">
+			<div class="external-service-auto form-check card-body d-flex align-items-center gap-3 py-2">
+				<input id="extserv-auto-{{ form_id }}" name="auto_accept" type="checkbox" value="1" />
+				<label for="extserv-auto-{{ form_id }}">
+					{% if exercise %}
+						{% if exercise.open_in_iframe %}
+							{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_LOAD_EXERCISE_NEXT_TIME" %}
+						{% else %}
+							{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_OPEN_EXERCISE_NEXT_TIME" %}
+						{% endif %}
 					{% else %}
-						{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_OPEN_EXERCISE_NEXT_TIME" %}
+						{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_CONTINUE_TO_SERVICE_NEXT_TIME" %}
 					{% endif %}
-				{% else %}
-					{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_CONTINUE_TO_SERVICE_NEXT_TIME" %}
-				{% endif %}
-				<br>
-				{% translate "EXTERNAL_SERVICE_LAUNCH_CHOICE_SAVED_ON_DEVICE_AND_WHERE_TO_REMOVE" %}
-			</label>
-		</p>
+					<br>
+					{% translate "EXTERNAL_SERVICE_LAUNCH_CHOICE_SAVED_ON_DEVICE_AND_WHERE_TO_REMOVE" %}
+				</label>
+			</div>
+		</div>
 		<p>
 			<form method="{{ service.method }}" action="{{ url }}"
 			      target="{% if exercise %}{% if exercise.open_in_iframe %}extserv-frame-{{ form_id }}{% else %}_blank{% endif %}{% else %}_self{% endif %}">
@@ -64,13 +68,15 @@ E.g. {% static 'js/external_launcher.js' ‰}
 			</form>
 		</p>
 		{% if parameters %}
-			<div class="collapse well" id="extserv-more-{{ form_id }}">
-				<p>{{ service.method }} {{ url }}</p>
-				<table class="card card-block table">
-					{% for name, value in parameters|dictsort:0 %}
-						<tr><th>{{ name }}</th><td>{{ value }}</td></tr>
-					{% endfor %}
-				</table>
+			<div class="collapse card" id="extserv-more-{{ form_id }}">
+				<div class="card-body">
+					<p>{{ service.method }} {{ url }}</p>
+					<table class="table">
+						{% for name, value in parameters|dictsort:0 %}
+							<tr><th>{{ name }}</th><td>{{ value }}</td></tr>
+						{% endfor %}
+					</table>
+				</div>
 			</div>
 		{% endif %}
 	</div>

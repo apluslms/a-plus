@@ -115,6 +115,12 @@ legend {
 			margin-left: 0px;
 		}
 	}
+
+	// Override styles when sidebar doesn't exist
+    body:not(:has(#bs-navbar-collapse)) .site-content > .site-messages {
+        padding-left: 12px;
+        margin-left: -12px;
+    }
 }
 
 @media (min-width: 768px) {
@@ -125,4 +131,9 @@ legend {
 			margin-left: 36px;
 		}
 	}
+
+	// Override styles when sidebar doesn't exist
+    body:not(:has(#bs-navbar-collapse)) .site-content > .site-alert {
+        margin-left: 0px;
+    }
 }

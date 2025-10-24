@@ -856,14 +856,6 @@ $(document).ready(function() {
   });
   // Change "collapse in" to "collapse show" to correct initial visibility with BS5
   $('.collapse.in').removeClass('in').addClass('show');
-
-  // If the sidebar menu is not in the DOM, apply different margin for site-alert and site-messages
-  const sidebarElement = document.getElementById('bs-navbar-collapse');
-  if (!sidebarElement) {
-      // Element is not in DOM, apply different margin
-      document.querySelector('.site-content > .site-alert')?.style.setProperty('marginLeft', '0px');
-      document.querySelector('.site-content > .site-messages')?.style.setProperty('paddingLeft', '12px');
-  }
 });
 
 // Prevent tooltips from showing in the sidebar when the navbar is not minimised

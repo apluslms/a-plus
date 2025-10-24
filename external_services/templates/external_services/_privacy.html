@@ -97,7 +97,7 @@
 {% elif service.destination_region == service.DESTINATION_REGION.GDPR_COMPLIANT %}
 	{% if service.sends_user_info %}
 	<p class="alert alert-{{service.is_anonymous|yesno:'info,warning' }}">
-	<i class="glyphicon glyphicon-exclamation-sign"></i><span>
+	<i class="bi-exclamation-sign"></i><span>
 	{% else %}
 	<p><span>
 	{% endif %}
