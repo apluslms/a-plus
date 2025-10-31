@@ -9,7 +9,8 @@ djangorestframework-csv ~= 2.1.0
 git+https://github.com/apluslms/drf-extensions.git@reimplement_nested_routes_v6#egg=drf_extensions==0.8.0.dev1
 git+https://github.com/apluslms/django-essentials.git@1.6.0#egg=django-essentials==1.6.0
 git+https://github.com/apluslms/js-jquery-toggle.git@1.1.0#egg=js-jquery-toggle-django==1.1.0&subdirectory=django
-git+https://github.com/apluslms/django-colortag.git@2.4.0#egg=django-colortag==2.4.0
+#git+https://github.com/apluslms/django-colortag.git@2.4.0#egg=django-colortag==2.4.0
+git+https://github.com/sayravai/django-colortag.git@bs5#egg=django-colortag
 feedparser ~= 6.0.2
 html5lib ~= 1.1
 lxml ~= 5.3.1
