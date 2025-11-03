@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-15 16:56+0300\n"
+"POT-Creation-Date: 2025-10-28 15:17+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -303,6 +303,7 @@ msgid "MODEL_NAME_COURSE_PLURAL"
 msgstr "courses"
 
 #: course/models.py exercise/exercise_models.py
+#, python-brace-format
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Reserved words include: {}"
 
@@ -653,10 +654,12 @@ msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
 msgstr "course instances"
 
 #: course/models.py
+#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
 msgstr "You cannot use the word '{}' as an instance name."
 
 #: course/models.py
+#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_URL -- {}"
 msgstr "You cannot use the word '{}' in the URL."
 
@@ -1387,7 +1390,6 @@ msgid "TIME"
 msgstr "Time"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
@@ -1405,7 +1407,6 @@ msgid "GRADE"
 msgstr "Grade"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: course/templates/course/staff/participants.html
 #: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -1595,28 +1596,21 @@ msgid "OF_WHICH_SELECTED"
 msgstr "Currently selected:"
 
 #: course/templates/course/staff/participants.html
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-msgid "STUDENT_ID"
-msgstr "Student ID"
+#: edit_course/templates/edit_course/usertag_add.html
+msgid "ADD_STUDENT_TAG"
+msgstr "Add student tag"
 
 #: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-msgid "LAST_NAME"
-msgstr "Last name"
+msgid "REMOVE_STUDENT_TAG"
+msgstr "Remove student tag"
 
 #: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-msgid "FIRST_NAME"
-msgstr "First name"
-
-#: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-#: userprofile/templates/userprofile/teachers.html
-msgid "EMAIL"
-msgstr "Email"
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: news/templates/news/list.html
+msgid "SELECT"
+msgstr "Select"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1923,13 +1917,6 @@ msgstr "Grant time"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: news/templates/news/list.html
-msgid "SELECT"
-msgstr "Select"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
 #: exercise/staff_views.py
@@ -2061,8 +2048,8 @@ msgstr "point limits"
 #: diploma/models.py
 msgid "DIPLOMA_POINT_LIMITS_HELPTEXT"
 msgstr ""
-"A list of length 5 where each element is the required points for n:th grade."
-"The element can be a list of 2-tuples \n"
+"A list of length 5 where each element is the required points for n:th "
+"grade.The element can be a list of 2-tuples \n"
 "[[difficulty_level_a, points], [difficulty_level_b, points]]."
 
 #: diploma/models.py
@@ -2137,6 +2124,12 @@ msgstr "Filter users"
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
 msgstr "Username"
+
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+msgid "STUDENT_ID"
+msgstr "Student ID"
 
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
@@ -2339,8 +2332,8 @@ msgid "LABEL_GIT_ORIGIN_HELPTEXT"
 msgstr ""
 "The git address of the repository for the course materials. This address is "
 "used in the 'git clone' command. Note: do not copy the address of the web "
-"page in GitLab. Copy the 'Clone with SSH' address, for example, git@version."
-"aalto.fi:course/aplus-manual.git"
+"page in GitLab. Copy the 'Clone with SSH' address, for example, "
+"git@version.aalto.fi:course/aplus-manual.git"
 
 #: edit_course/course_forms.py
 msgid "LABEL_GIT_BRANCH"
@@ -3018,10 +3011,6 @@ msgstr "No submission tags"
 msgid "ADD_NEW_USER_TAG"
 msgstr "Add new user tag"
 
-#: edit_course/templates/edit_course/usertag_add.html
-msgid "ADD_STUDENT_TAG"
-msgstr "Add student tag"
-
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG"
 msgstr "Remove user tag"
@@ -3444,6 +3433,7 @@ msgid "ALONE"
 msgstr "alone"
 
 #: exercise/exercise_models.py
+#, python-brace-format
 msgid "WITH -- {}"
 msgstr "with {}"
 
@@ -3713,6 +3703,7 @@ msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
 msgstr "The assignment is not currently visible."
 
 #: exercise/permissions.py
+#, python-brace-format
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}"
 msgstr "The assignment opens for submissions at {}."
 
@@ -3840,6 +3831,7 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Reveal rules"
 
 #: exercise/staff_views.py
+#, python-brace-format
 msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Grading mode: {}"
 
@@ -4889,8 +4881,8 @@ msgstr "Show only students with submissions"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
 msgstr ""
-"If this is checked, the points shown ignore the grading mode &quot;"
-"last&quot; even if it has been enabled for some assignment."
+"If this is checked, the points shown ignore the grading mode "
+"&quot;last&quot; even if it has been enabled for some assignment."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
@@ -4983,6 +4975,20 @@ msgstr "Show all assignments"
 msgid "SUBMISSIONS_SUMMARY"
 msgstr "Submissions summary"
 
+#: exercise/templates/exercise/staff/user_results.html
+msgid "LAST_NAME"
+msgstr "Last name"
+
+#: exercise/templates/exercise/staff/user_results.html
+msgid "FIRST_NAME"
+msgstr "First name"
+
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAIL"
+msgstr "Email"
+
 #: exercise/templates/exercise/submission.html
 msgid "SUBMISSION"
 msgstr "Submission"
@@ -5020,8 +5026,8 @@ msgstr ""
 #, python-brace-format
 msgid "PERSONAL_EXTENDED_DEADLINE_PLURAL -- {count}"
 msgstr ""
-"<span data-bs-toggle=\"tooltip\" title=\"Personal extended deadlines: "
-"{count}\"><span class=\"bi-clock\" aria-hidden=\"true\"></span><span "
+"<span data-bs-toggle=\"tooltip\" title=\"Personal extended deadlines: {count}"
+"\"><span class=\"bi-clock\" aria-hidden=\"true\"></span><span "
 "class=\"visually-hidden\">Personal extended deadlines: {count}</span></span>"
 
 #: exercise/templatetags/exercise.py
@@ -5324,8 +5330,8 @@ msgstr "badge for the menu link (else service default)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Menu icon style name (else service default), e.g. star see https://icons."
-"getbootstrap.com/"
+"Menu icon style name (else service default), e.g. star see https://"
+"icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5456,23 +5462,24 @@ msgstr ""
 #, python-format
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_COURSE_STAFF -- %(brand)s"
 msgstr ""
-"Moreover, we send this service a so-called <a href=\"https://en.wikipedia."
-"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" "
-"class=\"alert-link\">access token</a>, which gives the service access to the "
-"%(brand)s API at your privilege level. If you don't want that to happen, "
-"please contact %(brand)s administration."
+"Moreover, we send this service a so-called <a href=\"https://"
+"en.wikipedia.org/wiki/Access_token\" rel=\"noopener nofollow\" "
+"target=\"_blank\" class=\"alert-link\">access token</a>, which gives the "
+"service access to the %(brand)s API at your privilege level. If you don't "
+"want that to happen, please contact %(brand)s administration."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
 msgid "EXTERNAL_SERVICE_SENT_ACCESS_TOKEN_STUDENT -- %(brand)s"
 msgstr ""
-"Moreover, we send this service a so-called <a href=\"https://en.wikipedia."
-"org/wiki/Access_token\" rel=\"noopener nofollow\" target=\"_blank\" "
-"class=\"alert-link\">access token</a>, which gives the service access to the "
-"%(brand)s API at your privilege level. This means that the service can, for "
-"example, access your student ID number and your progress in the course, and "
-"submit solutions to assignments. The course staff has enabled this feature "
-"and trust the service to operate with your best interests in mind."
+"Moreover, we send this service a so-called <a href=\"https://"
+"en.wikipedia.org/wiki/Access_token\" rel=\"noopener nofollow\" "
+"target=\"_blank\" class=\"alert-link\">access token</a>, which gives the "
+"service access to the %(brand)s API at your privilege level. This means that "
+"the service can, for example, access your student ID number and your "
+"progress in the course, and submit solutions to assignments. The course "
+"staff has enabled this feature and trust the service to operate with your "
+"best interests in mind."
 
 #: external_services/templates/external_services/_privacy.html
 #, python-format
@@ -6006,6 +6013,7 @@ msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
 msgstr "threshold points"
 
 #: threshold/models.py
+#, python-brace-format
 msgid "POINTS -- {:d}"
 msgstr "{:d} points"
 

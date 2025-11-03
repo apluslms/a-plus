@@ -9,6 +9,8 @@
 {% block breadcrumblist %}
 {{ block.super }}
 <li class="breadcrumb-item active">{% translate "PARTICIPANTS" %}</li>
+<!-- DataTables plugin with Bootstrap 5 styling and Buttons/export support -->
+<link href="https://cdn.datatables.net/v/bs5/dt-2.2.1/b-3.2.1/b-html5-3.2.1/datatables.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block columns %}
@@ -23,14 +25,25 @@
 	</p>
 	{% endif %}
 	<p class="filter-users">
-		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_TAG" %}:</small>
+		<small class="text-body-secondary d-block">{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
-		<button class="btn aplus-button--xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
-			<i class="bi bi-square" aria-hidden="true"></i>
+		<button
+			class="btn aplus-button--xs filter-tag"
+			style="background-color:{{ tag.color }};color:{{ tag.font_color }};"
+			data-tagslug="{{ tag.slug }}"
+			data-tagid="{{ tag.id }}"
+			data-tagname="{{ tag.name }}"
+			data-description="{{ tag.description|default_if_none:'' }}"
+			data-font-white="{{ tag.font_white|yesno:'1,0' }}"
+			data-color="{{ tag.color }}"
+			data-font-color="{{ tag.font_color }}"
+		>
+			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
-		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_STATUS" %}:</small>
+		<br>
+		<small class="text-body-secondary d-block mt-3">{% trans "FILTER_USERS_BY_STATUS" %}:</small>
 		{% for status_code, status_label in enrollment_statuses.items %}
 		<button class="btn aplus-button--xs aplus-button--secondary filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
@@ -38,42 +51,141 @@
 			{% else %}
 			<i class="bi bi-square" aria-hidden="true"></i>
 			{% endif %}
-			{{ status_label }}
+			{{ status_label }} (<strong id="status-{{ status_code }}-count">0</strong>)
 		</button>
 		{% endfor %}
 	</p>
 
 	<p>
-		{% trans "NUMBER_OF_ENROLLED_STUDENTS" %} <strong id="active-participants-number"></strong>
-		({% trans "PENDING_STUDENTS" %} <strong id="pending-participants-number"></strong>,
-		{% trans "REMOVED_STUDENTS" %} <strong id="removed-participants-number"></strong>,
-		{% trans "BANNED_STUDENTS" %} <strong id="banned-participants-number"></strong>).
 		{% if is_teacher %}
 		{% translate "OF_WHICH_SELECTED" %} <strong id="selected-number">0</strong>
+		<button type="button" id="add-tag-selected" class="aplus-button--secondary aplus-button--xs ms-2" disabled>
+			<i class="bi-tag" aria-hidden="true"></i>
+			{% translate "ADD_STUDENT_TAG" %}
+		</button>
+		<button type="button" id="remove-tag-selected" class="aplus-button--danger aplus-button--xs ms-1" disabled title="{% translate 'REMOVE_STUDENT_TAG' %}">
+			<i class="bi-tag" aria-hidden="true"></i>
+			{% translate "REMOVE_STUDENT_TAG" %}
+		</button>
 		{% endif %}
 	</p>
 
-	<table class="table table-sm filtered-table ordered-table">
-		<thead>
-			<tr>
-				{% if is_teacher %}
-				<th data-filter-type="none" data-order-disable="true">
-					<input class="form-check-input" type="checkbox" id="students-select-all" name="students" value="all" >
-				</th>
-				{% endif %}
-				<th>{% trans "STUDENT_ID" %}</th>
-				<th>{% trans "LAST_NAME" %}</th>
-				<th>{% trans "FIRST_NAME" %}</th>
-				<th>{% trans "EMAIL" %}</th>
-				<th data-filter-type="none" data-order-disable="true">{% trans "STATUS" %}</th>
-				<th data-filter-type="none" data-order-disable="true">{% trans "TAGS" %}</th>
-				<th data-filter-type="none" data-order-disable="true"></th>
-			</tr>
-		</thead>
-		<tbody id="participants">
-		</tbody>
-	</table>
+	<div id="participants-table-container" class="table-responsive">
+		<table id="table-participants" class="table table-sm">
+			<thead id="table-heading"></thead>
+			<tbody id="participants">
+			</tbody>
+		</table>
+	</div>
 
+</div>
+
+<!-- Add Tag modal -->
+<div
+	class="modal"
+	id="tag-add-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="tag-add-modal-label"
+>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="tag-add-modal-label">
+					{% translate "ADD_STUDENT_TAG" %}
+				</h4>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="close"
+				>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label for="tag-add-select" class="form-label">{% translate "SELECT" %}</label>
+					<select id="tag-add-select" class="form-select">
+						<!-- options populated by JS from filter buttons -->
+					</select>
+				</div>
+				<div class="text-body-secondary">
+					{% translate "OF_WHICH_SELECTED" %}
+					<span id="tag-add-target-count">0</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="aplus-button--secondary aplus-button--md"
+					data-bs-dismiss="modal"
+				>
+					{% translate "CANCEL" %}
+				</button>
+				<button
+					type="button"
+					class="aplus-button--default aplus-button--md"
+					id="tag-add-confirm"
+				>
+					{% translate "ADD_STUDENT_TAG" %}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Remove Tag modal (bulk) -->
+<div
+	class="modal"
+	id="tag-remove-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="tag-remove-modal-label"
+>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="tag-remove-modal-label">
+					{% translate "REMOVE_STUDENT_TAG" %}
+				</h4>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="close"
+				>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="mb-3">
+					<label for="tag-remove-select" class="form-label">{% translate "SELECT" %}</label>
+					<select id="tag-remove-select" class="form-select">
+						<!-- options populated by JS from selected users' tags -->
+					</select>
+				</div>
+				<div class="text-body-secondary">
+					{% translate "OF_WHICH_SELECTED" %}
+					<span id="tag-remove-target-count">0</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="aplus-button--secondary aplus-button--md"
+					data-bs-dismiss="modal"
+				>
+					{% translate "CANCEL" %}
+				</button>
+				<button
+					type="button"
+					class="aplus-button--danger aplus-button--md"
+					id="tag-remove-confirm"
+				>
+					{% translate "REMOVE_STUDENT_TAG" %}
+				</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div
@@ -138,6 +250,8 @@
 {% block scripts %}
 {{ block.super }}
 {% if is_teacher %}
+<script src="https://cdn.datatables.net/v/bs5/dt-2.2.1/b-3.2.1/b-html5-3.2.1/datatables.min.js"></script>
+
 <script src="{% static 'django_colortag.js' %}"></script>
 <script src="{% static 'add_tagging_dropdown.js' %}"></script>
 <script src="{% static 'js/buttons_popover.js' %}"></script>
@@ -145,7 +259,6 @@
 {% endif %}
 
 <script src="{% static 'js/participants.js' %}"></script>
-<script src="{% static 'course/usertagdropdown.js' %}"></script>
 <script>
 $(function () {
 	const participants = {{ participants|escape_slashes|safe }};

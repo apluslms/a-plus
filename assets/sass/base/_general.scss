@@ -42,8 +42,8 @@ code {
 	border-radius: 4px;
 }
 
-// Heading margins like BS3 (XXX find a better way)
-h1, .h1, h2, .h2, h3, .h3 {
+// Heading margins like BS3 (TODO: find a better way)
+h1, .h1, h2, .h2, h3:not(.popover-header), .h3 {
 	margin-top: 1.375rem;
 	margin-bottom: 0.5rem;
 }

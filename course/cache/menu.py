@@ -2,7 +2,6 @@ from django.db.models.signals import post_save, post_delete, m2m_changed
 
 from lib.cache import CachedAbstract
 from ..models import StudentGroup, Enrollment, CourseInstance
-from ..renders import render_group_info
 
 
 class CachedTopMenu(CachedAbstract):
@@ -60,6 +59,10 @@ class CachedTopMenu(CachedAbstract):
     def _generate_groups(self, profile):
         if not profile:
             return {}
+
+        # Lazy import to avoid circular import during Django app initialization.
+        # (menu imports renders only when groups are actually generated.)
+        from ..renders import render_group_info  # pylint: disable=import-outside-toplevel
 
         def group_entry(group):
             return {

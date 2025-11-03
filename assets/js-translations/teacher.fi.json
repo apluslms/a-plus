@@ -23,6 +23,9 @@
   "Filter":
   "Suodatus",
 
+  "Reset filters":
+  "Nollaa suodattimet",
+
   "Collapse":
   "Supista",
 
@@ -37,6 +40,18 @@
 
   "Student name":
   "Opiskelijan nimi",
+
+  "First name":
+  "Etunimi",
+
+  "Last name":
+  "Sukunimi",
+
+  "Email":
+  "S\u00E4hk\u00F6posti",
+
+  "Status":
+  "Tila",
 
   "Organization":
   "Organisaatio",

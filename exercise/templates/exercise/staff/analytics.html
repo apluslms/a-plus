@@ -48,16 +48,16 @@
 	</div>
 
 	<p id="llama-filter-tags">
-		<button class="btn btn-success btn-sm" data-id="aalto">
+		<button class="btn btn-success aplus-button--xs filter-tag" data-id="aalto">
 			<i class="bi-square" aria-hidden="true"></i>
 			{{ internal_user_label|safe }}
 		</button>
-		<button class="btn btn-info btn-sm" data-id="mooc">
+		<button class="btn btn-info aplus-button--xs filter-tag" data-id="mooc">
 			<i class="bi-square" aria-hidden="true"></i>
 			{{ external_user_label|safe }}
 		</button>
 		{% for tag in tags %}
-		<button class="btn btn-secondary btn-sm" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
+		<button class="btn btn-secondary aplus-button--xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-id="{{ tag.id }}">
 			<i class="bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>

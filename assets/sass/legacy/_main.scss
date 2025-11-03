@@ -313,6 +313,11 @@ div.aplus-spaced-accordion > .accordion-item  > .accordion-header > .accordion-b
     border-radius: var(--bs-accordion-inner-border-radius);
 }
 
+/* filter tags */
+button.filter-tag {
+	font-weight: bold;
+}
+
 /* point progress */
 .progress {
     position: relative;
