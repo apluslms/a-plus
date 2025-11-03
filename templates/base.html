@@ -59,12 +59,12 @@
 	<script src="{% static 'js/translate.min.js' %}"></script>
 
 	{% if is_teacher %}
-	<link data-translation rel="preload" as="fetch" crossorigin="anonymous"
+	<link data-translation rel="prefetch" as="fetch" crossorigin="anonymous"
 		type="application/json, text/javascript, */*; q=0.01" hreflang="fi"
 		href="{{ STATIC_URL }}js-translations/teacher.fi.json">
 	<script src="{% static 'js/table.js' %}"></script>
 	{% endif %}
-	<link data-translation rel="preload" as="fetch" crossorigin="anonymous"
+	<link data-translation rel="prefetch" as="fetch" crossorigin="anonymous"
 		type="application/json, text/javascript, */*; q=0.01" hreflang="fi"
 		href="{{ STATIC_URL }}js-translations/utils.fi.json">
 

@@ -1,0 +1,6 @@
+#table-participants-div {
+	max-height: calc(100vh - 18em);
+	max-width: 100vw;
+	margin-top: 6px;
+	overflow: auto; /* internal scroll so header can stick and pagination remains in view */
+}

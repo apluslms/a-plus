@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-15 16:56+0300\n"
+"POT-Creation-Date: 2025-10-28 15:17+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -304,6 +304,7 @@ msgid "MODEL_NAME_COURSE_PLURAL"
 msgstr "kurssit"
 
 #: course/models.py exercise/exercise_models.py
+#, python-brace-format
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Varatut sanat: {}"
 
@@ -657,10 +658,12 @@ msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
 msgstr "kurssikerrat"
 
 #: course/models.py
+#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
 msgstr "Et voi käyttää sanaa {} kurssikerran nimenä."
 
 #: course/models.py
+#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_URL -- {}"
 msgstr "Et voi käyttää sanaa {} URL-osoitteessa."
 
@@ -1395,7 +1398,6 @@ msgid "TIME"
 msgstr "Aika"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: course/templates/course/staff/participants.html
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table_compact.html
@@ -1413,7 +1415,6 @@ msgid "GRADE"
 msgstr "Arvosana"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: course/templates/course/staff/participants.html
 #: edit_course/templates/edit_course/edit_course_base.html
 #: edit_course/templates/edit_course/usertag_add.html
 #: edit_course/templates/edit_course/usertag_delete.html
@@ -1603,28 +1604,21 @@ msgid "OF_WHICH_SELECTED"
 msgstr "Tällä hetkellä valittuja:"
 
 #: course/templates/course/staff/participants.html
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-msgid "STUDENT_ID"
-msgstr "Opiskelijanumero"
+#: edit_course/templates/edit_course/usertag_add.html
+msgid "ADD_STUDENT_TAG"
+msgstr "Lisää opiskelijamerkintä"
 
 #: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-msgid "LAST_NAME"
-msgstr "Sukunimi"
+msgid "REMOVE_STUDENT_TAG"
+msgstr "Poista opiskelijamerkintä"
 
 #: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-msgid "FIRST_NAME"
-msgstr "Etunimi"
-
-#: course/templates/course/staff/participants.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-#: userprofile/templates/userprofile/teachers.html
-msgid "EMAIL"
-msgstr "Sähköposti"
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/list_submissions.html
+#: exercise/templates/exercise/staff/edit_submitters.html
+#: news/templates/news/list.html
+msgid "SELECT"
+msgstr "Valitse"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1934,13 +1928,6 @@ msgstr "Myöntämisaika"
 
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
-#: exercise/templates/exercise/staff/edit_submitters.html
-#: news/templates/news/list.html
-msgid "SELECT"
-msgstr "Valitse"
-
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
 #: deviations/templates/deviations/override_submissions.html
 #: exercise/staff_views.py
@@ -2148,6 +2135,12 @@ msgstr "Suodata listaa"
 #: userprofile/templates/userprofile/profile.html
 msgid "USERNAME"
 msgstr "Käyttäjätunnus"
+
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+msgid "STUDENT_ID"
+msgstr "Opiskelijanumero"
 
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
@@ -3032,10 +3025,6 @@ msgstr "Ei palautusmerkintöjä"
 msgid "ADD_NEW_USER_TAG"
 msgstr "Lisää käyttäjämerkintä"
 
-#: edit_course/templates/edit_course/usertag_add.html
-msgid "ADD_STUDENT_TAG"
-msgstr "Lisää opiskelijamerkintä"
-
 #: edit_course/templates/edit_course/usertag_delete.html
 msgid "REMOVE_USER_TAG"
 msgstr "Poista käyttäjämerkintä"
@@ -3459,6 +3448,7 @@ msgid "ALONE"
 msgstr "yksin"
 
 #: exercise/exercise_models.py
+#, python-brace-format
 msgid "WITH -- {}"
 msgstr "ryhmässä {}"
 
@@ -3724,6 +3714,7 @@ msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
 msgstr "Tehtävä ei ole tällä hetkellä nähtävissä."
 
 #: exercise/permissions.py
+#, python-brace-format
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}"
 msgstr "Tämän tehtävän voi palauttaa {} alkaen."
 
@@ -3852,6 +3843,7 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Paljastamissäännöt"
 
 #: exercise/staff_views.py
+#, python-brace-format
 msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Arvostelutapa: {}"
 
@@ -4902,8 +4894,9 @@ msgstr "Näytä vain palauttaneet opiskelijat"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
 msgstr ""
-"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa &quot;"
-"vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä asetettuna."
+"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa "
+"&quot;vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä "
+"asetettuna."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
@@ -4994,6 +4987,20 @@ msgstr "Näytä kaikki tehtävät"
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUBMISSIONS_SUMMARY"
 msgstr "Palautusten yhteenveto"
+
+#: exercise/templates/exercise/staff/user_results.html
+msgid "LAST_NAME"
+msgstr "Sukunimi"
+
+#: exercise/templates/exercise/staff/user_results.html
+msgid "FIRST_NAME"
+msgstr "Etunimi"
+
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "EMAIL"
+msgstr "Sähköposti"
 
 #: exercise/templates/exercise/submission.html
 msgid "SUBMISSION"
@@ -5343,8 +5350,8 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons."
-"getbootstrap.com/"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://"
+"icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5533,8 +5540,8 @@ msgstr ""
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT"
 msgstr ""
-"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa GDPR:"
-"ää tietosuojailmoituksensa perusteella."
+"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa "
+"GDPR:ää tietosuojailmoituksensa perusteella."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"
@@ -6026,6 +6033,7 @@ msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
 msgstr "kynnysehtojen pisteet"
 
 #: threshold/models.py
+#, python-brace-format
 msgid "POINTS -- {:d}"
 msgstr "{:d} pisteet"
 

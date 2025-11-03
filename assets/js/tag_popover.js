@@ -11,12 +11,14 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
   // Get popover button dictionaries
   const colortag_buttons = function (elem) {
     const $elem = $(elem);
-    const tag_id = parseInt($elem.attr('data-tagid'), 10);
+    const tag_id_raw = $elem.attr('data-tagid');
+    const tag_id = parseInt(tag_id_raw, 10);
     const tag_slug = $elem.attr('data-tagslug');
     const user_id = parseInt(
       $elem.parents('[data-user-id]').attr('data-user-id'), 10
     );
-    const button_id_prefix = 'participant-' + user_id + '-tag-' + tag_id + '-';
+    const tag_key = isNaN(tag_id) || tag_id_raw === '' ? tag_slug : tag_id;
+    const button_id_prefix = 'participant-' + user_id + '-tag-' + tag_key + '-';
     // Define a 'fake' participants list if it is not defined, to work
     // seamlessly on both the participants list page and other pages
     const participants_ = participants ? participants : [{
@@ -26,7 +28,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
 
     const filter_button = {
       id: button_id_prefix + 'filter',
-      classes: 'btn-sm',
+      classes: 'btn-outline-secondary btn-sm',
       text: _('Toggle filtering by tag'),
       onclick: function () {
         $('.filter-users button[data-tagslug="' + tag_slug + '"]').trigger('click');
@@ -48,6 +50,14 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
           e += 10;
         }
         const remove_taggings = function () {
+          let pendingChunks = split_uids.length;
+          // Resolve numeric tag id (if any) from page filter buttons
+          let removedTagId = null;
+          try {
+            const idAttr = $('.filter-users button.filter-tag[data-tagslug="' + tag_slug + '"]').attr('data-tagid');
+            const parsed = parseInt(idAttr, 10);
+            removedTagId = isNaN(parsed) ? null : parsed;
+          } catch (e) { /* ignore */ }
           split_uids.forEach(function (user_ids_chunk) {
             const uids_param = 'user_id=' + user_ids_chunk.join('&user_id=');
             $.ajax({
@@ -66,7 +76,28 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
                 if (slug_index > -1) {
                   tag_slugs.splice(slug_index, 1);
                 }
+                // Remove Id from tag_ids if present
+                if (removedTagId !== null) {
+                  const p = participants_.find(function (pp) { return pp.user_id === user_id; });
+                  if (p && Array.isArray(p.tag_ids)) {
+                    const idIdx = p.tag_ids.indexOf(removedTagId);
+                    if (idIdx > -1) p.tag_ids.splice(idIdx, 1);
+                  }
+                }
               });
+              // When all chunks have completed, announce change and refresh filters
+              pendingChunks -= 1;
+              if (pendingChunks === 0) {
+                try {
+                  $(document).trigger('aplus:tags-changed', { type: 'remove', tag_slug: tag_slug, user_ids: user_ids });
+                } catch (e) { /* ignore */ }
+                // Fallback: if DataTables is present, force a redraw
+                try {
+                  if ($.fn.dataTable && $('#table-participants').length) {
+                    $('#table-participants').DataTable().draw(false);
+                  }
+                } catch (e) { /* ignore */ }
+              }
             });
           });
         };
@@ -99,20 +130,55 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
 
   // Observe added tags
   const tag_selector = '.colortag[data-tag-removable!="false"]';
+  const is_hardcoded = function($elem) {
+    const slug = $elem.attr('data-tagslug');
+    const idRaw = $elem.attr('data-tagid');
+    const idNum = parseInt(idRaw, 10);
+    return slug === 'user-internal' || slug === 'user-external' || idRaw === '' || isNaN(idNum);
+  };
+  const get_title_for_elem = function($elem) {
+    const slug = $elem.attr('data-tagslug');
+    if (!slug) return '';
+    const $btn = $('.filter-users button.filter-tag[data-tagslug="' + slug + '"]');
+    // Prefer explicit description; fallback to name/text
+    const desc = $btn.attr('data-description');
+    if (desc && desc.trim()) return desc;
+    const name = $btn.attr('data-tagname') || $btn.text().trim();
+    return name || '';
+  };
+
   const mutation_callback = function (mutationsList) {
     mutationsList.forEach(function (mutation) {
       const $added = $(mutation.addedNodes);
       $added.each(function (i, elem) {
-        $elem = $(elem);
-        if (!$elem.is(tag_selector)) {
-          return;
-        }
-        $elem.buttons_popover(colortag_buttons);
+        const $elem = $(elem);
+        // Check both the node itself and any matching descendants
+        const $targets = $elem.is(tag_selector)
+          ? $elem
+          : $elem.find(tag_selector);
+        $targets.each(function(){
+          const $t = $(this);
+          if (is_hardcoded($t)) return;
+          if ($t.data('aplusPopoverInit') === true) return;
+          const title = get_title_for_elem($t);
+          $t.buttons_popover(colortag_buttons, { title: title });
+          $t.data('aplusPopoverInit', true);
+        });
       });
     });
   };
-  const observer = new MutationObserver(mutation_callback);
-  observer.observe(mutation_target, { childList: true, subtree: true });
+  // Set up a single observer per mutation_target
+  const mt = mutation_target;
+  if (mt && !mt._aplusTagObserver) {
+    mt._aplusTagObserver = new MutationObserver(mutation_callback);
+    mt._aplusTagObserver.observe(mt, { childList: true, subtree: true });
+  }
 
-  $(tag_selector).buttons_popover(colortag_buttons);
+  $(tag_selector).filter(function(){ return !is_hardcoded($(this)); }).each(function(){
+    const $e = $(this);
+    if ($e.data('aplusPopoverInit') === true) return;
+    const title = get_title_for_elem($e);
+    $e.buttons_popover(colortag_buttons, { title: title });
+    $e.data('aplusPopoverInit', true);
+  });
 }

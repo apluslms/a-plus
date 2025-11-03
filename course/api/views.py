@@ -461,23 +461,33 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         returns the details of a specific student tagging.
 
     `POST /courses/<course_id>/taggings/`:
-        creates a new student tagging.
+        creates one or more student taggings.
 
-    - Body data:
-        - `tag.slug`
-        - One of:
-            - `user.id`
-            - `user.student_id`
-            - `user.username`
-            - `user.email`
+    - Single create (legacy):
+        - Body:
+            - `tag.slug`
+            - One of:
+                - `user.id`
+                - `user.student_id`
+                - `user.username`
+                - `user.email`
+
+    - Bulk create (new, JSON body): any of the following are accepted:
+        - `{ "tag": {"slug": "my-tag"}, "users": [{"id": 1}, {"id": 2}] }`
+        - `{ "tag": {"slug": "my-tag"}, "user_ids": [1, 2] }`
 
     `DELETE /courses/<course_id>/taggings/`:
         deletes a user tag from one or more students.
 
-    - URL parameters:
+    - Query parameters (legacy):
         - `tag_id`: id of the tag to be deleted
         - `user_id`: id of the student from which the tag will be deleted
             (repeated for each student)
+
+    - JSON body (new; alternative to query params):
+        - By id: `{ "tag_id": 3, "user_ids": [17, 19, 25] }`
+        - By slug: `{ "tag_slug": "my-tag", "user_ids": [17, 19] }`
+        - Nested variants are also accepted: `{ "tag": {"id": 3}, "users": [{"id": 17}, {"id": 19}] }`
 
     `DELETE /courses/<course_id>/taggings/<usertag_id>/`:
         deletes a specific student tagging.
@@ -506,6 +516,53 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         context.update({ 'course_id': self.kwargs['course_id'] })
         return context
 
+    # pylint: disable-next=too-many-locals
+    def create(self, request, *args, **kwargs):
+        """
+        Create one or more student taggings.
+
+        Backwards-compatible behavior:
+        - Single create (legacy): expects body with keys `tag.slug` and a single `user.*`.
+        - Bulk create (new): accepts either
+            { "tag": {"slug": "..."}, "users": [{"id": 1}, {"id": 2}] }
+          or
+            { "tag": {"slug": "..."}, "user_ids": [1,2,3] }
+        Returns 201 with a list of created items in `results`.
+        If some creations fail, returns 201 with `results` + `errors` for partial success,
+        or 400 if none could be created.
+        """
+        data = request.data
+        # Detect bulk input
+        if isinstance(data, dict) and ('users' in data or 'user_ids' in data):
+            tag = data.get('tag') or {}
+            users_spec = data.get('users')
+            if users_spec is None:
+                users_spec = [ { 'id': uid } for uid in (data.get('user_ids') or []) ]
+            results = []
+            errors = []
+            for u in users_spec:
+                payload = { 'tag': tag, 'user': u }
+                serializer = self.get_serializer(data=payload)
+                try:
+                    serializer.is_valid(raise_exception=True)
+                    self.perform_create(serializer)
+                    results.append(serializer.data)
+                except Exception as e:
+                    errors.append({ 'user': u, 'error': str(e) })
+            status_code = status.HTTP_201_CREATED if results else status.HTTP_400_BAD_REQUEST
+            response = { 'created': len(results), 'results': results }
+            if errors:
+                response['errors'] = errors
+            headers = {}
+            if results:
+                try:
+                    headers = self.get_success_headers(results[0])
+                except Exception:
+                    headers = {}
+            return Response(response, status=status_code, headers=headers)
+        # Fallback to default single-create behavior
+        return super().create(request, *args, **kwargs)
+
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
         tag_id = self.request.GET.get('tag_id')
@@ -523,21 +580,59 @@ class CourseUsertaggingsViewSet(NestedViewSetMixin,
         search for the tagging with other parameters.
         '''
         filter_args = {}
-        tag_id = self.request.GET.get('tag_id')
+        body = {}
+        try:
+            body = request.data or {}
+        except Exception:
+            body = {}
+
+        # Accept tag by id or slug from either query or body
+        tag_id = self.request.GET.get('tag_id') or body.get('tag_id') or (body.get('tag') or {}).get('id')
         if tag_id:
             filter_args['tag__id'] = tag_id
         else:
-            tag_slug = self.request.GET.get('tag_slug')
+            tag_slug = self.request.GET.get('tag_slug') or body.get('tag_slug') or (body.get('tag') or {}).get('slug')
             if not tag_slug:
-                raise ParseError(detail='Either "tag_id" or "tag_slug" query parameter must be supplied.')
+                raise ParseError(detail='Either "tag_id" or "tag_slug" must be supplied in query or body.')
             filter_args['tag__slug'] = tag_slug
+
+        # Collect user ids from query or body
         user_ids = self.request.GET.getlist('user_id')
         if not user_ids:
-            raise ParseError(detail='One or more user IDs must be supplied with the "user_id" query parameter.')
+            # support JSON body: user_ids: [..] or user_id: single
+            if 'user_ids' in body and isinstance(body['user_ids'], list):
+                user_ids = [str(uid) for uid in body['user_ids']]
+            elif 'user_id' in body:
+                user_ids = [str(body['user_id'])]
+            elif 'users' in body and isinstance(body['users'], list):
+                user_ids = [str(u.get('id')) for u in body['users'] if isinstance(u, dict) and u.get('id') is not None]
+        if not user_ids:
+            raise ParseError(detail='One or more user IDs must be supplied (query param "user_id" or JSON body).')
         filter_args['user__user__id__in'] = user_ids
 
-        self.get_queryset().filter(**filter_args).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        # Identify which user ids actually have taggings matching the filter
+        delete_qs = self.get_queryset().filter(**filter_args)
+        existing_user_ids = list(delete_qs.values_list('user__user__id', flat=True).distinct())
+        # Perform delete
+        delete_qs.delete()
+
+        # Backwards compatibility: by default, mirror old behavior (204 No Content).
+        # If the client sent a JSON body (bulk API) or explicitly asked for summary,
+        # return a 200 with a small JSON payload describing what changed.
+        wants_summary = bool(body) or self.request.GET.get('summary') in ('1', 'true', 'yes')
+        if not wants_summary:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        requested_ids = [int(uid) for uid in user_ids]
+        existing_ids_set = set(int(uid) for uid in existing_user_ids)
+        deleted_ids = sorted(list(existing_ids_set))
+        not_found_ids = sorted([uid for uid in requested_ids if uid not in existing_ids_set])
+        return Response({
+            'deleted_user_ids': deleted_ids,
+            'requested_user_ids': requested_ids,
+            'not_found_user_ids': not_found_ids,
+            'deleted_count': len(deleted_ids),
+        }, status=status.HTTP_200_OK)
 
 
 class CourseOwnStudentGroupsViewSet(NestedViewSetMixin,
