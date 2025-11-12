@@ -3,7 +3,7 @@ coverage
 # Required to run browser tests:
 selenium
 pyvirtualdisplay
-django-debug-toolbar >= 3.2.2, < 4
+django-debug-toolbar >= 6.1.0, < 7
 prospector
 pytest-playwright
 pytest-django
