@@ -616,10 +616,9 @@ if ENABLE_DJANGO_DEBUG_TOOLBAR:
             INTERNAL_IPS.append('127.0.0.1')
     except NameError:
         INTERNAL_IPS = ['127.0.0.1']
-    try:
-        # pylint: disable-next=used-before-assignment
-        DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CONFIG', 'lib.helpers.show_debug_toolbar')
-    except NameError:
-        DEBUG_TOOLBAR_CONFIG = {
-            'SHOW_TOOLBAR_CALLBACK': 'lib.helpers.show_debug_toolbar',
-        }
+    # Configure Debug Toolbar to work under Docker by auto-detecting the gateway IP
+    # See: https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#docker
+    if 'DEBUG_TOOLBAR_CONFIG' not in globals():
+        DEBUG_TOOLBAR_CONFIG = {}
+    # Always use the Docker-aware callback so toolbar shows when accessed via localhost
+    DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CALLBACK', 'debug_toolbar.middleware.show_toolbar_with_docker')
