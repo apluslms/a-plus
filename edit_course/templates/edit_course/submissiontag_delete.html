@@ -16,20 +16,22 @@
 <br />
 <form method="post" class="card form-horizontal">
 	{% csrf_token %}
-	<legend>
-		{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION" %}
-	</legend>
+	<div class="card-body">
+		<legend>
+			{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION" %}
+		</legend>
 
-	<div class="alert alert-danger">
-		{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT" %}
-		{{ object|colortag }}
-	</div>
+		<div class="alert alert-danger">
+			{% translate "REMOVE_SUBMISSION_TAG_CONFIRMATION_ALERT" %}
+			{{ object|colortag }}
+		</div>
 
-	<div class="form-group">
-		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
-		<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'course-submission-tags' }}">
-			{% translate "CANCEL" %}
-		</a>
+		<div class="form-group">
+			<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
+			<a class="aplus-button--secondary aplus-button--md" role="button" href="{{ instance|url:'course-submission-tags' }}">
+				{% translate "CANCEL" %}
+			</a>
+		</div>
 	</div>
 </form>
 

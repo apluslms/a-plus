@@ -43,7 +43,7 @@
     <div class="card-header bg-primary">
         <h5 class="card-title text-white">{% translate "EXERCISE_CATEGORIES" %}</h5>
     </div>
-    <table class="table table-striped table-bordered table-sm mb-0">
+    <table class="table table-striped aplus-table-bordered table-sm mb-0">
         <tbody>
             {% for category in categories %}
             <tr>
@@ -79,7 +79,7 @@
     <div class="card-header bg-primary">
         <h5 class="card-title text-white">{% translate "COURSE_MODULES" %}</h5>
     </div>
-    <table class="table table-striped table-bordered table-sm mb-0">
+    <table class="table table-striped aplus-table-bordered table-sm mb-0">
         <tbody>
             {% for module in modules %}
             <tr class="table-success">
@@ -191,10 +191,11 @@
   <div class="card-body">
     {% csrf_token %}
     {% bootstrap_form form %}
-    <br>
-    <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% translate "SAVE" %}</button>
-    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbermodule">{% translate "RENUMERATE_LEARNING_OBJECTS_FOR_EACH_MODULE" %}</button>
-    <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbercourse">{% translate "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES" %}</button>
+    <div class="d-flex flex-wrap gap-1 mt-3">
+      <button class="aplus-button--default aplus-button--md" type="submit" name="save">{% translate "SAVE" %}</button>
+      <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbermodule">{% translate "RENUMERATE_LEARNING_OBJECTS_FOR_EACH_MODULE" %}</button>
+      <button class="aplus-button--secondary aplus-button--md" type="submit" name="renumbercourse">{% translate "RENUMERATE_LEARNING_OBJECTS_IGNORING_MODULES" %}</button>
+    </div>
   </div>
 </form>
 {% endblock %}

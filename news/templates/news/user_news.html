@@ -9,7 +9,7 @@
 		</div>
 		<div class="list-group">
 			{% for item in language_news %}
-					<div class="{% if item.pin %}pinned-{% endif %}list-group-item">
+					<div class="{% if item.pin %}pinned-{% endif %}list-group-item news-item">
 						{% if item.pin %}
 							<span class="visually-hidden">{% translate "NEWS_ITEM_PINNED_SR_TEXT" %}</span>
 						{% endif %}
@@ -19,15 +19,15 @@
 							</h4>
 							<div class="list-group-item-details">
 								{% if not item|is_published:now %}
-									<span class="future-instance">{% translate "PUBLISHED_ON" %}: <time>{{ item.publish }}</time></span>
+									<span class="text-danger">{% translate "PUBLISHED_ON" %}: <time>{{ item.publish }}</time></span>
 								{% else %}
-									<time class="current-instance">{{ item.publish }}</time>
+									<time>{{ item.publish }}</time>
 								{% endif %}
 								{% if is_course_staff %}
 									<span class="badge text-bg-primary">{{ item.audience|news_audience }}</span>
 								{% endif %}
 								{% if item.pin %}
-									<i class="bi-pushpin" aria-hidden="true"></i>
+									<i class="bi bi-pin-angle-fill" aria-hidden="true"></i>
 								{% endif %}
 							</div>
 						</div>
@@ -38,7 +38,7 @@
 				{# If a limit for folding news (more) is set, this creates the folding section #}
 				{% if forloop.counter == more and language_news|length > more and more > 0 %}
 					<a class="folding-list-group-item collapsed" href="#more-news" data-bs-toggle="collapse" role="button" aria-controls="more-news" aria-expanded="false">
-						{% translate "SHOW_OLDER" %} 
+						<span>{% translate "SHOW_OLDER" %}</span> <i class="bi bi-chevron-down" aria-hidden="true"></i>
 					</a>
 					<div class="collapse" id="more-news">{# start of collapse.div #}
 				{% endif %}

@@ -15,8 +15,8 @@
 {% block columns %}
 <div class="col-md-12">
 	<form method="post" class="card form-horizontal">
+		{% csrf_token %}
 		<div class="card-body">
-			{% csrf_token %}
 			<legend>{% translate "REMOVE_SUBMISSION_DEVIATIONS" %}</legend>
 			{% bootstrap_form form %}
 			<div class="form-group">

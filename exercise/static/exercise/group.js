@@ -45,8 +45,8 @@
           });
         });
 
-        this.ui = $('<div class="submit-group-selector input-group col-md-6">'
-          + '<select name="_aplus_group" class="form-control"></select>'
+        this.ui = $('<div class="submit-group-selector input-group">'
+          + '<select name="_aplus_group" class="form-select"></select>'
           + '<span class="input-group-btn"></span>'
           + '</div>');
         var list = this.ui.find('select');
@@ -67,7 +67,8 @@
           if (b.length > 0) {
             var ui = self.ui.clone();
             b.replaceWith(ui);
-            ui.find('.input-group-btn').append(b);
+            ui.find('.input-group-btn').remove();
+            ui.append(b);
 
             var groupFixed = $(this).attr(self.settings.group_fixed_attribute);
             if (groupFixed) {

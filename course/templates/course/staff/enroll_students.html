@@ -20,11 +20,13 @@
   </p>
   <form method="post" class="card form">
     {% csrf_token %}
-    <legend>{% translate "ENROLL_STUDENTS_IN_COURSE" %}</legend>
-    {% bootstrap_form form %}
-    <button type="submit" class="aplus-button--default aplus-button--md">
-      {% translate "ENROLL_STUDENTS" %}
-    </button>
+    <div class="card-body">
+      <legend>{% translate "ENROLL_STUDENTS_IN_COURSE" %}</legend>
+      {% bootstrap_form form %}
+      <button type="submit" class="aplus-button--default aplus-button--md">
+        {% translate "ENROLL_STUDENTS" %}
+      </button>
+    </div>
   </form>
 </div>
 {% endblock %}

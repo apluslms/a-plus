@@ -16,8 +16,8 @@
 <div class="col-md-12">
 
   <form method="post" class="card form">
+    {% csrf_token %}
     <div class="card-body">
-      {% csrf_token %}
       <legend>{% translate "CONFIRM_GROUP_REMOVAL" %}</legend>
 
       <table class="table table-sm">

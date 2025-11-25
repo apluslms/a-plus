@@ -21,7 +21,7 @@
 		{% endif %}
 	{% else %}
 	<li>
-		<form style="display: inline-block" method="POST" action="{{ entry.link }}">
+		<form class="d-inline-block" method="POST" action="{{ entry.link }}">
 			{% csrf_token %}
 			<button
 				class="aplus-button--secondary aplus-button--xs"

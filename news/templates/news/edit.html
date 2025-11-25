@@ -15,8 +15,8 @@
 {% block coursecontent %}
 <br/>
 <form method="post" class="card form-horizontal">
+    {% csrf_token %}
     <div class="card-body">
-        {% csrf_token %}
         <legend>{% translate "ADD_NEWS_ITEM" %}</legend>
         {% bootstrap_form form %}
         <div class="form-group">

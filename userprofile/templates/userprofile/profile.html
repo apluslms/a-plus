@@ -50,7 +50,8 @@
 	</div>
 	<h2>{% blocktranslate trimmed %}BRAND_PREFERENCES -- {{ brand_name }}{% endblocktranslate %}</h2>
 	<div class="mb-4">
-		<form action="{% url 'set-user-language' %}" method="post" class="form form-horizontal mb-2">{% csrf_token %}
+		<form action="{% url 'set-user-language' %}" method="post" class="form form-horizontal mb-2">
+			{% csrf_token %}
 			<div class="form-group">
 				<h4 class="col-xs-12">{% translate "LANGUAGE" %}</h4>
 				<div class="d-flex">

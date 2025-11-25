@@ -16,8 +16,8 @@
 {% block columns %}
 <div class="col-md-12">
   <form method="post" class="card form">
+    {% csrf_token %}
     <div class="card-body">
-      {% csrf_token %}
       <legend>{% translate "EDIT_GROUP_MEMBERS" %}</legend>
       {% bootstrap_form form %}
       <button type="submit" class="aplus-button--default aplus-button--md mt-2">

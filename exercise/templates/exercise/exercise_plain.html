@@ -65,7 +65,7 @@
 				{% elif exercise.is_submittable %}
 					<nav class="exercise-summary navbar navbar-expand-sm bg-body-secondary" aria-label="{{ exercise|parse_localization }}">
 						<div class="container-fluid">
-							<ul class="navbar-nav exercise-nav">
+							<ul class="navbar-nav exercise-nav gap-1">
 								<li class="nav-item">
 									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}javascript:void(0);{% endif %}"
 										class="exercise-nav-points btn page-modal"

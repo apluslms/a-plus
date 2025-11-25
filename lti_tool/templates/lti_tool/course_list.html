@@ -28,7 +28,7 @@
 							<br />
 						</p>
 						<p class="card-text">
-							<form style="display: inline-block" method="POST" action="{{ instance_url }}">
+							<form class="d-inline-block" method="POST" action="{{ instance_url }}">
 								{% csrf_token %}
 								<button
 									class="use-whole-course-button aplus-button--secondary aplus-button--xs"
@@ -38,8 +38,7 @@
 								</button>
 							</form>
 							<a
-								style="display: inline-block"
-								class="aplus-button--secondary aplus-button--xs"
+								class="aplus-button--secondary aplus-button--xs d-inline-block"
 								href="{{ instance_url }}"
 							>
 								{% translate "LTI_SELECT_SPECIFIC_CONTENT" %}

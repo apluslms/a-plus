@@ -16,12 +16,14 @@
 <div class="col-md-12">
 	<form method="post" class="card form-horizontal">
 		{% csrf_token %}
-		<legend>{% translate "REMOVE_DEADLINE_DEVIATIONS" %}</legend>
-		{% bootstrap_form form %}
-		<div class="form-group">
-			<div class="col-sm-10 col-sm-offset-2">
-				<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SUBMIT" %}</button>
-				<a href="{{ instance|url:'deviations-list-dl' }}" class="aplus-button--secondary aplus-button--md">{% translate "CANCEL" %}</a>
+		<div class="card-body">
+			<legend>{% translate "REMOVE_DEADLINE_DEVIATIONS" %}</legend>
+			{% bootstrap_form form %}
+			<div class="form-group">
+				<div class="col-sm-10 col-sm-offset-2">
+					<button type="submit" class="aplus-button--default aplus-button--md">{% translate "SUBMIT" %}</button>
+					<a href="{{ instance|url:'deviations-list-dl' }}" class="aplus-button--secondary aplus-button--md">{% translate "CANCEL" %}</a>
+				</div>
 			</div>
 		</div>
 	</form>
