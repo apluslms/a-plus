@@ -8,8 +8,8 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'groups-list' }}">{% translate "GROUPS" %}</a></li>
-<li class="active">{% translate "REMOVE" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'groups-list' }}">{% translate "GROUPS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "REMOVE" %}</li>
 {% endblock %}
 
 {% block columns %}

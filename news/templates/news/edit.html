@@ -8,8 +8,8 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'news-list' }}">{% translate "EDIT_NEWS" %}</a></li>
-<li class="active">{% translate "ADD_NEW" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'news-list' }}">{% translate "EDIT_NEWS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "ADD_NEW" %}</li>
 {% endblock %}
 
 {% block coursecontent %}

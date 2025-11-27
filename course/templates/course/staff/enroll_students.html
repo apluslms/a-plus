@@ -9,8 +9,8 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
-<li class="active">{% translate "ENROLL_STUDENTS" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "ENROLL_STUDENTS" %}</li>
 {% endblock %}
 
 {% block columns %}

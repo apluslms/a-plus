@@ -8,8 +8,8 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'deviations-list-dl' }}">{% translate "LIST_DEADLINE_DEVIATIONS" %}</a></li>
-<li class="active">{% translate "REMOVE_DEADLINE_DEVIATIONS" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'deviations-list-dl' }}">{% translate "LIST_DEADLINE_DEVIATIONS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "REMOVE_DEADLINE_DEVIATIONS" %}</li>
 {% endblock %}
 
 {% block columns %}

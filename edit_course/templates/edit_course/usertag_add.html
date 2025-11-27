@@ -6,8 +6,8 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'course-tags' }}">{% translate "TAGS" %}</a></li>
-<li class="active">{% translate "ADD_NEW_USER_TAG" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'course-tags' }}">{% translate "TAGS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "ADD_NEW_USER_TAG" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-tags{% endblock %}
 

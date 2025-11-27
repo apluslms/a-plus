@@ -9,9 +9,9 @@
 
 {% block exercisebreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ exercise|url:'submission-list' }}">{% translate "ALL_SUBMISSIONS"  %}</a></li>
-<li><a href="{{ submission|url }}">{% translate "SUBMISSION_ID" %} {{ submission.id }}</a></li>
-<li class="active">{% translate "INSPECT" %}</td>
+<li class="breadcrumb-item"><a href="{{ exercise|url:'submission-list' }}">{% translate "ALL_SUBMISSIONS"  %}</a></li>
+<li class="breadcrumb-item"><a href="{{ submission|url }}">{% translate "SUBMISSION_ID" %} {{ submission.id }}</a></li>
+<li class="breadcrumb-item active">{% translate "INSPECT" %}</td>
 {% endblock %}
 
 {% block columns %}

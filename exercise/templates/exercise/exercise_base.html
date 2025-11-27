@@ -15,9 +15,9 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
+<li class="breadcrumb-item"><a href="{{ module|url }}">{{ module|parse_localization }}</a></li>
 {% for entry in breadcrumb %}
-<li>
+<li class="breadcrumb-item">
 	{% if entry.is_empty %}
 	{{ entry.name|parse_localization }}
 	{% else %}
@@ -26,7 +26,7 @@
 </li>
 {% endfor %}
 {% block exercisebreadcrumblist %}
-<li><a href="{{ current.link }}">{{ current.name|parse_localization }}</a></li>
+<li class="breadcrumb-item"><a href="{{ current.link }}">{{ current.name|parse_localization }}</a></li>
 {% endblock %}
 {% endblock %}
 

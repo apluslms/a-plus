@@ -6,8 +6,8 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'course-submission-tags' }}">{% translate "SUBMISSION_TAGS" %}</a></li>
-<li class="active">{% translate "ADD_NEW_SUBMISSION_TAG" %}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'course-submission-tags' }}">{% translate "SUBMISSION_TAGS" %}</a></li>
+<li class="breadcrumb-item active">{% translate "ADD_NEW_SUBMISSION_TAG" %}</li>
 {% endblock %}
 {% block view_tag %}edit-course,course-submission-tags{% endblock %}
 

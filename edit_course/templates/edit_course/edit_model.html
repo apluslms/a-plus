@@ -7,7 +7,7 @@
 
 {% block editbreadcrumblist %}
 {{ block.super }}
-<li class="active">
+<li class="breadcrumb-item active">
     {% if object.id %}
     	{% blocktranslate trimmed with model=model_name %}
     	    EDIT_MODEL -- {{ model }}

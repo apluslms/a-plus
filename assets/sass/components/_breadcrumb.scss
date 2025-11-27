@@ -4,12 +4,4 @@
 	list-style: none;
 	background-color: var(--bs-secondary-bg, #f5f5f5);
 	border-radius: 4px;
-	/*> .active {
-		color: #333;
-	}*/ // TODO: CHECK FOR REMOVAL #1442
-}
-.breadcrumb>li+li:before {
-	padding: 0 5px;
-	//color: #ccc; // TODO: CHECK FOR REMOVAL #1442
-	content: "/ ";
 }

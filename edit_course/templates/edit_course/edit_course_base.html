@@ -8,7 +8,7 @@
 {% block breadcrumblist %}
 {{ block.super }}
 {% block editbreadcrumblist %}
-<li><a href="{{ instance|url:'course-edit' }}">{% translate "EDIT_COURSE" %}</a></li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'course-edit' }}">{% translate "EDIT_COURSE" %}</a></li>
 {% endblock %}
 {% endblock %}
 

@@ -31,8 +31,8 @@
 
 {% block breadcrumblist %}
 {{ block.super }}
-<li><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
-<li class="active">{{ student.get_full_name }}</li>
+<li class="breadcrumb-item"><a href="{{ instance|url:'participants' }}">{% translate "PARTICIPANTS" %}</a></li>
+<li class="breadcrumb-item active">{{ student.get_full_name }}</li>
 {% endblock %}
 
 {% block coursecontent %}
