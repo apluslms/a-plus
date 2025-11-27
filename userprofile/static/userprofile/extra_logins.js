@@ -24,7 +24,7 @@
 
       if (normal.length % 2 === 0) {
         const clearfix = document.createElement('div');
-        clearfix.className = 'clearfix visible-sm-block';
+        clearfix.className = 'clearfix d-block d-md-none';
         normal[normal.length - 1].after(clearfix);
       }
     }

@@ -17,23 +17,23 @@
 		<h1>{% blocktranslate trimmed %}LOG_IN_TO -- {{ brand_name }}{% endblocktranslate %}</h1>
 	</div>
 
-	<div id="login-box-row" class="row">
+	<div id="login-box-row" class="row mb-3">
 
 		{% if shibboleth_login %}
-			<section aria-labelledby="login-shibboleth-users" class="col-sm-6 col-md-4 login-box">
-				<div class="login-section">
-					{% if shibboleth_title_text %}
-						<h2 id="login-shibboleth-users">
-							{{ shibboleth_title_text|safe }}
-						</h2>
-					{% endif %}
-					<div class="login-section-body">
+			<section aria-labelledby="login-shibboleth-users" class="col-sm-12 col-md-6 col-lg-4 mb-3 login-box">
+				<div class="card">
+					<div class="card-body">
+						{% if shibboleth_title_text %}
+							<h2 class="card-title mt-0 mb-2" id="login-shibboleth-users">
+								{{ shibboleth_title_text|safe }}
+							</h2>
+						{% endif %}
 						{% if shibboleth_body_text %}
 							<p>
 								{{ shibboleth_body_text|safe }}
 							</p>
 						{% endif %}
-						<p>
+						<p class="mb-0">
 							<a class="aplus-button--secondary aplus-button--lg" role="button"
 								href="{% url 'shibboleth-login' %}?next={{ next|iriencode }}">
 								{{ shibboleth_button_text|safe }}
@@ -44,20 +44,20 @@
 			</section>
 
 			{% if haka_login %}
-				<section aria-labelledby="login-haka-users" class="col-sm-6 col-md-4 login-box">
-					<div class="login-section">
-						{% if haka_title_text %}
-							<h2 id="login-haka-users">
-								{{ haka_title_text|safe }}
-							</h2>
-						{% endif %}
-						<div class="login-section-body">
+				<section aria-labelledby="login-haka-users" class="col-sm-12 col-md-6 col-lg-4 mb-3 login-box">
+					<div class="card">
+						<div class="card-body">
+							{% if haka_title_text %}
+								<h2 class="card-title mt-0 mb-2" id="login-haka-users">
+									{{ haka_title_text|safe }}
+								</h2>
+							{% endif %}
 							{% if haka_body_text %}
 								<p>
 									{{ haka_body_text|safe }}
 								</p>
 							{% endif %}
-							<p>
+							<p class="mb-0">
 								<a class="aplus-button--secondary aplus-button--lg" role="button"
 									href="{% url 'haka-login' %}?target={% url 'shibboleth-login' %}">
 									{{ haka_button_text|safe }}
@@ -66,49 +66,39 @@
 						</div>
 					</div>
 				</section>
-
-				<div class="clearfix visible-sm-block"></div>
 			{% endif %}
 
 		{% endif %}
 
-
 		{% if mooc_login %}
-			<section aria-labelledby="login-google-users" class="col-sm-6 col-md-4 login-box">
-				<div class="login-section">
-					{% if mooc_title_text %}
-						<h2 id="login-google-users">
-							{{ mooc_title_text|safe }}
-						</h2>
-					{% endif %}
-					<div class="login-section-body">
+			<section aria-labelledby="login-google-users" class="col-sm-12 col-md-6 col-lg-4 mb-3 login-box">
+				<div class="card">
+					<div class="card-body">
+						{% if mooc_title_text %}
+							<h2 class="card-title mt-0 mb-2" id="login-google-users">
+								{{ mooc_title_text|safe }}
+							</h2>
+						{% endif %}
 						{% if mooc_body_text %}
 							<p>
 								{{ mooc_body_text|safe }}
 							</p>
 						{% endif %}
-						<p>
+						<p class="mb-0">
 							<a class="aplus-button--secondary aplus-button--lg" role="button"
 								href="{% url 'social:begin' 'google-oauth2' %}?next={{ next|iriencode }}">{% translate "LOG_IN_USING_GOOGLE" %}</a>
 						</p>
 					</div>
 				</div>
 			</section>
-			{% if shibboleth_login and haka_login %}
-				<div class="clearfix visible-md-block visible-lg-block"></div>
-			{% elif shibboleth_login and not haka_login %}
-				<div class="clearfix visible-sm-block"></div>
-			{% endif %}
-
 		{% endif %}
 
-
-		<section aria-labelledby="login-local-users" class="col-sm-6 col-md-4 login-box extra-login">
-			<div class="login-section">
-				<h2 id="login-local-users">
-					{% translate "LOCAL_USERS" %}
-				</h2>
-				<div class="login-section-body">
+		<section aria-labelledby="login-local-users" class="col-sm-12 col-md-6 col-lg-4 mb-3 login-box extra-login">
+			<div class="card">
+				<div class="card-body">
+					<h2 class="card-title mt-0 mb-2" id="login-local-users">
+						{% translate "LOCAL_USERS" %}
+					</h2>
 					<p>
 						{% blocktranslate trimmed %}
 							LOCAL_USER_LOGIN_DESCRIPTION -- {{ brand_name }}
@@ -142,7 +132,7 @@
 										<span class="help-block">{{ error }}</span>
 									{% endfor %}
 							</div>
-						<div class="form-group mt-2">
+						<div class="form-group mt-3">
 							<button type="submit"
 								class="aplus-button--secondary aplus-button--lg">{% translate "LOG_IN" %}</button>
 						</div>
@@ -151,13 +141,13 @@
 			</div>
 		</section>
 
-		<div class="col-sm-1">
+		<div class="col-sm-4">
 			<button class="btn show-extra-login-btn"
 				aria-label="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 				title="{% translate 'SHOW_MORE_LOGIN_OPTIONS' %}"
 			>
-				<i class="bi-caret-right-fill d-none d-sm-block" focusable="false"></i>
-				<i class="bi-caret-down-fill d-block d-sm-none-inline" focusable="false"></i>
+				<i class="bi bi-caret-right-fill d-none d-md-block" focusable="false"></i>
+				<i class="bi bi-caret-down-fill d-block d-md-none" focusable="false"></i>
 			</button>
 		</div>
 	</div>
