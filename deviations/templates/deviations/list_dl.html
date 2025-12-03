@@ -15,15 +15,15 @@
 <div class="col-md-12">
 	<p>
 		<a class="aplus-button--default aplus-button--xs" role="button" href="{{ instance|url:'deviations-add-dl' }}">
-			<i class="bi-plus-lg" aria-hidden="true"></i>
+			<i class="bi bi-plus-lg" aria-hidden="true"></i>
 			{% translate "ADD_NEW_DEADLINE_DEVIATIONS" %}
 		</a>
 		<a class="aplus-button--default aplus-button--xs" href="{{ instance|url:'deviations-remove-dl' }}">
-			<i class="bi-dash-circle-fill" aria-hidden="true"></i>
+			<i class="bi bi-dash-lg" aria-hidden="true"></i>
 			{% translate "REMOVE_DEADLINE_DEVIATIONS" %}
 		</a>
 		<a class="aplus-button--danger aplus-button--xs float-end" id="remove-selected-button" data-bs-toggle="modal" data-bs-target="#remove-selected-modal" role="button">
-			<i class="bi-dash-circle-fill" aria-hidden="true"></i>
+			<i class="bi bi-dash-lg" aria-hidden="true"></i>
 			{% translate "REMOVE_SELECTED_DEVIATIONS" %}
 		</a>
 	</p>
@@ -76,10 +76,10 @@
 						</td>
 						<td>
 							{% if deviations.0.without_late_penalty %}
-								<i class="bi-check-lg"></i>
+								<i class="bi bi-check-lg"></i>
 								{% translate "YES" %}
 							{% else %}
-								<i class="bi-x-lg"></i>
+								<i class="bi bi-x-lg"></i>
 								{% translate "NO" %}
 							{% endif %}
 						</td>
@@ -102,7 +102,7 @@
 							{% endif %}
 						</td>
 						<td>
-							<input type="checkbox">
+							<input class="form-check-input" type="checkbox">
 						</td>
 					</tr>
 					{% endif %}
@@ -120,10 +120,10 @@
 						</td>
 						<td>
 							{% if deviation.without_late_penalty %}
-								<i class="bi-check-lg"></i>
+								<i class="bi bi-check-lg"></i>
 								{% translate "YES" %}
 							{% else %}
-								<i class="bi-x-lg"></i>
+								<i class="bi bi-x-lg"></i>
 								{% translate "NO" %}
 							{% endif %}
 						</td>
@@ -142,7 +142,7 @@
 							{% endif %}
 						</td>
 						<td>
-							<input type="checkbox" name="id" value="{{ deviation.id }}">
+							<input class="form-check-input" type="checkbox" name="id" value="{{ deviation.id }}">
 						</td>
 					</tr>
 					{% endfor %}

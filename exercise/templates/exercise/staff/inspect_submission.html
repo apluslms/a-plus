@@ -58,7 +58,7 @@
 				<a href="{{ exercise|url:'submission-next-unassessed' }}?prev={{ submission.submitters.all.first.id }}" class="float-end">
 					{% translate "ASSESS_NEXT_SUBMITTER_MANUALLY" %}
 					{{ request.session.manually_assessed_counter }}
-					<span aria-hidden="true">&raquo;</span>
+					<i class="bi bi-chevron-double-right" aria-hidden="true"></i>
 				</a>
 				<span class="h4">{% translate "SUBMISSIONS" %}</span>
 				<span class="badge text-bg-secondary">

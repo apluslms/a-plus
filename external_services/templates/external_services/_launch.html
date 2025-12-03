@@ -36,8 +36,8 @@ E.g. {% static 'js/external_launcher.js' ‰}
 		</div>
 		<div class="card bg-secondary-subtle mt-2">
 			<div class="external-service-auto form-check card-body d-flex align-items-center gap-3 py-2">
-				<input id="extserv-auto-{{ form_id }}" name="auto_accept" type="checkbox" value="1" />
-				<label for="extserv-auto-{{ form_id }}">
+				<input class="form-check-input ms-0" id="extserv-auto-{{ form_id }}" name="auto_accept" type="checkbox" value="1" style="border: 1px solid var(--bs-tertiary-color);" />
+				<label class="form-check-label" for="extserv-auto-{{ form_id }}">
 					{% if exercise %}
 						{% if exercise.open_in_iframe %}
 							{% translate "EXTERNAL_SERVICE_LAUNCH_AUTOMATICALLY_LOAD_EXERCISE_NEXT_TIME" %}

@@ -52,12 +52,12 @@
                 </td>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ category|editurl:'category' }}">
-                        <i class="bi-pencil-square" aria-hidden="true"></i>
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
                         {% translate "EDIT_CATEGORY" %}
                     </a>
                     {% if category.count_lobjects == 0 %}
                     <a class="aplus-button--danger aplus-button--xs" href="{{ category|removeurl:'category' }}" role="button">
-                    	<i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
+                    	<i class="bi bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                 </td>
@@ -66,7 +66,7 @@
             <tr>
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'category' }}" role="button">
-                        <i class="bi-plus-lg" aria-hidden="true"></i>
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
                         {% translate "ADD_NEW_CATEGORY" %}
                     </a>
                 </th>
@@ -91,11 +91,11 @@
                 </th>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ module|editurl:'module' }}" role="button">
-                        <i class="bi-pencil-square" aria-hidden="true"></i> {% translate "EDIT_MODULE" %}
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i> {% translate "EDIT_MODULE" %}
                     </a>
                     {% if module.learning_objects.count == 0 %}
                     <a class="aplus-button--danger aplus-button--xs" href="{{ module|removeurl:'module' }}" role="button">
-                    	<i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
+                    	<i class="bi bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     {% endif %}
                     <a class="btn btn-link btn-sm" href="{{ module|url }}">
@@ -113,11 +113,11 @@
                 </td>
                 <td>
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ lobject|editurl:'exercise' }}" role="button">
-                      <i class="bi-pencil-square" aria-hidden="true"></i>
+                      <i class="bi bi-pencil-square" aria-hidden="true"></i>
                       {% if lobject.is_submittable %}{% translate "EDIT_EXERCISE" %}{% else %}{% translate "EDIT_CHAPTER" %}{% endif %}
                     </a>
                     <a class="aplus-button--danger aplus-button--xs" href="{{ lobject|removeurl:'exercise' }}" role="button">
-                        <i class="bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
+                        <i class="bi bi-x-lg" aria-hidden="true"></i> {% translate "REMOVE" %}
                     </a>
                     <a class="btn btn-link btn-sm" href="{{ lobject|url }}">
                       {% if lobject.is_submittable %}{% translate "VIEW_EXERCISE" %}{% else %}{% translate "VIEW_CHAPTER" %}{% endif %}
@@ -133,7 +133,7 @@
             <tr>
                 <td colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" data-bs-toggle="modal" data-bs-target="#lobject{{ module.id }}" role="button">
-                        <i class="bi-plus-lg" aria-hidden="true"></i>
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
                         {% translate "ADD_NEW_LEARNING_OBJECT" %}
                     </a>
                     <div class="modal" id="lobject{{ module.id }}" tabindex="-1" role="dialog" aria-labelledby="lobject{{ module.id }}Label">
@@ -179,7 +179,7 @@
             <tr>
                 <th colspan="2">
                     <a class="aplus-button--secondary aplus-button--xs" href="{{ instance|createurl:'module' }}" role="button">
-                        <i class="bi-plus-lg" aria-hidden="true"></i>
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
                         {% translate "ADD_NEW_MODULE" %}
                     </a>
                 </th>

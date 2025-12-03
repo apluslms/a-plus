@@ -47,7 +47,7 @@
 						<td>{{ deviations.0.extra_submissions }}</td>
 						<td>{{ session_data.extra_submissions }}</td>
 						<td>
-							<input type="checkbox" checked>
+							<input class="form-check-input" type="checkbox" checked>
 						</td>
 					</tr>
 					{% endif %}
@@ -62,7 +62,7 @@
 						<td>{{ deviation.extra_submissions }}</td>
 						<td>{{ session_data.extra_submissions }}</td>
 						<td>
-							<input type="checkbox" name="override" value="{{ deviation.submitter.id }}.{{ deviation.exercise.id }}" checked>
+							<input class="form-check-input" type="checkbox" name="override" value="{{ deviation.submitter.id }}.{{ deviation.exercise.id }}" checked>
 						</td>
 					</tr>
 					{% endfor %}

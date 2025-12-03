@@ -13,11 +13,11 @@
 		{% endif %}
 
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
-			<i class="bi-check-lg" aria-hidden="true"></i>
+			<i class="bi bi-check-lg" aria-hidden="true"></i>
 			{% translate "START_MANUAL_ASSESSMENT" %}
 		</a>
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-summary' }}">
-			<i class="bi-bar-chart-fill" aria-hidden="true"></i>
+			<i class="bi bi-bar-chart-fill" aria-hidden="true"></i>
 			{% translate "SUMMARY" %}
 		</a>
 		<span class="dropdown">
@@ -87,7 +87,7 @@
 	<small class="text-body-secondary">{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
 	{% for tag in instance.submissiontags.all %}
 	<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
-		<i class="bi-square" aria-hidden="true"></i>
+		<i class="bi bi-square" aria-hidden="true"></i>
 		{{ tag.name }}
 	</button>
 	{% endfor %}
@@ -140,23 +140,23 @@
 							</td>
 							<td>
 									{% if submission.grader %}
-											<i class="bi-check-lg"></i>
+											<i class="bi bi-check-lg"></i>
 											{% translate "YES" %}
 									{% else %}
-											<i class="bi-x-lg"></i>
+											<i class="bi bi-x-lg"></i>
 											{% translate "NO" %}
 									{% endif %}
 							</td>
 							<td>
 									<a href="{{ submission|url:'submission-inspect' }}" class="aplus-button--secondary aplus-button--xs">
-											<i class="bi-zoom-in" aria-hidden="true"></i>
+											<i class="bi bi-zoom-in" aria-hidden="true"></i>
 											{% translate "INSPECT" %}
 									</a>
 							</td>
 					</tr>
 					{% empty %}
 					<tr>
-							<td class="5">{% translate "NO_SUBMISSIONS" %}</td>
+							<td colspan="7">{% translate "NO_SUBMISSIONS" %}</td>
 					</tr>
 					{% endfor %}
 			</tbody>

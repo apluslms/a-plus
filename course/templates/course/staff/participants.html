@@ -17,7 +17,7 @@
 	{% if is_teacher %}
 	<p>
 		<a class="aplus-button--default aplus-button--sm" role="button" href="{{ instance|url:'enroll-students' }}">
-			<i class="bi-person-fill" aria-hidden="true"></i>
+			<i class="bi bi-person-fill" aria-hidden="true"></i>
 			{% translate "ENROLL_STUDENTS" %}
 		</a>
 	</p>
@@ -26,7 +26,7 @@
 		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
 		<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
-			<i class="bi-square" aria-hidden="true"></i>
+			<i class="bi bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>
 		{% endfor %}
@@ -34,9 +34,9 @@
 		{% for status_code, status_label in enrollment_statuses.items %}
 		<button class="btn aplus-button--xs aplus-button--secondary filter-status" data-status="{{ status_code }}">
 			{% if status_code == 'ACTIVE' %}
-			<i class="bi-check-square" aria-hidden="true"></i>
+			<i class="bi bi-check-square" aria-hidden="true"></i>
 			{% else %}
-			<i class="bi-square" aria-hidden="true"></i>
+			<i class="bi bi-square" aria-hidden="true"></i>
 			{% endif %}
 			{{ status_label }}
 		</button>
@@ -58,7 +58,7 @@
 			<tr>
 				{% if is_teacher %}
 				<th data-filter-type="none" data-order-disable="true">
-					<input type="checkbox" id="students-select-all" name="students" value="all" >
+					<input class="form-check-input" type="checkbox" id="students-select-all" name="students" value="all" >
 				</th>
 				{% endif %}
 				<th>{% trans "STUDENT_ID" %}</th>

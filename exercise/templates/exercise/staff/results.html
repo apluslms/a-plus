@@ -46,8 +46,10 @@
 
 {% block columns %}
 {% if pseudonymize %}
-<div class="alert alert-warning clearfix site-message">
-	{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+<div class="site-messages">
+	<div class="alert alert-warning clearfix site-message" role="alert">
+		{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+	</div>
 </div>
 {% endif %}
 <div class="col-md-12">
@@ -96,25 +98,25 @@
 					<label data-bs-toggle="tooltip"
 						data-bs-placement="right"
 						title="{% translate 'UNOFFICIAL_POINTS_TOOLTIP' %}">
-						<input type="checkbox" class="unofficial-checkbox" value="unofficial">
+						<input type="checkbox" class="unofficial-checkbox form-check-input" value="unofficial">
 						{% translate "RESULTS_SHOW_UNOFFICIAL_POINTS" %}
 						<i class="bi-exclamation-triangle-fill text-danger"></i>
 					</label>
 					<label data-bs-toggle="tooltip"
 						data-bs-placement="right"
 						title="{% translate 'UNCONFIRMED_POINTS_TOOLTIP' %}">
-						<input type="checkbox" class="unconfirmed-checkbox" value="unconfirmed">
+						<input type="checkbox" class="unconfirmed-checkbox form-check-input" value="unconfirmed">
 						{% translate "RESULTS_SHOW_UNCONFIRMED_POINTS" %}
 						<i class="bi-exclamation-triangle-fill text-danger"></i>
 					</label>
 					<label data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS' %}">
-						<input type="checkbox" class="withsubs-checkbox" value="withsubs">
+						<input type="checkbox" class="withsubs-checkbox form-check-input" value="withsubs">
 						{% translate "RESULTS_SHOW_ONLY_STUDENT_WITH_SUBMISSIONS" %}
 					</label>
 					<label data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP' %}">
-						<input type="checkbox" id="ignore-last-mode-checkbox" value="ignorelastmode" checked autocomplete="off">
+						<input class="form-check-input" type="checkbox" id="ignore-last-mode-checkbox" value="ignorelastmode" checked autocomplete="off">
 						{% translate "RESULTS_IGNORE_GRADING_MODE_LAST" %}
 					</label>
 				</div>
@@ -126,48 +128,48 @@
 				<div style="display: flex; column-gap: 1em; flex-wrap: wrap">
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'SUMMARIES_SELECT_OR_DESELECT_ALL' %}">
-						<input type="checkbox" id="summary-all" value="all">
+						<input class="form-check-input" type="checkbox" id="summary-all" value="all">
 						{% translate "ALL" %}
 					</label>
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_TOTAL_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-0" class="summary-checkbox" value="0">
+						<input type="checkbox" id="summary-0" class="summary-checkbox form-check-input" value="0">
 						{% translate "TOTAL_SUBMISSIONS" %}
 					</label>
 
 					<label class="ml-10 checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_AVERAGE_SUBMISSIONS_PER_STUDENT_TOOLTIP' %}">
-						<input type="checkbox" id="summary-1" class="summary-checkbox" value="1">
+						<input type="checkbox" id="summary-1" class="summary-checkbox form-check-input" value="1">
 						{% translate "AVERAGE_SUBMISSIONS_PER_STUDENT" %}
 					</label>
 
 					<label class="ml-10 checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_MAXIMUM_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-2" class="summary-checkbox" value="2">
+						<input type="checkbox" id="summary-2" class="summary-checkbox form-check-input" value="2">
 						{% translate "MAXIMUM_SUBMISSIONS" %}
 					</label>
 
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_STUDENTS_W_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-3" class="summary-checkbox" value="3">
+						<input type="checkbox" id="summary-3" class="summary-checkbox form-check-input" value="3">
 						{% translate "STUDENTS_W_SUBMISSIONS" %}
 					</label>
 
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_STUDENTS_W_MAX_POINTS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-4" class="summary-checkbox" value="4">
+						<input type="checkbox" id="summary-4" class="summary-checkbox form-check-input" value="4">
 						{% translate "STUDENTS_W_MAX_POINTS" %}
 					</label>
 
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_AVERAGE_POINTS_PER_STUDENT_TOOLTIP' %}">
-						<input type="checkbox" id="summary-5" class="summary-checkbox" value="5">
+						<input type="checkbox" id="summary-5" class="summary-checkbox form-check-input" value="5">
 						{% translate "AVERAGE_POINTS_PER_STUDENT" %}
 					</label>
 
 					<label class="checkbox-inline" data-bs-toggle="tooltip"
 						title="{% translate 'RESULTS_MAX_POINTS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-6" class="summary-checkbox" value="6">
+						<input type="checkbox" id="summary-6" class="summary-checkbox form-check-input" value="6">
 						{% translate "MAX_POINTS" %}
 					</label>
 				</div>

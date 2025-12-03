@@ -169,7 +169,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
             confirm_remove_participant(participant, row, 'REMOVED', _('Remove'));
           })
         ).append(' ').append(
-          get_row_action(_('Ban'), 'dash-circle-fill', function () {
+          get_row_action(_('Ban'), 'ban', function () {
             confirm_remove_participant(participant, row, 'BANNED', _('Ban'));
           })
         );

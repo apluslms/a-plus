@@ -176,7 +176,7 @@ $(function() {
             const filterForm = $('<form/>');
             const filterOptions = column.data('filter-options').trim().split('|');
             filterOptions.forEach(function(option) {
-              const input = $('<input type="checkbox">')
+              const input = $('<input class="form-check-input" type="checkbox">')
                 .attr('value', option)
                 .data('column', i)
                 .on('change', filterColumnWithOptions);

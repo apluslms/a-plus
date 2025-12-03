@@ -13,8 +13,10 @@
 
 {% block columns %}
 {% if pseudonymize %}
-<div class="alert alert-warning clearfix site-message">
-	{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+<div class="site-messages">
+	<div class="alert alert-warning clearfix site-message" role="alert">
+		{% translate "PSEUDONYMIZATION_ERROR_MSG" %}
+	</div>
 </div>
 {% endif %}
 

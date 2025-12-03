@@ -17,39 +17,41 @@
 <br />
 <form method="post" class="card form">
 	{% csrf_token %}
-	<legend>
-		{% blocktranslate trimmed with model=model_name %}
-			REMOVE_MODEL_CONFIRM -- {{ model }}
-		{% endblocktranslate %}
-	</legend>
-
-	<div class="alert alert-danger">
-		{% if empty %}
-			{% blocktranslate trimmed with model=model_name name=object %}
-				REMOVE_MODEL_CONFIRMATION_ALERT -- {{ model }}, {{ name }}
+	<div class="card-body">
+		<legend>
+			{% blocktranslate trimmed with model=model_name %}
+				REMOVE_MODEL_CONFIRM -- {{ model }}
 			{% endblocktranslate %}
+		</legend>
 
-			{% if model == "exercise" %}
-			<p>
-				{% blocktranslate trimmed with num=object.submissions.count %}
-					REMOVE_EXERCISE_MODEL_CONFIRMATION_ALERT -- {{ num }}
+		<div class="alert alert-danger">
+			{% if empty %}
+				{% blocktranslate trimmed with model=model_name name=object %}
+					REMOVE_MODEL_CONFIRMATION_ALERT -- {{ model }}, {{ name }}
 				{% endblocktranslate %}
-			</p>
-			{% endif %}
-		{% else %}
-			{% blocktranslate trimmed with model=model_name name=object %}
-				REMOVE_MODEL_MUST_BE_EMPTY -- {{ model }}, {{ name }}
-			{% endblocktranslate %}
-		{% endif %}
-	</div>
 
-	<div class="form-group">
-		{% if empty %}
-		<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
-		{% endif %}
-		<a class="aplus-button--secondary aplus-button--md" href="{{ instance|url:'course-edit' }}" role="button">
-			{% translate "CANCEL" %}
-		</a>
+				{% if model == "exercise" %}
+				<p>
+					{% blocktranslate trimmed with num=object.submissions.count %}
+						REMOVE_EXERCISE_MODEL_CONFIRMATION_ALERT -- {{ num }}
+					{% endblocktranslate %}
+				</p>
+				{% endif %}
+			{% else %}
+				{% blocktranslate trimmed with model=model_name name=object %}
+					REMOVE_MODEL_MUST_BE_EMPTY -- {{ model }}, {{ name }}
+				{% endblocktranslate %}
+			{% endif %}
+		</div>
+
+		<div class="form-group">
+			{% if empty %}
+			<input class="aplus-button--danger aplus-button--md" type="submit" value="{% translate 'REMOVE' %}" />
+			{% endif %}
+			<a class="aplus-button--secondary aplus-button--md" href="{{ instance|url:'course-edit' }}" role="button">
+				{% translate "CANCEL" %}
+			</a>
+		</div>
 	</div>
 </form>
 {% endblock %}

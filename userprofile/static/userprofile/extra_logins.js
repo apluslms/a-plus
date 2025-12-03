@@ -27,6 +27,8 @@
         clearfix.className = 'clearfix d-block d-md-none';
         normal[normal.length - 1].after(clearfix);
       }
+    } else {
+      document.querySelector(".show-extra-login-btn").style.display = 'none';
     }
   });
 

@@ -67,9 +67,10 @@
 						<div class="container-fluid">
 							<ul class="navbar-nav exercise-nav gap-1">
 								<li class="nav-item">
-									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}javascript:void(0);{% endif %}"
+									<a href="{% if summary.feedback_revealed and summary.best_submission %}{{ summary.best_submission|url:'submission-plain' }}{% else %}#{% endif %}"
 										class="exercise-nav-points btn page-modal"
 										role="button"
+										style="border-width: 0px;"
 									>
 										<span class="text-nowrap">
 											{% if not exercise.category.confirm_the_level %}
