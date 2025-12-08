@@ -77,7 +77,7 @@ class StaffPageLocators:
 class TeachersPageLocators:
     TEACHERS_VIEW_BANNER = (
         By.XPATH,
-        "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit course')]"
+        "//ol[@class='breadcrumb']/li[@class='breadcrumb-item active' and contains(text(), 'Edit course')]"
     )
     EDIT_LEARNING_MODULE_LINKS = (By.XPATH, "//a[contains(@href,'/aplus1/basic_instance/teachers/exercise/1/')]")
     REMOVE_LEARNING_MODULE_LINKS = (
@@ -88,7 +88,7 @@ class TeachersPageLocators:
 class EditModulePageLocators:
     EDIT_MODULE_PAGE_BANNER = (
         By.XPATH,
-        "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit module')]"
+        "//ol[@class='breadcrumb']/li[@class='breadcrumb-item active' and contains(text(), 'Edit module')]"
     )
     COURSE_NAME_INPUT = (By.XPATH, "//*[@id='id_name']")
     POINTS_TO_PASS_INPUT = (By.XPATH, "//*[@id='id_points_to_pass']")
@@ -103,7 +103,7 @@ class EditModulePageLocators:
 class EditExercisePageLocators:
     EDIT_EXERCISE_PAGE_BANNER = (
         By.XPATH,
-        "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'Edit learning object')]"
+        "//ol[@class='breadcrumb']/li[@class='breadcrumb-item active' and contains(text(), 'Edit learning object')]"
     )
     EXERCISE_NAME_INPUT = (By.XPATH, "//*[@id='id_name']")
     MAX_SUBMISSIONS_INPUT = (By.XPATH, "//*[@id='id_max_submissions']")
@@ -118,7 +118,7 @@ class EditExercisePageLocators:
 class SubmissionPageLocators:
     SUBMISSIONS_PAGE_BANNER = (
         By.XPATH,
-        "//ol[@class='breadcrumb']/li[@class='active' and contains(text(), 'All submissions')]"
+        "//ol[@class='breadcrumb']/li[@class='breadcrumb-item active' and contains(text(), 'All submissions')]"
     )
     INSPECTION_LINKS = (By.XPATH, "//table//a[contains(@href, '/inspect/')]")
 
