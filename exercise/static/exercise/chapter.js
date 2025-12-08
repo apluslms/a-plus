@@ -413,6 +413,12 @@
         exercise.element.find(exercise.settings.exercise_info_selector).remove();
       }
 
+      // Restore form inputs if we have saved data from a recent submission
+      if (exercise.savedFormData) {
+        exercise.fillFormInputs(exercise.savedFormData, exercise.element);
+        delete exercise.savedFormData;
+      }
+
       content.show();
 
       // Active element can have height settings in the A+ exercise div that need to be
@@ -656,6 +662,14 @@
           }
           var url = $(form_element).attr("action");
           var formData = new FormData(form_element);
+
+          const hasTextarea = exercise.element.find('textarea').length > 0;
+          const hasFieldset = exercise.element.find('fieldset').length > 0;
+          if (hasTextarea && !hasFieldset) { // Identify acceptPost exercises
+            // Save form data to restore after update
+            exercise.savedFormData = Array.from(formData.entries());
+          }
+
           const aplusJsonString = formData.get('__aplus__');
           if (aplusJsonString) {
             const aplusDict = JSON.parse(aplusJsonString);
@@ -853,6 +867,31 @@
       }
     },
 
+    fillFormInputs: function(submissionData, container) {
+      submissionData.forEach(function([fieldName, fieldValue]) {
+        const field = container.find('[name="' + fieldName + '"]');
+        if (field.length === 0) return;
+
+        const fieldType = field.attr('type');
+        const tagName = field.prop('tagName').toLowerCase();
+
+        if (tagName === 'textarea') {
+          field.val(fieldValue);
+        } else if (tagName === 'select') {
+          field.val(fieldValue);
+        } else if (fieldType === 'checkbox') {
+          // For checkboxes, check if this value matches
+          field.filter('[value="' + fieldValue + '"]').prop('checked', true);
+        } else if (fieldType === 'radio') {
+          // For radio buttons, select the one with matching value
+          field.filter('[value="' + fieldValue + '"]').prop('checked', true);
+        } else {
+          // For text, hidden, and other input types
+          field.val(fieldValue);
+        }
+      });
+    },
+
     loadLastSubmission: function(input, fillInputs = false) {
       var link = input.find(this.settings.last_submission_selector);
       var exercise = this;
@@ -895,12 +934,9 @@
                     new CustomEvent("aplus:exercise-ready",
                       {bubbles: true, detail: {type: exercise.exercise_type}}));
                 } else {
-                  // Fill textareas with last submission inputs
-                  const lastInputs = data.submission_data.map((x) => x[1]);
-                  const textareas = responseElement.find('textarea');
-                  textareas.each(function(index) {
-                    $(this).val(lastInputs[index]);
-                  });
+                  // Fill form inputs with last submission data
+                  const submissionData = data.submission_data;
+                  exercise.fillFormInputs(submissionData, exercise.element);
                 }
 
               } else {
