@@ -22,7 +22,7 @@
 	$(function () {
 		const lastVisitedObject = JSON.parse(localStorage.getItem("lastVisitedReminder"));
 		if (lastVisitedObject) {
-			const lastVisited = lastVisitedObject[$("li.menu-home > a").attr("href")];
+			const lastVisited = lastVisitedObject[$("a.menu-home").attr("href")];
 			if (lastVisited) {
 				const alert = $('#left-off-reminder');
 				alert.removeClass("d-none");

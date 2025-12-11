@@ -94,7 +94,7 @@
       const title = $("ol.breadcrumb > li").last().text();
 
       // Get the instance url of this chapter
-      const instanceUrl = $("li.menu-home > a").attr("href");
+      const instanceUrl = $("a.menu-home").attr("href");
 
       // Get the lastVisited object or an empty object
       const lastVisited = JSON.parse(localStorage.getItem("lastVisitedReminder")) || {};
