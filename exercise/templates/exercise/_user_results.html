@@ -33,7 +33,7 @@
 	</button>
 </p>
 
-<div class="accordion spaced-accordion" id="modulesAccordion">
+<div class="accordion aplus-spaced-accordion" id="modulesAccordion">
 {% for module in modules %}
 {% if module.is_visible or is_teacher %}
 {% with open=module|exercises_open:now after_open=module|has_opened:now %}

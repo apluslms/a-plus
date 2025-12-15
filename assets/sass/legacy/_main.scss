@@ -295,18 +295,18 @@ iframe {
 }
 
 /* Fix borders with vertically spaced accordion */
-div.spaced-accordion > .accordion-item {
+div.aplus-spaced-accordion > .accordion-item {
     border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
     border-radius: var(--bs-accordion-border-radius);
-    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
-div.spaced-accordion > .accordion-item  > .accordion-header > .accordion-button:not(.collapsed) {
+div.aplus-spaced-accordion > .accordion-item  > .accordion-header > .accordion-button:not(.collapsed) {
     border-top-left-radius: var(--bs-accordion-inner-border-radius);
     border-top-right-radius: var(--bs-accordion-inner-border-radius);
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-div.spaced-accordion > .accordion-item  > .accordion-header > .accordion-button.collapsed {
+div.aplus-spaced-accordion > .accordion-item  > .accordion-header > .accordion-button.collapsed {
     border-radius: var(--bs-accordion-inner-border-radius);
 }
 
