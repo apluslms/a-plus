@@ -135,7 +135,7 @@ def profiles(
 @register.simple_tag
 def tags(profile, instance):
     tags = UserTagging.objects.get_all(profile, instance)
-    return mark_safe(' '.join(tag.html_label for tag in tags))
+    return mark_safe(' '.join(tag.html_badge for tag in tags))
 
 
 @register.simple_tag

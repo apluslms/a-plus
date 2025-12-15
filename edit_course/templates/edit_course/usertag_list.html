@@ -34,7 +34,7 @@
 		{% with hide_tooltip=True %}
 		{% for tag in object_list %}
 		<tr>
-			<td>{{ tag|colortag }}</td>
+			<td>{{ tag|colortag:"size=sm" }}</td>
 			<td>{{ tag.slug }}</td>
 			<td>{{ tag.description }}</td>
 			<td>{% if tag.visible_to_students %}<span>yes</span>{% else %}<span>no</span>{% endif %}</td>

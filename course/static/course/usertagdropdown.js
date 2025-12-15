@@ -32,7 +32,7 @@ document.addEventListener('aplus:translation-ready', function() {
             if (userContainer) {
               const dropdown = userContainer.querySelector('.dropdown');
               if (dropdown) {
-                dropdown.insertAdjacentHTML('beforebegin', django_colortag_label(tag) + ' ');
+                dropdown.insertAdjacentHTML('beforebegin', django_colortag_badge(tag) + ' ');
               }
             }
             if (typeof extra_click_handler === 'function') {

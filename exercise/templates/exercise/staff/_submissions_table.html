@@ -86,7 +86,7 @@
 <p class="filter-submissions">
 	<small class="text-body-secondary">{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
 	{% for tag in instance.submissiontags.all %}
-	<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
+	<button class="btn aplus-button--xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}">
 		<i class="bi bi-square" aria-hidden="true"></i>
 		{{ tag.name }}
 	</button>
@@ -135,7 +135,7 @@
 							</td>
 							<td id="submission_tags">
 									{% for tagging in submission.submission_taggings.all %}
-										{{ tagging.tag|colortag }}
+										{{ tagging.tag|colortag:"size=sm" }}
 									{% endfor %}
 							</td>
 							<td>

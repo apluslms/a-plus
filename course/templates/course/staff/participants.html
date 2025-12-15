@@ -25,7 +25,7 @@
 	<p class="filter-users">
 		<small class="text-body-secondary">{% trans "FILTER_USERS_BY_TAG" %}:</small>
 		{% for tag in tags %}
-		<button class="btn btn-sm filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
+		<button class="btn aplus-button--xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }}">
 			<i class="bi bi-square" aria-hidden="true"></i>
 			{{ tag.name }}
 		</button>

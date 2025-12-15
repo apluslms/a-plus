@@ -74,7 +74,7 @@ class ParticipantsView(CourseInstanceBaseView):
             format_user(participant.user, self.pseudonymize, participant)
             user_id = participant.user.id
             user_tags = CachedStudent(ci, participant.user).data
-            user_tags_html = ' '.join(tags[slug].html_label for slug in user_tags['tag_slugs'] if slug in tags)
+            user_tags_html = ' '.join(tags[slug].html_badge for slug in user_tags['tag_slugs'] if slug in tags)
             data.append({
                 'id': participant.student_id or '',
                 'user_id': user_id,

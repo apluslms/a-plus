@@ -90,11 +90,6 @@ h1, .h1, h2, .h2, h3, .h3 {
 	padding-left: 3px;
 }
 
-// Django-colortag has hardcoded "label" class, but it's no longer present in BS5
-.colortag.label {
-	@extend .badge;
-}
-
 legend {
 	border-bottom: 1px solid var(--bs-secondary-bg, #e5e5e5);;
 }

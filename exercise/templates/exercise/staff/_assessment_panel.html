@@ -32,7 +32,7 @@
 							<form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
 								{% csrf_token %}
 								<div class="d-flex flex-nowrap align-items-center gap-1">
-									{{tag.tag|colortag}}
+									{{tag.tag|colortag:"size=sm"}}
 									<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><i class="bi-x-lg" aria-hidden="true"></i></button>
 								</div>
 							</form>
@@ -46,7 +46,7 @@
 							</button>
 							<ul id="submissionTagsList" class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 								{% for subtag in instance.submissiontags.all %}
-								<li><a class="dropdown-item" id="submission-tag-{{subtag.id}}" href="#" onclick="submitForm('{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}')"><span>{{subtag|colortag}}</span></a></li>
+								<li><a class="dropdown-item" id="submission-tag-{{subtag.id}}" href="#" onclick="submitForm('{% url 'add-tag-to-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=subtag.id %}')"><span>{{subtag|colortag:"size=sm"}}</span></a></li>
 								{% endfor %}
 							</ul>
 						</div>
