@@ -255,6 +255,9 @@ iframe {
 }
 
 /* panels */
+.module-panel {
+    overflow: hidden;
+}
 .module-panel .panel-heading {
     display: block;
     overflow: auto;
@@ -377,8 +380,6 @@ td.submissions-dropdown .btn {
 /* results table */
 table.results-table tbody tr:last-child td {
     border-bottom: none;
-    border-bottom-left-radius: var(--bs-accordion-inner-border-radius);
-    border-bottom-right-radius: var(--bs-accordion-inner-border-radius);
 }
 table.results-table .category-row {
     font-weight: bold;
