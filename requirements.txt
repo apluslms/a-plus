@@ -12,7 +12,7 @@ git+https://github.com/apluslms/js-jquery-toggle.git@2.0.0#egg=js-jquery-toggle-
 git+https://github.com/apluslms/django-colortag.git@3.0.0#egg=django-colortag~=3.0.0
 feedparser ~= 6.0.2
 html5lib ~= 1.1
-lxml ~= 5.3.1
+lxml >= 5.3.1
 # NOTE: Change version number in requirements_prod.txt if updated
 #lz4 ~= 4.3.2
 cachetools ~= 4.2.1

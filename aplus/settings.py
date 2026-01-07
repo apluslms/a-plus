@@ -392,7 +392,7 @@ LANGUAGES = [
     ('fi', 'Finnish'),
     ('sv', 'Swedish'),
 ]
-TIME_ZONE = 'EET'
+TIME_ZONE = 'Europe/Helsinki'
 USE_I18N = True
 USE_TZ = True
 FORMAT_MODULE_PATH = 'aplus'
