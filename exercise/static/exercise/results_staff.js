@@ -1174,7 +1174,7 @@
              */
             function renderParticipantLink(data, type, row) {
                 // TODO: Get the link to students in a proper way
-                const link = $('li.menu-participants').find('a').attr('href');
+                const link = $('.menu-participants').attr('href');
                 return (row['UserID'] > 0 ? '<a href="' + link + row['UserID'] + '">' + (!data ? '—' : data) + '</a>' : '');
             }
 
