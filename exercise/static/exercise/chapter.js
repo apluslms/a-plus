@@ -320,7 +320,7 @@
       first_div.attr("class", "form-group");
 
       var button = $("<input>");
-      button.attr("class", "btn btn-primary");
+      button.attr("class", "btn btn-primary mt-3");
       button.attr("value", "Submit");
       button.attr("type", "submit");
 
@@ -405,6 +405,7 @@
         if (exercise.element.attr("data-title"))
           title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
         exercise.element.find(exercise.settings.summary_selector).remove();
+        $('.exercise-nav-info').parent().remove();
         $(title).prependTo(exercise.element.find(".exercise-response"));
       }
 
