@@ -590,6 +590,14 @@ $(function () {
         this.content.html(data.content);
       }
       this.content.show();
+
+      // Fix for older python-grader-utils versions without Bootstrap5 update
+      $('[data-toggle]').each(function() {
+        const value = $(this).attr('data-toggle');
+        $(this).attr('data-bs-toggle', value);
+        $(this).removeAttr('data-toggle');
+      });
+
       return this.content;
     }
   });
