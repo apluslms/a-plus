@@ -7,11 +7,10 @@ A+ uses containers to support local development and to power the CI/CD pipeline.
 Therefore you need to have the following installed:
 - [Docker Engine](https://docs.docker.com/engine/install/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- [Drone](https://docs.drone.io/cli/install/)
 
 Note that you will need to have admin rights to install these correctly.
 
-Alternatively, you can have comparable software which enable you to use the commands `docker`, `docker-compose` and `drone`.
+Alternatively, you can have comparable software which enable you to use the commands `docker` and `docker-compose`.
 
 If you are going to use Django translations, you must install the GNU **gettext** utilities
 - [gettext Ubuntu](https://packages.ubuntu.com/search?keywords=gettext).
@@ -80,11 +79,11 @@ Mounting happens by adding the path to your cloned a-plus directory to the `volu
 If you wish to use features which require write access, e.g. update translations, change the `/srv/` to `/src/`.
 Using `/srv/` will allow the Django process to reload the code without stopping the container, but features which require the write access are not possible.
 
-4. Download and build all required support files by running the Drone pipeline, i.e., execute the following in the a-plus project root:
+4. Download and build all required support files by running the following script in the a-plus project root:
 
    ```sh
    $ cd [A-PLUS PROJECT ROOT]
-   $ drone exec
+   $ ./compile_sass.sh
    ```
 
 5. Run the code within the container:
@@ -106,10 +105,10 @@ Using `/srv/` will allow the Django process to reload the code without stopping 
 
     ```sh
    $ cd [A-PLUS PROJECT ROOT]
-   $ drone exec
+   $ ./compile_sass.sh
    ```
 
-   After the `drone exec` command finishes its execution, you can start monitoring the changes of the sass compiler by executing the following command.
+   After the `compile_sass.sh` script finishes its execution, you can start monitoring the changes of the sass compiler by executing the following command.
 
    ```sh
    $ cd [A-PLUS PROJECT ROOT]
@@ -122,7 +121,7 @@ Note that if you have mounted the code to `/src/`, you need to restart the serve
 3. After completing the changes and before committing them, run:
 
    ```sh
-   $ drone exec
+   $ ./compile_sass.sh
    ```
 
 4. Include the built production versions of JavaScript and CSS files (e.g. `css/main.css` and `css/main.css.map`) into the git commit with your changes.
@@ -300,7 +299,7 @@ exceptions to this rule:
    (e.g. `Submission.exercise`), uses the related model's **base manager**
    (which is usually Django's `Manager` class) instead of its
    **default manager** (which is accessed via `objects`).
-   
+
    To work around this limitation, there are two custom relationship field
    classes, `DefaultOneToOneField` and `DefaultForeignKey`, which use the
    default manager, and thus ensure that the related object is always returned

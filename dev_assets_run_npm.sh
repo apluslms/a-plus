@@ -13,8 +13,7 @@ elif ! [ -d "$dir" ]; then
     exit 64
 fi
 
-image=$(grep -F 'image: node:' .drone.yml | head -n1 | awk '{print $2}')
-[ "$image" ] || exit 2
+image="node:12-alpine"
 
 exec docker run --rm -it --init \
     -u $(id -u):$(id -g) \

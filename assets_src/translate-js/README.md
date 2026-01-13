@@ -20,9 +20,9 @@ Install dependencies if you haven't done so already
 ```
 npm install --no-save
 
-# Note that installation can also be done with drone in the a-plus root
-# directory (.drone.yml):
-drone exec
+# Note that installation can also be done with a script in the a-plus root
+# directory:
+./compile_sass.sh
 ```
 
 Build the bundle, which will be put to A+'s `assets/js` folder, and run
@@ -48,7 +48,7 @@ In the HTML file, include JQuery and `translate.js`
 ```
 
 Include your translation files in link tags in HTML. The translation files may
-be either in [polyglot's](http://airbnb.io/polyglot.js/) native format or in 
+be either in [polyglot's](http://airbnb.io/polyglot.js/) native format or in
 [Django JSONCatalog](https://docs.djangoproject.com/en/2.0/topics/i18n/translation/#the-jsoncatalog-view)
 format.
 
