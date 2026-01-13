@@ -4,10 +4,10 @@
 {% load static %}
 
 <div class="card">
-	<div class="card-header bg-primary">
-		<h4 class="panel-title">{% translate "SUBMISSION_INFO" %}</h4>
+	<div class="card-header text-bg-primary">
+		<h4 class="card-title">{% translate "SUBMISSION_INFO" %}</h4>
 	</div>
-	<div class="panel-body">
+	<div class="card-body">
 		<dl>
 			<dt>{% translate "SUBMITTED_ON" %}</dt>
 			<dd>{{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}</dd>

@@ -48,10 +48,10 @@
 <div class="col-md-5">
 
   <div class="card">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header text-bg-primary">
       {% translate "MY_GROUPS" %}
     </div>
-    <table class="table mb-0">
+    <table class="aplus-table-bordered table mb-0">
       {% for group in groups %}
       <tr>
         <td>{{ group.members.all|names }}</td>

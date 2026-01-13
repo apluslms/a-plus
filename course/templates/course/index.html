@@ -22,7 +22,7 @@
 					{% include "course/_course_cards.html" with instances=my_instances condensed=False %}
 				</div>
 		{% else %}
-			<div class="panel-body">
+			<div class="card-body">
 				<p class="panel-default-text">
 					{% translate "MY_COURSES_EMPTY" %}
 				</p>
@@ -68,7 +68,7 @@
 			{% endif %}
 		</div>
 		{% if not all_instances and not siteadvert %}
-			<div class="panel-body">
+			<div class="card-body">
 				<p class="panel-default-text">
 					{% translate "NO_COURSES_FOUND" %}
 				</p>

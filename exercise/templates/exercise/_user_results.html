@@ -167,8 +167,8 @@
 					<td>
 						<small class="text-body-secondary">{{ entry.category|parse_localization }}</small>
 					</td>
-					<td class="submissions-dropdown dropdown">
-						<a class="dropdown-toggle btn" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
+					<td class="submissions-dropdown dropdown text-start">
+						<a class="dropdown-toggle btn align-baseline" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false" role="button">
 							<span class="badge text-bg-secondary">
 								{% if entry.notified %}
 								<i class="bi-chat-left-fill{% if entry.unseen %} red{% endif %}"></i>
@@ -199,7 +199,7 @@
 						{% points_badge entry %}
 					</td>
 					{% if is_course_staff %}
-					<td>
+					<td class="collapse-if-empty">
 						{% if entry.submissions and student.id %}
 						{% url 'submitter-inspect' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=entry.get_path user_id=student.id as inspect_url %}
 						<a href="{{ inspect_url }}" class="aplus-button--secondary aplus-button--xs">

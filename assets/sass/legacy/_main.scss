@@ -389,6 +389,10 @@ table.results-table tbody tr:last-child td {
 table.results-table .category-row {
     font-weight: bold;
 }
+table.results-table .collapse-if-empty {
+    padding: 0;
+    width: 0;
+}
 
 div.rst-tabs div.html-box {
 	padding: 1em;
