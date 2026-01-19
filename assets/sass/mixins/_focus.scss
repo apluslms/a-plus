@@ -9,7 +9,8 @@
 
 @mixin focus-with-outline-only {
 	&:focus-visible {
-		outline: 3px solid $aplus-focus !important;
+		box-shadow: 0 0 0 0.25rem $aplus-focus !important;
+		outline: none !important;
 	}
 }
 
@@ -18,6 +19,7 @@
 		background-color: $aplus-focus !important;
 		color: $aplus-foreground !important;
 		outline: 3px solid rgba(0, 0, 0, 0) !important;
+		box-shadow: none !important;
 		text-decoration: underline;
 	}
 }

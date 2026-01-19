@@ -123,3 +123,7 @@ $large-height: 24px;
 		}
 	}
 }
+
+.aplus-submit {
+	@include button-basics;
+}

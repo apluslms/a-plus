@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load course %}
 {% load exercise %}
-<nav class="row siblings" aria-label="{% translate 'PAGINATION' %}">
+<nav class="row siblings mb-2 mx-1" aria-label="{% translate 'PAGINATION' %}">
 	<div class="col-4 text-start">
 		{% if previous %}
 		{% if previous.submittable %}
@@ -10,8 +10,9 @@
 		{% module_accessible previous as accessible %}
 		{% endif %}
 		{% if accessible and previous.is_revealed or accessible and previous.type == "module" %}
-		<a href="{{ previous.link }}" class="nav-flex-left">
-			<i class="bi bi-chevron-double-left" aria-hidden="true"></i> {{ previous.name|parse_localization }}
+		<a href="{{ previous.link }}" class="d-inline-flex align-center">
+			<i class="bi bi-chevron-double-left me-2" aria-hidden="true"></i>
+			<span class="nav-flex-left">{{ previous.name|parse_localization }}</span>
 		</a>
 		{% else %}
 		<span class="text-muted disabled">
@@ -28,8 +29,8 @@
 	</div>
 
 	<div class="col-4 text-center">
-		<a href="{{ instance|url:'toc' }}">
-			{% translate "COURSE_MATERIALS" %}
+		<a href="{{ instance|url:'toc' }}" class="d-inline-flex align-center">
+			<span class="nav-flex-middle">{% translate "COURSE_MATERIALS" %}</span>
 		</a>
 	</div>
 
@@ -41,8 +42,9 @@
 		{% module_accessible next as accessible %}
 		{% endif %}
 		{% if accessible and next.is_revealed or accessible and next.type == "module" %}
-		<a href="{{ next.link }}" class="nav-flex-right">
-			{{ next.name|parse_localization }} <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
+		<a href="{{ next.link }}" class="d-inline-flex align-center">
+			<span class="nav-flex-right">{{ next.name|parse_localization }}</span>
+			<i class="bi bi-chevron-double-right ms-2" aria-hidden="true"></i>
 		</a>
 		{% else %}
 		<span class="text-muted disabled">

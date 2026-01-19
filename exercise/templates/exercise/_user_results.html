@@ -48,30 +48,30 @@
 				<div class="module-name">
 					<strong>{{ module.name|parse_localization }}</strong>
 				</div>
-				<div class="d-inline-flex align-items-center gap-1">
+				<div class="d-inline-flex align-items-center flex-wrap flex-sm-nowrap ms-1 gap-1">
 					{% if not module.is_visible and is_teacher %}
 					<span class="badge text-bg-danger float-end">{% translate "HIDDEN_capitalized" %}</span>
 					{% endif %}
 					{% if module.requirements|length > 0 %}
-					<span class="badge text-primary bg-white float-end">
+					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "REQUIRES" %}:
 						{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 					</span>
 					{% endif %}
 					{% if module|deadline_extended_exercises_open:now %}
-					<span class="badge text-primary bg-white float-end">
+					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 					</span>
 					{% endif %}
 					{% if not accessible %}
-					<span class="badge text-primary bg-white float-end">
+					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "OPENS ON" %} {{ module.opening_time }}
 					</span>
 					{% elif not after_open %}
-					<span class="badge text-primary bg-white float-end">
+					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
 					</span>
-					<span class="badge text-primary bg-white float-end">
+					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "OPEN_FOR_READING" %}
 					</span>
 					{% endif %}

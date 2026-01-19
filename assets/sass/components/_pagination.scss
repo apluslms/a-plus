@@ -1,15 +1,18 @@
 nav.row.siblings {
 	flex-direction: row;
 	justify-content: space-between;
-	margin: 0 5px;
 
-	a.nav-flex-left, a.nav-flex-right  {
-		white-space: nowrap;
-		max-width: 45%;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		width: auto;
-	}
+	a.d-inline-flex {
+        max-width: 100%; // Constrain the link to not overflow its container
+
+        > span.nav-flex-left,
+        > span.nav-flex-middle,
+        > span.nav-flex-right {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
 
 	&::before,
 	&::after {

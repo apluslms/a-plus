@@ -1,16 +1,16 @@
 @import '../mixins/focus';
 
 // These styles apply consistent focus states to elements which
-// don't have a focus state defined elswhere, including inside the
+// don't have a focus state defined elsewhere, including inside the
 // course content.
 
 // It's preferable to use component-specific focus styles where
 // possible, and they should be mixed into all new components.
 
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible,
+a:focus-visible:not(.dropdown-item),
+input:focus-visible:not(.form-control, .aplus-submit, [class^="aplus-button"]),
+textarea:focus-visible:not(.form-control),
+select:focus-visible:not(.form-select),
 div:focus-visible {
 	@include focus-with-outline-only;
 }

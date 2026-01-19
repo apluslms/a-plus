@@ -37,10 +37,16 @@ article {
 	.navbar-nav > li > a,
 	.navbar-nav > .active > a,
 	.navbar-nav > .active > a:hover {
-		@include focus-with-background-and-color;
+		@include focus-with-outline-only;
 		text-decoration: none;
 		color: #ffffff;
 		background: transparent;
+	}
+
+	.navbar-toggler {
+		&:focus {
+			box-shadow: 0 0 0 0.25rem $aplus-focus;
+		}
 	}
 
 	.navbar-brand, .navbar-dropdown > li.dropdown > a.dropdown-toggle {
@@ -62,7 +68,7 @@ article {
 	.navbar-nav > .open > a,
 	.navbar-nav > .open > a:focus,
 	.navbar-nav > .open > a:hover {
-		@include focus-with-background-and-color;
+		@include focus-with-outline-only;
 		background-color: #236aa7;
 		background-color: rgba(0, 0, 0, 0.1);
 	}
@@ -70,7 +76,7 @@ article {
 	.navbar-nav > li.open > a:focus {
 		&:focus,
 		&:hover {
-			@include focus-with-background-and-color;
+			@include focus-with-outline-only;
 			background-color: rgba(0,0,0,0.1);
 		}
 	}
@@ -94,7 +100,6 @@ article {
     min-width: 0;
 
     .navbar-dropdown {
-        flex: 1 1 start;
         min-width: 0;
 
         li.dropdown {

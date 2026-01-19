@@ -132,6 +132,24 @@ iframe {
     --bs-btn-active-border-color: transparent;
 }
 
+.dropdown-item {
+    @include focus-with-background-and-color;
+}
+
+#courseDropdownMenu {
+    overflow: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+
+    @media (max-width: 575.98px) {
+        width: 75vw;
+
+        .dropdown-item {
+            white-space: normal;
+        }
+    }
+}
+
 /* Skip links */
 
 .skip-link { /* This one is equally applicable to all skip links */
@@ -149,18 +167,18 @@ iframe {
     position: absolute;
     z-index: 2000;
     width: auto;
-    min-height: 50px;
-    height: auto;
+    height: 46px;
     overflow: visible;
     clip: auto;
-    padding: 15px;
+    padding: 12px;
     display: flex;
     justify-content: left;
 }
 
 .page-skip-link:focus {
 	@include focus-with-background-and-color;
-    min-height: 24px;
+    min-height: 28px;
+    height: auto;
 }
 
 /* menus */
@@ -239,8 +257,11 @@ iframe {
 .toc li {
     list-style: none;
 }
-#course-content a{
+#course-content a:not(.dropdown-toggle) {
 	@include focus-with-background-and-color;
+}
+#course-content a:has(.dropdown-toggle) {
+    @include focus-with-outline-only;
 }
 @media (min-width: 768px) {
 	#course-content {
@@ -255,8 +276,9 @@ iframe {
 }
 
 /* panels */
-.module-panel {
-    overflow: hidden;
+.table-responsive:has(.results-table) {
+    border-bottom-left-radius: var(--bs-accordion-inner-border-radius);
+    border-bottom-right-radius: var(--bs-accordion-inner-border-radius);
 }
 .module-panel .panel-heading {
     display: block;
@@ -289,6 +311,7 @@ iframe {
 #modulesAccordion .accordion-button {
     @include focus-with-background-and-color;
     background-color: var(--bs-primary);
+    --bs-accordion-btn-focus-box-shadow: none;
 }
 #modulesAccordion .accordion-button::after {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");

@@ -11,7 +11,7 @@
 
 <li>
 	<a href="#course-content" class="skip-link page-skip-link d-none d-sm-block">
-		{% translate "SKIP_COURSE_NAVIGATION" %}
+		<span class="">{% translate "SKIP_COURSE_NAVIGATION" %}</span>
 	</a>
 </li>
 <div class="d-flex justify-content-between align-baseline">
@@ -183,7 +183,7 @@
 	</a>
 </li>
 
-<li class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "FORM_A_GROUP" %}">
+<li class="nav-item">
 	<a class="nav-link menu-pseudonymize" href="{% url 'toggle-pseudonymization' %}">
 		{% if pseudonymize %}
 			<i class="bi-eye-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "UNPSEUDONYMIZE" %}"></i>
