@@ -514,6 +514,10 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       columns: columns,
       order: [[ is_teacher ? 1 : 0, 'asc' ]],
       orderCellsTop: true,
+      stateSave: true,
+      stateSaveCallback: function(settings, data) {
+        localStorage.setItem('participantsListPageLength', data.length);
+      },
       rowId: function(row) { return 'participant-' + row.user_id; },
       headerCallback: function(thead /*, data, start, end, display */) {
         // Ensure thead has id and filters row exists even if DT rebuilt the header
@@ -554,7 +558,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         $(row).attr('data-user-id', data.user_id);
       },
       lengthMenu: [[10, 50, 100, 500, -1], [10, 50, 100, 500, 'All']],
-      pageLength: 50,
+      pageLength: localStorage.getItem('participantsListPageLength') ? parseInt(localStorage.getItem('participantsListPageLength'), 10) : 50,
       deferRender: true,
       autoWidth: false,
       language: { url: pageLanguageUrl },
