@@ -64,7 +64,7 @@ iframe {
 .sticky-alert {
     position: -webkit-sticky; /* Safari */
     position: sticky;
-    top: 0;
+    top: 60px;
     overflow: hidden;
     z-index: 100;
 }
