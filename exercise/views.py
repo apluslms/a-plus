@@ -591,12 +591,23 @@ class SubmittedFileView(SubmissionMixin, BaseView):
         # Compare to another submission.
         compare_to = request.GET.get("compare_to", None)
         if compare_to and self.exercise.course_instance.is_course_staff(request.user):
-            compared_data = (
-                self.get_model_answer_file_data()
-                if compare_to == "model"
-                else self.get_compared_submission_file_data(compare_to)
-            )
-            submitted_data = bytedata.decode('utf-8', 'ignore')
+            if compare_to == "model":
+                compared_data = self.get_model_answer_file_data()
+                submitted_data = bytedata.decode('utf-8', 'ignore')
+            else:
+                compared_submission_id = int(compare_to)
+                compared_submission = get_object_or_404(
+                    Submission,
+                    id=compared_submission_id,
+                    exercise=self.exercise
+                )
+                compared_data = self.get_compared_submission_file_data(compare_to)
+                submitted_data = bytedata.decode('utf-8', 'ignore')
+
+                # Ensure chronological order: earlier submission first, later submission second
+                if compared_submission.submission_time > self.submission.submission_time:
+                    # Swap if compared submission is newer than current submission
+                    compared_data, submitted_data = submitted_data, compared_data
 
             if request.GET.get('ignore_trailing_whitespace', 'no') == 'yes':
                 compared_data = self.strip_trailing_whitespace(compared_data)
