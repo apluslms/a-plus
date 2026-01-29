@@ -314,6 +314,10 @@ def check_and_tag_retaking(sender, instance, created, **kwargs): # pylint: disab
     if not created:
         return  # Only run when a new enrollment is created
 
+    # Only tag students, not course staff
+    if instance.role != Enrollment.ENROLLMENT_ROLE.STUDENT:
+        return
+
     user = instance.user_profile
     course = instance.course_instance.course
     current_instance_id = instance.course_instance.id
