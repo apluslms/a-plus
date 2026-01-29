@@ -5,6 +5,7 @@ from django.utils.dateparse import parse_datetime
 from django.http import HttpRequest, HttpResponse
 
 from course.models import UserTag, UserTagging
+from exercise.exercise_models import BaseExercise
 from .forms import (
     DeadlineRuleDeviationForm,
     RemoveDeviationForm,
@@ -36,6 +37,13 @@ class AddDeadlinesView(AddDeviationsView):
 
     def get_success_no_override_url(self) -> str:
         return self.instance.get_url('deviations-add-dl')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.request.GET.get('get_module_of_exercise'):
+            exercise = BaseExercise.objects.get(id=self.request.GET.get('get_module_of_exercise'))
+            initial['module'] = [exercise.course_module.id]
+        return initial
 
     def get_initial_get_param_spec(self) -> Dict[str, Optional[Callable[[str], Any]]]:
         spec = super().get_initial_get_param_spec()
