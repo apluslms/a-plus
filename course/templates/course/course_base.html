@@ -216,8 +216,9 @@
 		if (stickyAlert.length > 0) {
 			const currentOffset = $(document).scrollTop();
 			const alertHeight = stickyAlert[0].offsetHeight;
-			if (currentOffset > alertHeight) {
-				const offset = currentOffset - alertHeight;
+			const navbarHeight = 60; // Height of the sticky navbar
+			if (currentOffset > alertHeight + navbarHeight) {
+				const offset = currentOffset - alertHeight - navbarHeight;
 				window.scrollTo({ top: offset });
 			}
 		}
