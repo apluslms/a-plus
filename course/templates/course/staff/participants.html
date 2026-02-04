@@ -249,9 +249,8 @@
 
 {% block scripts %}
 {{ block.super }}
-{% if is_teacher %}
 <script src="https://cdn.datatables.net/v/bs5/dt-2.2.1/b-3.2.1/b-html5-3.2.1/datatables.min.js"></script>
-
+{% if is_teacher %}
 <script src="{% static 'django_colortag.js' %}"></script>
 <script src="{% static 'add_tagging_dropdown.js' %}"></script>
 <script src="{% static 'js/buttons_popover.js' %}"></script>
