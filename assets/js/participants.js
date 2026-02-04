@@ -347,8 +347,10 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     try {
       if (!dt || typeof dt.button !== 'function' || typeof _ !== 'function') return;
       // Use Buttons selector by name for reliability
-      const btn = dt.button('resetFilters:name');
-      if (btn && typeof btn.text === 'function') btn.text(_('Reset filters'));
+      const resetBtn = dt.button('resetFilters:name');
+      if (resetBtn && typeof resetBtn.text === 'function') resetBtn.text('<i class="bi-arrow-counterclockwise"></i> ' + _('Reset filters'));
+      const copyBtn = dt.button('copyToClipboard:name');
+      if (copyBtn && typeof copyBtn.text === 'function') copyBtn.text('<i class="bi-clipboard"></i> ' + _('Copy to clipboard'));
     } catch (e) {}
   }
   function updateResetFiltersButtonTextWithRetry(retries) {
@@ -614,10 +616,12 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           extend: 'csvHtml5'
         } ),
         $.extend( true, {}, buttonCommon, {
+          name: 'copyToClipboard',
           text: '<i class="bi-clipboard"></i> ' + _('Copy to clipboard'),
           extend: 'copyHtml5'
         } ),
         {
+          name: 'resetFilters',
           text: '<i class="bi-arrow-counterclockwise"></i> ' + _('Reset filters'),
           action: function ( e, dt, node, config ) {
             clearSearch();
