@@ -1357,6 +1357,12 @@
                 lengthMenu: [[10, 50, 100, 500, -1], [10, 50, 100, 500, "All"]],
                 pageLength: 50, // Set the length to 50 for faster initial load time
                 language: {
+                    paginate: {
+                        first: '<i class="bi-chevron-double-left"></i>',
+                        last: '<i class="bi-chevron-double-right"></i>',
+                        next: '<i class="bi-chevron-right"></i>',
+                        previous: '<i class="bi-chevron-left"></i>'
+                    },
                     url: pageLanguageUrl
                 },
                 /**
@@ -1405,7 +1411,7 @@
                  * Note that we have a custom "dt-note" div that is used to display a note about
                  * using the < and > operators in number column search fields.
                  */
-                dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-5 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
+                dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-6 col-sm-6'B><'col-md-3 col-sm-12'f>>" +
                         "<'row'<'col-sm-6'i><'col-sm-6 dt-note'>>" +
                         "<'row'<'#table-points-div.col-sm-12'tr>>" +
                         "<'row'<'col-sm-5'i><'col-sm-7'p>>",
@@ -1420,19 +1426,19 @@
                                 body: removeHtmlFromColumns
                             }
                         }}, {
-                        extend: 'csvHtml5', text: 'Sisu'
-                    } ),
-                    $.extend( true, {}, buttonCommon, {
+                        text: '<i class="bi-file-earmark-arrow-down"></i> Sisu',
                         extend: 'csvHtml5'
                     } ),
                     $.extend( true, {}, buttonCommon, {
-                        extend: 'copyHtml5'
+                        text: '<i class="bi-filetype-csv"></i> CSV',
+                        extend: 'csvHtml5'
                     } ),
                     $.extend( true, {}, buttonCommon, {
-                        extend: 'excelHtml5'
+                        text: '<i class="bi-clipboard"></i> ' + _('Copy to clipboard'),
+                        extend: 'copyHtml5'
                     } ),
                     {
-                        text: 'Reset filters',
+                        text: '<i class="bi-arrow-counterclockwise"></i> ' + _('Reset filters'),
                         action: function ( e, dt, node, config ) {
                             clearSearch();
                         }

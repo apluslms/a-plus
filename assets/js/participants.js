@@ -561,7 +561,15 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       pageLength: localStorage.getItem('participantsListPageLength') ? parseInt(localStorage.getItem('participantsListPageLength'), 10) : 50,
       deferRender: true,
       autoWidth: false,
-      language: { url: pageLanguageUrl },
+      language: {
+        paginate: {
+          first: '<i class="bi-chevron-double-left"></i>',
+          last: '<i class="bi-chevron-double-right"></i>',
+          next: '<i class="bi-chevron-right"></i>',
+          previous: '<i class="bi-chevron-left"></i>'
+        },
+        url: pageLanguageUrl
+      },
       initComplete: function(){
         if (aplusTranslationsReady) {
           try { updateHeaderTranslations(); } catch (e) {}
@@ -596,15 +604,25 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           }
         } catch (e) {}
       },
-      dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-5 col-sm-6'B><'col-md-4 col-sm-12'f>>" +
+      dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-6 col-sm-6'B><'col-md-3 col-sm-12'f>>" +
            "<'row'<'col-sm-12 mt-3'i>>" +
            "<'row'<'#table-participants-div.col-sm-12'tr>>" +
            "<'row'<'col-sm-5'i><'col-sm-7'p>>",
       buttons: [
-        $.extend(true, {}, buttonCommon, { extend: 'csvHtml5', className: 'btn-sm' }),
-        $.extend(true, {}, buttonCommon, { extend: 'copyHtml5', className: 'btn-sm' }),
-        $.extend(true, {}, buttonCommon, { extend: 'excelHtml5', className: 'btn-sm' }),
-        { text: 'Reset filters', className: 'btn-reset-filters btn-sm', name: 'resetFilters', action: function(){ clearSearch(); } }
+        $.extend( true, {}, buttonCommon, {
+          text: '<i class="bi-filetype-csv"></i> CSV',
+          extend: 'csvHtml5'
+        } ),
+        $.extend( true, {}, buttonCommon, {
+          text: '<i class="bi-clipboard"></i> ' + _('Copy to clipboard'),
+          extend: 'copyHtml5'
+        } ),
+        {
+          text: '<i class="bi-arrow-counterclockwise"></i> ' + _('Reset filters'),
+          action: function ( e, dt, node, config ) {
+            clearSearch();
+          }
+        }
       ]
     });
 
