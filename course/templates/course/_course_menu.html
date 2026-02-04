@@ -168,7 +168,9 @@
 	</a>
 </li>
 {% endif %}
+{% endif %}
 
+{% if is_teacher %}
 <li class="nav-item">
 	<a class="nav-link menu-all-results" href="{{ instance|url:'all-results' }}">
 		<i class="bi-folder2-open" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "ALL_RESULTS" %}"></i>
@@ -182,7 +184,9 @@
 		<span class="course-menu-label">{% translate "VISUALIZATIONS" %}</span>
 	</a>
 </li>
+{% endif %}
 
+{% if is_course_staff %}
 <li class="nav-item">
 	<a class="nav-link menu-pseudonymize" href="{% url 'toggle-pseudonymization' %}">
 		{% if pseudonymize %}
@@ -194,6 +198,7 @@
 		{% endif %}
 	</a>
 </li>
+{% endif %}
 
 {% if is_teacher %}
 <li class="nav-item">
@@ -226,7 +231,6 @@
 		<span class="course-menu-label">{% translate "ALL_SUBMISSIONS" %}</span>
 	</a>
 </li>
-
 {% endif %}
 
 {% for group in course_menu.staff_link_groups %}
@@ -252,8 +256,6 @@
 {% endif %}
 {% endfor %}
 {% endfor %}
-
-{% endif %}
 
 {% comment %}
 {% if is_student %}
