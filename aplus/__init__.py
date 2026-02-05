@@ -1,6 +1,6 @@
 from .celery import app as celery_app
 
-__version__ = '1.30.8'
+__version__ = '1.30.9'
 """The version of the A-plus platform."""
 VERSION = __version__
 
