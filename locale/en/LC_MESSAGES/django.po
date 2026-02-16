@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-28 15:17+0200\n"
+"POT-Creation-Date: 2026-02-17 12:43+0200\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -704,7 +704,8 @@ msgstr "course hook"
 msgid "MODEL_NAME_COURSE_HOOK_PLURAL"
 msgstr "course hooks"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: course/models.py course/templates/course/staff/all_submissions_table.html
+#: exercise/exercise_models.py exercise/submission_models.py
 msgid "STATUS_READY"
 msgstr "Ready"
 
@@ -1143,10 +1144,12 @@ msgid "SEARCH_COURSES"
 msgstr "Search courses"
 
 #: course/templates/course/_search_courses_form.html
+#: course/templates/course/staff/all_submissions_table.html
 msgid "CLEAR_SEARCH"
 msgstr "Clear search"
 
 #: course/templates/course/_search_courses_form.html
+#: course/templates/course/staff/all_submissions_table.html
 #: templates/ajax_search_select.html
 msgid "SEARCH"
 msgstr "Search"
@@ -1348,28 +1351,154 @@ msgid "REMOVE_ALL"
 msgstr "Remove all"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
-msgstr "%(count)s submissions."
+msgid "NUM_OF_RESULTS_DISPLAYED_OF_TOTAL -- %(displayed)s, %(total)s"
+msgstr "displaying %(displayed)s submissions of total %(total)s."
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "LIMIT_EXCEEDED_REFINE_SEARCH"
+msgstr "Result limit exceeded; please refine your search."
+
+#: course/templates/course/staff/all_submissions_table.html
+#, python-format
+msgid "NUM_OF_RESULTS_DISPLAYED -- %(count)s"
+msgstr "%(count)s results."
+
+#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: deviations/models.py exercise/submission_models.py
+msgid "LABEL_SUBMITTER"
+msgstr "Submitter"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/user_results.html
+msgid "FIRST_NAME"
+msgstr "First name"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/user_results.html
+msgid "LAST_NAME"
+msgstr "Last name"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+msgid "STUDENT_ID"
+msgstr "Student ID"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "CLEAR"
+msgstr ""
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/analytics.html
+msgid "CLEAR_SELECTION"
+msgstr "Clear selection"
+
+#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: deviations/models.py exercise/admin.py exercise/exercise_models.py
+#: exercise/submission_models.py
+msgid "LABEL_EXERCISE"
+msgstr "Assignment"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "STATUS"
+msgstr "Status"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "STATUS_ANY"
+msgstr "Any status"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "STATUS_NOT_READY"
+msgstr "Any except ready"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_INITIALIZED"
+msgstr "Initialized"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_WAITING"
+msgstr "In grading"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_ERROR"
+msgstr "Error"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_REJECTED"
+msgstr "Rejected"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS"
+msgstr "Submission tags"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
-msgstr ""
-"%(limit)s latest submissions. <a class=\"aplus-button--secondary aplus-"
-"button--xs\" role=\"button\" href=\"%(url)s\">Show all</a>"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Assessed manually"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
+#: exercise/templatetags/exercise.py
+msgid "ALL"
+msgstr "All"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Yes"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "No"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_submission_info.html
+msgid "INCLUDES_LATE_PENALTY"
+msgstr "Includes late penalty"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "LABEL_SHOW_LAST"
+msgstr "Show last"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "DURATION_UNIT_DAYS_PARTITIVE"
+msgstr "days"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_START"
+msgstr "Start of date range"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_END"
+msgstr "End of date range"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid ""
-"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
-"%(limit)s"
-msgstr ""
-"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
-"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Download submissions"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
@@ -1390,14 +1519,6 @@ msgid "TIME"
 msgstr "Time"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "STATUS"
-msgstr "Status"
-
-#: course/templates/course/staff/all_submissions_table.html
 #: diploma/templates/diploma/list.html
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
@@ -1416,28 +1537,6 @@ msgstr "Grade"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "TAGS"
 msgstr "Tags"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Yes"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "No"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "ASSESSED_MANUALLY"
-msgstr "Assessed manually"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/_user_results.html
@@ -1470,6 +1569,11 @@ msgstr "Late <small>-%(percent)s%%</small>"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"
 msgstr "No submissions"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_SHOW_ALL_EXERCISES"
+msgstr "Show all assignments"
 
 #: course/templates/course/staff/enroll_students.html
 #: course/templates/course/staff/participants.html
@@ -1576,22 +1680,6 @@ msgid "FILTER_USERS_BY_STATUS"
 msgstr "Filter users by status"
 
 #: course/templates/course/staff/participants.html
-msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Enrolled active students:"
-
-#: course/templates/course/staff/participants.html
-msgid "PENDING_STUDENTS"
-msgstr "Pending:"
-
-#: course/templates/course/staff/participants.html
-msgid "REMOVED_STUDENTS"
-msgstr "Removed:"
-
-#: course/templates/course/staff/participants.html
-msgid "BANNED_STUDENTS"
-msgstr "Banned:"
-
-#: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
 msgstr "Currently selected:"
 
@@ -1673,18 +1761,9 @@ msgstr "A new student group was created."
 msgid "LABEL_MODULE"
 msgstr "Module"
 
-#: deviations/forms.py deviations/models.py exercise/admin.py
-#: exercise/exercise_models.py exercise/submission_models.py
-msgid "LABEL_EXERCISE"
-msgstr "Assignment"
-
 #: deviations/forms.py
 msgid "LABEL_SUBMITTER_TAG"
 msgstr "Submitter tag"
-
-#: deviations/forms.py deviations/models.py exercise/submission_models.py
-msgid "LABEL_SUBMITTER"
-msgstr "Submitter"
 
 #: deviations/forms.py
 msgid "EXERCISES_AND_MODULES_MISSING"
@@ -2125,12 +2204,6 @@ msgstr "Filter users"
 msgid "USERNAME"
 msgstr "Username"
 
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-msgid "STUDENT_ID"
-msgstr "Student ID"
-
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
 msgstr "Category"
@@ -2212,10 +2285,6 @@ msgstr "Student tags"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS_HELPTEXT"
 msgstr "Copy student tags from this course instance."
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS"
-msgstr "Submission tags"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
@@ -3904,22 +3973,6 @@ msgstr[0] "{count} late or unofficial submission was successfully approved."
 msgstr[1] "{count} late or unofficial submissions were successfully approved."
 
 #: exercise/submission_models.py
-msgid "STATUS_INITIALIZED"
-msgstr "Initialized"
-
-#: exercise/submission_models.py
-msgid "STATUS_WAITING"
-msgstr "In grading"
-
-#: exercise/submission_models.py
-msgid "STATUS_ERROR"
-msgstr "Error"
-
-#: exercise/submission_models.py
-msgid "STATUS_REJECTED"
-msgstr "Rejected"
-
-#: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
 msgstr "No effect on grading"
 
@@ -4222,10 +4275,6 @@ msgstr "Submission info"
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMITTED_ON"
 msgstr "Submitted on"
-
-#: exercise/templates/exercise/_submission_info.html
-msgid "INCLUDES_LATE_PENALTY"
-msgstr "Includes late penalty"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "PSEUDONYMIZED_SUBMITTERS"
@@ -4651,9 +4700,25 @@ msgid "DOWNLOAD_POINTS"
 msgstr "Download points"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "DOWNLOAD_SUBMISSIONS"
-msgstr "Download submissions"
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
+msgstr "%(count)s submissions."
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
+msgstr ""
+"%(limit)s latest submissions. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Show all</a>"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s submissions. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Show latest %(limit)s</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"
@@ -4727,12 +4792,6 @@ msgid "MODULE_SELECTION"
 msgstr "Module selection"
 
 #: exercise/templates/exercise/staff/analytics.html
-#: exercise/templates/exercise/staff/results.html
-#: exercise/templatetags/exercise.py
-msgid "ALL"
-msgstr "All"
-
-#: exercise/templates/exercise/staff/analytics.html
 msgid "VIEW_SELECTION"
 msgstr "View selection"
 
@@ -4759,10 +4818,6 @@ msgstr "Toggle Dropdown"
 #: exercise/templates/exercise/staff/analytics.html
 msgid "OPEN_API"
 msgstr "Open API"
-
-#: exercise/templates/exercise/staff/analytics.html
-msgid "CLEAR_SELECTION"
-msgstr "Clear selection"
 
 #: exercise/templates/exercise/staff/analytics.html
 #, python-format
@@ -4967,21 +5022,9 @@ msgstr "Show assignments by difficulty"
 msgid "RESULTS_SHOW_EXERCISES_BY_MODULE"
 msgstr "Show assignments by module"
 
-#: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SHOW_ALL_EXERCISES"
-msgstr "Show all assignments"
-
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUBMISSIONS_SUMMARY"
 msgstr "Submissions summary"
-
-#: exercise/templates/exercise/staff/user_results.html
-msgid "LAST_NAME"
-msgstr "Last name"
-
-#: exercise/templates/exercise/staff/user_results.html
-msgid "FIRST_NAME"
-msgstr "First name"
 
 #: exercise/templates/exercise/staff/user_results.html
 #: userprofile/templates/userprofile/profile.html
@@ -6166,14 +6209,6 @@ msgid "COURSE_DATE_RANGE"
 msgstr "Course date range"
 
 #: userprofile/templates/userprofile/teachers.html
-msgid "DATE_RANGE_START"
-msgstr "Start of date range"
-
-#: userprofile/templates/userprofile/teachers.html
-msgid "DATE_RANGE_END"
-msgstr "End of date range"
-
-#: userprofile/templates/userprofile/teachers.html
 msgid "INCLUDE_ASSISTANTS"
 msgstr "Include assistants"
 
@@ -6217,3 +6252,15 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
+
+#~ msgid "NUMBER_OF_ENROLLED_STUDENTS"
+#~ msgstr "Enrolled active students:"
+
+#~ msgid "PENDING_STUDENTS"
+#~ msgstr "Pending:"
+
+#~ msgid "REMOVED_STUDENTS"
+#~ msgstr "Removed:"
+
+#~ msgid "BANNED_STUDENTS"
+#~ msgstr "Banned:"
