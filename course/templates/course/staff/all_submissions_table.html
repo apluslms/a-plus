@@ -13,27 +13,227 @@
 <li class="breadcrumb-item active">{% translate "ALL_SUBMISSIONS" %}</li>
 {% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+<!--Library to handle multiselection on select tags-->
+<link rel="stylesheet" href="{% static 'exercise/css/bootstrap-multiselect.css' %}"></link>
+<script src="{% static 'exercise/bootstrap-multiselect.js' %}"></script>
+{% endblock scripts %}
+
 {% block columns %}
 <div class="col-md-12">
-	<div class="clearfix">
-		<p>
-			{% if count <= default_limit and not limited %}
-			{% blocktranslate trimmed with count=count url=all_url %}
-				NUM_OF_SUBMISSIONS_DISPLAYED -- {{ count }}
-			{% endblocktranslate %}
-			{% elif limited %}
-			{% blocktranslate trimmed with limit=default_limit url=all_url %}
-				NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- {{ limit }}, {{ url }}
-			{% endblocktranslate %}
-			{% else %}
-			{% blocktranslate trimmed with count=count url=not_all_url limit=default_limit %}
-				NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- {{ count }}, {{ url }}, {{ limit }}
-			{% endblocktranslate %}
-			{% endif %}
-		</p>
+	{# Search form as accordion #}
+	<div class="accordion mb-3" id="searchAccordion">
+		<div class="accordion-item">
+			<div class="accordion-header" id="searchHeading">
+				<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse" aria-expanded="true" aria-controls="searchCollapse">
+					<i class="bi-search" style="margin-right:0.5em"></i>
+					{% translate "SEARCH" %} --
+					{% if is_limited %}
+					{% blocktranslate trimmed with displayed=displayed_count total=total_count %}
+						NUM_OF_RESULTS_DISPLAYED_OF_TOTAL -- {{ displayed }}, {{ total }}
+					{% endblocktranslate %}
+					{% translate "LIMIT_EXCEEDED_REFINE_SEARCH" %}
+					{% else %}
+					{% blocktranslate trimmed with count=displayed_count %}
+						NUM_OF_RESULTS_DISPLAYED -- {{ count }}
+					{% endblocktranslate %}
+					{% endif %}
+				</button>
+			</div>
+			<div id="searchCollapse" class="accordion-collapse collapse show" aria-labelledby="searchHeading" data-bs-parent="#searchAccordion">
+				<div class="accordion-body">
+					<form method="get" class="row g-3" id="search-form" onsubmit="
+				// Convert exercise_id multi-select to comma-separated values
+				var exerciseSelect = document.getElementById('exercise_id');
+				if (exerciseSelect && exerciseSelect.selectedOptions.length > 0) {
+					var selectedIds = Array.from(exerciseSelect.selectedOptions).map(function(opt) {
+						return opt.value;
+					}).join(',');
+					// Create a hidden input with the comma-separated values
+					var hiddenInput = document.createElement('input');
+					hiddenInput.type = 'hidden';
+					hiddenInput.name = 'exercise_id';
+					hiddenInput.value = selectedIds;
+					this.appendChild(hiddenInput);
+					// Disable the original select to prevent duplicate parameters
+					exerciseSelect.disabled = true;
+				}
+
+				// Convert tag_id multi-select to comma-separated values
+				var tagSelect = document.getElementById('tag_id');
+				if (tagSelect && tagSelect.selectedOptions.length > 0) {
+					var selectedTagIds = Array.from(tagSelect.selectedOptions).map(function(opt) {
+						return opt.value;
+					}).join(',');
+					// Create a hidden input with the comma-separated values
+					var hiddenTagInput = document.createElement('input');
+					hiddenTagInput.type = 'hidden';
+					hiddenTagInput.name = 'tag_id';
+					hiddenTagInput.value = selectedTagIds;
+					this.appendChild(hiddenTagInput);
+					// Disable the original select to prevent duplicate parameters
+					tagSelect.disabled = true;
+				}
+
+				// Remove empty inputs before submitting to keep URL clean
+				this.querySelectorAll('input[type=text], input[type=datetime-local]').forEach(function(input) {
+					if (!input.value || input.value === '') {
+						input.disabled = true;
+					}
+				});
+				// Handle single-select dropdowns
+				this.querySelectorAll('select:not([multiple])').forEach(function(select) {
+					if (!select.value || select.value === '') {
+						select.disabled = true;
+					}
+				});
+				// Handle multi-select dropdowns (other than exercise_id and tag_id which are handled above)
+				this.querySelectorAll('select[multiple]:not(#exercise_id):not(#tag_id)').forEach(function(select) {
+					if (select.selectedOptions.length === 0) {
+						select.disabled = true;
+					}
+				});
+				return true;
+			">
+				<div class="col-md-5">
+					<label for="submitter_name" class="form-label"><i class="bi-person"></i> {% translate "LABEL_SUBMITTER" %}</label>
+				<div class="input-group">
+					<input type="text" class="form-control" id="submitter_name" name="submitter_name"
+						value="{{ filter_submitter_name }}" placeholder="{% translate 'FIRST_NAME' %} / {% translate 'LAST_NAME' %} / {% translate 'STUDENT_ID' %}">
+					<button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('submitter_name').value=''" title="{% translate 'CLEAR' %}" data-bs-toggle="tooltip" data-bs-title="{% translate 'CLEAR_SELECTION' %}">
+						<i class="bi-x"></i>
+					</button>
+				</div>
+				</div>
+				<div class="col-md-5">
+					<label for="exercise_id" class="form-label"><i class="bi-list-ol"></i> {% translate "LABEL_EXERCISE" %}</label>
+					<select class="form-select" id="exercise_id" name="exercise_id" multiple="multiple" data-selected-ids="{{ filter_exercise_ids|join:',' }}">
+						{% regroup exercises by course_module as exercise_modules %}
+						{% for module in exercise_modules %}
+							<optgroup label="{{ module.grouper|parse_localization }}">
+								{% for exercise in module.list %}
+								<option value="{{ exercise.id }}">
+									{{ exercise|parse_localization }}
+								</option>
+								{% endfor %}
+							</optgroup>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-md-2">
+					<label for="status" class="form-label"><i class="bi-question-octagon"></i> {% translate "STATUS" %}</label>
+					<select class="form-select" id="status" name="status">
+						<option value="">{% translate "STATUS_ANY" %}</option>
+						<option value="not_ready" {% if filter_status == "not_ready" %}selected{% endif %}>
+							{% translate "STATUS_NOT_READY" %}
+						</option>
+						<option value="initialized" {% if filter_status == "initialized" %}selected{% endif %}>
+							{% translate "STATUS_INITIALIZED" %}
+						</option>
+						<option value="waiting" {% if filter_status == "waiting" %}selected{% endif %}>
+							{% translate "STATUS_WAITING" %}
+						</option>
+						<option value="ready" {% if filter_status == "ready" %}selected{% endif %}>
+							{% translate "STATUS_READY" %}
+						</option>
+						<option value="error" {% if filter_status == "error" %}selected{% endif %}>
+							{% translate "STATUS_ERROR" %}
+						</option>
+						<option value="rejected" {% if filter_status == "rejected" %}selected{% endif %}>
+							{% translate "STATUS_REJECTED" %}
+						</option>
+					</select>
+				</div>
+				<div class="col-md-6">
+					<label for="tag_id" class="form-label"><i class="bi-tag"></i> {% translate "LABEL_SUBMISSION_TAGS" %}</label>
+					<select class="form-select" id="tag_id" name="tag_id" multiple="multiple" data-selected-ids="{{ filter_tag_ids|join:',' }}">
+						{% for tag in tags %}
+						<option value="{{ tag.id }}" data-type="{% if tag.font_white %}dark{% else %}light{% endif %}" data-color="{{ tag.color }}">
+							{{ tag.name }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label for="assessed_manually" class="form-label"><i class="bi-pencil"></i> {% translate "ASSESSED_MANUALLY" %}</label>
+					<select class="form-select" id="assessed_manually" name="assessed_manually">
+						<option value="">{% translate "ALL" %}</option>
+						<option value="yes" {% if filter_assessed_manually == "yes" %}selected{% endif %}>{% translate "YES" %}</option>
+						<option value="no" {% if filter_assessed_manually == "no" %}selected{% endif %}>{% translate "NO" %}</option>
+					</select>
+				</div>
+				<div class="col-md-3">
+					<label for="late_penalty" class="form-label"><i class="bi-percent"></i> {% translate "INCLUDES_LATE_PENALTY" %}</label>
+					<select class="form-select" id="late_penalty" name="late_penalty">
+						<option value="">{% translate "ALL" %}</option>
+						<option value="yes" {% if filter_late_penalty == "yes" %}selected{% endif %}>{% translate "YES" %}</option>
+						<option value="no" {% if filter_late_penalty == "no" %}selected{% endif %}>{% translate "NO" %}</option>
+					</select>
+				</div>
+				<div class="col-md-2">
+					<label for="time_range_helper" class="form-label"><i class="bi-clock-history"></i> {% translate "LABEL_SHOW_LAST" %}</label>
+					<select class="form-select" id="time_range_helper">
+						<option value="">—</option>
+						<option value="5">5 min</option>
+						<option value="15">15 min</option>
+						<option value="30">30 min</option>
+						<option value="60">60 min</option>
+						<option value="120">2 h</option>
+						<option value="180">3 h</option>
+						<option value="240">4 h</option>
+						<option value="480">8 h</option>
+						<option value="720">12 h</option>
+						<option value="1440">24 h</option>
+						<option value="10080">7 {% translate "DURATION_UNIT_DAYS_PARTITIVE" %}</option>
+						<option value="20160">14 {% translate "DURATION_UNIT_DAYS_PARTITIVE" %}</option>
+						<option value="43200">30 {% translate "DURATION_UNIT_DAYS_PARTITIVE" %}</option>
+					</select>
+				</div>
+				<div class="col-md-5">
+					<label for="start_time" class="form-label"><i class="bi-hourglass-top"></i> {% translate "DATE_RANGE_START" %}</label>
+					<div class="input-group">
+						<input type="datetime-local" class="form-control" id="start_time" name="start_time"
+							value="{{ filter_start_time }}">
+						<button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('start_time').value=''" title="{% translate 'CLEAR' %}" data-bs-toggle="tooltip" data-bs-title="{% translate 'CLEAR_SELECTION' %}">
+							<i class="bi-x"></i>
+						</button>
+					</div>
+				</div>
+				<div class="col-md-5">
+					<label for="end_time" class="form-label"><i class="bi-hourglass-bottom"></i> {% translate "DATE_RANGE_END" %}</label>
+					<div class="input-group">
+						<input type="datetime-local" class="form-control" id="end_time" name="end_time"
+							value="{{ filter_end_time }}">
+						<button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('end_time').value=''" title="{% translate 'CLEAR' %}" data-bs-toggle="tooltip" data-bs-title="{% translate 'CLEAR_SELECTION' %}">
+							<i class="bi-x"></i>
+						</button>
+					</div>
+				</div>
+				<div class="col-12 d-flex align-items-end">
+					<button type="submit" class="btn btn-primary me-2">
+						<i class="bi-search"></i> {% translate "SEARCH" %}
+					</button>
+					{% if has_filters %}
+					<a href="{{ request.path }}" class="btn btn-secondary">
+						<i class="bi-x-circle"></i> {% translate "CLEAR_SEARCH" %}
+					</a>
+					{% endif %}
+				</div>
+			</form>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<p class="filter-submissions">
+		<a
+			class="aplus-button--secondary aplus-button--xs"
+			href="{% url 'api:course-submissions-zip' version=2 course_id=instance.id %}{% if request.GET.urlencode %}?{{ request.GET.urlencode }}{% endif %}"
+		>
+			<i class="bi bi-download" aria-hidden="true"></i>
+			{% translate "DOWNLOAD_SUBMISSIONS" %}
+		</a>
 		<small class="text-body-secondary">{% trans "FILTER_SUBMISSIONS_BY_TAG" %}:</small>
 		{% for tag in tags %}
 		<button class="btn aplus-button--xs filter-tag" style="background-color:{{ tag.color }};color:{{ tag.font_color }};" data-tagslug="{{ tag.slug }};" data-status="{{ tag.status }}" >
@@ -43,7 +243,7 @@
 		{% endfor %}
 	</p>
 
-	<table class="table table-bordered{% if not limited or count < default_limit %} filtered-table ordered-table{% endif %}" id="submissions_table">
+	<table class="table table-bordered filtered-table ordered-table" id="submissions_table">
 		<thead>
 				<tr>
 					<th>{% translate "SUBMITTERS" %}</th>
@@ -121,4 +321,135 @@
 </div>
 
 <script src="{% static 'exercise/filter_submissions_by_tag.js' %}"></script>
+<script>
+(function($, document) {
+	$(document).ready(function() {
+		var $exerciseSelect = $('#exercise_id');
+
+		// First, ensure NO options are selected by default
+		$exerciseSelect.find('option').prop('selected', false);
+
+		// Get the selected IDs from the data attribute
+		var selectedIdsStr = $exerciseSelect.data('selected-ids');
+
+		// Handle edge cases: ensure we only have IDs if the string is non-empty
+		var selectedIds = [];
+		if (selectedIdsStr && selectedIdsStr.toString().trim() !== '') {
+			selectedIds = selectedIdsStr.toString().split(',')
+				.map(function(id) { return id.trim(); })
+				.filter(function(id) { return id !== ''; });
+		}
+
+		// Only set selected options if we actually have IDs from the URL
+		if (selectedIds.length > 0) {
+			$exerciseSelect.find('option').each(function() {
+				var $option = $(this);
+				var optionValue = $option.val().toString();
+				if (selectedIds.indexOf(optionValue) !== -1) {
+					$option.prop('selected', true);
+				}
+			});
+		}
+
+		// Initialize the bootstrap-multiselect plugin for exercise selection
+		$exerciseSelect.multiselect({
+			includeSelectAllOption: true,
+			enableClickableOptGroups: true,
+			allSelectedText: '{% translate "RESULTS_SHOW_ALL_EXERCISES" %}',
+			selectAllText: 'Select all',
+			nonSelectedText: '{% translate "RESULTS_SHOW_ALL_EXERCISES" %}',
+			numberDisplayed: 2,
+			maxHeight: 400,
+			buttonClass: 'btn btn-outline-secondary',
+			buttonWidth: '100%',
+			enableFiltering: true,
+			filterPlaceholder: '{% translate "SEARCH" %}'
+		});
+
+		// Initialize the bootstrap-multiselect plugin for tags selection
+		var $tagSelect = $('#tag_id');
+
+		// Sanitize tag names to prevent HTML injection in the multiselect options
+		$tagSelect.find('option').each(function () {
+			$(this).text($('<span>').text($(this).text()).html());
+		});
+
+		// First, ensure NO options are selected by default
+		$tagSelect.find('option').prop('selected', false);
+
+		// Get the selected IDs from the data attribute
+		var selectedTagIdsStr = $tagSelect.data('selected-ids');
+
+		// Handle edge cases: ensure we only have IDs if the string is non-empty
+		var selectedTagIds = [];
+		if (selectedTagIdsStr && selectedTagIdsStr.toString().trim() !== '') {
+			selectedTagIds = selectedTagIdsStr.toString().split(',')
+				.map(function(id) { return id.trim(); })
+				.filter(function(id) { return id !== ''; });
+		}
+
+		// Only set selected options if we actually have IDs from the URL
+		if (selectedTagIds.length > 0) {
+			$tagSelect.find('option').each(function() {
+				var $option = $(this);
+				var optionValue = $option.val().toString();
+				if (selectedTagIds.indexOf(optionValue) !== -1) {
+					$option.prop('selected', true);
+				}
+			});
+		}
+
+		$tagSelect.multiselect({
+			includeSelectAllOption: true,
+			allSelectedText: '{% translate "ALL" %}',
+			selectAllText: 'Select all',
+			nonSelectedText: '{% translate "TAGS" %}',
+			numberDisplayed: 2,
+			maxHeight: 400,
+			buttonClass: 'btn btn-outline-secondary',
+			buttonWidth: '100%',
+			enableHTML: true,
+			optionLabel: function(element) {
+				var $element = $(element);
+				var colortagType = $element.data('type');
+				var colortagColor = $element.data('color');
+				if (colortagType && colortagColor) {
+					return '<span class="colortag badge-sm badge colortag-active colortag-' + colortagType + '" style="--colortag-color: ' + colortagColor + ';">' +
+					       $element.text() + '</span>';
+				}
+				return $element.text();
+			}
+		});
+
+		// Time range helper
+		$('#time_range_helper').on('change', function() {
+			var minutes = parseInt($(this).val());
+			if (!minutes) {
+				return;
+			}
+
+			// Calculate start and end times
+			var now = new Date();
+			var startTime = new Date(now.getTime() - (minutes * 60 * 1000));
+
+			// Format for datetime-local input (YYYY-MM-DDTHH:mm)
+			function formatDateTimeLocal(date) {
+				var year = date.getFullYear();
+				var month = String(date.getMonth() + 1).padStart(2, '0');
+				var day = String(date.getDate()).padStart(2, '0');
+				var hours = String(date.getHours()).padStart(2, '0');
+				var mins = String(date.getMinutes()).padStart(2, '0');
+				return year + '-' + month + '-' + day + 'T' + hours + ':' + mins;
+			}
+
+			// Set the values
+			$('#start_time').val(formatDateTimeLocal(startTime));
+			$('#end_time').val(formatDateTimeLocal(now));
+
+			// Reset the helper dropdown
+			$(this).val('');
+		});
+	});
+})(jQuery, document);
+</script>
 {% endblock %}

@@ -28,7 +28,7 @@
 			>
 				{% translate "DOWNLOAD_POINTS" %} <span class="caret"></span>
 			</button>
-			<ul class="dropdown-menu dropdown-menu-end" aria-labeledby="download-data">
+			<ul class="dropdown-menu dropdown-menu-start" aria-labeledby="download-data">
 				{% get_format_info_list "json csv excel.csv" as formats %}
 				{% for format in formats %}
 				<li>
@@ -49,7 +49,7 @@
 				>
 					{% translate "DOWNLOAD_SUBMISSIONS" %} <span class="caret"></span>
 				</button>
-				<ul class="dropdown-menu dropdown-menu-end" aria-labeledby="download-zip-data">
+				<ul class="dropdown-menu dropdown-menu-start" aria-labeledby="download-zip-data">
 					{% get_zip_info_list "all best" as types %}
 					{% for type in types %}
 					<li>

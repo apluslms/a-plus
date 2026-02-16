@@ -1,5 +1,6 @@
 /**
- * From https://github.com/SuffolkLITLab/docassemble-ALToolbox/blob/main/docassemble/ALToolbox/data/static/bootstrap-multiselect.js
+ * Adapted from the Bootstrap 5 port at:
+ * https://github.com/SuffolkLITLab/docassemble-ALToolbox/blob/main/docassemble/ALToolbox/data/static/bootstrap-multiselect.js
  */
 
 /**
@@ -287,10 +288,11 @@
 
                     selectedOptions.each(function () {
                         var label = ($(this).attr('label') !== undefined) ? $(this).attr('label') : $(this).text();
+                        label = $.trim(label);
                         selected += label + delimiter;
                     });
 
-                    return selected.substr(0, selected.length - this.delimiterText.length);
+                    return selected.slice(0, -this.delimiterText.length);
                 }
             },
             /**
@@ -305,14 +307,24 @@
                     return this.nonSelectedText;
                 }
                 else {
-                    var selected = '';
-                    var delimiter = this.delimiterText;
+                    var maxTitleSelections = 30;
+                    var selected = [];
 
-                    options.each(function () {
+                    options.each(function (index) {
+                        if (index >= maxTitleSelections) {
+                            return false;
+                        }
+
                         var label = ($(this).attr('label') !== undefined) ? $(this).attr('label') : $(this).text();
-                        selected += label + delimiter;
+                        label = $.trim(label);
+                        selected.push(label);
                     });
-                    return selected.substr(0, selected.length - this.delimiterText.length);
+
+                    if (options.length > maxTitleSelections) {
+                        selected.push('...');
+                    }
+
+                    return selected.join('\n');
                 }
             },
             checkboxName: function (option) {
@@ -932,11 +944,11 @@
 
         /**
          * Create a checkbox container with input and label based on given values
-         * @param {JQuery} $item 
-         * @param {String} label 
-         * @param {String} name 
-         * @param {String} value 
-         * @param {String} inputType 
+         * @param {JQuery} $item
+         * @param {String} label
+         * @param {String} name
+         * @param {String} value
+         * @param {String} inputType
          * @returns {JQuery}
          */
         createCheckbox: function ($item, labelContent, name, value, title, inputType) {
@@ -963,7 +975,6 @@
             }
 
             $item.prepend($wrapper);
-            $item.attr("title", title || labelContent);
 
             return $checkbox;
         },
@@ -1161,7 +1172,7 @@
                     this.$filter = $(this.options.templates.filter);
                     $('input', this.$filter).attr('placeholder', this.options.filterPlaceholder);
 
-                    // Handles optional filter clear button                        
+                    // Handles optional filter clear button
                     if (!this.options.includeFilterClearBtn) {
                         this.$filter.find(".multiselect-search").attr("type", "text");
 
@@ -1312,7 +1323,7 @@
                 this.$buttonGroupReset = $(this.options.templates.buttonGroupReset).text(this.options.resetButtonText);
                 $buttonGroup.append(this.$buttonGroupReset);
                 this.$popupContainer.prepend($buttonGroup);
-                
+
                 // We save all options that were previously selected.
                 this.defaultSelection = {};
                 $('option', this.$select).each($.proxy(function(index, element) {
