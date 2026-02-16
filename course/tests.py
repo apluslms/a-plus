@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -6,11 +7,13 @@ from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.test.client import Client
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory, StudentGroup
 from exercise.models import BaseExercise, Submission
 from exercise.exercise_models import LearningObject
+from course.templatetags.course import tags as render_tags
 
 class CourseTestCase(TestCase):
 
@@ -956,6 +959,42 @@ class CourseTest(CourseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertEqual(response.redirect_chain[0][0], '/cs-111111/instance2/')
+
+
+    def test_tags_uses_fast_path_with_html_badge(self):
+        class BadgeTag:
+            def __init__(self, html_badge):
+                self.html_badge = html_badge
+
+        mocked_tags = [
+            BadgeTag(mark_safe('<span>internal</span>')),
+            BadgeTag(mark_safe('<span>assistant</span>')),
+        ]
+
+        with patch('course.templatetags.course.UserTagging.objects.get_all', return_value=mocked_tags):
+            rendered = render_tags(self.user1.userprofile, self.current_course_instance)
+
+        self.assertEqual(rendered, '<span>internal</span> <span>assistant</span>')
+
+    def test_tags_fallback_without_html_badge(self):
+        class ButtonTag:
+            def __init__(self, html_button):
+                self.html_button = html_button
+
+        class RenderableTag:
+            def render_as_button(self, **options):
+                assert options == {'static': True}
+                return mark_safe('<span>rendered</span>')
+
+        mocked_tags = [
+            ButtonTag(mark_safe('<span>button</span>')),
+            RenderableTag(),
+        ]
+
+        with patch('course.templatetags.course.UserTagging.objects.get_all', return_value=mocked_tags):
+            rendered = render_tags(self.user1.userprofile, self.current_course_instance)
+
+        self.assertEqual(rendered, '<span>button</span> <span>rendered</span>')
 
     def test_last_instance_view_no_instances(self):
         course = Course.objects.create(

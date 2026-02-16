@@ -1,12 +1,13 @@
 import datetime
 import icalendar
+from collections import defaultdict
 from urllib.parse import unquote
 from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db.models import Prefetch, Q
+from django.db.models import Q, prefetch_related_objects
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -20,13 +21,12 @@ from django.utils.translation import gettext_lazy as _
 from authorization.permissions import ACCESS
 from exercise.cache.hierarchy import NoSuchContent
 from exercise.models import LearningObject
-from exercise.submission_models import Submission
+from exercise.submission_models import Submission, SubmissionTagging
 from lib.helpers import settings_text, remove_query_param_from_url, is_ajax
 from lib.viewbase import BaseTemplateView, BaseRedirectMixin, BaseFormView, BaseView, BaseRedirectView
-from userprofile.models import UserProfile
 from userprofile.viewbase import UserProfileView
 from .forms import GroupsForm, GroupSelectForm
-from .models import Course, CourseInstance, CourseModule, Enrollment
+from .models import Course, CourseInstance, CourseModule, Enrollment, UserTagging
 from .permissions import EnrollInfoVisiblePermission
 from .renders import group_info_context
 from .viewbase import (
@@ -394,40 +394,233 @@ class AllSubmissionsView(CourseInstanceBaseView):
     access_mode = ACCESS.ASSISTANT
     template_name = 'course/staff/all_submissions_table.html'
 
-    def get_common_objects(self):
+    def get_common_objects(self): # pylint: disable=too-many-locals # noqa: MC0001
         super().get_common_objects()
-        row_data = []
 
-        submissions_data = Submission.objects.filter(
-            exercise__course_module__course_instance=self.instance.id,
-        ).prefetch_related(None).prefetch_related(
-            Prefetch('submitters', UserProfile.objects.prefetch_tags(self.instance)),
-            'exercise', 'submission_taggings'
-        )
-
+        # Calculate is_teacher once, outside the loop
         is_teacher = self.instance.is_teacher(self.request.user)
 
-        for submission in submissions_data:
+        # Get filter parameters from URL
+        student_id = self.request.GET.get('student_id', '').strip()
+        status = self.request.GET.get('status', '').strip()
+        # Handle exercise_id as comma-separated string (e.g., "45,44,40")
+        exercise_id_param = self.request.GET.get('exercise_id', '').strip()
+        exercise_ids = [e.strip() for e in exercise_id_param.split(',') if e.strip()] if exercise_id_param else []
+        submitter_name = self.request.GET.get('submitter_name', '').strip()
+        start_time = self.request.GET.get('start_time', '').strip()
+        end_time = self.request.GET.get('end_time', '').strip()
+        # Handle tag_id as comma-separated string (e.g., "1,2,3")
+        tag_id_param = self.request.GET.get('tag_id', '').strip()
+        tag_ids = [t.strip() for t in tag_id_param.split(',') if t.strip()] if tag_id_param else []
+        late_penalty = self.request.GET.get('late_penalty', '').strip()
+        assessed_manually = self.request.GET.get('assessed_manually', '').strip()
+
+        # Build filters
+        filters = Q(exercise__course_module__course_instance=self.instance.id)
+
+        if student_id:
+            filters &= Q(submitters__id=student_id)
+
+        if status:
+            if status == 'not_ready':
+                filters &= ~Q(status='ready')
+            else:
+                filters &= Q(status=status)
+
+        if exercise_ids:
+            filters &= Q(exercise_id__in=exercise_ids)
+
+        if submitter_name:
+            filters &= Q(submitters__user__first_name__icontains=submitter_name) | \
+                       Q(submitters__user__last_name__icontains=submitter_name) | \
+                       Q(submitters__user__username__icontains=submitter_name) | \
+                       Q(submitters__student_id__icontains=submitter_name)
+
+        if tag_ids:
+            # Filter for submissions that have ANY of the selected tags
+            filters &= Q(submission_taggings__tag_id__in=tag_ids)
+
+        if late_penalty:
+            if late_penalty == 'yes':
+                # Late penalty was applied (field is not NULL)
+                filters &= Q(late_penalty_applied__isnull=False)
+            elif late_penalty == 'no':
+                # Late penalty was not applied (field is NULL)
+                filters &= Q(late_penalty_applied__isnull=True)
+
+        if assessed_manually:
+            if assessed_manually == 'yes':
+                # Submission was assessed manually (grader field is not NULL)
+                filters &= Q(grader__isnull=False)
+            elif assessed_manually == 'no':
+                # Submission was not assessed manually (grader field is NULL)
+                filters &= Q(grader__isnull=True)
+
+        if start_time:
+            try:
+                start_dt = datetime.datetime.fromisoformat(start_time)
+                # Make timezone aware if needed
+                if timezone.is_naive(start_dt):
+                    start_dt = timezone.make_aware(start_dt)
+                filters &= Q(submission_time__gte=start_dt)
+            except (ValueError, TypeError):
+                pass  # Invalid datetime format, skip filter
+
+        if end_time:
+            try:
+                end_dt = datetime.datetime.fromisoformat(end_time)
+                # Make timezone aware if needed
+                if timezone.is_naive(end_dt):
+                    end_dt = timezone.make_aware(end_dt)
+                filters &= Q(submission_time__lte=end_dt)
+            except (ValueError, TypeError):
+                pass  # Invalid datetime format, skip filter
+
+        # Determine if we should limit
+        # Use larger limit when filters are active, smaller for unfiltered view
+        has_filters = bool(
+            student_id or status or exercise_ids or submitter_name
+            or start_time or end_time or tag_ids or late_penalty
+            or assessed_manually
+        )
+        self.result_limit = 500 if has_filters else 200
+
+        # First, get the base queryset
+        base_queryset = Submission.objects.filter(
+            filters
+        ).select_related(
+            'exercise__course_module__course_instance',
+        # Do not select heavy fields we do not need
+        ).defer(
+            'feedback',
+            'submission_data',
+            'grading_data',
+            'exercise__exercise_info',
+            'exercise__model_answers',
+            'exercise__description',
+            'exercise__templates',
+            'exercise__content',
+            'exercise__course_module__course_instance__description',
+            'exercise__course_module__introduction',
+        ).order_by('-submission_time')
+
+        # Get count BEFORE slicing
+        total_count = base_queryset.count()
+
+        # Always limit for performance
+        base_queryset = base_queryset[:self.result_limit]
+        displayed_count = min(total_count, self.result_limit)
+
+        # Convert to list to evaluate, then manually prefetch
+        submissions_list = list(base_queryset)
+
+        # Pre-fetch all exercises to ensure they're loaded with their subclass
+        if submissions_list:
+            submission_exercise_ids = {sub.exercise_id for sub in submissions_list}
+            exercises_dict = {
+                ex.id: ex
+                for ex in LearningObject.objects.filter(id__in=submission_exercise_ids).select_subclasses()
+            }
+            # Attach exercises to submissions to avoid re-querying
+            for sub in submissions_list:
+                # Directly set the exercise attribute to bypass the foreign key query
+                sub.exercise = exercises_dict.get(sub.exercise_id)
+
+        # Manually prefetch related data after evaluation to avoid queryset conflicts
+        if submissions_list:
+            # Prefetch submitters
+            prefetch_related_objects(
+                submissions_list,
+                'submitters__user',
+            )
+
+            # Fetch ALL submission taggings for this course instance (more efficient than IN clause)
+            submission_taggings = SubmissionTagging.objects.filter(
+                submission__exercise__course_module__course_instance=self.instance
+            ).select_related('tag')
+
+            # Group by submission_id
+            taggings_by_submission = defaultdict(list)
+            for tagging in submission_taggings:
+                taggings_by_submission[tagging.submission_id].append(tagging)
+
+            # Attach to submissions
+            for sub in submissions_list:
+                sub._prefetched_objects_cache = sub._prefetched_objects_cache or {}
+                sub._prefetched_objects_cache['submission_taggings'] = taggings_by_submission.get(sub.id, [])
+
+            # Collect all user profile IDs from all submissions
+            user_profile_ids = set()
+            for sub in submissions_list:
+                for submitter in sub.submitters.all():
+                    user_profile_ids.add(submitter.id)
+
+            # Fetch all user taggings for these profiles in one query
+            if user_profile_ids:
+                user_taggings = UserTagging.objects.filter(
+                    course_instance=self.instance,
+                    user_id__in=user_profile_ids
+                ).select_related('tag')
+
+                # Group taggings by user_id
+                taggings_by_user = defaultdict(list)
+                for tagging in user_taggings:
+                    taggings_by_user[tagging.user_id].append(tagging)
+
+                # Attach taggings to each user profile
+                for sub in submissions_list:
+                    for submitter in sub.submitters.all():
+                        submitter.instance_taggings = taggings_by_user.get(submitter.id, [])
+
+        row_data = []
+        for submission in submissions_list:
             row_data.append({
                 'submission': submission,
                 'exercise': submission.exercise,
                 'is_teacher': is_teacher,
             })
 
-        self.tags = self.instance.submissiontags.all()
-        self.default_limit = 50
-        self.count = len(row_data)
-        self.limited = self.request.GET.get('limited', False)
-        self.submission_data = row_data[:self.default_limit] if self.limited else row_data
-        self.not_all_url = self.url_without_limited + '?limited=true'
-        self.all_url = self.url_without_limited
+        self.tags = self.instance.submissiontags.all().order_by('name')
+        self.total_count = total_count
+        self.displayed_count = displayed_count
+        self.is_limited = total_count > self.result_limit
+        self.submission_data = row_data
+
+        # Pass filter values to template for form initialization
+        self.filter_student_id = student_id
+        self.filter_status = status
+        self.filter_exercise_ids = exercise_ids  # List of selected exercise IDs
+        self.filter_submitter_name = submitter_name
+        self.filter_start_time = start_time
+        self.filter_end_time = end_time
+        self.filter_tag_ids = tag_ids  # List of selected tag IDs
+        self.filter_late_penalty = late_penalty
+        self.filter_assessed_manually = assessed_manually
+        self.has_filters = has_filters
+
+        # Get available exercises and statuses for dropdowns
+        self.exercises = LearningObject.objects.filter(
+            course_module__course_instance=self.instance
+        ).select_subclasses().order_by('course_module__order', 'order')
+        self.statuses = Submission.STATUS
 
         self.note(
             'submission_data',
-            'count',
-            'default_limit',
+            'total_count',
+            'displayed_count',
+            'result_limit',
+            'is_limited',
             'tags',
-            'limited',
-            'not_all_url',
-            'all_url',
+            'filter_student_id',
+            'filter_status',
+            'filter_exercise_ids',
+            'filter_submitter_name',
+            'filter_start_time',
+            'filter_end_time',
+            'filter_tag_ids',
+            'filter_late_penalty',
+            'filter_assessed_manually',
+            'has_filters',
+            'exercises',
+            'statuses',
         )

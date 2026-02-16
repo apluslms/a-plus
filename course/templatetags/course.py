@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from django import template
 from django.db import models
+from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 
@@ -135,7 +136,32 @@ def profiles(
 @register.simple_tag
 def tags(profile, instance):
     tags = UserTagging.objects.get_all(profile, instance)
-    return mark_safe(' '.join(tag.html_badge for tag in tags))
+
+    # Take the fast path if there is a html_badge defined for the tags.
+    if all(hasattr(tag, 'html_badge') for tag in tags):
+        return mark_safe(' '.join(tag.html_badge for tag in tags))
+
+    def render_tag(tag):
+        for attr in ('html_badge', 'html_button'):
+            value = getattr(tag, attr, None)
+            if value is not None:
+                return value
+
+        render_as_button = getattr(tag, 'render_as_button', None)
+        if callable(render_as_button):
+            try:
+                return render_as_button(static=True)
+            except TypeError:
+                return render_as_button()
+
+        return str(tag)
+
+    # Otherwise, take the safer approach and render each tag separately, escaping the content.
+    return format_html_join(
+        ' ',
+        '{}',
+        ((render_tag(tag),) for tag in tags),
+    )
 
 
 @register.simple_tag
