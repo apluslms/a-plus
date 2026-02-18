@@ -248,7 +248,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                 return self.redirect(request.GET["__r"], backup=self.exercise);
 
         return self.render_to_response(self.get_context_data(
-            page=page, students=students, submission=new_submission))
+            page=page,
+            students=students,
+            submission=new_submission,
+            grader_feedback_just_received=True,
+        ))
 
     def submission_check(self, request=None):
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.LAST:
