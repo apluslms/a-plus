@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 12:43+0200\n"
+"POT-Creation-Date: 2026-05-22 16:08+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -304,7 +304,6 @@ msgid "MODEL_NAME_COURSE_PLURAL"
 msgstr "kurssit"
 
 #: course/models.py exercise/exercise_models.py
-#, python-brace-format
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Varatut sanat: {}"
 
@@ -658,12 +657,10 @@ msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
 msgstr "kurssikerrat"
 
 #: course/models.py
-#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
 msgstr "Et voi käyttää sanaa {} kurssikerran nimenä."
 
 #: course/models.py
-#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_URL -- {}"
 msgstr "Et voi käyttää sanaa {} URL-osoitteessa."
 
@@ -897,6 +894,10 @@ msgid "MODULE_PERMISSION_ERROR_NOT_OPEN_YET -- {date}"
 msgstr "Tämä moduuli avautuu {date}."
 
 #: course/permissions.py
+msgid "COURSE_PERMISSION_MSG_CANNOT_VIEW_CURRENT_TEACHERS"
+msgstr "Sinulla ei ole oikeutta käyttää nykyisten opettajien päätepistettä."
+
+#: course/permissions.py
 msgid "COURSE_PERMISSION_MSG_ONLY_TEACHER"
 msgstr "Vain opettajalle."
 
@@ -906,7 +907,7 @@ msgstr "Vain kurssihenkilökunnalle."
 
 #: course/permissions.py
 msgid "COURSE_PERMISSION_MSG_ONLY_ENROLLED_STUDENTS_OR_COURSE_STAFF"
-msgstr "Vain ilmoittautuneille opiskelijoille tai kurssihenkilökunnalle"
+msgstr "Vain ilmoittautuneille opiskelijoille tai kurssihenkilökunnalle."
 
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "SUCCESS_SAVING_CHANGES"
@@ -3513,7 +3514,6 @@ msgid "ALONE"
 msgstr "yksin"
 
 #: exercise/exercise_models.py
-#, python-brace-format
 msgid "WITH -- {}"
 msgstr "ryhmässä {}"
 
@@ -3779,7 +3779,6 @@ msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
 msgstr "Tehtävä ei ole tällä hetkellä nähtävissä."
 
 #: exercise/permissions.py
-#, python-brace-format
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}"
 msgstr "Tämän tehtävän voi palauttaa {} alkaen."
 
@@ -3908,7 +3907,6 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Paljastamissäännöt"
 
 #: exercise/staff_views.py
-#, python-brace-format
 msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Arvostelutapa: {}"
 
@@ -6077,7 +6075,6 @@ msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
 msgstr "kynnysehtojen pisteet"
 
 #: threshold/models.py
-#, python-brace-format
 msgid "POINTS -- {:d}"
 msgstr "{:d} pisteet"
 
@@ -6278,15 +6275,3 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
-
-#~ msgid "NUMBER_OF_ENROLLED_STUDENTS"
-#~ msgstr "Ilmoittautuneita aktiivisia opiskelijoita:"
-
-#~ msgid "PENDING_STUDENTS"
-#~ msgstr "Odottavia:"
-
-#~ msgid "REMOVED_STUDENTS"
-#~ msgstr "Poistettuja:"
-
-#~ msgid "BANNED_STUDENTS"
-#~ msgstr "Estettyjä:"

@@ -45,6 +45,7 @@ from .mixins import (
 )
 from ..permissions import (
     JWTInstanceWritePermission,
+    CanViewCurrentTeachersPermission,
     OnlyCourseTeacherPermission,
     IsCourseAdminOrUserObjIsSelf,
     OnlyEnrolledStudentOrCourseStaffPermission,
@@ -116,6 +117,13 @@ class CourseViewSet(ListSerializerMixin,
 
     * `subject`: email subject
     * `message`: email body
+
+    `GET /courses/current-teachers/`:
+        returns users who are teachers in at least one currently running course.
+        Optional query parameter:
+
+    * `ended_within_days`: include teachers from courses that ended within
+        the given number of days (and ongoing/future courses). Example: `365`.
     """
     lookup_url_kwarg = 'course_id'
     lookup_value_regex = REGEX_INT
@@ -141,6 +149,65 @@ class CourseViewSet(ListSerializerMixin,
         if self.request.method in ('POST', 'PUT'):
             return CourseWriteSerializer
         return super().get_serializer_class()
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='current-teachers',
+        url_name='current-teachers',
+        get_permissions=lambda: [CanViewCurrentTeachersPermission()],
+    )
+    def current_teachers(self, request, *args, **kwargs):
+        now = timezone.now()
+        ended_within_days = request.query_params.get('ended_within_days', '').strip()
+
+        course_filter = Q(
+            course_instance__starting_time__lte=now,
+            course_instance__ending_time__gte=now,
+        )
+        if ended_within_days:
+            try:
+                days = int(ended_within_days)
+            except ValueError as exc:
+                raise ParseError('"ended_within_days" must be an integer.') from exc
+            if days < 0:
+                raise ParseError('"ended_within_days" must be a non-negative integer.')
+            course_filter = Q(course_instance__ending_time__gte=now - datetime.timedelta(days=days))
+
+        teacher_rows = (
+            Enrollment.objects
+            .filter(
+                course_filter,
+                role=Enrollment.ENROLLMENT_ROLE.TEACHER,
+                status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            )
+            .values(
+                'user_profile__user_id',
+                'user_profile__user__username',
+                'user_profile__user__email',
+                'user_profile__user__first_name',
+                'user_profile__user__last_name',
+            )
+            .distinct()
+            .order_by('user_profile__user_id')
+        )
+
+        results = [
+            {
+                'id': row['user_profile__user_id'],
+                'username': row['user_profile__user__username'],
+                'email': row['user_profile__user__email'],
+                'first_name': row['user_profile__user__first_name'],
+                'last_name': row['user_profile__user__last_name'],
+            }
+            for row in teacher_rows
+            if row['user_profile__user__email']
+        ]
+
+        return Response({
+            'count': len(results),
+            'results': results,
+        })
 
     # get_permissions lambda overwrites the normal version used for the above methods
     @action(detail=True, methods=["post"], get_permissions=lambda: [JWTInstanceWritePermission()])
