@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 12:43+0200\n"
+"POT-Creation-Date: 2026-05-22 16:08+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -303,7 +303,6 @@ msgid "MODEL_NAME_COURSE_PLURAL"
 msgstr "courses"
 
 #: course/models.py exercise/exercise_models.py
-#, python-brace-format
 msgid "TAKEN_WORDS_INCLUDE -- {}"
 msgstr "Reserved words include: {}"
 
@@ -654,12 +653,10 @@ msgid "MODEL_NAME_COURSE_INSTANCE_PLURAL"
 msgstr "course instances"
 
 #: course/models.py
-#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_INSTANCE_NAME -- {}"
 msgstr "You cannot use the word '{}' as an instance name."
 
 #: course/models.py
-#, python-brace-format
 msgid "COURSE_INSTANCE_ERROR_URL -- {}"
 msgstr "You cannot use the word '{}' in the URL."
 
@@ -891,16 +888,20 @@ msgid "MODULE_PERMISSION_ERROR_NOT_OPEN_YET -- {date}"
 msgstr "The module will open for submissions at {date}."
 
 #: course/permissions.py
+msgid "COURSE_PERMISSION_MSG_CANNOT_VIEW_CURRENT_TEACHERS"
+msgstr "You do not have permission to access current teachers endpoint."
+
+#: course/permissions.py
 msgid "COURSE_PERMISSION_MSG_ONLY_TEACHER"
-msgstr "Only course teacher is allowed"
+msgstr "Only course teacher is allowed."
 
 #: course/permissions.py
 msgid "COURSE_PERMISSION_MSG_ONLY_COURSE_STAFF"
-msgstr "Only course staff is allowed"
+msgstr "Only course staff are allowed."
 
 #: course/permissions.py
 msgid "COURSE_PERMISSION_MSG_ONLY_ENROLLED_STUDENTS_OR_COURSE_STAFF"
-msgstr "Only enrolled students or course staff are allowed"
+msgstr "Only enrolled students or course staff are allowed."
 
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "SUCCESS_SAVING_CHANGES"
@@ -3498,7 +3499,6 @@ msgid "ALONE"
 msgstr "alone"
 
 #: exercise/exercise_models.py
-#, python-brace-format
 msgid "WITH -- {}"
 msgstr "with {}"
 
@@ -3768,7 +3768,6 @@ msgid "EXERCISE_VISIBILITY_ERROR_NOT_VISIBLE"
 msgstr "The assignment is not currently visible."
 
 #: exercise/permissions.py
-#, python-brace-format
 msgid "EXERCISE_VISIBILITY_ERROR_NOT_OPEN_YET -- {}"
 msgstr "The assignment opens for submissions at {}."
 
@@ -3896,7 +3895,6 @@ msgid "MODEL_NAME_REVEAL_RULE_PLURAL"
 msgstr "Reveal rules"
 
 #: exercise/staff_views.py
-#, python-brace-format
 msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Grading mode: {}"
 
@@ -6057,7 +6055,6 @@ msgid "MODEL_NAME_THRESHOLD_POINTS_PLURAL"
 msgstr "threshold points"
 
 #: threshold/models.py
-#, python-brace-format
 msgid "POINTS -- {:d}"
 msgstr "{:d} points"
 
@@ -6253,15 +6250,3 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
-
-#~ msgid "NUMBER_OF_ENROLLED_STUDENTS"
-#~ msgstr "Enrolled active students:"
-
-#~ msgid "PENDING_STUDENTS"
-#~ msgstr "Pending:"
-
-#~ msgid "REMOVED_STUDENTS"
-#~ msgstr "Removed:"
-
-#~ msgid "BANNED_STUDENTS"
-#~ msgstr "Banned:"

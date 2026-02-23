@@ -801,6 +801,9 @@ class CourseInstance(CourseInstanceProto, models.Model):
         verbose_name = _('MODEL_NAME_COURSE_INSTANCE')
         verbose_name_plural = _('MODEL_NAME_COURSE_INSTANCE_PLURAL')
         unique_together = ("course", "url")
+        permissions = (
+            ('view_current_teachers', 'Can view current teachers API endpoint'),
+        )
 
     def __str__(self):
         return "{}: {}".format(str(self.course), self.instance_name)

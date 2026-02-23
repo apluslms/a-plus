@@ -271,6 +271,16 @@ class CourseModulePermissionBase(MessageMixin, Permission):
         return True
 
 
+class CanViewCurrentTeachersPermission(Permission):
+    message = _('COURSE_PERMISSION_MSG_CANNOT_VIEW_CURRENT_TEACHERS')
+
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and request.user.has_perm('course.view_current_teachers')
+        )
+
+
 CourseModulePermission = CourseModulePermissionBase | JWTInstanceReadPermission
 
 

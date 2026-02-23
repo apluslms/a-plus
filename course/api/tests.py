@@ -1,4 +1,5 @@
 from django.test import override_settings
+from django.contrib.auth.models import Permission
 from rest_framework.test import APIClient
 
 from course.models import CourseInstance
@@ -144,3 +145,85 @@ class CourseInstanceAPITest(CourseTestCase):
         t = map(lambda x: x.user.username, course.teachers)
         self.assertIn('staff', t)
         self.assertIn('newteacher', t)
+
+    def test_get_current_teachers(self):
+        self.user.email = 'teacher1@example.com'
+        self.user.save(update_fields=['email'])
+        self.user1.email = 'teacher2@example.com'
+        self.user1.save(update_fields=['email'])
+        self.user2.email = 'pastteacher@example.com'
+        self.user2.save(update_fields=['email'])
+
+        self.current_course_instance.add_teacher(self.user.userprofile)
+        self.current_course_instance.add_teacher(self.user1.userprofile)
+        self.future_course_instance.add_teacher(self.user1.userprofile)
+        self.past_course_instance.add_teacher(self.user2.userprofile)
+
+        client = APIClient()
+        client.force_authenticate(user=self.superuser)
+        response = client.get('/api/v2/courses/current-teachers/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', response.data)
+        self.assertIn('results', response.data)
+
+        results = response.data['results']
+        self.assertEqual(response.data['count'], 2)
+        self.assertEqual(len(results), 2)
+
+        emails = sorted(row['email'] for row in results)
+        self.assertEqual(emails, ['teacher1@example.com', 'teacher2@example.com'])
+
+    def test_get_current_teachers_requires_permission(self):
+        self.current_course_instance.add_teacher(self.user.userprofile)
+
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get('/api/v2/courses/current-teachers/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_current_teachers_with_permission(self):
+        self.current_course_instance.add_teacher(self.user1.userprofile)
+        self.user1.email = 'teacher2@example.com'
+        self.user1.save(update_fields=['email'])
+
+        permission = Permission.objects.get(
+            content_type__app_label='course',
+            codename='view_current_teachers',
+        )
+        self.user.user_permissions.add(permission)
+
+        client = APIClient()
+        client.force_authenticate(user=self.user)
+        response = client.get('/api/v2/courses/current-teachers/')
+
+        self.assertEqual(response.status_code, 200)
+        emails = [row['email'] for row in response.data['results']]
+        self.assertIn('teacher2@example.com', emails)
+
+    def test_get_current_teachers_ended_within_days(self):
+        self.user.email = 'teacher1@example.com'
+        self.user.save(update_fields=['email'])
+        self.user2.email = 'pastteacher@example.com'
+        self.user2.save(update_fields=['email'])
+
+        self.current_course_instance.add_teacher(self.user.userprofile)
+        self.past_course_instance.add_teacher(self.user2.userprofile)
+
+        client = APIClient()
+        client.force_authenticate(user=self.superuser)
+        response = client.get('/api/v2/courses/current-teachers/?ended_within_days=365')
+
+        self.assertEqual(response.status_code, 200)
+        emails = sorted(row['email'] for row in response.data['results'])
+        self.assertEqual(emails, ['pastteacher@example.com', 'teacher1@example.com'])
+
+    def test_get_current_teachers_ended_within_days_invalid(self):
+        client = APIClient()
+        client.force_authenticate(user=self.superuser)
+
+        response = client.get('/api/v2/courses/current-teachers/?ended_within_days=abc')
+        self.assertEqual(response.status_code, 400)
+
+        response = client.get('/api/v2/courses/current-teachers/?ended_within_days=-1')
+        self.assertEqual(response.status_code, 400)
