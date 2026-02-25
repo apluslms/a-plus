@@ -160,6 +160,16 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
           const $t = $(this);
           if (is_hardcoded($t)) return;
           if ($t.data('aplusPopoverInit') === true) return;
+          // Dispose any existing Tooltip before creating the Popover.
+          // Bootstrap 5.3's Data store refuses to register a second component
+          // under a different key on the same element — if bs.tooltip is already
+          // present, Data.set for bs.popover is silently skipped, which means
+          // getInstance() returns null and the action-button click handler can
+          // never call inst.hide() to close the popover.
+          try {
+            const tip = bootstrap.Tooltip && bootstrap.Tooltip.getInstance($t[0]);
+            if (tip) tip.dispose();
+          } catch (_) {}
           const title = get_title_for_elem($t);
           $t.buttons_popover(colortag_buttons, { title: title });
           $t.data('aplusPopoverInit', true);
@@ -177,6 +187,12 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
   $(tag_selector).filter(function(){ return !is_hardcoded($(this)); }).each(function(){
     const $e = $(this);
     if ($e.data('aplusPopoverInit') === true) return;
+    // Dispose any existing Tooltip before creating the Popover (same reason as
+    // in mutation_callback above — Bootstrap 5.3 Data.set conflict).
+    try {
+      const tip = bootstrap.Tooltip && bootstrap.Tooltip.getInstance($e[0]);
+      if (tip) tip.dispose();
+    } catch (_) {}
     const title = get_title_for_elem($e);
     $e.buttons_popover(colortag_buttons, { title: title });
     $e.data('aplusPopoverInit', true);

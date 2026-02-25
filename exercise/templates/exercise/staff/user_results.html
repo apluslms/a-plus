@@ -60,23 +60,25 @@
 	</tr>
 </table>
 
-<div class="float-start">
-	<a class="btn aplus-button--default aplus-button--sm d-flex gap-2" role="button"
-		href="{{ instance|url:'deviations-list-dl' }}?submitter={{ student.get_full_name|urlencode }}">
-		<span class="bi bi-clock" aria-hidden="true"></span>
-		{% translate "DEADLINE_DEVIATIONS" %}
-	</a>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+	<div>
+		<a class="btn aplus-button--default aplus-button--xs" role="button"
+			href="{{ instance|url:'deviations-list-dl' }}?submitter={{ student.get_full_name|urlencode }}">
+			<span class="bi bi-clock" aria-hidden="true"></span>
+			{% translate "DEADLINE_DEVIATIONS" %}
+		</a>
+	</div>
+	<div id="enrollment-and-tags" class="usertags-container d-flex flex-wrap gap-2" data-user-id="{{ student.id }}">
+		{% for submission in enrollment_submissions %}
+		<a href="{{ submission|url }}" class="page-modal">
+			{{ enrollment_exercise }} {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
+		</a>
+		{% endfor %}
+		<div class="usertags-slots align-self-end">
+			{% tags student.userprofile instance %}
+		</div>
+	</div>
 </div>
-
-<p id="enrollment-and-tags" class="usertags-container" data-user-id="{{ student.id }}">
-	{% for submission in enrollment_submissions %}
-	<a href="{{ submission|url }}" class="page-modal">
-		{{ enrollment_exercise }} {{ submission.submission_time|date:'DATETIME_SECONDS_FORMAT' }}
-	</a>
-	{% endfor %}
-	&nbsp;
-	{% tags student.userprofile instance %}
-</p>
 
 {% user_results student %}
 {% endblock %}
