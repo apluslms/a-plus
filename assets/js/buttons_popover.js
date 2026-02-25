@@ -25,10 +25,10 @@ $.fn.extend({
       };
       const all_options = $.extend({}, default_options, options);
 
-      const buttons_html = this_buttons.map(function (btn) {
+      const buttons_html = '<div class="d-flex flex-wrap gap-2">' + this_buttons.map(function (btn) {
         return ('<button id="' + btn.id + '" class="btn ' + btn.classes +
                 '" ' + (btn.extra_attrs || "") + ">" + btn.text + "</button>")
-      }).join(' ');
+      }).join(' ') + '</div>';
 
       const $elem = $(elem);
       // Make focusable for trigger: 'focus'
