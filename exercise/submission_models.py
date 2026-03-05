@@ -6,7 +6,6 @@ import os
 from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
 from urllib.parse import urlparse
 
-from binaryornot.check import is_binary
 from django.conf import settings
 from django.db import models, DatabaseError
 from django.db.models import F
@@ -865,9 +864,15 @@ class SubmittedFile(UrlMixin, models.Model):
 
     def is_passed(self):
         if self.file_object.path.endswith(".pdf"):
-            # PDF files are sometimes incorrectly classified as non-binary by the 'binaryornot' library
             return True
-        return is_binary(self.file_object.path)
+        # Simple magic bytes check
+        path = self.file_object.path
+        try:
+            with open(path, 'rb') as f:
+                chunk = f.read(1024)
+            return b'\x00' in chunk
+        except OSError:
+            return False
 
 
     ABSOLUTE_URL_NAME = "submission-file"
