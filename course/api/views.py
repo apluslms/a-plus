@@ -1,3 +1,6 @@
+import datetime
+from io import BytesIO
+import zipfile
 from typing import Any, Dict, List, Union
 
 from rest_framework import filters, viewsets, status, mixins
@@ -9,6 +12,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.permissions import IsAdminUser
 from django.db.models import Q, QuerySet
 from django.http import Http404
+from django.http.response import FileResponse
 from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
@@ -16,6 +20,7 @@ from django.utils.translation import gettext_lazy as _
 from aplus.api import api_reverse
 from edit_course.operations.configure import configure_from_url
 from exercise.cache.content import ModuleContent, LearningObjectContent
+from exercise.models import Submission
 from lib.api.constants import REGEX_INT, REGEX_INT_ME
 from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
@@ -182,6 +187,173 @@ class CourseViewSet(ListSerializerMixin,
         if success:
             return Response()
         return Response(_("SEND_EMAIL_FAILED"))
+
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='submissions/zip',
+        url_name='submissions-zip',
+    )
+    def submissions_zip(self, request, *args, **kwargs): # pylint: disable=too-many-locals # noqa: MC0001
+        if not self.instance.is_course_staff(request.user):
+            return Response(
+                'Only course staff can download submissions via this API',
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        def parse_csv_param(param_name):
+            value = request.query_params.get(param_name, '').strip()
+            if not value:
+                return []
+            return [item.strip() for item in value.split(',') if item.strip()]
+
+        student_id = request.query_params.get('student_id', '').strip()
+        submission_status = request.query_params.get('status', '').strip()
+        exercise_ids = parse_csv_param('exercise_id')
+        submitter_name = request.query_params.get('submitter_name', '').strip()
+        start_time = request.query_params.get('start_time', '').strip()
+        end_time = request.query_params.get('end_time', '').strip()
+        tag_ids = parse_csv_param('tag_id')
+        late_penalty = request.query_params.get('late_penalty', '').strip()
+        assessed_manually = request.query_params.get('assessed_manually', '').strip()
+
+        filters = Q(exercise__course_module__course_instance=self.instance.id)
+
+        if student_id:
+            filters &= Q(submitters__id=student_id)
+
+        if submission_status:
+            if submission_status == 'not_ready':
+                filters &= ~Q(status='ready')
+            else:
+                filters &= Q(status=submission_status)
+
+        if exercise_ids:
+            filters &= Q(exercise_id__in=exercise_ids)
+
+        if submitter_name:
+            filters &= (
+                Q(submitters__user__first_name__icontains=submitter_name)
+                | Q(submitters__user__last_name__icontains=submitter_name)
+                | Q(submitters__user__username__icontains=submitter_name)
+                | Q(submitters__student_id__icontains=submitter_name)
+            )
+
+        if tag_ids:
+            filters &= Q(submission_taggings__tag_id__in=tag_ids)
+
+        if late_penalty:
+            if late_penalty == 'yes':
+                filters &= Q(late_penalty_applied__isnull=False)
+            elif late_penalty == 'no':
+                filters &= Q(late_penalty_applied__isnull=True)
+
+        if assessed_manually:
+            if assessed_manually == 'yes':
+                filters &= Q(grader__isnull=False)
+            elif assessed_manually == 'no':
+                filters &= Q(grader__isnull=True)
+
+        if start_time:
+            try:
+                start_dt = datetime.datetime.fromisoformat(start_time)
+                if timezone.is_naive(start_dt):
+                    start_dt = timezone.make_aware(start_dt)
+                filters &= Q(submission_time__gte=start_dt)
+            except (ValueError, TypeError):
+                pass
+
+        if end_time:
+            try:
+                end_dt = datetime.datetime.fromisoformat(end_time)
+                if timezone.is_naive(end_dt):
+                    end_dt = timezone.make_aware(end_dt)
+                filters &= Q(submission_time__lte=end_dt)
+            except (ValueError, TypeError):
+                pass
+
+        submissions = (
+            Submission.objects.filter(filters)
+            .distinct()
+            .order_by('submission_time', 'id')
+            .select_related('exercise')
+            .prefetch_related('submitters', 'files')
+        )
+
+        def get_group_id(submission):
+            group_id = None
+            if submission.meta_data and 'group' in submission.meta_data:
+                group_id = submission.meta_data['group']
+            if group_id is None and submission.submission_data:
+                for item in submission.submission_data:
+                    if isinstance(item, (list, tuple)) and len(item) > 1 and item[0] == '_aplus_group':
+                        group_id = item[1]
+                        break
+            return group_id
+
+        zip_buffer = BytesIO()
+        submitter_submission_count = {}
+        with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+            info_csv = (
+                'filename,label,created_at,original_name,points,submission_id,'
+                'submitter_name,exercise_id,exercise_name,exercise_form_name,submission_index\n'
+            )
+
+            for submission in submissions:
+                submitters = list(submission.submitters.all())
+                student_ids = sorted([str(submitter.student_id) for submitter in submitters])
+                submitters_string = '+'.join(student_ids)
+                submitted_files = list(submission.files.all())
+                if not submitted_files:
+                    continue
+
+                count_key = (submission.exercise_id, submitters_string)
+                submitter_submission_count[count_key] = submitter_submission_count.get(count_key, 0) + 1
+                submission_num = submitter_submission_count[count_key]
+
+                group_id = None
+                if len(submitters) > 1:
+                    group_id = get_group_id(submission)
+                    if group_id is not None:
+                        try:
+                            group_id = int(group_id)
+                        except ValueError:
+                            group_id = None
+
+                submission_time = submission.submission_time.strftime('%Y-%m-%d %H:%M:%S %z')
+                points = submission.service_points
+                submission_id = submission.id
+                submitter_name_value = ';'.join(
+                    submitter.user.get_full_name() for submitter in submitters
+                )
+
+                exercise_info = submission.exercise.exercise_info or {}
+                exercise_name = str(submission.exercise)
+                exercise_form_name = ';'.join(list((exercise_info.get('form_i18n') or {}).keys()))
+
+                label = f'group{group_id}' if group_id is not None else submitters_string
+
+                for index, submitted_file in enumerate(submitted_files, start=1):
+                    filename = (
+                        f'exercise{submission.exercise_id}_{submitters_string}_'
+                        f'file{index}_submission{submission_num}'
+                    )
+                    original_name = submitted_file.filename
+                    try:
+                        with submitted_file.file_object.file.open('rb') as file_handle:
+                            zip_file.writestr(filename, file_handle.read())
+                        info_csv += (
+                            f'{filename},{label},{submission_time},{original_name},{points},'
+                            f'{submission_id},{submitter_name_value},{submission.exercise_id},{exercise_name},'
+                            f'{exercise_form_name},{submission_num}\n'
+                        )
+                    except OSError:
+                        continue
+
+            zip_file.writestr('info.csv', info_csv)
+
+        zip_buffer.seek(0)
+        return FileResponse(zip_buffer, as_attachment=True, filename='submissions.zip')
 
 
 class CourseExercisesViewSet(NestedViewSetMixin,

@@ -16,7 +16,7 @@ from .models import SubmissionTagging
 logger = logging.getLogger('aplus.exercise')
 
 
-def _post_async_submission(request, exercise, submission, errors=None): # pylint: disable=too-many-branches
+def _post_async_submission(request, exercise, submission, errors=None): # pylint: disable=too-many-branches # noqa: MC0001
     """
     Creates or grades a submission.
 
