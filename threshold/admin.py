@@ -17,6 +17,7 @@ class ThresholdPointsInline(admin.TabularInline):
     model = ThresholdPoints
 
 
+@admin.register(Threshold)
 class ThresholdAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -47,6 +48,7 @@ class ThresholdAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(CourseModuleRequirement)
 class CourseModuleRequirementAdmin(admin.ModelAdmin):
     search_fields = (
         'module__name',
@@ -81,5 +83,3 @@ class CourseModuleRequirementAdmin(admin.ModelAdmin):
         return str(obj.module.course_instance)
 
 
-admin.site.register(Threshold, ThresholdAdmin)
-admin.site.register(CourseModuleRequirement, CourseModuleRequirementAdmin)

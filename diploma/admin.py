@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import CourseDiplomaDesign, StudentDiploma
 
 
+@admin.register(CourseDiplomaDesign)
 class CourseDiplomaDesignAdmin(admin.ModelAdmin):
     search_fields = (
         'course__instance_name',
@@ -30,6 +31,7 @@ class CourseDiplomaDesignAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(StudentDiploma)
 class StudentDiplomaAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -61,5 +63,3 @@ class StudentDiplomaAdmin(admin.ModelAdmin):
     readonly_fields = ('created',)
 
 
-admin.site.register(CourseDiplomaDesign, CourseDiplomaDesignAdmin)
-admin.site.register(StudentDiploma, StudentDiplomaAdmin)

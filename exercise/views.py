@@ -62,7 +62,7 @@ class SubmissionTaggingAddView(CourseInstanceBaseView):
         SubmissionTagging.objects.create(submission=submission, tag=subtag)
 
         # Redirect back to the previous page
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect(request.headers.get('referer', '/'))
 
 
 class SubmissionTaggingRemoveView(CourseInstanceBaseView):
@@ -80,7 +80,7 @@ class SubmissionTaggingRemoveView(CourseInstanceBaseView):
         SubmissionTagging.objects.filter(submission=submission, tag=subtag).delete()
 
         # Redirect back to the previous page
-        return redirect(request.META.get('HTTP_REFERER', '/'))
+        return redirect(request.headers.get('referer', '/'))
 
 
 class ExerciseInfoView(ExerciseBaseView):

@@ -27,8 +27,8 @@ def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=No
     '''
     headers = {
         'Content-Type': request.content_type,
-        'Authorization': request.META.get('HTTP_AUTHORIZATION'),
-        'Host': request.META.get('HTTP_HOST'),
+        'Authorization': request.headers.get('authorization'),
+        'Host': request.headers.get('host'),
     }
     # all OAuth parameters must be given in the HTTP Authorization header
     # (not in POST data or GET query parameters) when a body hash is used
@@ -95,7 +95,7 @@ def verify_oauth_body_hash_and_signature(request, req_body_hash, lti_exercise=No
 
 class OAuthBodyHashAuthentication(BaseAuthentication):
     def authenticate(self, request):
-        if 'HTTP_AUTHORIZATION' not in request.META:
+        if 'authorization' not in request.headers:
             return None
 
         data = request.data # activates the request body parser if the body has not been parsed yet

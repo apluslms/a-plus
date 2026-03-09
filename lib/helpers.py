@@ -195,10 +195,10 @@ def get_url_ip_address_list(url):
 
 
 def get_remote_addr(request):
-    real_ip = request.META.get('HTTP_X_REAL_IP')
+    real_ip = request.headers.get('x-real-ip')
     if real_ip:
         return real_ip
-    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    forwarded_for = request.headers.get('x-forwarded-for')
     if forwarded_for:
         return forwarded_for.split(',', 1)[0].strip()
     return request.META.get('REMOTE_ADDR')

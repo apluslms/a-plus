@@ -4,6 +4,7 @@ from external_services.models import LTIService, LTI1p3Service, LinkService, Men
 from lib.admin_helpers import RecentCourseInstanceListFilter
 
 
+@admin.register(LinkService)
 class LinkServiceAdmin(admin.ModelAdmin):
     search_fields = (
         'url',
@@ -28,16 +29,19 @@ class LinkServiceAdmin(admin.ModelAdmin):
     readonly_fields = ('content_type',)
 
 
+@admin.register(LTIService)
 class LTIServiceAdmin(LinkServiceAdmin):
     search_fields = LinkServiceAdmin.search_fields + ('consumer_key',)
     list_display = LinkServiceAdmin.list_display + ('access_settings',)
 
 
+@admin.register(LTI1p3Service)
 class LTI1p3ServiceAdmin(LinkServiceAdmin):
     search_fields = LinkServiceAdmin.search_fields + ('login_url',)
     list_display = LinkServiceAdmin.list_display + ('client_id',)
 
 
+@admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
     search_fields = (
         'course_instance__instance_name',
@@ -72,7 +76,3 @@ class MenuItemAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(LTIService, LTIServiceAdmin)
-admin.site.register(LTI1p3Service, LTI1p3ServiceAdmin)
-admin.site.register(LinkService, LinkServiceAdmin)
-admin.site.register(MenuItem, MenuItemAdmin)

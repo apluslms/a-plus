@@ -1,13 +1,14 @@
+from django.urls import path
 from django.urls import re_path
 
 from . import views
 
 
 urlpatterns = [
-    re_path(r'list/(?P<coursediploma_id>\d+)/$',
+    path('list/<int:coursediploma_id>/',
         views.DiplomaListView.as_view(),
         name="diploma-list"),
-    re_path(r'create/(?P<coursediploma_id>\d+)/(?P<userprofile_id>\d+)/$',
+    path('create/<int:coursediploma_id>/<int:userprofile_id>/',
         views.DiplomaCreateView.as_view(),
         name="diploma-create"),
     re_path(r'(?P<diploma_hash>[a-f0-9]{32})/$',
