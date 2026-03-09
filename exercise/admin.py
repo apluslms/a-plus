@@ -98,6 +98,7 @@ class SubmittedFileRecentCourseInstanceListFilter(RecentCourseInstanceListFilter
     course_instance_query = 'submission__exercise__course_module__course_instance'
 
 
+@admin.register(CourseChapter)
 class CourseChapterAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -126,6 +127,7 @@ class CourseChapterAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(BaseExercise)
 class BaseExerciseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -157,6 +159,7 @@ class BaseExerciseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     list_display = (
@@ -197,6 +200,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return super().get_queryset(request).prefetch_related('submitters')
 
 
+@admin.register(SubmissionDraft)
 class SubmissionDraftAdmin(admin.ModelAdmin):
     search_fields = (
         'id',
@@ -240,6 +244,7 @@ class SubmissionDraftAdmin(admin.ModelAdmin):
         )
 
 
+@admin.register(SubmissionTagging)
 class SubmissionTaggingAdmin(admin.ModelAdmin):
     search_fields = (
         'tag__name',
@@ -282,6 +287,7 @@ class SubmissionTaggingAdmin(admin.ModelAdmin):
         return ', '.join(str(s) for s in obj.submission.submitters.all())
 
 
+@admin.register(SubmittedFile)
 class SubmittedFileAdmin(admin.ModelAdmin):
     search_fields = (
         'submission__exercise__name',
@@ -321,6 +327,7 @@ class SubmittedFileAdmin(admin.ModelAdmin):
         return ', '.join(str(s) for s in obj.submission.submitters.all())
 
 
+@admin.register(StaticExercise)
 class StaticExerciseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -346,6 +353,7 @@ class StaticExerciseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(ExerciseWithAttachment)
 class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -371,6 +379,7 @@ class ExerciseWithAttachmentAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(LTIExercise)
 class LTIExerciseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -401,6 +410,7 @@ class LTIExerciseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(LTI1p3Exercise)
 class LTI1p3ExerciseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -430,6 +440,7 @@ class LTI1p3ExerciseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(ExerciseCollection)
 class ExerciseCollectionAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -457,6 +468,7 @@ class ExerciseCollectionExerciseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(RevealRule)
 class RevealRuleAdmin(admin.ModelAdmin):
     search_fields = (
         'trigger',
@@ -470,6 +482,7 @@ class RevealRuleAdmin(admin.ModelAdmin):
         'currently_revealed',
     )
 
+@admin.register(ExerciseTask)
 class ExerciseTaskAdmin(admin.ModelAdmin):
     search_fields = (
         'task_id',
@@ -494,6 +507,7 @@ class ExerciseTaskAdmin(admin.ModelAdmin):
         return str(obj.exercise.course_module.course_instance)
 
 
+@admin.register(LearningObjectDisplay)
 class LearningObjectDisplayAdmin(admin.ModelAdmin):
     search_fields = (
         'learning_object__name',
@@ -515,6 +529,7 @@ class LearningObjectDisplayAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp',)
 
 
+@admin.register(PendingSubmission)
 class PendingSubmissionAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     list_display = (
@@ -568,20 +583,3 @@ class PendingSubmissionAdmin(admin.ModelAdmin):
     @admin.display(description=_('LABEL_STATUS'))
     def submission_status(self, pending_submission):
         return Submission.STATUS[pending_submission.submission.status]
-
-
-admin.site.register(CourseChapter, CourseChapterAdmin)
-admin.site.register(BaseExercise, BaseExerciseAdmin)
-admin.site.register(StaticExercise, StaticExerciseAdmin)
-admin.site.register(ExerciseWithAttachment, ExerciseWithAttachmentAdmin)
-admin.site.register(LTIExercise, LTIExerciseAdmin)
-admin.site.register(LTI1p3Exercise, LTI1p3ExerciseAdmin)
-admin.site.register(Submission, SubmissionAdmin)
-admin.site.register(SubmissionDraft, SubmissionDraftAdmin)
-admin.site.register(SubmissionTagging, SubmissionTaggingAdmin)
-admin.site.register(SubmittedFile, SubmittedFileAdmin)
-admin.site.register(ExerciseCollection, ExerciseCollectionAdmin)
-admin.site.register(RevealRule, RevealRuleAdmin)
-admin.site.register(ExerciseTask, ExerciseTaskAdmin)
-admin.site.register(LearningObjectDisplay, LearningObjectDisplayAdmin)
-admin.site.register(PendingSubmission, PendingSubmissionAdmin)

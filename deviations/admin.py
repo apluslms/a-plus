@@ -8,6 +8,7 @@ class DeviationRecentCourseInstanceListFilter(RecentCourseInstanceListFilter):
     course_instance_query = 'exercise__course_module__course_instance'
 
 
+@admin.register(DeadlineRuleDeviation)
 class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
     search_fields = (
         'submitter__student_id',
@@ -35,6 +36,7 @@ class DeadlineRuleDeviationAdmin(admin.ModelAdmin):
     readonly_fields = ('grant_time',)
 
 
+@admin.register(MaxSubmissionsRuleDeviation)
 class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
     search_fields = (
         'submitter__student_id',
@@ -60,7 +62,3 @@ class MaxSubmissionsRuleDeviationAdmin(admin.ModelAdmin):
         'granter',
     )
     readonly_fields = ('grant_time',)
-
-
-admin.site.register(DeadlineRuleDeviation, DeadlineRuleDeviationAdmin)
-admin.site.register(MaxSubmissionsRuleDeviation, MaxSubmissionsRuleDeviationAdmin)

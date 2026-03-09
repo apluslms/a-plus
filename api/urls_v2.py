@@ -1,7 +1,7 @@
 import copy
 
 from django.conf import settings
-from django.conf.urls import include
+from django.urls import include
 from django.urls import path, re_path
 from rest_framework_extensions.routers import ExtendedDefaultRouter
 
@@ -110,7 +110,7 @@ with api.register(r'submissions',
                          basename='submission-files')
 
 urlpatterns = [
-    re_path(r'^', include((api.urls, 'api'), namespace='api')),
+    path('', include((api.urls, 'api'), namespace='api')),
 
     re_path(r"^get-token", authorization.api.views.RemoteAuthenticationView.as_view(), name="get-token"),
     re_path(r'^me', userprofile.api.views.MeDetail.as_view()),

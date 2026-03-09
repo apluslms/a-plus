@@ -4,6 +4,7 @@ from lib.admin_helpers import RecentCourseInstanceListFilter
 from .models import News
 
 
+@admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
     search_fields = (
         "course_instance__instance_name",
@@ -24,6 +25,3 @@ class NewsAdmin(admin.ModelAdmin):
         "publish",
     )
     raw_id_fields = ("course_instance",)
-
-
-admin.site.register(News, NewsAdmin)

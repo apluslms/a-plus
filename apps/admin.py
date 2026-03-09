@@ -12,6 +12,7 @@ from .models import (
 )
 
 
+@admin.register(BaseTab)
 class BaseTabAdmin(admin.ModelAdmin):
     search_fields = (
         'label',
@@ -19,6 +20,7 @@ class BaseTabAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(HTMLTab)
 class HTMLTabAdmin(admin.ModelAdmin):
     search_fields = (
         'label',
@@ -26,6 +28,7 @@ class HTMLTabAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(ExternalEmbeddedTab)
 class ExternalEmbeddedTabAdmin(admin.ModelAdmin):
     search_fields = (
         'label',
@@ -34,6 +37,7 @@ class ExternalEmbeddedTabAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(ExternalIFrameTab)
 class ExternalIFrameTabAdmin(admin.ModelAdmin):
     search_fields = (
         'label',
@@ -42,10 +46,12 @@ class ExternalIFrameTabAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(BasePlugin)
 class BasePluginAdmin(admin.ModelAdmin):
     search_fields = ('title',)
 
 
+@admin.register(RSSPlugin)
 class RSSPluginAdmin(admin.ModelAdmin):
     search_fields = (
         'title',
@@ -53,6 +59,7 @@ class RSSPluginAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(HTMLPlugin)
 class HTMLPluginAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_display_links = ('title',)
@@ -67,18 +74,9 @@ class HTMLPluginAdmin(admin.ModelAdmin):
         return obj.container_pk
 
 
+@admin.register(ExternalIFramePlugin)
 class ExternalIFramePluginAdmin(admin.ModelAdmin):
     search_fields = (
         'title',
         'service_url',
     )
-
-
-admin.site.register(BaseTab, BaseTabAdmin)
-admin.site.register(HTMLTab, HTMLTabAdmin)
-admin.site.register(ExternalEmbeddedTab, ExternalEmbeddedTabAdmin)
-admin.site.register(ExternalIFrameTab, ExternalIFrameTabAdmin)
-admin.site.register(BasePlugin, BasePluginAdmin)
-admin.site.register(RSSPlugin, RSSPluginAdmin)
-admin.site.register(HTMLPlugin, HTMLPluginAdmin)
-admin.site.register(ExternalIFramePlugin, ExternalIFramePluginAdmin)

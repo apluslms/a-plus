@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from site_alert.models import SiteAlert
 
 
+@admin.register(SiteAlert)
 class SiteAlertAdmin(admin.ModelAdmin):
     search_fields = (
         'alert',
@@ -14,6 +15,3 @@ class SiteAlertAdmin(admin.ModelAdmin):
         'alert',
         'status',
     )
-
-
-admin.site.register(SiteAlert, SiteAlertAdmin)
