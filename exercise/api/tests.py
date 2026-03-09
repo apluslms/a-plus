@@ -1,5 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
+from rest_framework.exceptions import ErrorDetail
 from django.contrib.auth.models import User
 from course.models import Course, CourseInstance
 from exercise.models import LearningObjectCategory
@@ -84,4 +85,4 @@ class ExerciceSubmissionAPITest(TestCase):
         client = APIClient()
         client.force_authenticate(user=self.student)
         response = client.get('/api/v2/submissions/1/')
-        self.assertEqual(response.data, {'detail': 'Not found.'})
+        self.assertEqual(response.data, {'detail': ErrorDetail(string='Submission not found', code='not_found')})

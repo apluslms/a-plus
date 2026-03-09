@@ -4,6 +4,7 @@ from lib.admin_helpers import RecentCourseInstanceListFilter
 from notification.models import Notification
 
 
+@admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     search_fields = (
         'subject',
@@ -42,6 +43,3 @@ class NotificationAdmin(admin.ModelAdmin):
         'submission',
     )
     readonly_fields = ('timestamp',)
-
-
-admin.site.register(Notification, NotificationAdmin)

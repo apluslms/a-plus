@@ -26,6 +26,7 @@ def instance_url(instance):
 instance_url.short_description = _('URL')
 
 
+@admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -44,6 +45,7 @@ class CourseAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(CourseInstance)
 class CourseInstanceAdmin(admin.ModelAdmin):
     search_fields = (
         'instance_name',
@@ -74,6 +76,7 @@ class CourseInstanceAdmin(admin.ModelAdmin):
         return CourseInstance.objects.get_teaching(request.user.userprofile)
 
 
+@admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
     search_fields = (
         'course_instance__instance_name',
@@ -104,6 +107,7 @@ class EnrollmentAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp',)
 
 
+@admin.register(CourseModule)
 class CourseModuleAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -127,6 +131,7 @@ class CourseModuleAdmin(admin.ModelAdmin):
     raw_id_fields = ('course_instance',)
 
 
+@admin.register(LearningObjectCategory)
 class LearningObjectCategoryAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -149,6 +154,7 @@ class LearningObjectCategoryAdmin(admin.ModelAdmin):
     raw_id_fields = ('course_instance',)
 
 
+@admin.register(StudentGroup)
 class StudentGroupAdmin(admin.ModelAdmin):
     search_fields = (
         'course_instance__instance_name',
@@ -182,6 +188,7 @@ class StudentGroupAdmin(admin.ModelAdmin):
         )
 
 
+@admin.register(UserTag)
 class UserTagAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -207,6 +214,7 @@ class UserTagAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(UserTagging)
 class UserTaggingAdmin(admin.ModelAdmin):
     search_fields = (
         'tag__name',
@@ -238,6 +246,7 @@ class UserTaggingAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(SubmissionTag)
 class SubmissionTagAdmin(admin.ModelAdmin):
     search_fields = (
         'name',
@@ -264,6 +273,7 @@ class SubmissionTagAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(CourseHook)
 class CourseHookAdmin(admin.ModelAdmin):
     search_fields = (
         'hook_url',
@@ -272,15 +282,3 @@ class CourseHookAdmin(admin.ModelAdmin):
         'course_instance__course__code',
     )
     raw_id_fields = ('course_instance',)
-
-
-admin.site.register(Course, CourseAdmin)
-admin.site.register(CourseInstance, CourseInstanceAdmin)
-admin.site.register(Enrollment, EnrollmentAdmin)
-admin.site.register(StudentGroup, StudentGroupAdmin)
-admin.site.register(CourseHook, CourseHookAdmin)
-admin.site.register(CourseModule, CourseModuleAdmin)
-admin.site.register(LearningObjectCategory, LearningObjectCategoryAdmin)
-admin.site.register(UserTag, UserTagAdmin)
-admin.site.register(UserTagging, UserTaggingAdmin)
-admin.site.register(SubmissionTag, SubmissionTagAdmin)

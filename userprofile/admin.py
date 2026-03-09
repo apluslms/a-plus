@@ -5,6 +5,7 @@ from rest_framework.authtoken.admin import TokenAdmin
 from .models import UserProfile
 
 
+@admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     search_fields = (
         'user__first_name',
@@ -31,8 +32,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def get_user(self, obj):
         return f'{obj.user.get_username()} | user_id={obj.user.pk} | {obj.user.get_full_name()} | {obj.user.email}'
 
-
-admin.site.register(UserProfile, UserProfileAdmin)
 
 # Don't display a dropdown for selecting a user on the Token admin page.
 TokenAdmin.raw_id_fields = ('user',)

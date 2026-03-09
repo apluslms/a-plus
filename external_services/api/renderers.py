@@ -40,7 +40,7 @@ class LTIOutcomeResponseRenderer(renderers.BaseRenderer):
         response = renderer_context.get('response')
         error_detail = data.get('detail')
         # detail is usually a str or string-like rest_framework.exceptions.ErrorDetail,
-        # but for ValidationErros it is a dict mapping serializer field names to error strings.
+        # but for ValidationErrors it is a dict mapping serializer field names to error strings.
         # In addition, detail is a list if the exercise does not accept the student's submission.
         # data may also contain some of the normal LTI request data in addition to the error detail
         if isinstance(error_detail, dict):

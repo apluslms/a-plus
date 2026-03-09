@@ -1,3 +1,4 @@
+from django.urls import path
 from django.urls import re_path
 
 from . import views
@@ -10,10 +11,10 @@ USER_URL_PREFIX = INSTANCE_URL_PREFIX + r'user/'
 MODULE_URL_PREFIX = INSTANCE_URL_PREFIX + r'(?P<module_slug>[\w\d\-\.]+)/'
 
 urlpatterns = [
-    re_path(r'^$',
+    path('',
         views.HomeView.as_view(),
         name='home'),
-    re_path(r'^archive/$',
+    path('archive/',
         views.ArchiveView.as_view(),
         name="archive"),
     re_path(COURSE_URL_PREFIX + r'instances/$',
