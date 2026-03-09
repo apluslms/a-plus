@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.conf.urls import include
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
+from django.urls import include
 from django.urls import path, re_path
 
 from . import views
@@ -37,22 +37,22 @@ all_sitemaps = {
 #  Pay attention to the order the URL patterns will be matched!
 urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
-    re_path(r'^', include(shibboleth_login.urls)),
-    re_path('', include(social_django.urls, namespace='social')),
+    path('', include(shibboleth_login.urls)),
+    path('', include(social_django.urls, namespace='social')),
     re_path(r'^api/v(?P<version>(2))/', include(api.urls_v2)), # why version in url? doc/api_versioning.md
-    re_path(r'^accounts/', include(userprofile.urls)),
-    re_path(r'^diploma/', include(diploma.urls)),
-    re_path(r'^', include(redirect_old_urls.urls)),
-    re_path(r'^', include(apps.urls)),
-    re_path(r'^', include(news.urls)),
-    re_path(r'^', include(external_services.urls)),
-    re_path(r'^', include(course.long_urls)),
-    re_path(r'^', include(deviations.urls)),
-    re_path(r'^', include(edit_course.urls)),
-    re_path(r'^', include(notification.urls)),
-    re_path(r'^', include(lti_tool.urls)),
-    re_path(r'^', include(exercise.urls)),
-    re_path(r'^', include(course.urls)),
+    path('accounts/', include(userprofile.urls)),
+    path('diploma/', include(diploma.urls)),
+    path('', include(redirect_old_urls.urls)),
+    path('', include(apps.urls)),
+    path('', include(news.urls)),
+    path('', include(external_services.urls)),
+    path('', include(course.long_urls)),
+    path('', include(deviations.urls)),
+    path('', include(edit_course.urls)),
+    path('', include(notification.urls)),
+    path('', include(lti_tool.urls)),
+    path('', include(exercise.urls)),
+    path('', include(course.urls)),
     path('sitemap.xml', sitemap, { 'sitemaps': all_sitemaps },
         name='django.contrib.sitemaps.views.sitemap'),
 ]

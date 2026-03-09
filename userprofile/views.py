@@ -90,7 +90,7 @@ def set_user_language(request):
             not url_has_allowed_host_and_scheme(url=next,
                             allowed_hosts={request.get_host()},
                             require_https=request.is_secure())):
-        next = remove_query_param_from_url(request.META.get('HTTP_REFERER'), 'hl')
+        next = remove_query_param_from_url(request.headers.get('referer'), 'hl')
         next = next and unquote(next)  # HTTP_REFERER may be encoded.
         if not url_has_allowed_host_and_scheme(url=next,
                             allowed_hosts={request.get_host()},
@@ -358,4 +358,4 @@ class PseudonymizeView(BaseView):
     def get(self, request: HttpRequest) -> HttpResponse:
         pseudonymize = request.session.get("pseudonymize", False)
         request.session["pseudonymize"] = not pseudonymize
-        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+        return HttpResponseRedirect(request.headers.get("referer", "/"))
