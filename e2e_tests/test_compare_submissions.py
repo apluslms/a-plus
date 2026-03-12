@@ -63,7 +63,7 @@ def test_compare_submissions(page: Page) -> None:
     page.get_by_placeholder("Staff feedback").fill(ASSISTANT_FEEDBACK_TEXT)
     page.get_by_role("button", name="Grader feedback").click()
     page.get_by_placeholder("Grader feedback").fill(FEEDBACK_TEXT)
-    page.get_by_label("Points").fill(POINTS)
+    page.get_by_placeholder("Points").fill(POINTS)
     page.get_by_role("button", name="Submit").click()
     expect(page.locator('.site-message')).to_contain_text(
         "The review was saved successfully and the submitters were notified.")
