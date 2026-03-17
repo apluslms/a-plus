@@ -10,6 +10,7 @@ from ...models import BaseExercise, Submission
 def filter_best_submissions(
         submissions: Iterable[Submission],
         revealed_ids: Set[int],
+        include_all_submissions: bool = False,
         ) -> List[Submission]:
     best = {}
     forced = {}
@@ -21,7 +22,7 @@ def filter_best_submissions(
             best[eid] = {}
             forced[eid] = {}
 
-        if s.status == 'ready':
+        if s.status == 'ready' or include_all_submissions:
             user = s.submitters.first()
             uid = user.id if user else 0
             grade = s.grade if eid in revealed_ids else 0

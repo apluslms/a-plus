@@ -4700,6 +4700,11 @@ msgid "DOWNLOAD_POINTS"
 msgstr "Download points"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_ALL_POINTS"
+msgstr "Download points (include all submissions)"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
 msgstr "%(count)s submissions."

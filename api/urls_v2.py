@@ -67,6 +67,9 @@ with api.register(r'courses',
     courses.register(r'submissiondata',
                      exercise.api.csv.views.CourseSubmissionDataViewSet,
                      basename='course-submissiondata')
+    courses.register(r'pendingsubmissiondata',
+                     exercise.api.csv.views.CoursePendingSubmissionDataViewSet,
+                     basename='course-submissiondata-pending')
     courses.register(r'aggregatedata',
                      exercise.api.csv.views.CourseAggregateDataViewSet,
                      basename='course-aggregatedata')

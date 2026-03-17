@@ -39,6 +39,26 @@
 				{% endfor %}
 			</ul>
 		</span>
+		<span class="dropdown">
+			<button
+				class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+				type="button"
+				data-bs-toggle="dropdown"
+				id="download-pending-data"
+			>
+				{% translate "DOWNLOAD_ALL_POINTS" %} <span class="caret"></span>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-start" aria-labeledby="download-pending-data">
+				{% get_format_info_list "json csv excel.csv" as formats %}
+				{% for format in formats %}
+				<li>
+					<a class="dropdown-item" href="{% url 'api:course-submissiondata-pending-list' version=2 course_id=instance.id %}?exercise_id={{ exercise.id }}&amp;format={{ format.name }}">
+						{{ format.verbose_name }}
+					</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</span>
 		{% if has_files %}
 			<span class="dropdown">
 				<button

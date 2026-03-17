@@ -92,6 +92,7 @@ class CourseSerializer(CourseBriefSerializer):
         },
     )
     data = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-list')
+    pending_submissions_data = NestedHyperlinkedIdentityField(view_name='api:course-submissiondata-pending-list')
     aggregate_data = NestedHyperlinkedIdentityField(view_name='api:course-aggregatedata-list')
     results_data = NestedHyperlinkedIdentityField(view_name='api:course-resultsdata-list')
     best_results_data = NestedHyperlinkedIdentityField(view_name='api:course-resultsdata-best-list')
@@ -117,6 +118,7 @@ class CourseSerializer(CourseBriefSerializer):
             'my_points',
             'my_data',
             'data',
+            'pending_submissions_data',
             'aggregate_data',
             'results_data',
             'best_results_data',

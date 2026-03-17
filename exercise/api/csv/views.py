@@ -168,6 +168,45 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         return context
 
 
+class CoursePendingSubmissionDataViewSet(CourseSubmissionDataViewSet):
+    """
+    The `pendingsubmissiondata` endpoint returns information in CSV format about the
+    users' submissions in exercises in the course. Similar to the 'submissiondata' endpoint,
+    but overrides the serialize_submissions method to include submissions with any status,
+    such as waiting for grading or error.
+    """
+    include_all_submissions = True
+    def serialize_submissions(
+            self,
+            request: Request,
+            queryset: QuerySet[Submission],
+            revealed_ids: Set[int],
+            best: bool = False
+            ) -> Response:
+        submissions = list(queryset.order_by('exercise_id', 'id'))
+        if best:
+            submissions = filter_best_submissions(submissions, revealed_ids, self.include_all_submissions)
+
+        # Pick out a single field.
+        field = request.GET.get('field')
+        if field:
+            def submitted_field(submission, name):
+                for key,val in (submission.submission_data or []):
+                    if key == name:
+                        return val
+                return ""
+            vals = [submitted_field(s, field) for s in submissions]
+            return Response([v for v in vals if v != ""])
+        data,fields = submissions_sheet(request, submissions, revealed_ids)
+        self.renderer_fields = fields
+        response = Response(data)
+        if isinstance(getattr(request, 'accepted_renderer'), CSVRenderer):
+            response['Content-Disposition'] = 'attachment; filename="submissions.csv"'
+        elif isinstance(getattr(request, 'accepted_renderer'), APlusJSONRenderer):
+            response['Content-Disposition'] = 'attachment; filename="submissions.json"'
+        return response
+
+
 class CourseAggregateDataViewSet(NestedViewSetMixin,
                                  MeUserMixin,
                                  CourseResourceMixin,
