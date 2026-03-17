@@ -4713,6 +4713,11 @@ msgid "DOWNLOAD_POINTS"
 msgstr "Lataa pisteet"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_ALL_POINTS"
+msgstr "Lataa pisteet (sis. kaikki palautukset)"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
 msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
 msgstr "%(count)s palautusta."
