@@ -9,6 +9,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from django.shortcuts import resolve_url
 from django.template.loader import TemplateDoesNotExist, get_template
 from django.urls import reverse, translate_url
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -46,6 +47,13 @@ class AplusLoginView(LoginView):
     }
     if extra_context['haka_login'] and not extra_context['shibboleth_login']:
         logger.warning("Shibboleth login not enabled, but Haka login flag set as true.")
+
+    # Avoid redirecting to the login page itself
+    def get_success_url(self):
+        url = self.get_redirect_url()
+        if not url or url == self.request.path:
+            return resolve_url(settings.LOGIN_REDIRECT_URL)
+        return url
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
