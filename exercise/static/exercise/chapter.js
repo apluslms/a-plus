@@ -268,6 +268,9 @@
             $.ajax(exercise.url, {dataType: "html"})
               .done(function(data) {
                 exercise.updateSummary($(data));
+                exercise.dom_element.dispatchEvent(
+                  new CustomEvent("aplus:submission-finished",
+                    {bubbles: true, detail: {type: exercise.exercise_type}}));
               });
           }
         });
@@ -869,6 +872,7 @@
     },
 
     fillFormInputs: function(submissionData, container) {
+      if (!submissionData) return;
       submissionData.forEach(function([fieldName, fieldValue]) {
         const field = container.find('[name="' + fieldName + '"]');
         if (field.length === 0) return;
