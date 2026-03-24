@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-28 15:17+0200\n"
+"POT-Creation-Date: 2026-02-17 12:43+0200\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -709,7 +709,8 @@ msgstr "kurssikoukku"
 msgid "MODEL_NAME_COURSE_HOOK_PLURAL"
 msgstr "kurssikoukut"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
+#: course/models.py course/templates/course/staff/all_submissions_table.html
+#: exercise/exercise_models.py exercise/submission_models.py
 msgid "STATUS_READY"
 msgstr "Valmis"
 
@@ -1150,10 +1151,12 @@ msgid "SEARCH_COURSES"
 msgstr "Hae kursseja"
 
 #: course/templates/course/_search_courses_form.html
+#: course/templates/course/staff/all_submissions_table.html
 msgid "CLEAR_SEARCH"
 msgstr "Tyhjennä haku"
 
 #: course/templates/course/_search_courses_form.html
+#: course/templates/course/staff/all_submissions_table.html
 #: templates/ajax_search_select.html
 msgid "SEARCH"
 msgstr "Hae"
@@ -1356,28 +1359,154 @@ msgid "REMOVE_ALL"
 msgstr "Poista kaikki"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table.html
 #, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
-msgstr "%(count)s palautusta."
+msgid "NUM_OF_RESULTS_DISPLAYED_OF_TOTAL -- %(displayed)s, %(total)s"
+msgstr "näytetään %(displayed)s tulosta (yhteensä %(total)s)."
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "LIMIT_EXCEEDED_REFINE_SEARCH"
+msgstr "Tulosten maksimimäärä ylittyi; ole hyvä ja tarkenna hakua."
+
+#: course/templates/course/staff/all_submissions_table.html
+#, python-format
+msgid "NUM_OF_RESULTS_DISPLAYED -- %(count)s"
+msgstr "%(count)s tulosta."
+
+#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: deviations/models.py exercise/submission_models.py
+msgid "LABEL_SUBMITTER"
+msgstr "Opiskelija"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/user_results.html
+msgid "FIRST_NAME"
+msgstr "Etunimi"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/user_results.html
+msgid "LAST_NAME"
+msgstr "Sukunimi"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: diploma/templates/diploma/list.html
+#: exercise/templates/exercise/staff/user_results.html
+#: userprofile/templates/userprofile/profile.html
+msgid "STUDENT_ID"
+msgstr "Opiskelijanumero"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "CLEAR"
+msgstr ""
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/analytics.html
+msgid "CLEAR_SELECTION"
+msgstr "Tyhjennä valinta"
+
+#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: deviations/models.py exercise/admin.py exercise/exercise_models.py
+#: exercise/submission_models.py
+msgid "LABEL_EXERCISE"
+msgstr "Tehtävä"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_submission_info.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submissions_table_compact.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "STATUS"
+msgstr "Tila"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "STATUS_ANY"
+msgstr "Kaikki tilat"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "STATUS_NOT_READY"
+msgstr "Kaikki paitsi valmis"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_INITIALIZED"
+msgstr "Vastaanotettu"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_WAITING"
+msgstr "Arvosteltavana"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_ERROR"
+msgstr "Virhe"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_REJECTED"
+msgstr "Hylätty"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: edit_course/course_forms.py
+msgid "LABEL_SUBMISSION_TAGS"
+msgstr "Palautusmerkinnät"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
-msgstr ""
-"%(limit)s viimeisintä palautusta. <a class=\"aplus-button--secondary aplus-"
-"button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "ASSESSED_MANUALLY"
+msgstr "Arvosteltu manuaalisesti"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/analytics.html
+#: exercise/templates/exercise/staff/results.html
+#: exercise/templatetags/exercise.py
+msgid "ALL"
+msgstr "Kaikki"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "YES"
+msgstr "Kyllä"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: deviations/templates/deviations/list_dl.html
+#: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_submissions_table.html
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "NO"
+msgstr "Ei"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/_submission_info.html
+msgid "INCLUDES_LATE_PENALTY"
+msgstr "Sisältää myöhästymissakon"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "LABEL_SHOW_LAST"
+msgstr "Näytä viimeiset"
+
+#: course/templates/course/staff/all_submissions_table.html
+msgid "DURATION_UNIT_DAYS_PARTITIVE"
+msgstr "vuorokautta"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_START"
+msgstr "Aikavälin alku"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: userprofile/templates/userprofile/teachers.html
+msgid "DATE_RANGE_END"
+msgstr "Aikavälin loppu"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
-#, python-format
-msgid ""
-"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
-"%(limit)s"
-msgstr ""
-"%(count)s palautusta. <a class=\"aplus-button--secondary aplus-button--xs\" "
-"role=\"button\" href=\"%(url)s\">Näytä %(limit)s viimeisintä</a>"
+#: exercise/templates/exercise/staff/_submitters_table.html
+msgid "DOWNLOAD_SUBMISSIONS"
+msgstr "Lataa palautukset"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/_submissions_table.html
@@ -1398,14 +1527,6 @@ msgid "TIME"
 msgstr "Aika"
 
 #: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/_submission_info.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table_compact.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "STATUS"
-msgstr "Tila"
-
-#: course/templates/course/staff/all_submissions_table.html
 #: diploma/templates/diploma/list.html
 #: exercise/templates/exercise/_submission_info.html
 #: exercise/templates/exercise/staff/_submissions_table.html
@@ -1424,28 +1545,6 @@ msgstr "Arvosana"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "TAGS"
 msgstr "Merkinnät"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "YES"
-msgstr "Kyllä"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: deviations/templates/deviations/list_dl.html
-#: deviations/templates/deviations/override_dl.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "NO"
-msgstr "Ei"
-
-#: course/templates/course/staff/all_submissions_table.html
-#: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "ASSESSED_MANUALLY"
-msgstr "Arvosteltu manuaalisesti"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/_user_results.html
@@ -1478,6 +1577,11 @@ msgstr "Myöhässä <small>-%(percent)s%%</small>"
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "NO_SUBMISSIONS"
 msgstr "Ei vielä palautuksia"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/templates/exercise/staff/results.html
+msgid "RESULTS_SHOW_ALL_EXERCISES"
+msgstr "Näytä kaikki tehtävät"
 
 #: course/templates/course/staff/enroll_students.html
 #: course/templates/course/staff/participants.html
@@ -1584,22 +1688,6 @@ msgid "FILTER_USERS_BY_STATUS"
 msgstr "Suodata listaa tilan perusteella"
 
 #: course/templates/course/staff/participants.html
-msgid "NUMBER_OF_ENROLLED_STUDENTS"
-msgstr "Ilmoittautuneita aktiivisia opiskelijoita:"
-
-#: course/templates/course/staff/participants.html
-msgid "PENDING_STUDENTS"
-msgstr "Odottavia:"
-
-#: course/templates/course/staff/participants.html
-msgid "REMOVED_STUDENTS"
-msgstr "Poistettuja:"
-
-#: course/templates/course/staff/participants.html
-msgid "BANNED_STUDENTS"
-msgstr "Estettyjä:"
-
-#: course/templates/course/staff/participants.html
 msgid "OF_WHICH_SELECTED"
 msgstr "Tällä hetkellä valittuja:"
 
@@ -1682,18 +1770,9 @@ msgstr "Luotiin uusi opiskelijaryhmä."
 msgid "LABEL_MODULE"
 msgstr "Moduuli"
 
-#: deviations/forms.py deviations/models.py exercise/admin.py
-#: exercise/exercise_models.py exercise/submission_models.py
-msgid "LABEL_EXERCISE"
-msgstr "Tehtävä"
-
 #: deviations/forms.py
 msgid "LABEL_SUBMITTER_TAG"
 msgstr "Opiskelijamerkintä"
-
-#: deviations/forms.py deviations/models.py exercise/submission_models.py
-msgid "LABEL_SUBMITTER"
-msgstr "Opiskelija"
 
 #: deviations/forms.py
 msgid "EXERCISES_AND_MODULES_MISSING"
@@ -2136,12 +2215,6 @@ msgstr "Suodata listaa"
 msgid "USERNAME"
 msgstr "Käyttäjätunnus"
 
-#: diploma/templates/diploma/list.html
-#: exercise/templates/exercise/staff/user_results.html
-#: userprofile/templates/userprofile/profile.html
-msgid "STUDENT_ID"
-msgstr "Opiskelijanumero"
-
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
 msgstr "Kategoria"
@@ -2224,10 +2297,6 @@ msgstr "Opiskelijamerkinnät"
 #: edit_course/course_forms.py
 msgid "LABEL_STUDENT_TAGS_HELPTEXT"
 msgstr "Kopioi opiskelijamerkinnät tästä kurssikerrasta."
-
-#: edit_course/course_forms.py
-msgid "LABEL_SUBMISSION_TAGS"
-msgstr "Palautusmerkinnät"
 
 #: edit_course/course_forms.py
 msgid "LABEL_SUBMISSION_TAGS_HELPTEXT"
@@ -3913,22 +3982,6 @@ msgstr[0] "{count} myöhästynyt tai epävirallinen palautus hyväksyttiin."
 msgstr[1] "{count} myöhästynyttä tai epävirallista palautusta hyväksyttiin."
 
 #: exercise/submission_models.py
-msgid "STATUS_INITIALIZED"
-msgstr "Vastaanotettu"
-
-#: exercise/submission_models.py
-msgid "STATUS_WAITING"
-msgstr "Arvosteltavana"
-
-#: exercise/submission_models.py
-msgid "STATUS_ERROR"
-msgstr "Virhe"
-
-#: exercise/submission_models.py
-msgid "STATUS_REJECTED"
-msgstr "Hylätty"
-
-#: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
 msgstr "Ei vaikuta arvosteluun"
 
@@ -4232,10 +4285,6 @@ msgstr "Palautuksen tiedot"
 #: exercise/templates/exercise/_submission_info.html
 msgid "SUBMITTED_ON"
 msgstr "Palautushetki"
-
-#: exercise/templates/exercise/_submission_info.html
-msgid "INCLUDES_LATE_PENALTY"
-msgstr "Sisältää myöhästymissakon"
 
 #: exercise/templates/exercise/_submission_info.html
 msgid "PSEUDONYMIZED_SUBMITTERS"
@@ -4664,9 +4713,25 @@ msgid "DOWNLOAD_POINTS"
 msgstr "Lataa pisteet"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
-#: exercise/templates/exercise/staff/_submitters_table.html
-msgid "DOWNLOAD_SUBMISSIONS"
-msgstr "Lataa palautukset"
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED -- %(count)s"
+msgstr "%(count)s palautusta."
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid "NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_ALL_BTN -- %(limit)s, %(url)s"
+msgstr ""
+"%(limit)s viimeisintä palautusta. <a class=\"aplus-button--secondary aplus-"
+"button--xs\" role=\"button\" href=\"%(url)s\">Näytä kaikki</a>"
+
+#: exercise/templates/exercise/staff/_submissions_table.html
+#, python-format
+msgid ""
+"NUM_OF_SUBMISSIONS_DISPLAYED_AND_SHOW_LATEST_BTN -- %(count)s, %(url)s, "
+"%(limit)s"
+msgstr ""
+"%(count)s palautusta. <a class=\"aplus-button--secondary aplus-button--xs\" "
+"role=\"button\" href=\"%(url)s\">Näytä %(limit)s viimeisintä</a>"
 
 #: exercise/templates/exercise/staff/_submissions_table.html
 msgid "GROUP_BY_SUBMITTER"
@@ -4739,12 +4804,6 @@ msgid "MODULE_SELECTION"
 msgstr "Moduulin valinta"
 
 #: exercise/templates/exercise/staff/analytics.html
-#: exercise/templates/exercise/staff/results.html
-#: exercise/templatetags/exercise.py
-msgid "ALL"
-msgstr "Kaikki"
-
-#: exercise/templates/exercise/staff/analytics.html
 msgid "VIEW_SELECTION"
 msgstr "Näkymän valinta"
 
@@ -4771,10 +4830,6 @@ msgstr "Näytä pudotusvalikko"
 #: exercise/templates/exercise/staff/analytics.html
 msgid "OPEN_API"
 msgstr "Avaa API"
-
-#: exercise/templates/exercise/staff/analytics.html
-msgid "CLEAR_SELECTION"
-msgstr "Tyhjennä valinta"
 
 #: exercise/templates/exercise/staff/analytics.html
 #, python-format
@@ -4980,21 +5035,9 @@ msgstr "Näytä tehtävät vaikeusasteittain"
 msgid "RESULTS_SHOW_EXERCISES_BY_MODULE"
 msgstr "Näytä tehtävät moduulettain"
 
-#: exercise/templates/exercise/staff/results.html
-msgid "RESULTS_SHOW_ALL_EXERCISES"
-msgstr "Näytä kaikki tehtävät"
-
 #: exercise/templates/exercise/staff/submissions_summary.html
 msgid "SUBMISSIONS_SUMMARY"
 msgstr "Palautusten yhteenveto"
-
-#: exercise/templates/exercise/staff/user_results.html
-msgid "LAST_NAME"
-msgstr "Sukunimi"
-
-#: exercise/templates/exercise/staff/user_results.html
-msgid "FIRST_NAME"
-msgstr "Etunimi"
 
 #: exercise/templates/exercise/staff/user_results.html
 #: userprofile/templates/userprofile/profile.html
@@ -6189,14 +6232,6 @@ msgid "COURSE_DATE_RANGE"
 msgstr "Kurssin aikaväli"
 
 #: userprofile/templates/userprofile/teachers.html
-msgid "DATE_RANGE_START"
-msgstr "Aikavälin alku"
-
-#: userprofile/templates/userprofile/teachers.html
-msgid "DATE_RANGE_END"
-msgstr "Aikavälin loppu"
-
-#: userprofile/templates/userprofile/teachers.html
 msgid "INCLUDE_ASSISTANTS"
 msgstr "Sisällytä assistentit"
 
@@ -6242,3 +6277,15 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
+
+#~ msgid "NUMBER_OF_ENROLLED_STUDENTS"
+#~ msgstr "Ilmoittautuneita aktiivisia opiskelijoita:"
+
+#~ msgid "PENDING_STUDENTS"
+#~ msgstr "Odottavia:"
+
+#~ msgid "REMOVED_STUDENTS"
+#~ msgstr "Poistettuja:"
+
+#~ msgid "BANNED_STUDENTS"
+#~ msgstr "Estettyjä:"

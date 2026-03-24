@@ -96,9 +96,11 @@ window.addEventListener("message", function (event) {
 		$("#submit-progress").addClass("d-none");
 		var $stats = $("#exercise-info"),
 			url = $stats.data("url");
-		$stats.load(url, function() {
-			$stats.find('[data-bs-toggle="tooltip"]').tooltip();
-		});
+		if (url) {
+			$stats.load(url, function() {
+				$stats.find('[data-bs-toggle="tooltip"]').tooltip();
+			});
+		}
 	}
 });
 </script>
