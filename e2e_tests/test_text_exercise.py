@@ -10,7 +10,7 @@ def test_should_not_accept_empty_submission(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
-    
+
     #fill in an empty answer for exercise 5.1.2
     exercise = page.locator("#chapter-exercise-2")
     exercise.get_by_role("textbox", name="Question 1").fill("")
@@ -35,7 +35,7 @@ def test_should_give_zero_points_on_false_submission(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
-    
+
     #fill in an false answer for exercise 5.1.2
     exercise = page.locator("#chapter-exercise-2")
     exercise.get_by_role("textbox", name="Question 1").fill("z")
@@ -58,7 +58,7 @@ def test_should_give_partial_points_on_partially_correct_submission(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
-    
+
     #fill in an partially correct answer for exercise 5.1.3
     #fill in different exercise to make the test work independently of the previous test
     # TODO: figure out a way to make the tests independent?
@@ -79,7 +79,7 @@ def test_should_give_full_points_on_correct_submission(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
-    
+
     #fill in an correct answer for exercise 5.1.4
     #fill in different exercise to make the test work independently of the previous test
     # TODO: figure out a way to make the tests independent?
@@ -100,7 +100,7 @@ def test_should_not_accept_submission_after_max_submissions_reached(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
-    
+
     #fill in an false answer for exercise 5.1.2 until max submissions reached
     exercise = page.locator("#chapter-exercise-2")
 
@@ -113,7 +113,8 @@ def test_should_not_accept_submission_after_max_submissions_reached(page: Page):
     elif "2" in submissions.inner_text():
         sub_count = 2
     else:
-        sub_count = 3 #max submissions already reached, this can happen if the test is run after other tests
+        sub_count = 3 
+    #max submissions already reached, this can happen if the test is run after other tests
 
     while (sub_count < 3):
         exercise.get_by_role("textbox", name="Question 1").fill("z")

@@ -11,9 +11,9 @@ def test_homepage(page: Page):
     navigate_to_default_course(page)
     expect(page.get_by_role("heading", name="A+ Manual")).to_be_visible()
 
-   # point_values = page.locator("div.col-xl-3") these don't work reliably in the suite
-   # expect(point_values).to_contain_text("jututfeedback 0 / 4")
-   # expect(point_values).to_contain_text("questionnaire 0 / 97")
-   # expect(point_values).to_contain_text("submit 0 / 700")
+    # point_values = page.locator("div.col-xl-3") these don't work reliably in the suite
+    # expect(point_values).to_contain_text("jututfeedback 0 / 4")
+    # expect(point_values).to_contain_text("questionnaire 0 / 97")
+    # expect(point_values).to_contain_text("submit 0 / 700")
 
-   #TODO figure out more testing for the homepage
+    #TODO figure out more testing for the homepage

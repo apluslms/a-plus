@@ -10,7 +10,7 @@ def test_submission_count(page: Page):
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.2 Question groups").click()
-    
+
     #fill in an answer 11 times for exercise 5.2.1
     exercise = page.locator("#chapter-exercise-1")
 

@@ -1,6 +1,4 @@
-import re
 from playwright.sync_api import Page, expect
-from tomlkit import table
 from e2e_tests.helpers import login, logout
 
 
@@ -14,7 +12,7 @@ def test_teacher_list_access_rights(page: Page):
     alert = page.get_by_role("alert")
     message = "Unfortunately, you are not permitted to view this content"
 
-    expect(alert).to_be_visible() 
+    expect(alert).to_be_visible()
     expect(alert).to_contain_text(message)
 
     login(page, "student", "student")
@@ -36,7 +34,7 @@ def test_teacher_list_access_rights(page: Page):
 
 
 def test_teacher_list_content(page: Page):
-    
+
     page.goto("http://localhost:8000/?hl=en")
     login(page, "admin", "admin")
     page.goto("http://localhost:8000/accounts/teachers")
@@ -68,8 +66,10 @@ def test_teacher_list_content(page: Page):
     for i, expected_cells in enumerate(expected_first_three_cols):
         row_cells = rows.nth(i).locator("td")
         expect(row_cells).to_have_count(5)
-        
+
         for j, expected_text in enumerate(expected_cells):
             expect(row_cells.nth(j)).to_contain_text(expected_text)
+            expect(row_cells.nth(j)).to_contain_text(expected_text)
+
 
 

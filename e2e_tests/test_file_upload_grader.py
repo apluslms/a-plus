@@ -12,16 +12,20 @@ def test_should_not_submit_without_files(page: Page):
     first_link.click()
 
     page.locator('#chapter-exercise-1').get_by_role("button", name="Submit").click()
-    
+
     submissions = page.locator('#chapter-exercise-1').get_by_role("button", name=re.compile("My submissions"))
     points = page.locator('#chapter-exercise-1').get_by_role("button", name=re.compile("Points"))
 
-    expect(submissions).to_contain_text("0 / 10") #clicking submit without files will not result in a submission
+    expect(submissions).to_contain_text("0 / 10")
+    #clicking submit without files will not result in a submission
     expect(points).to_contain_text("0 / 10")
 
 #TODO more tests ?
+    
+    
 
 
     
 
-    
+
+

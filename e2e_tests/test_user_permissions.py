@@ -1,4 +1,3 @@
-import re
 from playwright.sync_api import Page, expect
 from e2e_tests.helpers import navigate_to_default_course, login
 
