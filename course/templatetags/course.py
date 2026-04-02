@@ -22,9 +22,9 @@ def _prepare_topmenu(context):
     return context['topmenu']
 
 
-def _deadline_extended_exercise_open(entry, now):
+def _deadline_extended_exercise_open(entry):
     personal_deadline = entry.personal_deadline
-    return personal_deadline is not None and entry.opening_time <= now <= personal_deadline
+    return personal_deadline is not None
 
 
 @register.inclusion_tag("course/_course_dropdown_menu.html", takes_context=True)
@@ -77,14 +77,14 @@ def exercises_open(entry, now):
 
 
 @register.filter
-def deadline_extended_exercise_open(entry, now):
-    return _deadline_extended_exercise_open(entry, now)
+def deadline_extended_exercise_open(entry):
+    return _deadline_extended_exercise_open(entry)
 
 
 @register.filter
-def deadline_extended_exercises_open(entry, now):
+def deadline_extended_exercises_open(entry):
     return any(
-        _deadline_extended_exercise_open(entry, now)
+        _deadline_extended_exercise_open(entry)
         for entry in entry.flatted
         if isinstance(entry, ExercisePoints)
     )
