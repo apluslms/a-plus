@@ -58,7 +58,7 @@
 						{% for requirement in module.requirements %}{{ requirement }}{% endfor %}
 					</span>
 					{% endif %}
-					{% if module|deadline_extended_exercises_open:now %}
+					{% if module|deadline_extended_exercises_open %}
 					<span class="badge text-primary bg-white float-end text-wrap">
 						{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
 					</span>
@@ -151,7 +151,7 @@
 					<td>
 						{% if exercise_accessible and entry.is_revealed or is_course_staff %}
 						<a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
-						{% if entry|deadline_extended_exercise_open:now %}
+						{% if entry|deadline_extended_exercise_open %}
 							<span
 								data-bs-toggle="tooltip"
 								title="{% translate 'PERSONAL_EXTENDED_DEADLINE' %} {{ entry.personal_deadline }}"
