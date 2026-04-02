@@ -1,9 +1,5 @@
 FROM ubuntu:22.04
 
-ARG GECKODRIVER_VERSION=0.33.0
-ARG GECKODRIVER_FILE=geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz
-ARG GECKODRIVER_LINK=https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/${GECKODRIVER_FILE}
-
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update -y
@@ -16,10 +12,5 @@ COPY requirements_testing.txt requirements_testing.txt
 RUN pip install -r requirements.txt
 RUN pip install -r requirements_testing.txt
 RUN rm requirements.txt requirements_testing.txt
-
-# install geckodriver for selenium
-RUN curl -s -L $GECKODRIVER_LINK | tar -xz
-RUN chmod +x geckodriver
-RUN mv geckodriver /usr/bin/
 
 ENV APLUS_BASE_URL="-"
