@@ -35,7 +35,9 @@ def test_compare_submissions(page: Page) -> None:
     first_link.click()
     page.get_by_label("6.3.6 Wallet").get_by_role(
         "button", name="View all submissions").click()
-    page.locator("#submission-2").get_by_role("link", name="Inspect").click()
+
+    latest_submission = page.locator('[id^="submission-"]').first
+    latest_submission.get_by_role("link", name="Inspect").click()
 
     def assert_line(filename: str, line_number: int, text: str, color: str):
         line = page.get_by_test_id(f"{filename}-line-{line_number}")

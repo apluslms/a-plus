@@ -139,9 +139,6 @@ Therefore they are run and updated outside the containers, within a virtual envi
 
 ### Prerequisities
 
-- For Selenium tests:
-  * Firefox browser installed
-  * xvfb virtual framebuffer installed (`sudo apt-get install xvfb` or `aptdcon --install xvfb`)
 - python3 installed
 - [Python module venv (or virtualenv)](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-virtualenv) installed
 - For translations: gettext (`aptdcon --install gettext` or `sudo apt-get install gettext`)
@@ -191,44 +188,6 @@ If you need to be able to login or use the admin-page while running the code wit
 
    ```sh
    $ python3 manage.py test
-   ```
-
-### Selenium integration tests
-
-Selenium tests check end-to-end -functioning from a user-perspective.
-The tests will automatically open and direct Firefox browser windows.
-Currently, the tests depend on a Unix type shell and are run within a virtual environment created above.
-
-1. Install the necessary requirements:
-
-   ```sh
-   $ pip3 install -r requirements_testing.txt
-   ```
-
-2. Download the latest release of geckodriver (choose the appropriate tar.gz file based on your machine) from https://github.com/mozilla/geckodriver/releases and extract it.
-
-3. Check the path to your extracted geckodriver and add it to PATH:
-
-   ```sh
-   $ export PATH=$PATH:/path-to-your-extracted-geckodriver/
-   ```
-
-4. To setup the servers and run all the tests at one go:
-
-   ```sh
-   $ selenium_test/run_servers_and_tests.sh
-   ```
-
-5. Alternatively you can run individual tests:
-
-   ```sh
-   $ cd selenium_test/test/
-   $ ../run_servers.sh
-
-   $ python3 login_test.py
-   $ python3 home_page_test.py
-
-   $ ../kill_servers.sh
    ```
 
 ### Updating translations for Finnish and English versions

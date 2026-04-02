@@ -28,7 +28,7 @@ The [doc/GRADERS.md](doc/GRADERS.md) describes the assessment protocol supported
 Additionally, there is a minimal example grader in [doc/example_grader.py](doc/example_grader.py), which can be used to start a new service.
 A list of existing assessment services and other tools can be found in [the project github page](https://apluslms.github.io/components/).
 
-The [selenium_test/](selenium_test) offers an integration test suite using the Selenium Firefox driver.
+The [e2e_tests/](e2e_tests) folder offers an integration test suite using Playwright.
 
 Code Organization
 -----------------
