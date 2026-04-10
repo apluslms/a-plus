@@ -1183,7 +1183,7 @@ msgstr "Kursseja ei löytynyt."
 
 #: course/templates/course/course.html
 msgid "LEFT_OFF_REMINDER"
-msgstr ""
+msgstr "Jatka siitä, mihin jäit"
 
 #: course/templates/course/course_base.html
 msgid "EXPAND_SIDEBAR"
