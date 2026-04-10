@@ -11,6 +11,7 @@ from pylti1p3.message_launch import TLaunchData
 from pylti1p3.exception import LtiException, LtiServiceException
 
 from course.models import CourseInstance
+from lib.localization_syntax import pick_localized
 
 
 logger = logging.getLogger('aplus.lti_tool')
@@ -116,8 +117,13 @@ def send_lti_points(request, submission):
             .set_activity_progress('Completed')
             .set_grading_progress('FullyGraded')
             .set_user_id(launch.get_launch_data().get('sub')))
+
+        # Check for lineitem existence and remake if not found
+        e = submission.exercise
         line_item = LineItem()
-        line_item.set_tag(str(submission.exercise.id))
+        line_item.set_tag(str(e.id)).set_score_maximum(e.max_points).set_label(pick_localized(str(e), 'en'))
+        ags.find_or_create_lineitem(line_item)
+
         try:
             ags.put_grade(grade, line_item)
         except LtiServiceException as exc:
