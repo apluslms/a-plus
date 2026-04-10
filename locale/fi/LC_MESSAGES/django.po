@@ -1395,10 +1395,6 @@ msgid "STUDENT_ID"
 msgstr "Opiskelijanumero"
 
 #: course/templates/course/staff/all_submissions_table.html
-msgid "CLEAR"
-msgstr ""
-
-#: course/templates/course/staff/all_submissions_table.html
 #: exercise/templates/exercise/staff/analytics.html
 msgid "CLEAR_SELECTION"
 msgstr "Tyhjennä valinta"
