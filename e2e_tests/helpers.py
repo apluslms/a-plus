@@ -31,7 +31,7 @@ def logout(page: Page):
 def upload_submission(page: Page, chapter_name: str, exercise_name: str, files: List[File]):
     page.get_by_label("Course").get_by_role(
         "link", name="Course materials").click()
-    page.get_by_role("link", name=chapter_name).click()
+    page.get_by_role("link", name=chapter_name).first.click()
     for file in files:
         page.get_by_label(file.label).set_input_files(os.path.join(assets_path, file.name))
     page.locator(exercise_name).get_by_role("button", name="Submit").click()
