@@ -57,7 +57,7 @@ def test_should_give_partial_points_on_partially_correct_submission(page: Page):
     page.goto("http://localhost:8000/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
-    page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
+    page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
 
     #fill in an partially correct answer for exercise 5.1.3
     #fill in different exercise to make the test work independently of the previous test
@@ -78,7 +78,7 @@ def test_should_give_full_points_on_correct_submission(page: Page):
     page.goto("http://localhost:8000/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
-    page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
+    page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
 
     #fill in an correct answer for exercise 5.1.4
     #fill in different exercise to make the test work independently of the previous test
@@ -99,7 +99,7 @@ def test_should_not_accept_submission_after_max_submissions_reached(page: Page):
     page.goto("http://localhost:8000/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
-    page.get_by_role("link", name="5.1 Creating questionnaire exercises").click()
+    page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
 
     #fill in an false answer for exercise 5.1.2 until max submissions reached
     exercise = page.locator("#chapter-exercise-2")
