@@ -1,0 +1,26 @@
+#!/bin/execlineb -P
+
+define home /srv/aplus
+define run /run/aplus
+fdmove -c 2 1
+
+# Conditionally define celery
+# (-s is undocumented magic, that seems to move _prog_ to end of _then_ or
+# _else_ blocks and thus makes _define_ work)
+ifthenelse -s { test -e /local/venv_aplus/bin/python3 }
+{ define python3 /local/venv_aplus/bin/python3 }
+{ define python3 /usr/bin/python3 }
+
+# Use container environment
+with-contenv
+
+# user and workdir
+s6-setuidgid aplus
+s6-env HOME=${home}
+cd ${home}
+
+# Loop with 1s delay until course update succeeds
+loopwhilex -x 0
+if -n -t { ${python3} manage.py reload_course_configuration def/current }
+s6-sleep 1
+exit 1

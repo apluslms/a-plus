@@ -1,0 +1,18 @@
+#!/bin/execlineb -P
+
+define user redis
+define home /var/lib/redis
+#define daemon /usr/bin/epmd
+# Using stdout instead of stderr
+fdmove -c 2 1
+
+# Use container environment
+with-contenv
+
+# user and workdir
+s6-setuidgid $user
+s6-env HOME=${home}
+cd ${home}
+
+# Start daemon
+redis-server --save 60 1 --loglevel warning

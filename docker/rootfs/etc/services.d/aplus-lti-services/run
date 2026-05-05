@@ -1,0 +1,34 @@
+#!/bin/execlineb -P
+
+define user aplus
+define home /srv/${user}
+fdmove -c 2 1
+
+# Conditionally define celery
+# (-s is undocumented magic, that seems to move _prog_ to end of _then_ or
+# _else_ blocks and thus makes _define_ work)
+ifthenelse -s { test -e /local/venv_aplus/bin/python3 }
+{ define python3 /local/venv_aplus/bin/python3 }
+{ define python3 /usr/bin/python3 }
+
+# Use container environment
+with-contenv
+
+# Loop with 1s delay until course update succeeds
+loopwhilex -o 0
+foreground {
+    elglob -0 -- lti_jsons /local/lti-services-in/*.json
+    forx -- lti_json { ${lti_jsons} }
+    importas -u lti_json lti_json
+    if {
+        # user, workdir and exec django command
+        s6-setuidgid ${user}
+        s6-env HOME=${home}
+        cd ${home}
+        #${python3} manage.py configure_external_service_from_json -c all ${lti_json}
+        ${python3} manage.py configure_external_service_from_json -c def/current ${lti_json}
+    }
+    rm -rf ${lti_json}
+}
+s6-sleep 1
+exit 0 # continue the loop
