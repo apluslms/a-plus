@@ -9,7 +9,7 @@ from lib.typing import AnyUser
 
 
 _ModelT = TypeVar("_ModelT", bound=Model)
-class JWTAccessible(Manager[_ModelT], Generic[_ModelT]):
+class JWTAccessible(Generic[_ModelT], Manager[_ModelT]):
     """
     Simple Manager base class to get an object from the A+ auth library JWT permission dict.
 
