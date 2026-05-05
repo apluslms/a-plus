@@ -226,9 +226,9 @@ class RemotePage:
     # pylint: disable-next=too-many-locals too-many-branches
     def _fix_relative_urls(self, url, tag_name, attr_name, is_multilingual_course):
         # Starts with "#", "//" or "https:".
-        test = re.compile('^(#|\/\/|\w+:)', re.IGNORECASE) # noqa: W605
+        test = re.compile(r'^(#|//|\w+:)', re.IGNORECASE)
         # Ends with filename extension ".html" and possibly "#anchor".
-        chapter = re.compile('.*\.html(#.+)?$', re.IGNORECASE) # noqa: W605
+        chapter = re.compile(r'.*\.html(#.+)?$', re.IGNORECASE)
         # Starts with at least one "../".
         start_dotdot_path = re.compile(r"^(../)+")
         # May end with the language suffix _en or _en/#anchor or _en#anchor.

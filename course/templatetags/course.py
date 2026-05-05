@@ -46,9 +46,6 @@ def group_select(context):
         'selected': selected,
     }
 
-@register.filter
-def escape_slashes(string):
-    return str(string).replace('/', '\/') # noqa: W605
 
 @register.filter
 def parse_localization(entry):

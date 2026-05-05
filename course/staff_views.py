@@ -45,13 +45,12 @@ class ParticipantsView(CourseInstanceBaseView):
             k: str(Enrollment.ENROLLMENT_STATUS[getattr(Enrollment.ENROLLMENT_STATUS, k)])
             for k in Enrollment.ENROLLMENT_STATUS.keys()
         }
-        self.enrollment_statuses_json = json.dumps(self.enrollment_statuses)
-        self.participants = json.dumps(self._get_students_with_tags())
+        self.participants = self._get_students_with_tags()
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
         self.note(
             'participants', 'tags',
-            'enrollment_statuses', 'enrollment_statuses_json',
+            'enrollment_statuses',
             'internal_user_label', 'external_user_label',
         )
 
