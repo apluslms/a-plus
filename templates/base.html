@@ -199,10 +199,13 @@
 									</li>
 									<hr>
 									<li role="presentation">
-										<a class="dropdown-item" href="{% url 'logout' %}">
-											<i class="bi-box-arrow-right" aria-hidden="true"></i>
-											{% translate "LOG_OUT"%}
-										</a>
+										<form method="post" action="{% url 'logout' %}">
+											{% csrf_token %}
+											<button type="submit" class="dropdown-item">
+												<i class="bi-box-arrow-right" aria-hidden="true"></i>
+												{% translate "LOG_OUT"%}
+											</button>
+										</form>
 									</li>
 								</ul>
 							</li>
