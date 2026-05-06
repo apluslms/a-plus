@@ -25,7 +25,7 @@ def login(page: Page, username: str, password: str):
 
 def logout(page: Page):
     page.get_by_test_id('user-menu').click()
-    page.get_by_role("link", name="Log out").click()
+    page.get_by_role("button", name="Log out").click()
 
 
 def upload_submission(page: Page, chapter_name: str, exercise_name: str, files: List[File]):
