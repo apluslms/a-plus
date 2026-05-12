@@ -432,10 +432,18 @@ class EditGitmanagerView(CourseInstanceMixin, BaseFormView):
     access_mode = ACCESS.TEACHER
     template_name = "edit_course/edit_gitmanager.html"
     form_class = GitmanagerForm
+    gitmanager_url = None
 
     def get_common_objects(self) -> None:
         super().get_common_objects()
         self.gitmanager_url = settings.GITMANAGER_URL
+        if self.gitmanager_url and settings.REMOTE_PAGE_HOSTS_MAP:
+            parsed_url = urllib.parse.urlparse(self.gitmanager_url)
+            mapped_netloc = settings.REMOTE_PAGE_HOSTS_MAP.get(parsed_url.netloc)
+            if mapped_netloc:
+                self.gitmanager_url = urllib.parse.urlunparse(
+                    parsed_url._replace(netloc=mapped_netloc)
+                )
         self.note('gitmanager_url')
 
     def get_form_kwargs(self):
