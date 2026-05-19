@@ -1,3 +1,5 @@
+from os import environ
+
 DEBUG = True
 #SECRET_KEY = 'not a very secret key'
 ADMINS = (
@@ -7,7 +9,6 @@ ADMINS = (
 BASE_URL = 'http://localhost:8000'
 SERVICE_BASE_URL = 'http://plus:8000'
 
-from os import environ
 if environ.get('USE_GITMANAGER') == 'true':
     GITMANAGER_URL = 'http://gitmanager:8070'
 else:
@@ -106,6 +107,7 @@ REMOTE_PAGE_HOSTS_MAP = {
 
 #CELERY_BROKER_URL = "amqp://"
 
+# pylint: disable-next=undefined-variable
 LOGGING['loggers'].update({
     '': {
         'level': 'INFO',

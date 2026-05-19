@@ -46,6 +46,7 @@ class BaseDeviationForm(forms.Form):
         self.fields['module'].queryset = CourseModule.objects.filter(
             course_instance=course_instance
         )
+        # pylint: disable-next=assignment-from-no-return
         self.fields['exercise'].queryset = BaseExercise.objects.filter(
             course_module__course_instance=course_instance
         )

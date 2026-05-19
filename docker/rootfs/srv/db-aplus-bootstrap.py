@@ -1,7 +1,8 @@
+# pylint: disable=import-outside-toplevel
+
 import os
 import random
 import sys
-
 from datetime import timedelta
 
 import django
@@ -15,7 +16,7 @@ NUM_USERS = 500
 
 def read_list_file(filepath):
     rows = []
-    with open(filepath) as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
             rows.append(line.strip())
     return rows
@@ -137,7 +138,7 @@ def create_default_users():
     }
 
 def create_default_courses(users):
-    from course.models import Course, CourseInstance, Enrollment
+    from course.models import Course, CourseInstance
 
     course = Course.objects.create(
         name="Def. Course",
@@ -236,9 +237,9 @@ def create_default_services():
     )
 
     # A+ as an LTI Tool v1.3 for Moodle as the Platform.
-    with open("/srv/lti-tool-private.key", "r") as keyfile:
+    with open("/srv/lti-tool-private.key", "r", encoding="utf-8") as keyfile:
         lti_tool_private = keyfile.read()
-    with open("/srv/lti-tool-public.key", "r") as keyfile:
+    with open("/srv/lti-tool-public.key", "r", encoding="utf-8") as keyfile:
         lti_tool_public = keyfile.read()
 
     lti_tool_key = LtiToolKey.objects.create(
@@ -263,49 +264,49 @@ def create_default_services():
 def create_default_user_tags(course_instance, students):
     from course.models import UserTag, UserTagging
 
-    tag_basic, created = UserTag.objects.get_or_create(
+    tag_basic, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Basic",
         slug="basic",
         description="Basic level",
         color="#2cff14",
     )
-    tag_intermediate, created = UserTag.objects.get_or_create(
+    tag_intermediate, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Intermediate",
         slug="intermediate",
         description="Intermediate level",
         color="#e4fc2d",
     )
-    tag_advanced, created = UserTag.objects.get_or_create(
+    tag_advanced, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Advanced",
         slug="advanced",
         description="Advanced level",
         color="#f51505",
     )
-    tag_highschool, created = UserTag.objects.get_or_create(
+    tag_highschool, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="High school",
         slug="highschool",
         description="High school student",
         color="#07dde8",
     )
-    tag_exchange, created = UserTag.objects.get_or_create(
+    tag_exchange, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Exchange",
         slug="exchange",
         description="Exchange student",
         color="#6706bd",
     )
-    tag_local, created = UserTag.objects.get_or_create(
+    tag_local, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Local",
         slug="local",
         description="Local student",
         color="#1100fc",
     )
-    tag_visitor, created = UserTag.objects.get_or_create(
+    tag_visitor, _created = UserTag.objects.get_or_create(
         course_instance=course_instance,
         name="Visitor",
         slug="visitor",
@@ -356,4 +357,3 @@ if __name__ == '__main__':
     services = create_default_services()
     tags = create_default_user_tags(courses['default'], users['students'])
     create_default_student_groups(courses['default'], users['students'])
-

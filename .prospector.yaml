@@ -34,3 +34,6 @@ pylint:
 
 pyflakes:
   run: false
+
+dodgy:
+  run: false
