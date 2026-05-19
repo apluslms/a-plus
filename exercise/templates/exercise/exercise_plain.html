@@ -203,6 +203,9 @@
 					{% if disable_submit %}
 						data-aplus-disable-submit="true"
 					{% endif %}
+					{% if grader_feedback_just_received %}
+						data-aplus-grader-feedback-just-received="true"
+					{% endif %}
 				>
 					{% include "_messages.html" %}
 					{% include "exercise/_submit_progress.html" %}
