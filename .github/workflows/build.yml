@@ -82,6 +82,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: apluslms/run-aplus-front
+          flavor: |
+            latest=false
           tags: |
             type=raw,value=latest
             type=match,pattern=v(\d+\.\d+)\.\d+$,group=1
