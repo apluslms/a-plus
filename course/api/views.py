@@ -486,6 +486,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                 module.opening_time,
                 module.closing_time,
             ),
+            'is_hidden': module.status == CourseModule.STATUS.HIDDEN,
             'reading_opening_time': module.reading_opening_time,
             'opening_time': module.opening_time,
             'closing_time': module.closing_time,
@@ -496,7 +497,7 @@ class CourseExercisesViewSet(NestedViewSetMixin,
     def list(self, request, *args, **kwargs) -> Response:
         modules = []
         for module in self.content.data.modules:
-            if module.is_visible():
+            if module.is_visible() or self.is_teacher:
                 modules.append(self.__module_to_dict(module, **kwargs))
         return Response({"count": len(modules), "next": None, "previous": None, 'results': modules})
 
