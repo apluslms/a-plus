@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 16:08+0300\n"
+"POT-Creation-Date: 2026-05-29 15:19+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
-"Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
+"Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
@@ -6118,16 +6118,6 @@ msgstr "Password"
 msgid "SHOW_MORE_LOGIN_OPTIONS"
 msgstr "Show more login options"
 
-#: userprofile/templates/userprofile/logout.html
-msgid "LOGGED_OUT"
-msgstr "Logged out"
-
-#: userprofile/templates/userprofile/logout.html
-msgid "LOGGED_OUT_SUCCESSFULLY"
-msgstr ""
-"You have successfully logged out. Please close the browser if you were using "
-"a public computer to clear your remaining sessions. "
-
 #: userprofile/templates/userprofile/profile.html
 msgid "[UNKNOWN_NAME]"
 msgstr "[Unknown name]"
@@ -6230,6 +6220,12 @@ msgstr "Starting time"
 #: userprofile/templates/userprofile/teachers.html
 msgid "ENDING_TIME"
 msgstr "Ending time"
+
+#: userprofile/views.py
+msgid "LOGGED_OUT_SUCCESSFULLY"
+msgstr ""
+"You have successfully logged out. Please close the browser if you were using "
+"a public computer to clear your remaining sessions. "
 
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"

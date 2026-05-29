@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from urllib.parse import unquote
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.cache import cache
@@ -83,11 +84,12 @@ class AplusLoginView(LoginView):
         return context
 
 class AplusLogoutView(LogoutView):
-    template_name = "userprofile/logout.html"
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["show_language_toggle"] = True
-        return context
+    next_page = '/'
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, _('LOGGED_OUT_SUCCESSFULLY'))
+        return response
 
 def set_user_language(request):
     """Overrides set_language function from django.views.i18n."""

@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 16:08+0300\n"
+"POT-Creation-Date: 2026-05-29 15:19+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
-"Last-Translator: Jimmy Ihalainen <jimmy.ihalainen@aalto.fi>\n"
+"Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
 "Language: fi_FI\n"
 "MIME-Version: 1.0\n"
@@ -6138,16 +6138,6 @@ msgstr "Salasana"
 msgid "SHOW_MORE_LOGIN_OPTIONS"
 msgstr "Näytä lisää kirjautumisvaihtoehtoja"
 
-#: userprofile/templates/userprofile/logout.html
-msgid "LOGGED_OUT"
-msgstr "Olet kirjautunut ulos"
-
-#: userprofile/templates/userprofile/logout.html
-msgid "LOGGED_OUT_SUCCESSFULLY"
-msgstr ""
-"Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
-"tietokonetta, sulje selain poistaaksesi istunnon tiedot."
-
 #: userprofile/templates/userprofile/profile.html
 msgid "[UNKNOWN_NAME]"
 msgstr "[Tuntematon nimi]"
@@ -6253,6 +6243,12 @@ msgstr "Alkamisaika"
 #: userprofile/templates/userprofile/teachers.html
 msgid "ENDING_TIME"
 msgstr "Päättymisaika"
+
+#: userprofile/views.py
+msgid "LOGGED_OUT_SUCCESSFULLY"
+msgstr ""
+"Olet kirjautunut onnistuneesti ulos palvelusta. Jos käytät julkista "
+"tietokonetta, sulje selain poistaaksesi istunnon tiedot."
 
 #: userprofile/views.py
 msgid "NO_PRIVACY_NOTICE"
