@@ -31,6 +31,7 @@
 							{% for tag in submission.submission_taggings.all %}
 							<form method="post" action="{% url 'remove-tag-from-submissions' course_slug=course.url instance_slug=instance.url module_slug=module.url exercise_path=exercise.get_path submission_id=submission.id subtag_id=tag.tag.id %}">
 								{% csrf_token %}
+								<input type="hidden" name="next" value="{{ request.get_full_path|urlencode }}">
 								<div class="d-flex flex-nowrap align-items-center gap-1">
 									{{tag.tag|colortag:"size=sm"}}
 									<button type="submit" class="aplus-button--danger aplus-button--secondary aplus-button--xs"><i class="bi-x-lg" aria-hidden="true"></i></button>
@@ -40,7 +41,7 @@
 						</p>
 					</div>
 					<div class="d-flex flex-wrap justify-content-end align-items-center gap-2">
-						<div class="dropdown">
+						<div id="taggingsDropdown" class="dropdown" data-next-path="{{ request.get_full_path|urlencode }}">
 							<button class="aplus-button--secondary aplus-button--sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								{% translate 'ADD_TAGGING' %}
 							</button>
@@ -238,6 +239,16 @@ function submitForm(url) {
 	csrfInput.setAttribute('name', 'csrfmiddlewaretoken');
 	csrfInput.setAttribute('value', csrfToken);
 	form.appendChild(csrfInput);
+
+	// Read the next URL from a data attribute on the dropdown container
+	var next = document.querySelector('#taggingsDropdown')?.getAttribute('data-next-path');
+	if (next) {
+		var nextInput = document.createElement('input');
+		nextInput.setAttribute('type', 'hidden');
+		nextInput.setAttribute('name', 'next');
+		nextInput.setAttribute('value', next);
+		form.appendChild(nextInput);
+	}
 
 	form.submit();
 }

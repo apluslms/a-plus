@@ -368,4 +368,9 @@ class PseudonymizeView(BaseView):
     def get(self, request: HttpRequest) -> HttpResponse:
         pseudonymize = request.session.get("pseudonymize", False)
         request.session["pseudonymize"] = not pseudonymize
-        return HttpResponseRedirect(request.headers.get("referer", "/"))
+
+        # Redirect back to the previous page
+        next_url = request.GET.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            return HttpResponseRedirect(next_url)
+        return HttpResponseRedirect('/')
