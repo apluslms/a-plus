@@ -8,6 +8,7 @@ from django.http.response import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _, get_language
 from django.utils.text import format_lazy
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -62,7 +63,10 @@ class SubmissionTaggingAddView(CourseInstanceBaseView):
         SubmissionTagging.objects.create(submission=submission, tag=subtag)
 
         # Redirect back to the previous page
-        return redirect(request.headers.get('referer', '/'))
+        next_url = request.POST.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            return redirect(next_url)
+        return redirect('/')
 
 
 class SubmissionTaggingRemoveView(CourseInstanceBaseView):
@@ -80,7 +84,10 @@ class SubmissionTaggingRemoveView(CourseInstanceBaseView):
         SubmissionTagging.objects.filter(submission=submission, tag=subtag).delete()
 
         # Redirect back to the previous page
-        return redirect(request.headers.get('referer', '/'))
+        next_url = request.POST.get('next')
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            return redirect(next_url)
+        return redirect('/')
 
 
 class ExerciseInfoView(ExerciseBaseView):

@@ -188,7 +188,7 @@
 
 {% if is_course_staff %}
 <li class="nav-item">
-	<a class="nav-link menu-pseudonymize" href="{% url 'toggle-pseudonymization' %}">
+	<a class="nav-link menu-pseudonymize" href="{% url 'toggle-pseudonymization' %}?next={{ request.get_full_path|urlencode }}">
 		{% if pseudonymize %}
 			<i class="bi-eye-fill" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="right" title="{% translate "UNPSEUDONYMIZE" %}"></i>
 			<span class="course-menu-label">{% translate "UNPSEUDONYMIZE" %}</span>
