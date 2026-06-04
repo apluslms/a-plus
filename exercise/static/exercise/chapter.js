@@ -382,9 +382,10 @@
             exercise.update($(data));
             const hasTextarea = exercise.element.find('textarea').length > 0;
             const hasFieldset = exercise.element.find('fieldset').length > 0;
+            const isFeedback = exercise.element.hasClass("feedback");
             if (exercise.active_element) {
               exercise.loadLastSubmission($(data));
-            } else if (hasTextarea && !hasFieldset) { // Identify acceptPost exercises
+            } else if (hasTextarea && !hasFieldset && !isFeedback) { // Identify acceptPost exercises
               exercise.loadLastSubmission($(data), true);
             } else {
               exercise.renderMath();
@@ -669,7 +670,8 @@
 
           const hasTextarea = exercise.element.find('textarea').length > 0;
           const hasFieldset = exercise.element.find('fieldset').length > 0;
-          if (hasTextarea && !hasFieldset) { // Identify acceptPost exercises
+          const isFeedback = exercise.element.hasClass("feedback");
+          if (hasTextarea && !hasFieldset && !isFeedback) { // Identify acceptPost exercises
             // Save form data to restore after update
             exercise.savedFormData = Array.from(formData.entries());
           }
