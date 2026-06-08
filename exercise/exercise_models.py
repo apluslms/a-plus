@@ -562,6 +562,7 @@ class BaseExercise(LearningObject):
         ('NOT_ENROLLED', 3, 'You must enroll at course home.'),
         ('INVALID_GROUP', 4, 'The selected group is not acceptable.'),
         ('AMOUNT_EXCEEDED', 5, 'You have used the allowed amount of submissions.'),
+        ('NO_SUBMISSION', 6, 'This exercise is graded by course staff only.'),
         ('INVALID', 999, 'You cannot submit for an unspecified reason.'),
     ])
 
@@ -906,6 +907,16 @@ class BaseExercise(LearningObject):
             'warning_messages': [],
             'info_messages': [],
         }
+
+        # Teacher-only "noSubmission" exercises: students cannot submit.
+        # Grading is performed by course staff via the teacher API only.
+        if (
+            isinstance(self.exercise_info, dict)
+            and self.exercise_info.get('no_submission')
+            and not self.course_instance.is_course_staff(profile.user)
+        ):
+            alerts['error_messages'].append(_('EXERCISE_GRADED_BY_COURSE_STAFF_ONLY'))
+            return self.SUBMIT_STATUS.NO_SUBMISSION, alerts, students
 
         # Let course module settings decide submissionable state.
         #if self.course_instance.ending_time < timezone.now():

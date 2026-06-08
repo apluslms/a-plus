@@ -1,4 +1,4 @@
-function participants_list(participants, api_url, is_teacher, enrollment_statuses) {
+function participants_list(participants, api_url, is_teacher, enrollment_statuses, exercises_api_url, batch_assess_url, current_user_name) {
   // Ensure predictable order by student id
   participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
@@ -720,7 +720,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         const $all_box = $('#students-select-all');
         $all_box.prop('checked', allChecked).prop('indeterminate', atLeastOne);
         $('#selected-number').text(selectedFiltered);
-        $('#add-tag-selected, #remove-tag-selected').prop('disabled', selectedFiltered === 0);
+        $('#add-tag-selected, #remove-tag-selected, #batch-assess-selected').prop('disabled', selectedFiltered === 0);
       }
       // Toggle per-row checkbox updates selection store
       $table.on('change', 'input[type="checkbox"][name="students"]', function(){
@@ -821,6 +821,111 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           }
           if (ids.length) openRemoveTagModal(ids);
         });
+        // Global "Batch assess to selected" button
+        $('#batch-assess-selected').off('click.aplusBatchSubmit').on('click.aplusBatchSubmit', function(){
+          const ids = [];
+          const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
+          for (let i = 0; i < filtered.length; i++) {
+            const uid = filtered[i].user_id;
+            if (selectedIds.has(uid)) ids.push(uid);
+          }
+          if (ids.length) {
+            $('#batch-assess-confirm').data('targetUserIds', ids);
+            const bsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-assess-modal'));
+            bsModal.show();
+          }
+        });
+
+        // Fetch exercises and populate dropdown when batch assess modal is shown
+        const batchSubmitModalEl = document.getElementById('batch-assess-modal');
+        batchSubmitModalEl.addEventListener('show.bs.modal', function() {
+          const $select = $('#batch-assess-category');
+          // Disable points controls initially
+          $('#batch-assess-value').prop('disabled', true);
+          $('#batch-assess-value-display').prop('disabled', true);
+          $('#batch-assess-max').text('0');
+          // Only fetch if we haven't already populated the exercises
+          if ($select.find('option').length <= 1) {
+            fetch(exercises_api_url)
+              .then(response => {
+                if (!response.ok) throw new Error(`Failed to fetch exercises (HTTP ${response.status})`);
+                return response.json();
+               })
+              .then(data => {
+                // Recursively extract all exercises from modules
+                function extractExercises(modules) {
+                  const exercises = [];
+                  if (Array.isArray(modules)) {
+                    modules.forEach(module => {
+                      if (Array.isArray(module.exercises)) {
+                        module.exercises.forEach(exercise => {
+                          if (exercise.max_points > 0) {
+                            exercises.push({
+                              id: exercise.id,
+                              name: exercise.hierarchical_name || exercise.display_name,
+                              max_points: exercise.max_points
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                  return exercises;
+                }
+                const exercises = extractExercises(data.results || []);
+                exercises.forEach(exercise => {
+                  const option = document.createElement('option');
+                  option.value = exercise.id;
+                  option.textContent = exercise.name;
+                  option.dataset.maxPoints = exercise.max_points;
+                  $select.append(option);
+                });
+              })
+              .catch(error => console.error('Error fetching exercises:', error));
+          }
+        });
+
+        // Sync slider and textbox values
+        $('#batch-assess-value').off('input.aplusBatchSlider').on('input.aplusBatchSlider', function(){
+          $('#batch-assess-value-display').val($(this).val());
+        });
+        $('#batch-assess-value-display').off('change.aplusBatchTextbox').on('change.aplusBatchTextbox', function(){
+          const $this = $(this);
+          const maxPoints = parseInt($('#batch-assess-value').attr('max') || 0, 10);
+          let value = parseInt($this.val() || 0, 10);
+          value = Math.max(0, Math.min(maxPoints, value));
+          $this.val(value);
+          $('#batch-assess-value').val(value);
+        });
+
+        // Enable/disable points controls based on exercise selection
+        $('#batch-assess-category').off('change.aplusBatchExercise').on('change.aplusBatchExercise', function(){
+          const $this = $(this);
+          const selectedOption = $this.find('option:selected');
+          const isSelected = $this.val() !== '';
+          const maxPoints = isSelected ? parseInt(selectedOption.data('maxPoints') || 0, 10) : 0;
+
+          const $slider = $('#batch-assess-value');
+          const $textbox = $('#batch-assess-value-display');
+          const $feedback = $('#batch-assess-feedback');
+          $slider.prop('disabled', !isSelected);
+          $textbox.prop('disabled', !isSelected);
+          $feedback.prop('disabled', !isSelected);
+          $slider.attr('max', maxPoints);
+          $textbox.attr('max', maxPoints);
+
+          // Set value to max_points when exercise is selected
+          if (isSelected) {
+            $slider.val(maxPoints);
+            $textbox.val(maxPoints);
+            $('#batch-assess-max').text(maxPoints);
+          } else {
+            $slider.val(0);
+            $textbox.val(0);
+            $feedback.val('');
+            $('#batch-assess-max').text('0');
+          }
+        });
       }
     });
 
@@ -828,6 +933,136 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     $(document).off('aplus:tags-changed.aplusDT').on('aplus:tags-changed.aplusDT', function(){
       if (dt._aplusRedrawTimer) clearTimeout(dt._aplusRedrawTimer);
       dt._aplusRedrawTimer = setTimeout(function(){ dt.draw(false); }, 0);
+    });
+
+    // Confirm batch assess (DT path)
+    $('#batch-assess-confirm').off('click.aplusBatchConfirm').on('click.aplusBatchConfirm', function(){
+      const userIds = $(this).data('targetUserIds') || [];
+      const exerciseId = parseInt($('#batch-assess-category').val() || 0, 10);
+      const points = parseInt($('#batch-assess-value-display').val() || 0, 10);
+      const feedback = $('#batch-assess-feedback').val() || '';
+
+      if (!exerciseId || !userIds.length) return;
+
+      // Get current timestamp in format "YYYY-MM-DD HH:MM"
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const submission_time = `${year}-${month}-${day} ${hours}:${minutes}`;
+
+      // Prepare the JSON payload
+      const submissionData = {
+        objects: userIds.map(userId => ({
+          students_by_user_id: [userId],
+          exercise_id: exerciseId,
+          points: points,
+          feedback: feedback,
+          submission_time: submission_time
+        }))
+      };
+
+      // Make POST request
+      const csrfTokenMatch = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+      const csrfToken = csrfTokenMatch ? decodeURIComponent(csrfTokenMatch[1]) : '';
+
+      fetch(batch_assess_url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: new URLSearchParams({
+          'submissions_json': JSON.stringify(submissionData)
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          // Get exercise name from selected option
+          const exerciseOption = $('#batch-assess-category').find('option:selected');
+          const exerciseName = exerciseOption.text();
+
+          // Find participant names for the submitted students
+          const studentsList = [];
+          userIds.forEach(userId => {
+            const participant = participants.find(p => p.user_id === userId);
+            if (participant) {
+              studentsList.push(participant);
+            }
+          });
+
+          // Populate success modal
+          $('#batch-assess-success-count').text(userIds.length);
+          $('#batch-assess-success-exercise').text(exerciseName);
+          $('#batch-assess-success-points').text(points);
+          $('#batch-assess-success-time').text(submission_time);
+          $('#batch-assess-success-grader').text(current_user_name || 'Current user');
+          $('#batch-assess-success-feedback').text(feedback || '(none)');
+
+          // Populate students list
+          const $studentsList = $('#batch-assess-success-students').empty();
+          studentsList.forEach(student => {
+            const fullName = [student.first_name, student.last_name].filter(Boolean).join(' ') || student.email;
+            $studentsList.append(
+              $('<li>').append(
+                escapeHtml(`${fullName} (ID: ${student.student_id || student.user_id})`)
+              )
+            );
+          });
+
+          // Store submission data for JSON display
+          $('#batch-assess-success-modal').data('submissionData', submissionData);
+
+          // Show success modal
+          hideModalSafely('batch-assess-modal');
+          const successModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-assess-success-modal'));
+          successModal.show();
+        } else {
+            response.json().then(data => {
+            if (data && Array.isArray(data.errors)) {
+              alert('Error submitting batch:\n' + data.errors.join('\n'));
+            } else {
+              alert('Error submitting batch: ' + response.statusText);
+            }
+          }).catch(() => {
+            alert('Error submitting batch: ' + response.statusText);
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting batch: ' + error.message);
+      });
+    });
+
+    // Show JSON button on success modal
+    $('#batch-assess-success-show-json').off('click.aplusShowJson').on('click.aplusShowJson', function(){
+      const submissionData = $('#batch-assess-success-modal').data('submissionData');
+      if (submissionData) {
+        const jsonStr = JSON.stringify(submissionData, null, 2);
+        $('#batch-assess-json-content').text(jsonStr);
+        const jsonModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-assess-json-modal'));
+        jsonModal.show();
+      }
+    });
+
+    // Copy JSON to clipboard button
+    $('#batch-assess-json-copy').off('click.aplusCopyJson').on('click.aplusCopyJson', function(){
+      const jsonStr = $('#batch-assess-json-content').text();
+      if (jsonStr) {
+        const $btn = $(this);
+        navigator.clipboard.writeText(jsonStr).then(function() {
+          const originalText = $btn.text();
+          $btn.text(_('Copied!'));
+          setTimeout(function(){ $btn.text(originalText); }, 2000);
+        }).catch(function(err) {
+          console.error('Failed to copy:', err);
+        });
+      }
     });
 
     // Confirm add/remove tag modals (DT path)
