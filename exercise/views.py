@@ -127,12 +127,20 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
 
         if self.exercise.is_submittable:
             SUBMIT_STATUS = self.exercise.SUBMIT_STATUS
-            submission_status, submission_allowed, issues, students = self.submission_check()
-            disable_submit = submission_status in [
-                SUBMIT_STATUS.CANNOT_ENROLL,
-                SUBMIT_STATUS.NOT_ENROLLED,
-            ]
-            should_enroll = submission_status == SUBMIT_STATUS.NOT_ENROLLED
+            if (isinstance(self.exercise.exercise_info, dict)
+                    and self.exercise.exercise_info.get('no_submission')
+                    and not self.is_course_staff):
+                # Teacher-only ("noSubmission") exercise: students cannot submit.
+                # Hide the submit UI and skip the submission checks (which would
+                # otherwise show a blocking message just for viewing the page).
+                disable_submit = True
+            else:
+                submission_status, submission_allowed, issues, students = self.submission_check()
+                disable_submit = submission_status in [
+                    SUBMIT_STATUS.CANNOT_ENROLL,
+                    SUBMIT_STATUS.NOT_ENROLLED,
+                ]
+                should_enroll = submission_status == SUBMIT_STATUS.NOT_ENROLLED
 
         if (self.exercise.status == LearningObject.STATUS.MAINTENANCE
               or self.module.status == CourseModule.STATUS.MAINTENANCE):

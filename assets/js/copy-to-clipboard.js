@@ -26,20 +26,20 @@ const copyToClipboard = (btnClassSelector, targetIdSelector) => {
   });
   const el = $(btnClassSelector);
 
-  const elOriginalText = el.attr("data-original-title")
-    ? el.attr("data-original-title")
+  const elOriginalText = el.attr("data-bs-original-title")
+    ? el.attr("data-bs-original-title")
     : "";
 
   clipboard.on("success", function (e) {
     var msg = _("Copied!");
-    el.attr("data-original-title", msg).tooltip("show");
+    el.attr("data-bs-original-title", msg).tooltip("show");
     e.clearSelection();
-    el.attr("data-original-title", elOriginalText);
+    el.attr("data-bs-original-title", elOriginalText);
   });
 
   clipboard.on("error", function (e) {
-    var msg = _("Copying failed!");
-    el.attr("data-original-title", msg).tooltip("show");
-    el.attr("data-original-title", elOriginalText);
+    var msg = _("Copying failed! Use Ctrl+C to copy");
+    el.attr("data-bs-original-title", msg).tooltip("show");
+    el.attr("data-bs-original-title", elOriginalText);
   });
 };

@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import models, IntegrityError
 from django.forms import Form
+from django.http import JsonResponse
 from django.http.response import Http404
 from django.utils.text import format_lazy, capfirst
 from django.utils.translation import gettext_lazy as _
@@ -345,6 +346,17 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
     def post(self, request, *args, **kwargs):
         errors = create_submissions(self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
+
+        accept_header = request.headers.get('accept', '')
+        is_json = (
+            'application/json' in accept_header
+            or request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        )
+        if is_json:
+            if errors:
+                return JsonResponse({"success": False, "errors": [str(error) for error in errors]}, status=400)
+            return JsonResponse({"success": True})
+
         if errors:
             for error in errors:
                 messages.error(request, error)
