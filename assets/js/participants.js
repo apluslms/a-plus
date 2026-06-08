@@ -1,4 +1,4 @@
-function participants_list(participants, api_url, is_teacher, enrollment_statuses) {
+function participants_list(participants, api_url, is_teacher, enrollment_statuses, exercises_api_url, batch_assess_url, current_user_id, current_user_name) {
   // Ensure predictable order by student id
   participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
@@ -720,7 +720,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         const $all_box = $('#students-select-all');
         $all_box.prop('checked', allChecked).prop('indeterminate', atLeastOne);
         $('#selected-number').text(selectedFiltered);
-        $('#add-tag-selected, #remove-tag-selected').prop('disabled', selectedFiltered === 0);
+        $('#add-tag-selected, #remove-tag-selected, #batch-submit-selected').prop('disabled', selectedFiltered === 0);
       }
       // Toggle per-row checkbox updates selection store
       $table.on('change', 'input[type="checkbox"][name="students"]', function(){
@@ -821,6 +821,108 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           }
           if (ids.length) openRemoveTagModal(ids);
         });
+        // Global "Batch submit to selected" button
+        $('#batch-submit-selected').off('click.aplusBatchSubmit').on('click.aplusBatchSubmit', function(){
+          const ids = [];
+          const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
+          for (let i = 0; i < filtered.length; i++) {
+            const uid = filtered[i].user_id;
+            if (selectedIds.has(uid)) ids.push(uid);
+          }
+          if (ids.length) {
+            $('#batch-submit-confirm').data('targetUserIds', ids);
+            const bsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-submit-modal'));
+            bsModal.show();
+          }
+        });
+
+        // Fetch exercises and populate dropdown when batch submit modal is shown
+        const batchSubmitModalEl = document.getElementById('batch-submit-modal');
+        batchSubmitModalEl.addEventListener('show.bs.modal', function() {
+          const $select = $('#batch-submit-category');
+          // Disable points controls initially
+          $('#batch-submit-value').prop('disabled', true);
+          $('#batch-submit-value-display').prop('disabled', true);
+          $('#batch-submit-max').text('0');
+          // Only fetch if we haven't already populated the exercises
+          if ($select.find('option').length <= 1) {
+            fetch(exercises_api_url)
+              .then(response => response.json())
+              .then(data => {
+                // Recursively extract all exercises from modules
+                function extractExercises(modules) {
+                  const exercises = [];
+                  if (Array.isArray(modules)) {
+                    modules.forEach(module => {
+                      if (Array.isArray(module.exercises)) {
+                        module.exercises.forEach(exercise => {
+                          if (exercise.max_points > 0) {
+                            exercises.push({
+                              id: exercise.id,
+                              name: exercise.hierarchical_name || exercise.display_name,
+                              max_points: exercise.max_points
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                  return exercises;
+                }
+                const exercises = extractExercises(data.results || []);
+                exercises.forEach(exercise => {
+                  const option = document.createElement('option');
+                  option.value = exercise.id;
+                  option.textContent = exercise.name;
+                  option.dataset.maxPoints = exercise.max_points;
+                  $select.append(option);
+                });
+              })
+              .catch(error => console.error('Error fetching exercises:', error));
+          }
+        });
+
+        // Sync slider and textbox values
+        $('#batch-submit-value').off('input.aplusBatchSlider').on('input.aplusBatchSlider', function(){
+          $('#batch-submit-value-display').val($(this).val());
+        });
+        $('#batch-submit-value-display').off('change.aplusBatchTextbox').on('change.aplusBatchTextbox', function(){
+          const $this = $(this);
+          const maxPoints = parseInt($('#batch-submit-value').attr('max') || 0, 10);
+          let value = parseInt($this.val() || 0, 10);
+          value = Math.max(0, Math.min(maxPoints, value));
+          $this.val(value);
+          $('#batch-submit-value').val(value);
+        });
+
+        // Enable/disable points controls based on exercise selection
+        $('#batch-submit-category').off('change.aplusBatchExercise').on('change.aplusBatchExercise', function(){
+          const $this = $(this);
+          const selectedOption = $this.find('option:selected');
+          const isSelected = $this.val() !== '';
+          const maxPoints = isSelected ? parseInt(selectedOption.data('maxPoints') || 0, 10) : 0;
+          
+          const $slider = $('#batch-submit-value');
+          const $textbox = $('#batch-submit-value-display');
+          const $feedback = $('#batch-submit-feedback');
+          $slider.prop('disabled', !isSelected);
+          $textbox.prop('disabled', !isSelected);
+          $feedback.prop('disabled', !isSelected);
+          $slider.attr('max', maxPoints);
+          $textbox.attr('max', maxPoints);
+          
+          // Set value to max_points when exercise is selected
+          if (isSelected) {
+            $slider.val(maxPoints);
+            $textbox.val(maxPoints);
+            $('#batch-submit-max').text(maxPoints);
+          } else {
+            $slider.val(0);
+            $textbox.val(0);
+            $feedback.val('');
+            $('#batch-submit-max').text('0');
+          }
+        });
       }
     });
 
@@ -830,6 +932,108 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       dt._aplusRedrawTimer = setTimeout(function(){ dt.draw(false); }, 0);
     });
 
+    // Confirm batch submit (DT path)
+    $('#batch-submit-confirm').off('click.aplusBatchConfirm').on('click.aplusBatchConfirm', function(){
+      const userIds = $(this).data('targetUserIds') || [];
+      const exerciseId = parseInt($('#batch-submit-category').val() || 0, 10);
+      const points = parseInt($('#batch-submit-value-display').val() || 0, 10);
+      const feedback = $('#batch-submit-feedback').val() || '';
+      
+      if (!exerciseId || !userIds.length) return;
+      
+      // Get current timestamp in format "YYYY-MM-DD HH:MM"
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const submission_time = `${year}-${month}-${day} ${hours}:${minutes}`;
+      
+      // Prepare the JSON payload
+      const submissionData = {
+        objects: userIds.map(userId => ({
+          students_by_user_id: [userId],
+          exercise_id: exerciseId,
+          points: points,
+          feedback: feedback,
+          submission_time: submission_time,
+          grader: current_user_id
+        }))
+      };
+      
+      // Make POST request
+      fetch(batch_assess_url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        body: new URLSearchParams({
+          'submissions_json': JSON.stringify(submissionData)
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          // Get exercise name from selected option
+          const exerciseOption = $('#batch-submit-category').find('option:selected');
+          const exerciseName = exerciseOption.text();
+          
+          // Find participant names for the submitted students
+          const studentsList = [];
+          userIds.forEach(userId => {
+            const participant = participants.find(p => p.user_id === userId);
+            if (participant) {
+              studentsList.push(participant);
+            }
+          });
+          
+          // Populate success modal
+          $('#batch-submit-success-count').text(userIds.length);
+          $('#batch-submit-success-exercise').text(exerciseName);
+          $('#batch-submit-success-points').text(points);
+          $('#batch-submit-success-time').text(submission_time);
+          $('#batch-submit-success-grader').text(current_user_name || 'Current user');
+          $('#batch-submit-success-feedback').text(feedback || '(none)');
+          
+          // Populate students list
+          const $studentsList = $('#batch-submit-success-students').empty();
+          studentsList.forEach(student => {
+            const fullName = [student.first_name, student.last_name].filter(Boolean).join(' ') || student.email;
+            $studentsList.append(
+              $('<li>').append(
+                `${fullName} (ID: ${student.student_id || student.user_id})`
+              )
+            );
+          });
+          
+          // Store submission data for JSON display
+          $('#batch-submit-success-modal').data('submissionData', submissionData);
+          
+          // Show success modal
+          hideModalSafely('batch-submit-modal');
+          const successModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-submit-success-modal'));
+          successModal.show();
+        } else {
+          alert('Error submitting batch: ' + response.statusText);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting batch: ' + error.message);
+      });
+    });
+
+    // Show JSON button on success modal
+    $('#batch-submit-success-show-json').off('click.aplusShowJson').on('click.aplusShowJson', function(){
+      const submissionData = $('#batch-submit-success-modal').data('submissionData');
+      if (submissionData) {
+        const jsonStr = JSON.stringify(submissionData, null, 2);
+        // Open in a new approach - show in an alert or modal
+        const preElement = $('<pre>').css({'background-color': '#f5f5f5', 'padding': '10px', 'border-radius': '4px', 'max-height': '400px', 'overflow': 'auto', 'white-space': 'pre-wrap', 'word-wrap': 'break-word'}).text(jsonStr);
+        alert('JSON: ' + jsonStr);
+      }
+    });
     // Confirm add/remove tag modals (DT path)
     $('#tag-add-confirm').off('click.aplusConfirm').on('click.aplusConfirm', function(){
       const userIds = $(this).data('targetUserIds') || [];

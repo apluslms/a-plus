@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-29 15:19+0300\n"
+"POT-Creation-Date: 2026-06-08 11:24+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1400,7 +1400,8 @@ msgstr "Opiskelijanumero"
 msgid "CLEAR_SELECTION"
 msgstr "Tyhjennä valinta"
 
-#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html deviations/forms.py
 #: deviations/models.py exercise/admin.py exercise/exercise_models.py
 #: exercise/submission_models.py
 msgid "LABEL_EXERCISE"
@@ -1553,6 +1554,7 @@ msgid "INSPECT"
 msgstr "Tutki"
 
 #: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
@@ -1698,12 +1700,75 @@ msgid "REMOVE_STUDENT_TAG"
 msgstr "Poista opiskelijamerkintä"
 
 #: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT"
+msgstr "Massapalautus"
+
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: news/templates/news/list.html
 msgid "SELECT"
 msgstr "Valitse"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_SELECT_EXERCISE"
+msgstr "Valitse tehtävä"
+
+#: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "POINTS"
+msgstr "Pisteet"
+
+#: course/templates/course/staff/participants.html templates/base.html
+msgid "FEEDBACK"
+msgstr "Palaute"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL"
+msgstr "Massapalautus onnistui"
+
+#: course/templates/course/staff/participants.html
+#, python-format
+msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFULLY_CREATED -- %(count_html)s"
+msgstr "%(count_html)s palautus(ta) tehty onnistuneesti"
+
+#: course/templates/course/staff/participants.html
+#: templates/support_channels.html
+msgid "STUDENTS"
+msgstr "Opiskelijat"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_DETAILS"
+msgstr "Lisätiedot"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_SUBMISSION_TIME"
+msgstr "Palautuksen aika"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_GRADER"
+msgstr "Arvostelija"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON"
+msgstr "Näytä JSON"
+
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Sulje"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1904,18 +1969,6 @@ msgstr "enimmäispalautuskertojen poikkeamat"
 #: deviations/templates/deviations/list_submissions.html
 msgid "REMOVE_SELECTED_DEVIATIONS"
 msgstr "Poista valitut poikkeamat"
-
-#: deviations/templates/deviations/_remove_modal.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Sulje"
 
 #: deviations/templates/deviations/_remove_modal.html
 msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
@@ -4256,13 +4309,6 @@ msgid "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN"
 msgstr "Joidenkin tehtävien tulokset on tällä hetkellä piilotettu."
 
 #: exercise/templates/exercise/_points_progress.html
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/exercise_plain.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "POINTS"
-msgstr "Pisteet"
-
-#: exercise/templates/exercise/_points_progress.html
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "POINTS_TO_PASS"
 msgstr "Vaaditut pisteet"
@@ -5986,10 +6032,6 @@ msgid "SUPPORT"
 msgstr "Tuki"
 
 #: templates/base.html
-msgid "FEEDBACK"
-msgstr "Palaute"
-
-#: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
 
@@ -6013,10 +6055,6 @@ msgstr "Ota yhteyttä tukeen sähköpostilla:"
 #: templates/support_channels.html
 msgid "GIVE_FEEDBACK"
 msgstr "Anna palautetta tai ilmoita ongelmasta"
-
-#: templates/support_channels.html
-msgid "STUDENTS"
-msgstr "Opiskelijat"
 
 #: templates/support_channels.html
 msgid "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS"
