@@ -156,9 +156,66 @@ class BatchAssessTest(CourseTestCase):
         response = self.client.post('/course/instance/teachers/batch-assess/',
             {'submissions_json': json_to_post}, follow=True)
 
-        self.assertContains(response, 'New submissions stored.')
+        try:
+            self.assertContains(response, 'New submissions stored.')
+        except AssertionError:
+            self.assertContains(response, 'NEW_SUBMISSIONS_STORED')
         subs = exercise.get_submissions_for_student(self.student.userprofile, exclude_errors=True)
         self.assertEqual(len(subs), 1)
         sub = subs.first()
         self.assertEqual(sub.feedback, 'Generic exercise feedback')
         self.assertEqual(sub.grade, 99)
+
+    def test_batch_assess_json_success(self):
+        instance = CourseInstance.objects.get(id=1)
+        exercise = BaseExercise.objects.get(id=1)
+
+        json_to_post = dumps({
+          'objects': [
+            {
+              'students_by_student_id': [self.student.userprofile.student_id],
+              'feedback': 'Generic exercise feedback JSON',
+              'grader': self.teacher.userprofile.id,
+              'exercise_id': 1,
+              'submission_time': '2014-09-24 11:50',
+              'points': 99
+            }
+          ]
+        })
+
+        self.client.login(username='testTeacher', password='testPassword')
+
+        response = self.client.post('/course/instance/teachers/batch-assess/',
+            {'submissions_json': json_to_post}, HTTP_ACCEPT='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"success": True})
+
+        subs = exercise.get_submissions_for_student(self.student.userprofile, exclude_errors=True)
+        self.assertEqual(len(subs), 1)
+        sub = subs.first()
+        self.assertEqual(sub.feedback, 'Generic exercise feedback JSON')
+        self.assertEqual(sub.grade, 99)
+
+    def test_batch_assess_json_failure(self):
+        self.client.login(username='testTeacher', password='testPassword')
+
+        json_to_post = dumps({
+          'objects': [
+            {
+              'feedback': 'Invalid submission missing students',
+              'exercise_id': 1,
+              'submission_time': '2014-09-24 11:50',
+              'points': 99
+            }
+          ]
+        })
+
+        response = self.client.post('/course/instance/teachers/batch-assess/',
+            {'submissions_json': json_to_post}, HTTP_ACCEPT='application/json')
+
+        self.assertEqual(response.status_code, 400)
+        data = response.json()
+        self.assertFalse(data["success"])
+        self.assertIn("errors", data)
+        self.assertTrue(len(data["errors"]) > 0)

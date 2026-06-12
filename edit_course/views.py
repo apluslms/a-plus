@@ -345,6 +345,19 @@ class BatchCreateSubmissionsView(CourseInstanceMixin, BaseTemplateView):
     def post(self, request, *args, **kwargs):
         errors = create_submissions(self.instance, self.profile,
             request.POST.get("submissions_json", "{}"))
+
+        accept_header = request.headers.get('accept', '')
+        is_json = (
+            'application/json' in accept_header
+            or request.headers.get('x-requested-with') == 'XMLHttpRequest'
+        )
+
+        if is_json:
+            from django.http import JsonResponse
+            if errors:
+                return JsonResponse({"success": False, "errors": [str(error) for error in errors]}, status=400)
+            return JsonResponse({"success": True})
+
         if errors:
             for error in errors:
                 messages.error(request, error)

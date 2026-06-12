@@ -969,6 +969,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
           'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
         },
         body: new URLSearchParams({
@@ -1017,7 +1018,15 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           const successModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-assess-success-modal'));
           successModal.show();
         } else {
-          alert('Error submitting batch: ' + response.statusText);
+          response.json().then(data => {
+            if (data && Array.isArray(data.errors)) {
+              alert(_('Error submitting batch:\n') + data.errors.join('\n'));
+            } else {
+              alert('Error submitting batch: ' + response.statusText);
+            }
+          }).catch(() => {
+            alert('Error submitting batch: ' + response.statusText);
+          });
         }
       })
       .catch(error => {
