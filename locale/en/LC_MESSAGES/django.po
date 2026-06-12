@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-29 15:19+0300\n"
+"POT-Creation-Date: 2026-06-12 10:31+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1392,7 +1392,8 @@ msgstr "Student ID"
 msgid "CLEAR_SELECTION"
 msgstr "Clear selection"
 
-#: course/templates/course/staff/all_submissions_table.html deviations/forms.py
+#: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html deviations/forms.py
 #: deviations/models.py exercise/admin.py exercise/exercise_models.py
 #: exercise/submission_models.py
 msgid "LABEL_EXERCISE"
@@ -1545,6 +1546,7 @@ msgid "INSPECT"
 msgstr "Inspect"
 
 #: course/templates/course/staff/all_submissions_table.html
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: deviations/templates/deviations/override_dl.html
@@ -1690,12 +1692,95 @@ msgid "REMOVE_STUDENT_TAG"
 msgstr "Remove student tag"
 
 #: course/templates/course/staff/participants.html
+#: edit_course/templates/edit_course/edit_course_base.html
+msgid "BATCH_ASSESS"
+msgstr "Batch assess"
+
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Close"
+
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
 #: news/templates/news/list.html
 msgid "SELECT"
 msgstr "Select"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_SELECT_EXERCISE"
+msgstr "Select exercise"
+
+#: course/templates/course/staff/participants.html
+#: exercise/templates/exercise/_points_progress.html
+#: exercise/templates/exercise/_user_results.html
+#: exercise/templates/exercise/exercise_plain.html
+#: exercise/templates/exercise/submission_plain.html
+msgid "POINTS"
+msgstr "Points"
+
+#: course/templates/course/staff/participants.html templates/base.html
+msgid "FEEDBACK"
+msgstr "Feedback"
+
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
+#: edit_course/templates/edit_course/batch_assess.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SUBMIT"
+msgstr "Submit"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFUL"
+msgstr "Batch assessment successful"
+
+#: course/templates/course/staff/participants.html
+#, python-format
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFULLY_CREATED -- %(count_html)s"
+msgstr "Successfully created %(count_html)s submission(s)"
+
+#: course/templates/course/staff/participants.html
+#: templates/support_channels.html
+msgid "STUDENTS"
+msgstr "Students"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_DETAILS"
+msgstr "Details"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_SUBMISSION_TIME"
+msgstr "Submission Time"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_GRADER"
+msgstr "Grader"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_SHOW_JSON"
+msgstr "Show JSON"
+
+#: course/templates/course/staff/participants.html
+msgid "PARTICIPANTS_BATCH_ASSESS_JSON"
+msgstr "Submitted JSON"
+
+#: course/templates/course/staff/participants.html
+msgid "COPY_TO_CLIPBOARD"
+msgstr "Copy to clipboard"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -1895,18 +1980,6 @@ msgid "REMOVE_SELECTED_DEVIATIONS"
 msgstr "Remove selected deviations"
 
 #: deviations/templates/deviations/_remove_modal.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Close"
-
-#: deviations/templates/deviations/_remove_modal.html
 msgid "SOME_DEVIATIONS_ARE_HIDDEN_WARNING"
 msgstr ""
 "Some of the selected deviations are currently hidden due to filtering. Clear "
@@ -2054,16 +2127,6 @@ msgstr "after"
 #: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Override"
-
-#: deviations/templates/deviations/remove_dl.html
-#: deviations/templates/deviations/remove_submissions.html
-#: edit_course/templates/edit_course/batch_assess.html
-#: edit_course/templates/edit_course/edit_gitmanager.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "SUBMIT"
-msgstr "Submit"
 
 #: deviations/viewbase.py
 msgid "SUCCESS_ADDING_DEVIATIONS"
@@ -2934,10 +2997,6 @@ msgstr "Menu"
 #: edit_course/templates/edit_course/submissiontag_list.html
 msgid "SUBMISSION_TAGS"
 msgstr "Submission tags"
-
-#: edit_course/templates/edit_course/edit_course_base.html
-msgid "BATCH_ASSESS"
-msgstr "Batch assess"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "EDIT_GITMANAGER"
@@ -4244,13 +4303,6 @@ msgstr "Not submitted"
 #: exercise/templatetags/exercise.py
 msgid "RESULTS_OF_SOME_ASSIGNMENTS_ARE_CURRENTLY_HIDDEN"
 msgstr "Results of some assignments are currently hidden."
-
-#: exercise/templates/exercise/_points_progress.html
-#: exercise/templates/exercise/_user_results.html
-#: exercise/templates/exercise/exercise_plain.html
-#: exercise/templates/exercise/submission_plain.html
-msgid "POINTS"
-msgstr "Points"
 
 #: exercise/templates/exercise/_points_progress.html
 #: exercise/templates/exercise/module_goal_modal.html
@@ -5967,10 +6019,6 @@ msgid "SUPPORT"
 msgstr "Support"
 
 #: templates/base.html
-msgid "FEEDBACK"
-msgstr "Feedback"
-
-#: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
 
@@ -5994,10 +6042,6 @@ msgstr "Contact support by email:"
 #: templates/support_channels.html
 msgid "GIVE_FEEDBACK"
 msgstr "Give feedback or report an issue"
-
-#: templates/support_channels.html
-msgid "STUDENTS"
-msgstr "Students"
 
 #: templates/support_channels.html
 msgid "CONTACT_COURSE_STAFF_FOR_ASSISTANCE_ON_COURSE_MATTERS"
