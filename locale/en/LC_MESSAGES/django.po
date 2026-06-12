@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 10:16+0300\n"
+"POT-Creation-Date: 2026-06-12 10:31+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1692,8 +1692,9 @@ msgid "REMOVE_STUDENT_TAG"
 msgstr "Remove student tag"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT"
-msgstr "Batch submit"
+#: edit_course/templates/edit_course/edit_course_base.html
+msgid "BATCH_ASSESS"
+msgstr "Batch assess"
 
 #: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/_remove_modal.html
@@ -1717,7 +1718,7 @@ msgid "SELECT"
 msgstr "Select"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SELECT_EXERCISE"
+msgid "PARTICIPANTS_BATCH_ASSESS_SELECT_EXERCISE"
 msgstr "Select exercise"
 
 #: course/templates/course/staff/participants.html
@@ -1744,12 +1745,12 @@ msgid "SUBMIT"
 msgstr "Submit"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL"
-msgstr "Batch submit successful"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFUL"
+msgstr "Batch assessment successful"
 
 #: course/templates/course/staff/participants.html
 #, python-format
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFULLY_CREATED -- %(count_html)s"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFULLY_CREATED -- %(count_html)s"
 msgstr "Successfully created %(count_html)s submission(s)"
 
 #: course/templates/course/staff/participants.html
@@ -1758,23 +1759,23 @@ msgid "STUDENTS"
 msgstr "Students"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_DETAILS"
+msgid "PARTICIPANTS_BATCH_ASSESS_DETAILS"
 msgstr "Details"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUBMISSION_TIME"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUBMISSION_TIME"
 msgstr "Submission Time"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_GRADER"
+msgid "PARTICIPANTS_BATCH_ASSESS_GRADER"
 msgstr "Grader"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON"
+msgid "PARTICIPANTS_BATCH_ASSESS_SHOW_JSON"
 msgstr "Show JSON"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_JSON"
+msgid "PARTICIPANTS_BATCH_ASSESS_JSON"
 msgstr "Submitted JSON"
 
 #: course/templates/course/staff/participants.html
@@ -2996,10 +2997,6 @@ msgstr "Menu"
 #: edit_course/templates/edit_course/submissiontag_list.html
 msgid "SUBMISSION_TAGS"
 msgstr "Submission tags"
-
-#: edit_course/templates/edit_course/edit_course_base.html
-msgid "BATCH_ASSESS"
-msgstr "Batch assess"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "EDIT_GITMANAGER"

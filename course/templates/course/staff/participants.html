@@ -67,8 +67,8 @@
 			<i class="bi-tag" aria-hidden="true"></i>
 			{% translate "REMOVE_STUDENT_TAG" %}
 		</button>
-		<button type="button" id="batch-submit-selected" class="aplus-button--secondary aplus-button--xs ms-1" disabled title="{% translate 'PARTICIPANTS_BATCH_SUBMIT' %}">
-			{% translate "PARTICIPANTS_BATCH_SUBMIT" %}
+		<button type="button" id="batch-assess-selected" class="aplus-button--secondary aplus-button--xs ms-1" disabled title="{% translate 'BATCH_ASSESS' %}">
+			{% translate "BATCH_ASSESS" %}
 		</button>
 		{% endif %}
 	</p>
@@ -192,30 +192,30 @@
 </div>
 
 <style>
-#batch-submit-value::-webkit-outer-spin-button,
-#batch-submit-value::-webkit-inner-spin-button {
+#batch-assess-value::-webkit-outer-spin-button,
+#batch-assess-value::-webkit-inner-spin-button {
 	-webkit-appearance: none;
 	margin: 0;
 }
 
-#batch-submit-value {
+#batch-assess-value {
 	-moz-appearance: textfield;
 	appearance: textfield;
 }
 </style>
 
-<!-- Batch submit modal -->
+<!-- Batch assess modal -->
 <div
 	class="modal"
-	id="batch-submit-modal"
+	id="batch-assess-modal"
 	tabindex="-1"
 	role="dialog"
-	aria-labelledby="batch-submit-modal-label"
+	aria-labelledby="batch-assess-modal-label"
 >
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="batch-submit-modal-label">{% translate "PARTICIPANTS_BATCH_SUBMIT" %}</h4>
+				<h4 class="modal-title" id="batch-assess-modal-label">{% translate "BATCH_ASSESS" %}</h4>
 				<button
 					type="button"
 					class="btn-close"
@@ -226,31 +226,31 @@
 			</div>
 			<div class="modal-body">
 				<div class="mb-3">
-					<label for="batch-submit-category" class="form-label">{% translate "LABEL_EXERCISE" %}</label>
-					<select id="batch-submit-category" class="form-select" required>
-						<option value="">-- {% translate "PARTICIPANTS_BATCH_SUBMIT_SELECT_EXERCISE" %} --</option>
+					<label for="batch-assess-category" class="form-label">{% translate "LABEL_EXERCISE" %}</label>
+					<select id="batch-assess-category" class="form-select" required>
+						<option value="">-- {% translate "PARTICIPANTS_BATCH_ASSESS_SELECT_EXERCISE" %} --</option>
 					</select>
 				</div>
 				<div class="mb-3">
 					<label class="form-label">{% translate "POINTS" %}</label>
 					<div class="d-flex justify-content-center align-items-center gap-3">
-						<span id="batch-submit-min">0</span>
-						<input type="range" id="batch-submit-value" value="0" min="0" class="form-range" style="flex: 1; max-width: 300px;" />
-						<span id="batch-submit-max">0</span>
+						<span id="batch-assess-min">0</span>
+						<input type="range" id="batch-assess-value" value="0" min="0" class="form-range" style="flex: 1; max-width: 300px;" />
+						<span id="batch-assess-max">0</span>
 					</div>
 					<div class="mt-2 text-center">
-						<input type="number" id="batch-submit-value-display" value="0" min="0" class="form-control" style="width: 100px; margin: 0 auto; text-align: center;" />
+						<input type="number" id="batch-assess-value-display" value="0" min="0" class="form-control" style="width: 100px; margin: 0 auto; text-align: center;" />
 					</div>
 				</div>
 				<div class="mb-3">
-					<label for="batch-submit-feedback" class="form-label">{% translate "FEEDBACK" %}</label>
-					<textarea id="batch-submit-feedback" class="form-control" rows="3" disabled></textarea>
+					<label for="batch-assess-feedback" class="form-label">{% translate "FEEDBACK" %}</label>
+					<textarea id="batch-assess-feedback" class="form-control" rows="3" disabled></textarea>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<button
 					type="button"
-					id="batch-submit-confirm"
+					id="batch-assess-confirm"
 					class="aplus-button--default aplus-button--md"
 				>
 					{% translate "SUBMIT" %}
@@ -269,15 +269,15 @@
 
 <div
 	class="modal"
-	id="batch-submit-success-modal"
+	id="batch-assess-success-modal"
 	tabindex="-1"
 	role="dialog"
-	aria-labelledby="batch-submit-success-modal-label"
+	aria-labelledby="batch-assess-success-modal-label"
 >
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="batch-submit-success-modal-label">{% translate "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL" %}</h4>
+				<h4 class="modal-title" id="batch-assess-success-modal-label">{% translate "PARTICIPANTS_BATCH_ASSESS_SUCCESSFUL" %}</h4>
 				<button
 					type="button"
 					class="btn-close"
@@ -288,37 +288,37 @@
 			</div>
 			<div class="modal-body">
 				<div class="alert alert-success" role="alert">
-					{% blocktranslate trimmed with count_html='<strong id="batch-submit-success-count">0</strong>'|safe %}PARTICIPANTS_BATCH_SUBMIT_SUCCESSFULLY_CREATED -- {{ count_html }}{% endblocktranslate %}
+					{% blocktranslate trimmed with count_html='<strong id="batch-assess-success-count">0</strong>'|safe %}PARTICIPANTS_BATCH_ASSESS_SUCCESSFULLY_CREATED -- {{ count_html }}{% endblocktranslate %}
 				</div>
 				<div class="mb-3">
 					<h6>{% translate "EXERCISE" %}</h6>
-					<p id="batch-submit-success-exercise"></p>
+					<p id="batch-assess-success-exercise"></p>
 				</div>
 				<div class="mb-3">
 					<h6>{% translate "STUDENTS" %}</h6>
-					<ul id="batch-submit-success-students" class="list-unstyled"></ul>
+					<ul id="batch-assess-success-students" class="list-unstyled"></ul>
 				</div>
 				<div class="mb-3">
-					<h6>{% translate "PARTICIPANTS_BATCH_SUBMIT_DETAILS" %}</h6>
+					<h6>{% translate "PARTICIPANTS_BATCH_ASSESS_DETAILS" %}</h6>
 					<dl class="row small">
 						<dt class="col-sm-4">{% translate "POINTS" %}:</dt>
-						<dd class="col-sm-8" id="batch-submit-success-points">0</dd>
-						<dt class="col-sm-4">{% translate "PARTICIPANTS_BATCH_SUBMIT_SUBMISSION_TIME" %}:</dt>
-						<dd class="col-sm-8" id="batch-submit-success-time"></dd>
-						<dt class="col-sm-4">{% translate "PARTICIPANTS_BATCH_SUBMIT_GRADER" %}:</dt>
-						<dd class="col-sm-8" id="batch-submit-success-grader"></dd>
+						<dd class="col-sm-8" id="batch-assess-success-points">0</dd>
+						<dt class="col-sm-4">{% translate "PARTICIPANTS_BATCH_ASSESS_SUBMISSION_TIME" %}:</dt>
+						<dd class="col-sm-8" id="batch-assess-success-time"></dd>
+						<dt class="col-sm-4">{% translate "PARTICIPANTS_BATCH_ASSESS_GRADER" %}:</dt>
+						<dd class="col-sm-8" id="batch-assess-success-grader"></dd>
 						<dt class="col-sm-4">{% translate "FEEDBACK" %}:</dt>
-						<dd class="col-sm-8" id="batch-submit-success-feedback" class="text-break"></dd>
+						<dd class="col-sm-8" id="batch-assess-success-feedback" class="text-break"></dd>
 					</dl>
 				</div>
 			</div>
 			<div class="modal-footer">
 				<button
 					type="button"
-					id="batch-submit-success-show-json"
+					id="batch-assess-success-show-json"
 					class="aplus-button--secondary aplus-button--md"
 				>
-					{% translate "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON" %}
+					{% translate "PARTICIPANTS_BATCH_ASSESS_SHOW_JSON" %}
 				</button>
 				<button
 					type="button"
@@ -334,15 +334,15 @@
 
 <div
 	class="modal"
-	id="batch-submit-json-modal"
+	id="batch-assess-json-modal"
 	tabindex="-1"
 	role="dialog"
-	aria-labelledby="batch-submit-json-modal-label"
+	aria-labelledby="batch-assess-json-modal-label"
 >
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="batch-submit-json-modal-label">{% translate "PARTICIPANTS_BATCH_SUBMIT_JSON" %}</h4>
+				<h4 class="modal-title" id="batch-assess-json-modal-label">{% translate "PARTICIPANTS_BATCH_ASSESS_JSON" %}</h4>
 				<button
 					type="button"
 					class="btn-close"
@@ -352,12 +352,12 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<pre id="batch-submit-json-content" style="max-height: 500px; overflow-y: auto;"></pre>
+				<pre id="batch-assess-json-content" style="max-height: 500px; overflow-y: auto;"></pre>
 			</div>
 			<div class="modal-footer">
 				<button
 					type="button"
-					id="batch-submit-json-copy"
+					id="batch-assess-json-copy"
 					class="aplus-button--secondary aplus-button--md"
 				>
 					{% translate "COPY_TO_CLIPBOARD" %}
@@ -455,9 +455,8 @@ $(function () {
 	const batch_assess_url = "{{ instance|url:'batch-assess' }}";
 	const is_teacher = {{ is_teacher|yesno:"true,false" }};
 	const enrollment_statuses = JSON.parse(document.getElementById('enrollment-statuses-data').textContent);
-	const current_user_id = {{ request.user.id }};
 	const current_user_name = "{{ request.user.get_full_name|default:request.user.username|escapejs }}";
-	participants_list(participants, api_url, is_teacher, enrollment_statuses, exercises_api_url, batch_assess_url, current_user_id, current_user_name);
+	participants_list(participants, api_url, is_teacher, enrollment_statuses, exercises_api_url, batch_assess_url, current_user_name);
 });
 </script>
 

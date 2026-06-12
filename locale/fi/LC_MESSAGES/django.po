@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-12 10:16+0300\n"
+"POT-Creation-Date: 2026-06-12 10:31+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1700,8 +1700,9 @@ msgid "REMOVE_STUDENT_TAG"
 msgstr "Poista opiskelijamerkintä"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT"
-msgstr "Massapalautus"
+#: edit_course/templates/edit_course/edit_course_base.html
+msgid "BATCH_ASSESS"
+msgstr "Joukkoarviointi"
 
 #: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/_remove_modal.html
@@ -1725,7 +1726,7 @@ msgid "SELECT"
 msgstr "Valitse"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SELECT_EXERCISE"
+msgid "PARTICIPANTS_BATCH_ASSESS_SELECT_EXERCISE"
 msgstr "Valitse tehtävä"
 
 #: course/templates/course/staff/participants.html
@@ -1752,12 +1753,12 @@ msgid "SUBMIT"
 msgstr "Lähetä"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL"
-msgstr "Massapalautus onnistui"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFUL"
+msgstr "Joukkoarviointi onnistui"
 
 #: course/templates/course/staff/participants.html
 #, python-format
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFULLY_CREATED -- %(count_html)s"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUCCESSFULLY_CREATED -- %(count_html)s"
 msgstr "%(count_html)s palautus(ta) tehty onnistuneesti"
 
 #: course/templates/course/staff/participants.html
@@ -1766,23 +1767,23 @@ msgid "STUDENTS"
 msgstr "Opiskelijat"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_DETAILS"
+msgid "PARTICIPANTS_BATCH_ASSESS_DETAILS"
 msgstr "Lisätiedot"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SUBMISSION_TIME"
+msgid "PARTICIPANTS_BATCH_ASSESS_SUBMISSION_TIME"
 msgstr "Palautuksen aika"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_GRADER"
+msgid "PARTICIPANTS_BATCH_ASSESS_GRADER"
 msgstr "Arvostelija"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON"
+msgid "PARTICIPANTS_BATCH_ASSESS_SHOW_JSON"
 msgstr "Näytä JSON"
 
 #: course/templates/course/staff/participants.html
-msgid "PARTICIPANTS_BATCH_SUBMIT_JSON"
+msgid "PARTICIPANTS_BATCH_ASSESS_JSON"
 msgstr "Palautettu JSON"
 
 #: course/templates/course/staff/participants.html
@@ -3010,10 +3011,6 @@ msgstr "Valikko"
 #: edit_course/templates/edit_course/submissiontag_list.html
 msgid "SUBMISSION_TAGS"
 msgstr "Palautusmerkinnät"
-
-#: edit_course/templates/edit_course/edit_course_base.html
-msgid "BATCH_ASSESS"
-msgstr "Joukkoarviointi"
 
 #: edit_course/templates/edit_course/edit_gitmanager.html
 msgid "EDIT_GITMANAGER"
