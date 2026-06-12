@@ -101,7 +101,7 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					aria-label="close"
+					aria-label="{% translate 'CLOSE' %}"
 				>
 				</button>
 			</div>
@@ -155,7 +155,7 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					aria-label="close"
+					aria-label="{% translate 'CLOSE' %}"
 				>
 				</button>
 			</div>
@@ -201,6 +201,7 @@
 #batch-submit-value {
 	-moz-appearance: textfield;
 	appearance: textfield;
+}
 </style>
 
 <!-- Batch submit modal -->
@@ -219,7 +220,7 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					aria-label="close"
+					aria-label="{% translate 'CLOSE' %}"
 				>
 				</button>
 			</div>
@@ -251,9 +252,8 @@
 					type="button"
 					id="batch-submit-confirm"
 					class="aplus-button--default aplus-button--md"
-					data-bs-dismiss="modal"
 				>
-					OK
+					{% translate "SUBMIT" %}
 				</button>
 				<button
 					type="button"
@@ -282,7 +282,7 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					aria-label="close"
+					aria-label="{% translate 'CLOSE' %}"
 				>
 				</button>
 			</div>
@@ -334,6 +334,48 @@
 
 <div
 	class="modal"
+	id="batch-submit-json-modal"
+	tabindex="-1"
+	role="dialog"
+	aria-labelledby="batch-submit-json-modal-label"
+>
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="batch-submit-json-modal-label">{% translate "PARTICIPANTS_BATCH_SUBMIT_JSON" %}</h4>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="{% translate 'CLOSE' %}"
+				>
+				</button>
+			</div>
+			<div class="modal-body">
+				<pre id="batch-submit-json-content" style="max-height: 500px; overflow-y: auto;"></pre>
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					id="batch-submit-json-copy"
+					class="aplus-button--secondary aplus-button--md"
+				>
+					{% translate "COPY_TO_CLIPBOARD" %}
+				</button>
+				<button
+					type="button"
+					class="aplus-button--default aplus-button--md"
+					data-bs-dismiss="modal"
+				>
+					{% translate "CLOSE" %}
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div
+	class="modal"
 	id="enrollment-remove-modal"
 	tabindex="-1"
 	role="dialog"
@@ -354,7 +396,7 @@
 					type="button"
 					class="btn-close"
 					data-bs-dismiss="modal"
-					aria-label="close"
+					aria-label="{% translate 'CLOSE' %}"
 				>
 				</button>
 			</div>
@@ -414,7 +456,7 @@ $(function () {
 	const is_teacher = {{ is_teacher|yesno:"true,false" }};
 	const enrollment_statuses = JSON.parse(document.getElementById('enrollment-statuses-data').textContent);
 	const current_user_id = {{ request.user.id }};
-	const current_user_name = "{{ request.user.get_full_name|default:request.user.username }}";
+	const current_user_name = "{{ request.user.get_full_name|default:request.user.username|escapejs }}";
 	participants_list(participants, api_url, is_teacher, enrollment_statuses, exercises_api_url, batch_assess_url, current_user_id, current_user_name);
 });
 </script>

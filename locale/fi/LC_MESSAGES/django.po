@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-08 11:24+0300\n"
+"POT-Creation-Date: 2026-06-12 10:16+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -1704,6 +1704,19 @@ msgid "PARTICIPANTS_BATCH_SUBMIT"
 msgstr "Massapalautus"
 
 #: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Sulje"
+
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
@@ -1726,6 +1739,17 @@ msgstr "Pisteet"
 #: course/templates/course/staff/participants.html templates/base.html
 msgid "FEEDBACK"
 msgstr "Palaute"
+
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
+#: edit_course/templates/edit_course/batch_assess.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SUBMIT"
+msgstr "Lähetä"
 
 #: course/templates/course/staff/participants.html
 msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL"
@@ -1758,17 +1782,12 @@ msgid "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON"
 msgstr "Näytä JSON"
 
 #: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/_remove_modal.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Sulje"
+msgid "PARTICIPANTS_BATCH_SUBMIT_JSON"
+msgstr "Palautettu JSON"
+
+#: course/templates/course/staff/participants.html
+msgid "COPY_TO_CLIPBOARD"
+msgstr "Kopioi leikepöydälle"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -2118,16 +2137,6 @@ msgstr "jälkeen"
 #: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Ylikirjoita"
-
-#: deviations/templates/deviations/remove_dl.html
-#: deviations/templates/deviations/remove_submissions.html
-#: edit_course/templates/edit_course/batch_assess.html
-#: edit_course/templates/edit_course/edit_gitmanager.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "SUBMIT"
-msgstr "Lähetä"
 
 #: deviations/viewbase.py
 msgid "SUCCESS_ADDING_DEVIATIONS"

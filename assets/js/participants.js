@@ -847,7 +847,10 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           // Only fetch if we haven't already populated the exercises
           if ($select.find('option').length <= 1) {
             fetch(exercises_api_url)
-              .then(response => response.json())
+              .then(response => {
+                if (!response.ok) throw new Error(`Failed to fetch exercises (HTTP ${response.status})`);
+                return response.json();
+               })
               .then(data => {
                 // Recursively extract all exercises from modules
                 function extractExercises(modules) {
@@ -901,7 +904,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           const selectedOption = $this.find('option:selected');
           const isSelected = $this.val() !== '';
           const maxPoints = isSelected ? parseInt(selectedOption.data('maxPoints') || 0, 10) : 0;
-          
+
           const $slider = $('#batch-submit-value');
           const $textbox = $('#batch-submit-value-display');
           const $feedback = $('#batch-submit-feedback');
@@ -910,7 +913,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           $feedback.prop('disabled', !isSelected);
           $slider.attr('max', maxPoints);
           $textbox.attr('max', maxPoints);
-          
+
           // Set value to max_points when exercise is selected
           if (isSelected) {
             $slider.val(maxPoints);
@@ -938,9 +941,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       const exerciseId = parseInt($('#batch-submit-category').val() || 0, 10);
       const points = parseInt($('#batch-submit-value-display').val() || 0, 10);
       const feedback = $('#batch-submit-feedback').val() || '';
-      
+
       if (!exerciseId || !userIds.length) return;
-      
+
       // Get current timestamp in format "YYYY-MM-DD HH:MM"
       const now = new Date();
       const year = now.getFullYear();
@@ -949,7 +952,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const submission_time = `${year}-${month}-${day} ${hours}:${minutes}`;
-      
+
       // Prepare the JSON payload
       const submissionData = {
         objects: userIds.map(userId => ({
@@ -957,11 +960,10 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           exercise_id: exerciseId,
           points: points,
           feedback: feedback,
-          submission_time: submission_time,
-          grader: current_user_id
+          submission_time: submission_time
         }))
       };
-      
+
       // Make POST request
       fetch(batch_assess_url, {
         method: 'POST',
@@ -978,7 +980,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           // Get exercise name from selected option
           const exerciseOption = $('#batch-submit-category').find('option:selected');
           const exerciseName = exerciseOption.text();
-          
+
           // Find participant names for the submitted students
           const studentsList = [];
           userIds.forEach(userId => {
@@ -987,7 +989,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
               studentsList.push(participant);
             }
           });
-          
+
           // Populate success modal
           $('#batch-submit-success-count').text(userIds.length);
           $('#batch-submit-success-exercise').text(exerciseName);
@@ -995,21 +997,21 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           $('#batch-submit-success-time').text(submission_time);
           $('#batch-submit-success-grader').text(current_user_name || 'Current user');
           $('#batch-submit-success-feedback').text(feedback || '(none)');
-          
+
           // Populate students list
           const $studentsList = $('#batch-submit-success-students').empty();
           studentsList.forEach(student => {
             const fullName = [student.first_name, student.last_name].filter(Boolean).join(' ') || student.email;
             $studentsList.append(
               $('<li>').append(
-                `${fullName} (ID: ${student.student_id || student.user_id})`
+                escapeHtml(`${fullName} (ID: ${student.student_id || student.user_id})`)
               )
             );
           });
-          
+
           // Store submission data for JSON display
           $('#batch-submit-success-modal').data('submissionData', submissionData);
-          
+
           // Show success modal
           hideModalSafely('batch-submit-modal');
           const successModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-submit-success-modal'));
@@ -1029,11 +1031,27 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       const submissionData = $('#batch-submit-success-modal').data('submissionData');
       if (submissionData) {
         const jsonStr = JSON.stringify(submissionData, null, 2);
-        // Open in a new approach - show in an alert or modal
-        const preElement = $('<pre>').css({'background-color': '#f5f5f5', 'padding': '10px', 'border-radius': '4px', 'max-height': '400px', 'overflow': 'auto', 'white-space': 'pre-wrap', 'word-wrap': 'break-word'}).text(jsonStr);
-        alert('JSON: ' + jsonStr);
+        $('#batch-submit-json-content').text(jsonStr);
+        const jsonModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-submit-json-modal'));
+        jsonModal.show();
       }
     });
+
+    // Copy JSON to clipboard button
+    $('#batch-submit-json-copy').off('click.aplusCopyJson').on('click.aplusCopyJson', function(){
+      const jsonStr = $('#batch-submit-json-content').text();
+      if (jsonStr) {
+        const $btn = $(this);
+        navigator.clipboard.writeText(jsonStr).then(function() {
+          const originalText = $btn.text();
+          $btn.text(_('Copied!'));
+          setTimeout(function(){ $btn.text(originalText); }, 2000);
+        }).catch(function(err) {
+          console.error('Failed to copy:', err);
+        });
+      }
+    });
+
     // Confirm add/remove tag modals (DT path)
     $('#tag-add-confirm').off('click.aplusConfirm').on('click.aplusConfirm', function(){
       const userIds = $(this).data('targetUserIds') || [];

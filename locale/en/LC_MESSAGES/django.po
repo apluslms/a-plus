@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-08 11:24+0300\n"
+"POT-Creation-Date: 2026-06-12 10:16+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -1696,6 +1696,19 @@ msgid "PARTICIPANTS_BATCH_SUBMIT"
 msgstr "Batch submit"
 
 #: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/_remove_modal.html
+#: edit_course/templates/edit_course/edit_content.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
+#: exercise/templates/exercise/staff/_regrade_submissions.html
+#: exercise/templates/exercise/staff/_resubmit_modal.html
+#: exercise/templates/exercise/staff/_submission_data_modal.html
+#: templates/base.html
+msgid "CLOSE"
+msgstr "Close"
+
+#: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/list_submissions.html
 #: exercise/templates/exercise/staff/edit_submitters.html
@@ -1718,6 +1731,17 @@ msgstr "Points"
 #: course/templates/course/staff/participants.html templates/base.html
 msgid "FEEDBACK"
 msgstr "Feedback"
+
+#: course/templates/course/staff/participants.html
+#: deviations/templates/deviations/remove_dl.html
+#: deviations/templates/deviations/remove_submissions.html
+#: edit_course/templates/edit_course/batch_assess.html
+#: edit_course/templates/edit_course/edit_gitmanager.html
+#: exercise/templates/exercise/_duplicate_submission_modal.html
+#: exercise/templates/exercise/model/_file_submit_form.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "SUBMIT"
+msgstr "Submit"
 
 #: course/templates/course/staff/participants.html
 msgid "PARTICIPANTS_BATCH_SUBMIT_SUCCESSFUL"
@@ -1750,17 +1774,12 @@ msgid "PARTICIPANTS_BATCH_SUBMIT_SHOW_JSON"
 msgstr "Show JSON"
 
 #: course/templates/course/staff/participants.html
-#: deviations/templates/deviations/_remove_modal.html
-#: edit_course/templates/edit_course/edit_content.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-#: exercise/templates/exercise/staff/_late_submission_approval_modal.html
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-#: exercise/templates/exercise/staff/_resubmit_modal.html
-#: exercise/templates/exercise/staff/_submission_data_modal.html
-#: templates/base.html
-msgid "CLOSE"
-msgstr "Close"
+msgid "PARTICIPANTS_BATCH_SUBMIT_JSON"
+msgstr "Submitted JSON"
+
+#: course/templates/course/staff/participants.html
+msgid "COPY_TO_CLIPBOARD"
+msgstr "Copy to clipboard"
 
 #: course/templates/course/staff/participants.html
 msgid "ENROLLMENT_REMOVE_MODAL_REMOVE_TITLE"
@@ -2107,16 +2126,6 @@ msgstr "after"
 #: edit_course/templates/edit_course/edit_content.html
 msgid "OVERRIDE"
 msgstr "Override"
-
-#: deviations/templates/deviations/remove_dl.html
-#: deviations/templates/deviations/remove_submissions.html
-#: edit_course/templates/edit_course/batch_assess.html
-#: edit_course/templates/edit_course/edit_gitmanager.html
-#: exercise/templates/exercise/_duplicate_submission_modal.html
-#: exercise/templates/exercise/model/_file_submit_form.html
-#: exercise/templates/exercise/staff/_assessment_panel.html
-msgid "SUBMIT"
-msgstr "Submit"
 
 #: deviations/viewbase.py
 msgid "SUCCESS_ADDING_DEVIATIONS"
