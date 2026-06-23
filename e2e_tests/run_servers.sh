@@ -13,10 +13,5 @@ if ! [ -d ../../aplus-manual ]; then
     ( cd ../../aplus-manual && git submodule update --init && cd "${scriptpath}" ) || { echo "Failed to initialize and update git submodules!"; exit 1; }
 fi
 
-# Move to aplus-manual directory and build the course if it hasn't been built yet
-if ! [ -d ../../aplus-manual/_build ]; then
-    ( cd ../../aplus-manual && ./docker-compile.sh && cd "${scriptpath}" ) || { echo "Failed to build course!"; exit 1; }
-fi
-
 # Run the server
 ./docker-up.sh

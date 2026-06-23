@@ -4,10 +4,10 @@ from e2e_tests.helpers import login, logout
 
 def test_teacher_list_access_rights(page: Page):
 
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     if page.get_by_test_id('user-menu').is_visible():
         logout(page)
-    page.goto("http://localhost:8000/accounts/teachers")
+    page.goto("http://localhost:8010/accounts/teachers")
 
     alert = page.get_by_role("alert")
     message = "Unfortunately, you are not permitted to view this content"
@@ -16,28 +16,28 @@ def test_teacher_list_access_rights(page: Page):
     expect(alert).to_contain_text(message)
 
     login(page, "student", "student")
-    page.goto("http://localhost:8000/accounts/teachers")
+    page.goto("http://localhost:8010/accounts/teachers")
     expect(alert).to_be_visible()
     expect(alert).to_contain_text(message)
 
     logout(page)
     login(page, "teacher", "teacher")
-    page.goto("http://localhost:8000/accounts/teachers")
+    page.goto("http://localhost:8010/accounts/teachers")
     expect(alert).to_be_visible()
     expect(alert).to_contain_text(message)
 
     logout(page)
     login(page, "admin", "admin")
-    page.goto("http://localhost:8000/accounts/teachers")
+    page.goto("http://localhost:8010/accounts/teachers")
     expect(alert).not_to_be_visible()
     expect(page).to_have_title("Teacher list | A+")
 
 
 def test_teacher_list_content(page: Page):
 
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "admin", "admin")
-    page.goto("http://localhost:8000/accounts/teachers")
+    page.goto("http://localhost:8010/accounts/teachers")
 
     table = page.get_by_role("table")
     expect(table).to_be_visible()

@@ -14,7 +14,7 @@ class File:
 
 
 def login(page: Page, username: str, password: str):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     page.get_by_role("link", name="Log in").click()
     page.get_by_label("Username").click()
     page.get_by_label("Username").fill(username)
@@ -41,8 +41,8 @@ def upload_submission(page: Page, chapter_name: str, exercise_name: str, files: 
 
 def navigate_to_default_course(page: Page):
     # If not at the site root, navigate to it
-    if page.url != "http://localhost:8000/?hl=en":
-        page.goto("http://localhost:8000/?hl=en")
+    if page.url != "http://localhost:8010/?hl=en":
+        page.goto("http://localhost:8010/?hl=en")
 
     # Navigate to the default course
     page.get_by_role("link", name="Def. Course Current DEF000 1.").click()

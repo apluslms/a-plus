@@ -6,7 +6,7 @@ from e2e_tests.helpers import navigate_to_default_course, login
 
 
 def test_should_not_accept_empty_submission(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
@@ -31,7 +31,7 @@ def test_should_not_accept_empty_submission(page: Page):
 
 
 def test_should_give_zero_points_on_false_submission(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
@@ -54,7 +54,7 @@ def test_should_give_zero_points_on_false_submission(page: Page):
 
 
 def test_should_give_partial_points_on_partially_correct_submission(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
@@ -75,7 +75,7 @@ def test_should_give_partial_points_on_partially_correct_submission(page: Page):
 
 
 def test_should_give_full_points_on_correct_submission(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
@@ -96,7 +96,7 @@ def test_should_give_full_points_on_correct_submission(page: Page):
 
 
 def test_should_not_accept_submission_after_max_submissions_reached(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()

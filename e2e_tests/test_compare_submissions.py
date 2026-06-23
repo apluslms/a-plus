@@ -7,7 +7,7 @@ def test_compare_submissions(page: Page) -> None:
     FEEDBACK_TEXT = "FEEDBACK"
     POINTS = "5"
 
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     chapter_name = "6.3 Exercises with Python"
     exercise_name = "#chapter-exercise-6"
     green = "rgb(212, 237, 218)"
@@ -71,7 +71,7 @@ def test_compare_submissions(page: Page) -> None:
         "The review was saved successfully and the submitters were notified.")
 
     page.goto(
-        "http://localhost:8000/def/current/programming_exercises/graderutils" +
+        "http://localhost:8010/def/current/programming_exercises/graderutils" +
         "/programming_exercises_graderutils_iotester_exercise2/submissions/2/inspect/?compare_to=invalid"
     )
     expect(page.get_by_role("main")).to_contain_text(

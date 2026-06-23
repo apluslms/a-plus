@@ -3,7 +3,7 @@ from e2e_tests.helpers import login, navigate_to_default_course
 
 
 def test_edit_exercise_page(page: Page) -> None:
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "teacher", "teacher")
 
     navigate_to_default_course(page)
@@ -29,7 +29,7 @@ def test_edit_exercise_page(page: Page) -> None:
     page.get_by_role("button", name="Save").click()
 
     page.goto(
-        "http://localhost:8000/def/current/teachers/exercise/" 
+        "http://localhost:8010/def/current/teachers/exercise/"
         + str(exerciseNumber)
         + "/"
     )

@@ -4,7 +4,7 @@ from e2e_tests.helpers import login, navigate_to_default_course
 
 
 def test_points_goal_set(page: Page) -> None:
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
 
     navigate_to_default_course(page)
@@ -20,7 +20,7 @@ def test_points_goal_set(page: Page) -> None:
 
 
 def test_points_goal_reached(page: Page) -> None:
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="Creating questionnaire exercises").click()

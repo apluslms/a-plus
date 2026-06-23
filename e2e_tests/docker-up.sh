@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OS=$(uname -s)
-COMPOSE_PROJECT_NAME=aplus
+COMPOSE_PROJECT_NAME=aplus-e2e
 if [ -z "$COMPOSE_FILE" ]; then
     COMPOSE_FILE="docker-compose.yml"
 fi

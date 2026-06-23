@@ -1,28 +1,50 @@
-version: '3'
-
 volumes:
   data:
 services:
-  grader:
-    image: apluslms/run-mooc-grader
-    command: "python3 manage.py runserver 0.0.0.0:8080 --noreload"
-    volumes:
-      - data:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp/aplus:/tmp/aplus
-      - ../../aplus-manual/:/srv/courses/default:ro
-    ports:
-      - "8080:8080"
   plus:
     image: apluslms/run-aplus-front
     command: "python3 manage.py runserver 0.0.0.0:8000 --noreload"
     environment:
-      APLUS_BASE_URL: 'http://localhost:8000/'
-      USE_GITMANAGER: 'false'
+      USE_GITMANAGER: 'true'
+      APLUS_BASE_URL: 'http://localhost:8010/'
+      APLUS_REMOTE_PAGE_HOSTS_MAP: |
+        {
+          "grader:8080": "localhost:8081",
+          "gitmanager:8070": "localhost:8071"
+        }
     volumes:
       - data:/data
       - ../:/src/aplus/:ro
     ports:
-      - "8000:8000"
+      - "8010:8000"
     depends_on:
       - grader
+      - gitmanager
+  grader:
+    image: apluslms/run-mooc-grader
+    command: "python3 manage.py runserver 0.0.0.0:8080 --noreload"
+    environment:
+      GRADER_RUNNER_MODULE_NETWORK: 'aplus-e2e_default'
+      GRADER_BASE_URL: 'http://localhost:8081'
+      GRADER_STATIC_URL_HOST_INJECT: 'http://localhost:8081'
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/aplus:/tmp/aplus
+    ports:
+      - "8081:8080"
+    depends_on:
+      - gitmanager
+  gitmanager:
+    image: apluslms/run-gitmanager
+    command: "python3 manage.py runserver 0.0.0.0:8070 --noreload"
+    environment:
+      HUEY_IMMEDIATE: 'true'
+      GITMANAGER_STATIC_CONTENT_HOST: 'http://localhost:8071'
+    volumes:
+      - data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/aplus:/tmp/aplus
+      - ../../aplus-manual/:/srv/courses/source/default:ro
+    ports:
+      - "8071:8070"

@@ -4,13 +4,13 @@ from e2e_tests.helpers import login
 
 
 def test_login(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     expect(page).to_have_title(re.compile("A+"))
     expect(page.get_by_label("Main")).to_contain_text("Stacy Student")
 
 def test_false_login(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "fake", "fake")
     expect(page).to_have_title(re.compile("Log in to A+ | A+"))
 

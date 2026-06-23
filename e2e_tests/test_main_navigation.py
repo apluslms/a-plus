@@ -4,7 +4,7 @@ from e2e_tests.helpers import navigate_to_default_course, login
 
 
 def test_main_navigation(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "teacher", "teacher")
     navigate_to_default_course(page)
     sidebar = page.locator("#main-course-menu")
@@ -51,4 +51,3 @@ def test_main_navigation(page: Page):
 
     sidebar.get_by_role("link", name="All submissions").click()
     expect(page).to_have_url(re.compile("/teachers/all-submissions/"))
-    

@@ -3,7 +3,7 @@ from e2e_tests.helpers import navigate_to_default_course, login
 
 
 def test_teacher_permissions(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "teacher", "teacher")
     navigate_to_default_course(page)
 
@@ -31,7 +31,7 @@ def test_teacher_permissions(page: Page):
 
 
 def test_assistant_permissions(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "assistant", "assistant")
     navigate_to_default_course(page)
 
@@ -62,7 +62,7 @@ def test_assistant_permissions(page: Page):
 
 
 def test_student_permissions(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
 

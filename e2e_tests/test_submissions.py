@@ -6,7 +6,7 @@ from e2e_tests.helpers import navigate_to_default_course, login
 
 
 def test_submission_count(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.2 Question groups").first.click()

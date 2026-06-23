@@ -4,7 +4,7 @@ from e2e_tests.helpers import File, navigate_to_default_course, login, upload_su
 
 
 def test_should_not_submit_without_files(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="Course materials").click()
@@ -23,7 +23,7 @@ def test_should_not_submit_without_files(page: Page):
     expect(points).to_contain_text("0 / 10")
 
 def test_should_give_zero_points_on_incorrect_answer(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
 
@@ -42,7 +42,7 @@ def test_should_give_zero_points_on_incorrect_answer(page: Page):
 
 
 def test_should_give_full_points_on_correct_answer(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
 

@@ -3,7 +3,7 @@ from playwright.sync_api import Page, expect
 from e2e_tests.helpers import navigate_to_default_course, login
 
 def test_should_not_count_empty_submit(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="Course materials").click()
@@ -20,7 +20,7 @@ def test_should_not_count_empty_submit(page: Page):
 
 
 def test_should_give_full_points_on_correct_answer(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     login(page, "student", "student")
     navigate_to_default_course(page)
     page.get_by_role("link", name="Course materials").click()

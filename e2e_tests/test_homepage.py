@@ -4,7 +4,7 @@ from e2e_tests.helpers import navigate_to_default_course, login
 
 
 def test_homepage(page: Page):
-    page.goto("http://localhost:8000/?hl=en")
+    page.goto("http://localhost:8010/?hl=en")
     expect(page).to_have_title(re.compile("A+"))
 
     login(page, "student", "student")
