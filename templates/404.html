@@ -1,9 +1,24 @@
-{% extends "base.html" %}
+{% extends base_template|default:"base.html" %}
 {% load i18n %}
+{% load base %}
+{% load course %}
 
 {% block title %}{% translate "NOT_FOUND_404" %} | {{ block.super }}{% endblock %}
 
+{% block breadcrumblist %}
+{% if instance %}
+  <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ course.code }}</a></li>
+  {% if instance.instance_name %}
+    <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ instance.instance_name|parse_localization }}</a></li>
+  {% endif %}
+{% endif %}
+  <li class="breadcrumb-item active" aria-current="page">{% translate "NOT_FOUND_404" %}</li>
+{% endblock %}
+
 {% block content %}
+{% if instance %}
+  {{ block.super }}
+{% else %}
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8">
@@ -38,4 +53,15 @@
 		</div>
 	</div>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block coursecontent %}
+<div class="page-header">
+  <h1>
+    {% translate "NOT_FOUND_404" %}
+    <span class="tiny">(404)</span>
+  </h1>
+</div>
+<p>{% translate "PAGE_DOES_NOT_EXIST" %}</p>
 {% endblock %}
