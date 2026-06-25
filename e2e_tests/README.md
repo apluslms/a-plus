@@ -3,6 +3,7 @@
 1. Run A+ locally using the [develop-aplus](https://github.com/apluslms/develop-aplus) repository
 ```
 source .venv/bin/activate
+cd a-plus/e2e_tests
 ./docker-up.sh
 ```
 
