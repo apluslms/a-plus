@@ -7,7 +7,7 @@
 
 {% block breadcrumblist %}
 {% if instance %}
-  <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ course.code }}</a></li>
+  {{ block.super }}
   {% if instance.instance_name %}
     <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ instance.instance_name|parse_localization }}</a></li>
   {% endif %}
@@ -37,10 +37,10 @@
 
 {% block coursecontent %}
 <div class="page-header">
-    <h1>
-        {% translate "ACCESS_RESTRICTED_403" %}
-        <span class="tiny">(403)</span>
-    </h1>
+  <h1>
+    {% translate "ACCESS_RESTRICTED_403" %}
+    <span class="tiny">(403)</span>
+  </h1>
 </div>
 <p>{% translate "ACCESS_RESTRICTED_403_INFO" %}</p>
 {% endblock %}

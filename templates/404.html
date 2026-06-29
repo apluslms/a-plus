@@ -20,38 +20,36 @@
   {{ block.super }}
 {% else %}
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-8">
-			<div class="page-header">
-				<h1>
-					{% translate "NOT_FOUND_404" %}
-					<span class="tiny">(404)</span>
-				</h1>
-			</div>
-			{% if url_without_language %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
-				<a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
-			</div>
-			{% elif languages %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% blocktranslate trimmed %}
-				PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
-				{% endblocktranslate %}
-				{% for lang in languages %}
-				<a href="{{ lang.url }}">{{ lang.name }}</a>
-				{% endfor %}
-			</div>
-			{% else %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% translate "PAGE_DOES_NOT_EXIST" %}
-			</div>
-			{% endif %}
-		</div>
-	</div>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="page-header">
+        <h1>
+          {% translate "NOT_FOUND_404" %}
+          <span class="tiny">(404)</span>
+        </h1>
+      </div>
+      {% if url_without_language %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
+        <a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
+      </div>
+      {% elif languages %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% blocktranslate trimmed %}PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE{% endblocktranslate %}
+        {% for lang in languages %}
+        <a href="{{ lang.url }}">{{ lang.name }}</a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% translate "PAGE_DOES_NOT_EXIST" %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 {% endif %}
 {% endblock %}
@@ -63,5 +61,18 @@
     <span class="tiny">(404)</span>
   </h1>
 </div>
-<p>{% translate "PAGE_DOES_NOT_EXIST" %}</p>
+{% if languages %}
+<div class="alert alert-danger">
+  <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+  {% blocktranslate trimmed %}PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE{% endblocktranslate %}
+  {% for lang in languages %}
+  <a href="{{ lang.url }}">{{ lang.name }}</a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-danger">
+  <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+  {% translate "PAGE_DOES_NOT_EXIST" %}
+</div>
+{% endif %}
 {% endblock %}
