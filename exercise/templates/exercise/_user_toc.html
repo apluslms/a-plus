@@ -12,9 +12,25 @@
 		<h3>
 			<a href="{{ module.link }}" class="{% if module.is_in_maintenance %}maintenance{% endif %}">{{ module.name|parse_localization }}</a>
 			{% if module|deadline_extended_exercises_open %}
-			<span class="badge text-bg-secondary">
-				{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
-			</span>
+				<!-- If all exercises of a module have the same deadline, display it directly.
+					Otherwise display a generic message that has a tooltip with details -->
+				{% if module|deadline_extended_exercises_same_deadline %}
+				<span class="badge text-bg-secondary">
+					{% translate "PERSONAL_EXTENDED_DEADLINE" %} {{ module|deadline_extended_exercises_same_deadline }}
+				</span>
+				{% else %}
+				<span class="badge text-bg-secondary" data-bs-toggle="tooltip" data-bs-html="true" title="
+				{% for deadline, exercises in module|deadline_extended_exercises_by_deadline %}
+					{{ deadline }}:<br/>
+					{% for exercise in exercises %}
+						{{ exercise.name|parse_localization }}{% if not forloop.last %}<br/>{% endif %}
+					{% endfor %}
+					{% if not forloop.last %}<hr/>{% endif %}
+				{% endfor %}
+				">
+					{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+				</span>
+				{% endif %}
 			{% endif %}
 		</h3>
 		<h4>
