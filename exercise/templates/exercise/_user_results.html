@@ -59,9 +59,26 @@
 					</span>
 					{% endif %}
 					{% if module|deadline_extended_exercises_open %}
-					<span class="badge text-primary bg-white float-end text-wrap">
-						{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
-					</span>
+						<!-- If all exercises of a module have the same deadline, display it directly.
+							Otherwise display a generic message that has a tooltip with details -->
+						{% if module|deadline_extended_exercises_same_deadline %}
+						<span class="badge text-primary bg-white float-end text-wrap">
+							{% translate "PERSONAL_EXTENDED_DEADLINE" %} {{ module|deadline_extended_exercises_same_deadline }}
+						</span>
+						{% else %}
+						<span class="badge text-primary bg-white float-end text-wrap" data-bs-toggle="tooltip" data-bs-html="true" title="
+							{% for deadline, exercises in module|deadline_extended_exercises_by_deadline %}
+								{{ deadline }}:<br/>
+								{% for exercise in exercises %}
+									{{ exercise.name|parse_localization }}{% if not forloop.last %}<br/>{% endif %}
+								{% endfor %}
+								{% if not forloop.last %}<hr/>{% endif %}
+							{% endfor %}"
+						>
+							{% translate "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION" %}
+						</span>
+						{% endif %}
+
 					{% endif %}
 					{% if not accessible %}
 					<span class="badge text-primary bg-white float-end text-wrap">

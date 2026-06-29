@@ -87,6 +87,33 @@ def deadline_extended_exercises_open(entry):
     )
 
 
+# List exercises in a module by deadline extension, to display in tooltip details
+@register.filter
+def deadline_extended_exercises_by_deadline(entry):
+    deadlines_map = {}
+    for e in entry.flatted:
+        if isinstance(e, ExercisePoints) and e.personal_deadline is not None:
+            if e.personal_deadline not in deadlines_map:
+                deadlines_map[e.personal_deadline] = []
+            deadlines_map[e.personal_deadline].append(e)
+    return list(deadlines_map.items())
+
+
+# Get the personal deadline if all exercises in a module have the same personal deadline
+@register.filter
+def deadline_extended_exercises_same_deadline(entry):
+    deadlines = [
+        e.personal_deadline
+        for e in entry.flatted
+        if isinstance(e, ExercisePoints)
+    ]
+    if not deadlines:
+        return None
+    if len(set(deadlines)) == 1:
+        return deadlines[0]
+    return None
+
+
 @register.filter
 def exercises_submittable(entry, now):
     if entry.late_allowed:
