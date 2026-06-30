@@ -25,6 +25,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
+from .cache.exercise import ExerciseCache
 from .cache.points import CachedPoints, ModulePoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
@@ -296,6 +297,16 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         )
         return submission_status, submission_allowed, issues, students
 
+    def _get_current_exercise_version(self, request: HttpRequest, students: List[UserProfile]) -> Optional[str]:
+        cache = ExerciseCache(
+            self.exercise,
+            get_language(),
+            request,
+            students,
+            self.post_url_name,
+        )
+        return cache.exercise_version() or None
+
     def get_page(self, request: HttpRequest, students: List[UserProfile]) -> ExercisePage:
         """
         Determines which page should be displayed for this exercise:
@@ -338,6 +349,21 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                             url_name=self.post_url_name,
                         )
                     if self.feedback_revealed:
+                        submission_version = (submission.meta_data or {}).get('exercise_version')
+                        submission_language = submission.lang
+                        current_language = get_language()
+                        current_version = self._get_current_exercise_version(request, students)
+                        if (
+                            (submission_language is not None
+                                and submission_language != current_language)
+                            or (current_version is not None
+                                and submission_version != current_version)
+                        ):
+                            return self.exercise.load(
+                                request,
+                                students,
+                                url_name=self.post_url_name,
+                            )
                         page = ExercisePage(self.exercise)
                         page.content = submission.feedback
                         page.is_loaded = True

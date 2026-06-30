@@ -181,4 +181,5 @@ def parse_page_content(
     id_attrs_to_remove = ('exercise', 'chapter', 'aplus')
     page.content, page.clean_content = remote_page.element_or_body(element_selectors, id_attrs_to_remove)
     page.last_modified = remote_page.last_modified()
+    page.exercise_version = remote_page.meta("x-aplus-exercise-version") or ""
     page.expires = remote_page.expires()
