@@ -405,6 +405,7 @@ class LearningObject(LearningObjectProto, ModelWithInheritance):
         cache = ExerciseCache(self, language, request, students, url_name, ordinal)
         page.head = cache.head()
         page.content = cache.content()
+        page.exercise_version = cache.exercise_version()
         page.is_loaded = True
         return page
 

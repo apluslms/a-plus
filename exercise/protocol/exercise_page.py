@@ -23,6 +23,7 @@ class ExercisePage:
         self.content = ""
         self.clean_content = ""
         self.last_modified = ""
+        self.exercise_version = ""  # Content hash supplied by MOOC-Grader
         self.expires = 0
         self.meta = {
             "title": exercise.name,

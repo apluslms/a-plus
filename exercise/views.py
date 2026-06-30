@@ -25,6 +25,7 @@ from lib.helpers import query_dict_to_list_of_tuples, safe_file_name, is_ajax
 from lib.remote_page import RemotePageNotFound, request_for_response
 from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
+from .cache.exercise import ExerciseCache
 from .cache.points import CachedPoints, ModulePoints, ExercisePoints
 from .models import BaseExercise, LearningObject, LearningObjectDisplay
 from .protocol.exercise_page import ExercisePage
@@ -296,6 +297,52 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
         )
         return submission_status, submission_allowed, issues, students
 
+    def _get_current_exercise_version(self, request: HttpRequest, students: List[UserProfile]) -> Optional[str]:
+        language = get_language()
+        version = ExerciseCache.cached_exercise_version(
+            self.exercise,
+            language,
+        )
+        if version:
+            return version
+        page = self._load_default_page(request, students)
+        return page.exercise_version or None
+
+    def _load_default_page(self, request: HttpRequest, students: List[UserProfile]) -> ExercisePage:
+        page = getattr(self, '_default_exercise_page', None)
+        if page is None:
+            page = self.exercise.load(
+                request,
+                students,
+                url_name=self.post_url_name,
+            )
+            self._default_exercise_page = page
+        return page
+
+    def _submission_is_compatible(
+            self,
+            request: HttpRequest,
+            students: List[UserProfile],
+            submission: Submission,
+            ) -> bool:
+        submission_language = submission.lang
+        if (
+            submission_language is not None
+            and submission_language.lower() != get_language().lower()
+        ):
+            return False
+
+        try:
+            submission_version = submission.meta_data.get('exercise_version')
+        except AttributeError:
+            submission_version = None
+
+        # Submissions made before version stamping can not be compared reliably.
+        if not submission_version:
+            return True
+        current_version = self._get_current_exercise_version(request, students)
+        return current_version is None or submission_version == current_version
+
     def get_page(self, request: HttpRequest, students: List[UserProfile]) -> ExercisePage:
         """
         Determines which page should be displayed for this exercise:
@@ -330,13 +377,11 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     .first()
                 )
                 if submission:
+                    if not self._submission_is_compatible(request, students, submission):
+                        return self._load_default_page(request, students)
                     if self.feedback_revealed and not submission.feedback:
                         # We cannot show feedback (grader service was probably down), so load a blank exercise page
-                        return self.exercise.load(
-                            request,
-                            students,
-                            url_name=self.post_url_name,
-                        )
+                        return self._load_default_page(request, students)
                     if self.feedback_revealed:
                         page = ExercisePage(self.exercise)
                         page.content = submission.feedback
@@ -346,11 +391,7 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
                     return submission.load(request, feedback_revealed=False)
 
         # In every other case, load a blank exercise page
-        return self.exercise.load(
-            request,
-            students,
-            url_name=self.post_url_name,
-        )
+        return self._load_default_page(request, students)
 
 
     def _load_exercisecollection(self, request, submission_disabled):

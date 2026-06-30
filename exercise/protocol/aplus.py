@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from lib.email_messages import email_course_error
 from lib.remote_page import RemotePage, RemotePageException
+from ..cache.exercise import ExerciseCache
 from .exercise_page import ExercisePage
 
 from lti_tool.utils import send_lti_points
@@ -64,6 +65,14 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
 
     if page.is_loaded:
         submission.feedback = page.clean_content
+        if page.exercise_version:
+            language = submission.lang or exercise.course_instance.default_language
+            cached_version = ExerciseCache.cached_exercise_version(exercise, language)
+            if cached_version and cached_version != page.exercise_version:
+                ExerciseCache.invalidate(exercise, modifiers=[language])
+            if not isinstance(submission.meta_data, dict):
+                submission.meta_data = {}
+            submission.meta_data['exercise_version'] = page.exercise_version
         if page.is_accepted:
             submission.set_waiting()
             if page.is_graded:
@@ -181,4 +190,5 @@ def parse_page_content(
     id_attrs_to_remove = ('exercise', 'chapter', 'aplus')
     page.content, page.clean_content = remote_page.element_or_body(element_selectors, id_attrs_to_remove)
     page.last_modified = remote_page.last_modified()
+    page.exercise_version = remote_page.meta("aplus-exercise-version") or ""
     page.expires = remote_page.expires()

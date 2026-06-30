@@ -252,6 +252,7 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             meta_data_dict = json.loads(request.POST.get('__aplus__', '{}'))
         except json.JSONDecodeError as exc:
             raise ValueError("The content of the field __aplus__ is not valid json") from exc
+        meta_data_dict.pop('exercise_version', None)
         if 'lang' not in meta_data_dict:
             meta_data_dict['lang'] = get_language()
 
