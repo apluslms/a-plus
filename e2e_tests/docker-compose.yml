@@ -3,9 +3,10 @@ volumes:
 services:
   plus:
     image: apluslms/run-aplus-front
-    command: "python3 manage.py runserver 0.0.0.0:8000 --noreload"
+    command: "python3 manage.py runserver 0.0.0.0:8000 --noreload --insecure"
     environment:
       USE_GITMANAGER: 'true'
+      APLUS_DEBUG: 'true'
       APLUS_BASE_URL: 'http://localhost:8010/'
       APLUS_REMOTE_PAGE_HOSTS_MAP: |
         {

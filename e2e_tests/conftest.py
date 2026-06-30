@@ -19,7 +19,7 @@ def django_server():
         try:
             response = requests.get("http://localhost:8010/") # pylint: disable=missing-timeout
             if response.status_code == 200:
-                # Set up Git origin and trigger course build in gitmanager container
+                # Trigger course build in gitmanager container
                 print("A+ server is ready. Initializing and building aplus-manual course via gitmanager...")
                 env = os.environ.copy()
                 env["COMPOSE_FILE"] = "docker-compose.yml"
