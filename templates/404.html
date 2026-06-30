@@ -1,41 +1,78 @@
-{% extends "base.html" %}
+{% extends base_template|default:"base.html" %}
 {% load i18n %}
+{% load base %}
+{% load course %}
 
 {% block title %}{% translate "NOT_FOUND_404" %} | {{ block.super }}{% endblock %}
 
+{% block breadcrumblist %}
+{% if instance %}
+  <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ course.code }}</a></li>
+  {% if instance.instance_name %}
+    <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ instance.instance_name|parse_localization }}</a></li>
+  {% endif %}
+{% endif %}
+  <li class="breadcrumb-item active" aria-current="page">{% translate "NOT_FOUND_404" %}</li>
+{% endblock %}
+
 {% block content %}
+{% if instance %}
+  {{ block.super }}
+{% else %}
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-8">
-			<div class="page-header">
-				<h1>
-					{% translate "NOT_FOUND_404" %}
-					<span class="tiny">(404)</span>
-				</h1>
-			</div>
-			{% if url_without_language %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
-				<a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
-			</div>
-			{% elif languages %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% blocktranslate trimmed %}
-				PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE
-				{% endblocktranslate %}
-				{% for lang in languages %}
-				<a href="{{ lang.url }}">{{ lang.name }}</a>
-				{% endfor %}
-			</div>
-			{% else %}
-			<div class="alert alert-danger">
-				<i class="bi-exclamation-triangle" aria-hidden="true"></i>
-				{% translate "PAGE_DOES_NOT_EXIST" %}
-			</div>
-			{% endif %}
-		</div>
-	</div>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="page-header">
+        <h1>
+          {% translate "NOT_FOUND_404" %}
+          <span class="tiny">(404)</span>
+        </h1>
+      </div>
+      {% if url_without_language %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% translate "PAGE_NOT_AVAILABLE_IN_LANGUAGE" %}
+        <a href="{{ url_without_language }}">{% translate "OPEN_PAGE_IN_DEFAULT_LANGUAGE" %}</a>
+      </div>
+      {% elif languages %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% blocktranslate trimmed %}PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE{% endblocktranslate %}
+        {% for lang in languages %}
+        <a href="{{ lang.url }}">{{ lang.name }}</a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-danger">
+        <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+        {% translate "PAGE_DOES_NOT_EXIST" %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
+{% endif %}
+{% endblock %}
+
+{% block coursecontent %}
+<div class="page-header">
+  <h1>
+    {% translate "NOT_FOUND_404" %}
+    <span class="tiny">(404)</span>
+  </h1>
+</div>
+{% if languages %}
+<div class="alert alert-danger">
+  <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+  {% blocktranslate trimmed %}PAGE_NOT_AVAILABLE_IN_LANGUAGE_BUT_AVAILABLE_IN_THESE{% endblocktranslate %}
+  {% for lang in languages %}
+  <a href="{{ lang.url }}">{{ lang.name }}</a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-danger">
+  <i class="bi-exclamation-triangle" aria-hidden="true"></i>
+  {% translate "PAGE_DOES_NOT_EXIST" %}
+</div>
+{% endif %}
 {% endblock %}

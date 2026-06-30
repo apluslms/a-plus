@@ -1,20 +1,46 @@
-{% extends "base.html" %}
+{% extends base_template|default:"base.html" %}
 {% load i18n %}
+{% load base %}
+{% load course %}
 
 {% block title %}{% translate "ACCESS_RESTRICTED_403" %} | {{ block.super }}{% endblock %}
 
+{% block breadcrumblist %}
+{% if instance %}
+  {{ block.super }}
+  {% if instance.instance_name %}
+    <li class="breadcrumb-item"><a href="{{ instance|url }}">{{ instance.instance_name|parse_localization }}</a></li>
+  {% endif %}
+{% endif %}
+  <li class="breadcrumb-item active" aria-current="page">{% translate "ACCESS_RESTRICTED_403" %}</li>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-md-8">
-			<div class="page-header">
-				<h1>
-					{% translate "ACCESS_RESTRICTED_403" %}
-					<span class="tiny">(403)</span>
-				</h1>
-			</div>
-			<p>{% translate "ACCESS_RESTRICTED_403_INFO" %}</p>
-		</div>
-	</div>
+{% if instance %}
+  {{ block.super }}
+{% else %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="page-header">
+          <h1>
+            {% translate "ACCESS_RESTRICTED_403" %}
+            <span class="tiny">(403)</span>
+          </h1>
+        </div>
+        <p>{% translate "ACCESS_RESTRICTED_403_INFO" %}</p>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block coursecontent %}
+<div class="page-header">
+  <h1>
+    {% translate "ACCESS_RESTRICTED_403" %}
+    <span class="tiny">(403)</span>
+  </h1>
 </div>
+<p>{% translate "ACCESS_RESTRICTED_403_INFO" %}</p>
 {% endblock %}
