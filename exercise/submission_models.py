@@ -31,6 +31,7 @@ from lib.models import UrlMixin
 from lti_tool.utils import has_lti_access_to_course
 from userprofile.models import UserProfile
 from aplus.celery import retry_submissions
+from .cache.exercise import ExerciseCache
 from . import exercise_models
 from .exercise_models import LearningObjectProto
 
@@ -254,6 +255,20 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             raise ValueError("The content of the field __aplus__ is not valid json") from exc
         if 'lang' not in meta_data_dict:
             meta_data_dict['lang'] = get_language()
+
+        # Store the current exercise page version for later compatibility checks
+        # when deciding whether old feedback can be shown.
+
+        exercise_cache = ExerciseCache(
+            exercise,
+            meta_data_dict['lang'],
+            request,
+            submitters,
+            'exercise',
+        )
+        version = exercise_cache.exercise_version()
+        if version:
+            meta_data_dict['exercise_version'] = version
 
         try:
             if ('lti-launch-id' in request.session
