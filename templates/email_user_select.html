@@ -1,57 +1,57 @@
 {% load i18n %}
 
-<div class="email-user-select-wrapper" 
-     id="{{ widget_id }}"
-     data-email-user-select="true"
-     data-api-url="{% if widget.attrs.search_api_url %}{{ widget.attrs.search_api_url }}{% else %}/api/v2/users/{% endif %}">
-    
-    <!-- Badge list - displays selected users -->
-    <div class="selected-users mb-2">
-        <strong>{% translate "SELECTED_USERS" %}:</strong>
-        <ul class="list-inline mt-1 badge-list" id="{{ widget_id }}_badges">
-            {% for user in selected_users %}
-            <li class="list-inline-item badge-item" data-email="{{ user.user.email }}" data-user-id="{{ user.user.id }}">
-                <button type="button" class="aplus-button--secondary aplus-button--sm btn btn-sm btn-secondary" onclick="removeUser('{{ widget_id }}', '{{ user.user.id }}')">
-                    {{ user.user.get_full_name }},
-                    {{ user.student_id }},
-                    {{ user.user.email }}
-                    <span aria-label="{% translate 'REMOVE' %}">x
-                    </span>
-                </button>
-            </li>
-            {% empty %}
-            <li class="text-muted" style="font-style: italic;">{% translate "NO_USERS_ADDED_YET" %}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    
-    <!-- Input field for adding new users -->
-    <div class="input-group">
-        <input 
-            type="text" 
-            id="{{ widget_id }}_input"
-            class="form-control rounded-0"
-            placeholder="{% translate 'ENTER_EMAIL_TO_ADD' %}"
-            aria-label="{% translate 'ENTER_EMAIL_TO_ADD' %}"
-        />
-        <button 
-            class="btn btn-outline-secondary" 
-            type="button"
-            id="{{ widget_id }}_add_btn"
-            aria-label="{% translate 'ADD_USER' %}"
-        >
-            {% translate 'ADD' %}
-        </button>
-    </div>
-    
-    <!-- Hidden field that stores the actual value (user IDs) -->
-    <input 
-        type="hidden" 
-        name="{{ widget.name }}" 
-        id="{{ widget_id }}_value"
-        value="{% for user in selected_users %}{{ user.user.id }}{% if not forloop.last %}, {% endif %}{% endfor %}"
-    />
-    
-    <!-- Error message container -->
-    <div id="{{ widget_id }}_error" class="text-danger mt-1" style="display: none;"></div>
+<div class="email-user-select-wrapper"
+	 id="{{ widget_id }}"
+	 data-email-user-select="true"
+	 data-api-url="{% if widget.attrs.search_api_url %}{{ widget.attrs.search_api_url }}{% else %}/api/v2/users/{% endif %}">
+
+	<!-- Badge list - displays selected users -->
+	<div class="selected-users mb-2">
+		<strong>{% translate "SELECTED_USERS" %}:</strong>
+		<ul class="list-inline mt-1 badge-list" id="{{ widget_id }}_badges">
+			{% for user in selected_users %}
+			<li class="list-inline-item badge-item" data-email="{{ user.user.email }}" data-user-id="{{ user.user.id }}">
+				<button type="button" class="aplus-button--secondary aplus-button--sm btn btn-sm btn-secondary" onclick="removeUser('{{ widget_id }}', '{{ user.user.id }}')">
+					{{ user.user.get_full_name }},
+					{{ user.student_id }},
+					{{ user.user.email }}
+					<span aria-label="{% translate 'REMOVE' %}">x
+					</span>
+				</button>
+			</li>
+			{% empty %}
+			<li class="text-muted" style="font-style: italic;">{% translate "NO_USERS_ADDED_YET" %}</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<!-- Input field for adding new users -->
+	<div class="input-group">
+		<input
+			type="text"
+			id="{{ widget_id }}_input"
+			class="form-control rounded-0"
+			placeholder="{% translate 'ENTER_EMAIL_TO_ADD' %}"
+			aria-label="{% translate 'ENTER_EMAIL_TO_ADD' %}"
+		/>
+		<button
+			class="btn btn-outline-secondary"
+			type="button"
+			id="{{ widget_id }}_add_btn"
+			aria-label="{% translate 'ADD' %}"
+		>
+			{% translate 'ADD' %}
+		</button>
+	</div>
+
+	<!-- Hidden field that stores the actual value (user IDs) -->
+	<input
+		type="hidden"
+		name="{{ widget.name }}"
+		id="{{ widget_id }}_value"
+		value="{% for user in selected_users %}{{ user.user.id }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+	/>
+
+	<!-- Error message container -->
+	<div id="{{ widget_id }}_error" class="text-danger mt-1" style="display: none;"></div>
 </div>

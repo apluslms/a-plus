@@ -23,7 +23,10 @@ class NotificationRedirectView(CourseInstanceMixin, BaseRedirectView):
         self.notification.save()
         submission = self.notification.submission
         # Sends an update to Jutut that the feedback response has been seen.
-        if self.notification.regrade_when_seen:
+        # Invalidated submissions must not be silently regraded this way.
+        if (self.notification.regrade_when_seen
+                and submission is not None
+                and submission.status != submission.STATUS.INVALIDATED):
             submission.exercise.grade(submission)
         if self.notification.submission:
             return self.redirect(

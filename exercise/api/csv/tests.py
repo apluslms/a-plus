@@ -8,6 +8,7 @@ from course.models import Course, CourseInstance, CourseModule
 from exercise.models import BaseExercise, CourseChapter, LearningObjectCategory
 from exercise.submission_models import Submission
 
+from .submission_sheet import filter_best_submissions
 from .views import CourseResultsDataViewSet
 
 class CourseResultsDataViewSetTest(TestCase):
@@ -110,6 +111,106 @@ class CourseResultsDataViewSetTest(TestCase):
         # Add a student to course instance
         cls.course_instance1.enroll_student(cls.student_profile.user)
         cls.course_instance1.enroll_student(cls.student_profile2.user)
+
+    def test_invalidated_submissions_do_not_confirm_sibling_points(self) -> None:
+        view = CourseResultsDataViewSet()
+        view.instance = self.course_instance1
+
+        def query(show_unconfirmed: bool) -> set[int]:
+            rows = view.get_submissions_query(
+                [exercise.id],
+                self.course_instance1.students,
+                [Submission.STATUS.INVALIDATED],
+                [exercise.id],
+                False,
+                show_unconfirmed,
+            )
+            return {row["exercise_id"] for row in rows}
+
+        for exercise, mandatory_exercise in (
+            (self.learning_object1, self.mandatory_learning_object1),
+            (self.c1_learning_object1, self.c1_mandatory_learning_object1),
+        ):
+            with self.subTest(exercise=exercise.id):
+                submission = Submission.objects.create(
+                    exercise=exercise, grade=1, status=Submission.STATUS.READY,
+                )
+                submission.submitters.add(self.student_profile)
+                confirmation = Submission.objects.create(
+                    exercise=mandatory_exercise, grade=2, status=Submission.STATUS.READY,
+                )
+                confirmation.submitters.add(self.student_profile)
+                self.assertEqual(query(False), {exercise.id})
+
+                confirmation.set_invalidated()
+                confirmation.save()
+                self.assertEqual(query(False), set())
+                self.assertEqual(query(True), {exercise.id})
+
+                confirmation.set_revalidated()
+                confirmation.save()
+                self.assertEqual(query(False), {exercise.id})
+
+    def test_best_submissions_ignore_invalidated_final_submission(self) -> None:
+        final_submission = Submission.objects.create(
+            exercise=self.learning_object1, grade=2, status=Submission.STATUS.READY, force_exercise_points=True,
+        )
+        best_submission = Submission.objects.create(
+            exercise=self.learning_object1, grade=8, status=Submission.STATUS.READY,
+        )
+        for submission in (final_submission, best_submission):
+            submission.submitters.add(self.student_profile)
+
+        def best_ids(include_all_submissions: bool) -> list[int]:
+            submissions = list(
+                Submission.objects.filter(exercise=self.learning_object1).order_by('exercise_id', 'id')
+            )
+            best = filter_best_submissions(submissions, {self.learning_object1.id}, include_all_submissions)
+            return [submission.id for submission in best]
+
+        for include_all_submissions in (False, True):
+            with self.subTest(include_all_submissions=include_all_submissions):
+                self.assertEqual(best_ids(include_all_submissions), [final_submission.id])
+                final_submission.set_invalidated()
+                final_submission.save()
+                self.assertEqual(best_ids(include_all_submissions), [best_submission.id])
+                final_submission.set_revalidated()
+                final_submission.save()
+
+    def test_best_submissions_exclude_invalidated_high_grade(self) -> None:
+        ready_submission = Submission.objects.create(
+            exercise=self.learning_object1, grade=8, status=Submission.STATUS.READY,
+        )
+        invalidated_submission = Submission.objects.create(
+            exercise=self.learning_object1, grade=10, status=Submission.STATUS.READY,
+        )
+        for submission in (ready_submission, invalidated_submission):
+            submission.submitters.add(self.student_profile)
+        invalidated_submission.set_invalidated()
+        invalidated_submission.save()
+        revealed_ids = {self.learning_object1.id}
+
+        for grading_mode in (BaseExercise.GRADING_MODE.BEST, BaseExercise.GRADING_MODE.LAST):
+            self.learning_object1.grading_mode = grading_mode
+            self.learning_object1.save()
+            for force_exercise_points in (False, True):
+                invalidated_submission.force_exercise_points = force_exercise_points
+                invalidated_submission.save(update_fields=['force_exercise_points'])
+                for include_all_submissions in (False, True):
+                    with self.subTest(
+                        grading_mode=grading_mode,
+                        force_exercise_points=force_exercise_points,
+                        include_all_submissions=include_all_submissions,
+                    ):
+                        submissions = list(
+                            Submission.objects.filter(exercise=self.learning_object1).order_by('exercise_id', 'id')
+                        )
+                        best = filter_best_submissions(submissions, revealed_ids, include_all_submissions)
+                        self.assertEqual([submission.id for submission in best], [ready_submission.id])
+                        self.assertEqual(
+                            filter_best_submissions([invalidated_submission], revealed_ids, include_all_submissions),
+                            [],
+                        )
 
     def test_get_submissions_query_unconfirmed_points(self):
         def query(unconfirmed: bool):

@@ -16,6 +16,7 @@ def regrade_exercises(self, exerciseid: int, regrade_type: str) -> None:
         return
 
     qs = (exercise.submissions
+        .exclude(status=Submission.STATUS.INVALIDATED)
         .defer("feedback", "assistant_feedback", "grading_data")
     )
 
@@ -29,6 +30,9 @@ def regrade_exercises(self, exerciseid: int, regrade_type: str) -> None:
     count = 0
     total = qs.count()
     for submission in qs:
+        submission.refresh_from_db(fields=['status'])
+        if submission.status == Submission.STATUS.INVALIDATED:
+            continue
         page = exercise.grade(submission)
         for error in page.errors:
             logger.error( # pylint: disable=logging-fstring-interpolation

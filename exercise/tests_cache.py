@@ -694,3 +694,31 @@ class ExercisePointsTest(ExerciseTestBase):
         entry = ExercisePoints.get(self.base_exercise, self.user)
         self.assertEqual(entry.official_points, 50)
         self.assertEqual(entry.points, 50)
+
+    def test_invalidated_final_submission_is_ignored_until_revalidated(self) -> None:
+        self.submission.set_points(5, 10)
+        self.submission.status = Submission.STATUS.READY
+        self.submission.save()
+        final_submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile,
+            status=Submission.STATUS.READY,
+            grade=10,
+            force_exercise_points=True,
+        )
+        final_submission.submitters.add(self.user.userprofile)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
+        self.assertEqual(entry.points, 10)
+        self.assertTrue(entry.forced_points)
+
+        final_submission.set_invalidated()
+        final_submission.save()
+        entry = ExercisePoints.get(self.base_exercise, self.user)
+        self.assertEqual(entry.points, 50)
+        self.assertFalse(entry.forced_points)
+
+        final_submission.set_revalidated()
+        final_submission.save()
+        entry = ExercisePoints.get(self.base_exercise, self.user)
+        self.assertEqual(entry.points, 10)
+        self.assertTrue(entry.forced_points)

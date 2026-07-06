@@ -717,7 +717,11 @@ class ExercisePoints(LearningObjectPoints):
         for submission in submissions:
             ready = submission.status == Submission.STATUS.READY
             unofficial = submission.status == Submission.STATUS.UNOFFICIAL
-            if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
+            invalidated = submission.status == Submission.STATUS.INVALIDATED
+            if ready or invalidated or submission.status in (
+                Submission.STATUS.WAITING,
+                Submission.STATUS.INITIALIZED,
+            ):
                 self.submission_count += 1
 
             if isinstance(submission.meta_data, dict):
@@ -769,7 +773,8 @@ class ExercisePoints(LearningObjectPoints):
             #    - current submission is unofficial AND
             #    - current best is unofficial
             #    - current submission is better depending on grading mode
-            if submission.force_exercise_points:
+            # The flag is kept while invalidated so that revalidation restores it.
+            if submission.force_exercise_points and not invalidated:
                 # This submission is chosen as the final submission and no
                 # further submissions are considered.
                 self._true_best_submission = submission_entry

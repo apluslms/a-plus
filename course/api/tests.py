@@ -1,9 +1,73 @@
 from django.test import override_settings
 from django.contrib.auth.models import Permission
-from rest_framework.test import APIClient
+from django.utils import timezone
+from rest_framework.test import APIClient, APIRequestFactory
 
 from course.models import CourseInstance
+from exercise.models import LTI1p3Exercise, Submission
+from external_services.models import LTI1p3Service
+from .lti_views import CourseLineItemsViewSet
 from ..tests import CourseTestCase
+
+class LTIScoresAPITest(CourseTestCase):
+    def test_scores_preserve_invalidated_submission_until_revalidation(self) -> None:
+        service = LTI1p3Service.objects.create(
+            menu_label="Test LTI tool",
+            url="https://tool.example/exercise",
+            login_url="https://tool.example/login",
+            client_id="test-client",
+            deployment_id="test-deployment",
+            jwks_url="https://tool.example/jwks",
+        )
+        exercise = LTI1p3Exercise.objects.create(
+            name="LTI exercise",
+            url="lti-exercise",
+            course_module=self.course_module,
+            category=self.learning_object_category,
+            lti_service=service,
+            max_points=10,
+            max_submissions=0,
+        )
+        submission = Submission.objects.create(
+            exercise=exercise,
+            status=Submission.STATUS.READY,
+            grade=4,
+            feedback="original feedback",
+        )
+        submission.submitters.add(self.user.userprofile)
+        submission.set_invalidated()
+        submission.save()
+
+        factory = APIRequestFactory()
+        view = CourseLineItemsViewSet.as_view({'post': 'scores'}, permission_classes=[])
+        data = {
+            'timestamp': timezone.now().isoformat(),
+            'scoreGiven': 8,
+            'scoreMaximum': 10,
+            'activityProgress': 'Completed',
+            'gradingProgress': 'FullyGraded',
+            'userId': str(self.user.pk),
+        }
+        request = factory.post('/scores', data, format='json')
+        response = view(request, course_id=self.current_course_instance.pk, id=exercise.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.filter(exercise=exercise).count(), 1)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.STATUS.INVALIDATED)
+        self.assertEqual(submission.grade, 4)
+        self.assertEqual(submission.feedback, "original feedback")
+
+        submission.set_revalidated()
+        submission.save()
+        request = factory.post('/scores', data, format='json')
+        response = view(request, course_id=self.current_course_instance.pk, id=exercise.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.filter(exercise=exercise).count(), 1)
+        submission.refresh_from_db()
+        self.assertEqual(submission.status, Submission.STATUS.READY)
+        self.assertEqual(submission.grade, 8)
 
 class CourseInstanceAPITest(CourseTestCase):
     # uses the same setUpTestData as for normal tests

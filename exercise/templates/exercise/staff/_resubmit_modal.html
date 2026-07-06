@@ -29,6 +29,7 @@
 						class="aplus-button--default aplus-button--md"
 						type="submit"
 						value="{% translate 'REGRADE_AUTOMATICALLY' %}"
+						{% if submission.status == submission.STATUS.INVALIDATED %}disabled{% endif %}
 					/>
 				</form>
 			</div>

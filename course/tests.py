@@ -371,6 +371,29 @@ class CourseTest(CourseTestCase):
         self.assertFalse(response.context["is_assistant"])
         self.assertTrue(response.context["is_teacher"])
 
+    def test_all_submissions_status_filter_includes_invalidated(self) -> None:
+        invalidated_submission = Submission.objects.create(
+            exercise=self.base_exercise,
+            grader=self.grader.userprofile,
+            status=Submission.STATUS.READY,
+        )
+        invalidated_submission.submitters.add(self.user.userprofile)
+        invalidated_submission.set_invalidated()
+        invalidated_submission.save()
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.get(
+            self.current_course_instance.get_url('all-submissions'),
+            {'status': 'invalidated'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<option value="invalidated" selected>')
+        self.assertEqual(
+            [row['submission'].id for row in response.context['submission_data']],
+            [invalidated_submission.id],
+        )
+
     def test_groups(self):
         group = StudentGroup(course_instance=self.current_course_instance)
         group.save()
