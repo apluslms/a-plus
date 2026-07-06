@@ -16,11 +16,13 @@
 
 {% block columns %}
 
-{% if not_final or not_best or not_last %}
+{% if not_final or not_best or not_last or invalidated_replaced %}
 <div class="col-md-12">
 	<div class="alert alert-warning">
 		{% if not_final %}
 		{% translate "NOTE_FINAL_SUBMISSION" %}
+		{% elif invalidated_replaced %}
+		{% translate "NOTE_INVALIDATED_SUBMISSION_REPLACED" %}
 		{% elif not_best %}
 		{% translate "NOTE_BETTER_SUBMISSIONS" %}
 		{% elif not_last %}

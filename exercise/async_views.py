@@ -4,6 +4,7 @@ import json
 from django.utils.translation import gettext_lazy as _
 
 from course.models import SubmissionTag
+from exercise.submission_models import Submission
 from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
 from notification.models import Notification
@@ -35,6 +36,14 @@ def _post_async_submission(request, exercise, submission, errors=None): # noqa: 
     feedback = post_data.get('feedback')
     if feedback:
         post_data['feedback'] = feedback.replace('\x00', '\\x00')
+
+    # An invalidated submission must not be silently revived by a grading
+    # result that was in flight before the invalidation happened.
+    if submission.status == Submission.STATUS.INVALIDATED:
+        return {
+            "success": False,
+            "errors": ["Submission has been invalidated and cannot be graded."],
+        }
 
     # Use form to parse and validate the request.
     form = SubmissionCallbackForm(post_data)
@@ -112,11 +121,25 @@ def _post_async_submission(request, exercise, submission, errors=None): # noqa: 
                 and submission.meta_data.get("lti-session-id") is None):
             submission.meta_data["lti-session-id"] = form.cleaned_data["lti_session_id"]
 
+        graded_status = submission.status
+        submission.refresh_from_db(fields=['status'])
+        if submission.status == submission.STATUS.INVALIDATED:
+            return {
+                "success": False,
+                "errors": ["Submission has been invalidated and cannot be graded."],
+            }
+        submission.status = graded_status
+
         if form.cleaned_data["error"]:
             submission.set_error()
         else:
             submission.set_ready()
         submission.save()
+        if submission.status == Submission.STATUS.INVALIDATED:
+            return {
+                "success": False,
+                "errors": ["Submission has been invalidated and cannot be graded."],
+            }
 
         if form.cleaned_data["notify"] == "remove":
             Notification.remove(submission)

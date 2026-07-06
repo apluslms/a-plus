@@ -222,6 +222,7 @@ class Command(BaseCommand):
                     Submission.STATUS.UNOFFICIAL,
                     Submission.STATUS.ERROR,
                     Submission.STATUS.REJECTED,
+                    Submission.STATUS.INVALIDATED,
                 )).values(
                     'submitters__user_id',
                     'exercise_id',

@@ -717,7 +717,11 @@ class ExercisePoints(LearningObjectPoints):
         for submission in submissions:
             ready = submission.status == Submission.STATUS.READY
             unofficial = submission.status == Submission.STATUS.UNOFFICIAL
-            if ready or submission.status in (Submission.STATUS.WAITING, Submission.STATUS.INITIALIZED):
+            if ready or submission.status in (
+                Submission.STATUS.WAITING,
+                Submission.STATUS.INITIALIZED,
+                Submission.STATUS.INVALIDATED,
+            ):
                 self.submission_count += 1
 
             if isinstance(submission.meta_data, dict):

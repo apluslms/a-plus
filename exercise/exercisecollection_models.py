@@ -105,7 +105,7 @@ class ExerciseCollection(BaseExercise):
     #   * no_update: Doesn't update grade if submission exists
     #   * forced: Updates submission even if grade hasn't changed
     #
-    def check_submission(self, user, no_update=False, forced=False):
+    def check_submission(self, user: User, no_update: bool = False, forced: bool = False) -> None:
 
         if no_update and self.is_submitted(user) and not forced:
             return
@@ -123,6 +123,8 @@ class ExerciseCollection(BaseExercise):
             submissions = self.get_submissions_for_student(user.userprofile)
             current_submission = submissions[0]
 
+        if current_submission.status == Submission.STATUS.INVALIDATED:
+            return
 
         new_grade = self.get_points(user)
 

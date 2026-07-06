@@ -3,11 +3,11 @@ import json
 import logging
 from mimetypes import guess_type
 import os
-from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
+from typing import IO, Any, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.db import models, DatabaseError
+from django.db import models, DatabaseError, router, transaction
 from django.db.models import F
 from django.db.models.signals import post_delete
 from django.http.request import HttpRequest
@@ -47,6 +47,9 @@ class SubmissionQuerySet(models.QuerySet):
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
         ))
+
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
 
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
@@ -288,6 +291,9 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             Submission.STATUS.REJECTED,
         ))
 
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
+
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
 
@@ -362,6 +368,7 @@ class Submission(SubmissionProto, models.Model):
         ('READY', 'ready', _('STATUS_READY')), # graded normally
         ('ERROR', 'error', _('STATUS_ERROR')),
         ('REJECTED', 'rejected', _('STATUS_REJECTED')), # missing fields etc
+        ('INVALIDATED', 'invalidated', _('STATUS_INVALIDATED')),
         ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
@@ -471,6 +478,54 @@ class Submission(SubmissionProto, models.Model):
 
     def __str__(self):
         return str(self.id)
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        """Prevent stale saves from overwriting invalidation or revalidation."""
+        using = kwargs.get('using') or (args[2] if len(args) > 2 else None)
+        using = using or router.db_for_write(type(self), instance=self)
+        force_insert = kwargs.get('force_insert') or (args[0] if args else False)
+        if self.pk is None or force_insert:
+            super().save(*args, **kwargs)
+            return
+
+        with transaction.atomic(using=using):
+            saved_status = (type(self).objects.using(using)
+                .select_for_update()
+                .filter(pk=self.pk)
+                .values_list('status', flat=True)
+                .first())
+            revalidating = (
+                getattr(self, '_revalidation_requested', False)
+                and self.status == self.STATUS.READY
+            )
+            invalidating = (
+                getattr(self, '_invalidation_requested', False)
+                and self.status == self.STATUS.INVALIDATED
+            )
+            overwrites_invalidation = (
+                saved_status == self.STATUS.INVALIDATED
+                and self.status != self.STATUS.INVALIDATED
+                and not revalidating
+            )
+            overwrites_revalidation = (
+                saved_status is not None
+                and saved_status != self.STATUS.INVALIDATED
+                and self.status == self.STATUS.INVALIDATED
+                and not invalidating
+            )
+            if overwrites_invalidation or overwrites_revalidation:
+                self.refresh_from_db(using=using)
+                if self.status == self.STATUS.INVALIDATED:
+                    self.clear_pending()
+                self._invalidation_requested = False
+                self._revalidation_requested = False
+                return
+
+            super().save(*args, **kwargs)
+            if self.status == self.STATUS.INVALIDATED:
+                self.clear_pending()
+            self._invalidation_requested = False
+            self._revalidation_requested = False
 
     def ordinal_number(self):
         return self.submitters.first().submissions.exclude_errors().filter(
@@ -585,6 +640,8 @@ class Submission(SubmissionProto, models.Model):
         exercise.course_module. If no_penalties is True, the penalty is not
         applied.
         """
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot have their points set")
         exercise = self.exercise
 
         # Evade bad max points in remote service.
@@ -635,10 +692,14 @@ class Submission(SubmissionProto, models.Model):
         self.grade = min(self.grade,self.exercise.max_points)
 
     def set_waiting(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set waiting")
         self.status = self.STATUS.WAITING
         self.mark_pending()
 
     def set_ready(self, approve_unofficial=False):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set ready")
         self.grading_time = timezone.now()
         self.clear_pending()
         if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points or approve_unofficial:
@@ -660,11 +721,30 @@ class Submission(SubmissionProto, models.Model):
             retry_submissions()
 
     def set_rejected(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be rejected")
         self.status = self.STATUS.REJECTED
         self.clear_pending()
 
     def set_error(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set to error")
         self.status = self.STATUS.ERROR
+        self.clear_pending()
+
+    def set_invalidated(self):
+        if self.status != self.STATUS.READY:
+            raise ValueError("Only ready submissions can be invalidated")
+        self.force_exercise_points = False
+        self.status = self.STATUS.INVALIDATED
+        self._invalidation_requested = True
+        self.clear_pending()
+
+    def set_revalidated(self):
+        if self.status != self.STATUS.INVALIDATED:
+            raise ValueError("Only invalidated submissions can be re-validated")
+        self.status = self.STATUS.READY
+        self._revalidation_requested = True
         self.clear_pending()
 
     @property
@@ -687,8 +767,9 @@ class Submission(SubmissionProto, models.Model):
     @property
     def is_approvable(self):
         """Is this submission late or unofficial so that it could be approved?"""
-        return (self.late_penalty_applied is not None
-            or self.status == self.STATUS.UNOFFICIAL)
+        return (self.status != self.STATUS.INVALIDATED
+            and (self.late_penalty_applied is not None
+            or self.status == self.STATUS.UNOFFICIAL))
 
     @property
     def lti_launch_id(self):

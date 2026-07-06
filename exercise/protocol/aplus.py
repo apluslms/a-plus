@@ -46,11 +46,15 @@ def load_exercise_page(request, url, last_modified, exercise):
     return page
 
 
-def load_feedback_page(request, url, exercise, submission, no_penalties=False):
+def load_feedback_page(request, url, exercise, submission, no_penalties=False): # pylint: disable=too-many-branches
     """
     Loads the feedback or accept page from the remote URL.
     """
+    from exercise.submission_models import Submission # pylint: disable=import-outside-toplevel
+
     page = ExercisePage(exercise)
+    if submission.status == Submission.STATUS.INVALIDATED:
+        return page
     try:
         data, files = submission.get_post_parameters(request, url)
         remote_page = RemotePage(url, post=True, data=data, files=files, instance_id=exercise.course_instance.id)
@@ -62,6 +66,10 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
             msg = "Failed to request {}".format(url)
             logger.exception(msg)
             email_course_error(request, exercise, msg)
+
+    submission.refresh_from_db(fields=['status'])
+    if submission.status == Submission.STATUS.INVALIDATED:
+        return page
 
     if page.is_loaded:
         submission.feedback = page.clean_content
@@ -125,6 +133,8 @@ def load_feedback_page(request, url, exercise, submission, no_penalties=False):
                 exercise.service_url)
             page.errors.append(_('ASSESSMENT_SERVICE_ERROR_RESPONDED_ERROR'))
         submission.save()
+        if submission.status == Submission.STATUS.INVALIDATED:
+            return page
         if page.is_graded and page.is_sane() and submission.lti_launch_id:
             send_lti_points(request, submission)
 
