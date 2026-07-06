@@ -1,9 +1,11 @@
 import logging
 import json
 
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
 from course.models import SubmissionTag
+from exercise.submission_models import Submission
 from lib.email_messages import email_course_error
 from lib.helpers import extract_form_errors
 from notification.models import Notification
@@ -36,6 +38,14 @@ def _post_async_submission(request, exercise, submission, errors=None): # noqa: 
     if feedback:
         post_data['feedback'] = feedback.replace('\x00', '\\x00')
 
+    # An invalidated submission must not be silently revived by a grading
+    # result that was in flight before the invalidation happened.
+    if submission.status == Submission.STATUS.INVALIDATED:
+        return {
+            "success": False,
+            "errors": ["Submission has been invalidated and cannot be graded."],
+        }
+
     # Use form to parse and validate the request.
     form = SubmissionCallbackForm(post_data)
     errors.extend(extract_form_errors(form))
@@ -60,36 +70,6 @@ def _post_async_submission(request, exercise, submission, errors=None): # noqa: 
         submission.feedback = form.cleaned_data["feedback"]
         submission.grading_data = post_data
 
-        if 'grading_data' in submission.grading_data:
-            try:
-                grader_grading_data = json.loads(submission.grading_data['grading_data'])
-                if 'submission_tags' in grader_grading_data:
-                    for tag_slug in grader_grading_data['submission_tags'].split(','):
-                        tag_slug = tag_slug.strip()
-                        if tag_slug:
-                            try:
-                                # Try to get the tag and validate it belongs to the course
-                                tag = SubmissionTag.objects.get(
-                                    slug=tag_slug,
-                                    course_instance=submission.exercise.course_module.course_instance,
-                                )
-                                # Only attempt to create SubmissionTagging if it does not exist already
-                                if not SubmissionTagging.objects.filter(submission=submission, tag=tag).exists():
-                                    SubmissionTagging.objects.create(submission=submission, tag=tag)
-                            except SubmissionTag.DoesNotExist:
-                                # Send an email to course instance's technical support emails and teachers
-                                # if the submission tags are misconfigured
-                                if exercise.course_instance.visible_to_students:
-                                    msg = (
-                                        f"Failed to tag submission: Submission tag '{tag_slug}' not found "
-                                        "or not part of this course instance."
-                                    )
-                                    logger.error(msg, extra={"request": request})
-                                    email_course_error(request, exercise, msg, True)
-            except json.JSONDecodeError:
-                # If the grading data is not valid JSON, we cannot extract submission tags
-                pass
-
         # If A+ is used as LTI Tool and the assignment uses the Acos-server,
         # the submission has not been able to save the LTI launch id before
         # this phase. The launch id is needed for sending the grade to
@@ -112,11 +92,59 @@ def _post_async_submission(request, exercise, submission, errors=None): # noqa: 
                 and submission.meta_data.get("lti-session-id") is None):
             submission.meta_data["lti-session-id"] = form.cleaned_data["lti_session_id"]
 
+        graded_status = submission.status
+        submission.refresh_from_db(fields=['status'])
+        if submission.status == submission.STATUS.INVALIDATED:
+            return {
+                "success": False,
+                "errors": ["Submission has been invalidated and cannot be graded."],
+            }
+        submission.status = graded_status
+
         if form.cleaned_data["error"]:
             submission.set_error()
         else:
             submission.set_ready()
-        submission.save()
+        tag_errors = []
+        with transaction.atomic():
+            submission.save()
+            if submission.status == Submission.STATUS.INVALIDATED:
+                return {
+                    "success": False,
+                    "errors": ["Submission has been invalidated and cannot be graded."],
+                }
+
+            if 'grading_data' in submission.grading_data:
+                try:
+                    grader_grading_data = json.loads(submission.grading_data['grading_data'])
+                    if 'submission_tags' in grader_grading_data:
+                        for tag_slug in grader_grading_data['submission_tags'].split(','):
+                            tag_slug = tag_slug.strip()
+                            if tag_slug:
+                                try:
+                                    # Try to get the tag and validate it belongs to the course
+                                    tag = SubmissionTag.objects.get(
+                                        slug=tag_slug,
+                                        course_instance=submission.exercise.course_module.course_instance,
+                                    )
+                                    # Only attempt to create SubmissionTagging if it does not exist already
+                                    if not SubmissionTagging.objects.filter(submission=submission, tag=tag).exists():
+                                        SubmissionTagging.objects.create(submission=submission, tag=tag)
+                                except SubmissionTag.DoesNotExist:
+                                    # Send an email to course instance's technical support emails and teachers
+                                    # if the submission tags are misconfigured
+                                    if exercise.course_instance.visible_to_students:
+                                        tag_errors.append(
+                                            f"Failed to tag submission: Submission tag '{tag_slug}' not found "
+                                            "or not part of this course instance."
+                                        )
+                except json.JSONDecodeError:
+                    # If the grading data is not valid JSON, we cannot extract submission tags
+                    pass
+
+        for msg in tag_errors:
+            logger.error(msg, extra={"request": request})
+            email_course_error(request, exercise, msg, True)
 
         if form.cleaned_data["notify"] == "remove":
             Notification.remove(submission)

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import URLValidator
+from django.db import transaction
 from django.db.models import Count, Max, Min, Prefetch, Q
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, JsonResponse, Http404
@@ -235,19 +236,28 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
         self.not_final = False
         self.not_best = False
         self.not_last = False
+        self.invalidated_replaced = False
+        is_invalidated = self.submission.status == Submission.STATUS.INVALIDATED
         for submission in self.submissions:
             format_submission(self.submission, self.pseudonymize)
             if submission.id != self.submission.id:
-                if submission.force_exercise_points:
+                if submission.force_exercise_points and submission.status != Submission.STATUS.INVALIDATED:
                     self.not_final = True
                     # When not_final is True, the other variables are not needed. Stop the loop early.
                     break
-                if ((submission.points > self.submission.grade and submission.status != Submission.STATUS.UNOFFICIAL)
+                # An invalidated submission never determines the grade, regardless of its
+                # points, so any ready submission has replaced it.
+                if is_invalidated and submission.status == Submission.STATUS.READY:
+                    self.invalidated_replaced = True
+                    break
+                # Only ready submissions can determine the grade, matching the criterion
+                # used when the cached best/last submission is selected.
+                if ((submission.points > self.submission.grade and submission.status == Submission.STATUS.READY)
                         or (self.submission.status == Submission.STATUS.UNOFFICIAL
-                            and submission.status != Submission.STATUS.UNOFFICIAL)):
+                            and submission.status == Submission.STATUS.READY)):
                     self.not_best = True
                 if (submission.date > self.submission.submission_time
-                        and submission.status != Submission.STATUS.UNOFFICIAL):
+                        and submission.status == Submission.STATUS.READY):
                     self.not_last = True
 
         if self.exercise.grading_mode == BaseExercise.GRADING_MODE.BEST:
@@ -269,6 +279,7 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             'not_final',
             'not_best',
             'not_last',
+            'invalidated_replaced',
             'grading_mode_text',
             'has_model_answers',
             'compared_submission',
@@ -296,11 +307,26 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
             messages.error(self.request, _('EXERCISE_ASSISTANT_PERMISSION_NO_ASSISTANT_GRADING'))
             raise PermissionDenied()
 
+        self.submission.refresh_from_db(fields=['status'])
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+            return self.redirect(self.submission.get_inspect_url())
+
         assistant_feedback = form.cleaned_data["assistant_feedback"]
         feedback = form.cleaned_data["feedback"]
 
         self.submission.set_points(form.cleaned_data["points"],
             self.exercise.max_points, no_penalties=True)
+        self.submission.force_exercise_points = form.cleaned_data["mark_as_final"]
+        self.submission.grader = self.profile
+        self.submission.assistant_feedback = assistant_feedback
+        self.submission.feedback = feedback
+        self.submission.set_ready()
+        self.submission.save()
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+            return self.redirect(self.submission.get_inspect_url())
+
         SecurityLog.logevent(self.request, "set-points",
             "exercise: {}, submission ID: {}, submitter: {}, points: {}".format(
                 self.get_submission_object().exercise,
@@ -309,12 +335,6 @@ class InspectSubmissionView(SubmissionBaseView, BaseFormView):
                 form.cleaned_data["points"]
             )
         )
-        self.submission.force_exercise_points = form.cleaned_data["mark_as_final"]
-        self.submission.grader = self.profile
-        self.submission.assistant_feedback = assistant_feedback
-        self.submission.feedback = feedback
-        self.submission.set_ready()
-        self.submission.save()
 
         # Set other submissions as not final if this one is final.
         if self.submission.force_exercise_points:
@@ -336,6 +356,10 @@ class ResubmitSubmissionView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.ASSISTANT
 
     def post(self, request, *args, **kwargs):
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(request, _('SUBMISSION_ALREADY_INVALIDATED'))
+            return self.redirect(self.submission.get_inspect_url())
+
         page = self.exercise.grade(self.submission, request)
         for error in page.errors:
             messages.error(request, error)
@@ -644,13 +668,55 @@ class SubmissionApprovalView(SubmissionMixin, BaseRedirectView):
     access_mode = ACCESS.GRADING
 
     def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.submission.refresh_from_db(fields=['status'])
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+            return self.redirect(self.submission.get_inspect_url())
+
         self.submission.approve_penalized_submission()
         self.submission.save()
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+            return self.redirect(self.submission.get_inspect_url())
         messages.success(self.request, format_lazy(
             _('SUBMISSION_APPROVAL_SUCCESS -- {points}, {max_points}'),
             points=self.submission.grade,
             max_points=self.submission.exercise.max_points,
         ))
+        return self.redirect(self.submission.get_inspect_url())
+
+
+class SubmissionInvalidateView(SubmissionMixin, BaseRedirectView):
+    """A POST-only view that marks a submission as invalidated."""
+    access_mode = ACCESS.TEACHER
+
+    @transaction.atomic
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.submission = Submission.objects.select_for_update().get(pk=self.submission.pk)
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+        elif self.submission.status != Submission.STATUS.READY:
+            messages.error(self.request, _('ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED'))
+        else:
+            self.submission.set_invalidated()
+            self.submission.save(update_fields=['status'])
+            messages.success(self.request, _('SUBMISSION_INVALIDATED'))
+        return self.redirect(self.submission.get_inspect_url())
+
+
+class SubmissionRevalidateView(SubmissionMixin, BaseRedirectView):
+    """A POST-only view that restores an invalidated submission to ready."""
+    access_mode = ACCESS.TEACHER
+
+    @transaction.atomic
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.submission = Submission.objects.select_for_update().get(pk=self.submission.pk)
+        if self.submission.status != Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_NOT_INVALIDATED'))
+        else:
+            self.submission.set_revalidated()
+            self.submission.save(update_fields=['status'])
+            messages.success(self.request, _('SUBMISSION_REVALIDATED'))
         return self.redirect(self.submission.get_inspect_url())
 
 
@@ -700,6 +766,7 @@ class SubmissionApprovalByModuleView(CourseInstanceMixin, BaseRedirectView):
 
         submissions = (self.student.userprofile.submissions
             .exclude_errors()
+            .exclude_invalidated()
             .defer_text_fields()
             .filter(**exercise_filter)
         )
@@ -721,8 +788,13 @@ class SubmissionApprovalByModuleView(CourseInstanceMixin, BaseRedirectView):
 
         count = 0
         for submission in submissions:
+            submission.refresh_from_db(fields=['status'])
+            if submission.status == Submission.STATUS.INVALIDATED:
+                continue
             submission.approve_penalized_submission()
             submission.save()
+            if submission.status == Submission.STATUS.INVALIDATED:
+                continue
             count += 1
 
         messages.success(self.request, ngettext(

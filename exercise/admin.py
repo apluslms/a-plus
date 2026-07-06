@@ -1,6 +1,8 @@
 from typing import Optional, Sequence, Tuple
 
+from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.utils.translation import gettext_lazy as _
@@ -159,8 +161,22 @@ class BaseExerciseAdmin(admin.ModelAdmin):
     )
 
 
+class SubmissionAdminForm(forms.ModelForm):
+    class Meta:
+        model = Submission
+        fields = '__all__'
+
+    def clean_status(self) -> str:
+        status = self.cleaned_data['status']
+        previous = self.initial.get('status')
+        if status != previous and Submission.STATUS.INVALIDATED in (status, previous):
+            raise ValidationError(_('SUBMISSION_INVALIDATION_NOT_ALLOWED_IN_ADMIN'))
+        return status
+
+
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
+    form = SubmissionAdminForm
     list_display_links = ('id',)
     list_display = (
         'id',

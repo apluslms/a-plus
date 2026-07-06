@@ -1,13 +1,14 @@
 import itertools
 import json
 import logging
+from functools import partial
 from mimetypes import guess_type
 import os
-from typing import IO, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
+from typing import IO, Any, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.db import models, DatabaseError
+from django.db import models, DatabaseError, router, transaction
 from django.db.models import F
 from django.db.models.signals import post_delete
 from django.http.request import HttpRequest
@@ -48,6 +49,9 @@ class SubmissionQuerySet(models.QuerySet):
             Submission.STATUS.REJECTED,
         ))
 
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
+
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
 
@@ -74,8 +78,8 @@ class SubmissionQuerySet(models.QuerySet):
         # are 4 cases:
         # 1) If revealed_ids was provided, and the exercise id is not in it,
         #    return 0.
-        # 2) If a submission has the force_exercise_points flag set to True,
-        #    return that submission's points.
+        # 2) If a submission has the force_exercise_points flag set to True
+        #    and is not invalidated, return that submission's points.
         # 3) If the grading_mode field of the exercise is set to LAST, return
         #    the points of the latest submission.
         # 4) In any other case, return the points of the best submission.
@@ -122,7 +126,10 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return (
             self.alias(
-                forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
+                forced_points=models.Max(
+                    'grade',
+                    filter=models.Q(force_exercise_points=True) & ~models.Q(status=Submission.STATUS.INVALIDATED),
+                ),
             )
             .annotate(**{
                 # Coalesce ensures that 0 is returned instead of None, if none
@@ -170,8 +177,8 @@ class SubmissionQuerySet(models.QuerySet):
         # are 3 cases:
         # 1) If revealed_ids was provided, and the exercise id is not in it,
         #    return 0.
-        # 2) If a submission has the force_exercise_points flag set to True,
-        #    return that submission's points.
+        # 2) If a submission has the force_exercise_points flag set to True
+        #    and is not invalidated, return that submission's points.
         # 3) In any other case, return the points of the best submission.
         # If none of the submissions are in an expected status (READY or
         # UNOFFICIAL, depending on the include_unofficial parameter, return 0).
@@ -202,7 +209,10 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return (
             self.alias(
-                forced_points=models.Max('grade', filter=models.Q(force_exercise_points=True)),
+                forced_points=models.Max(
+                    'grade',
+                    filter=models.Q(force_exercise_points=True) & ~models.Q(status=Submission.STATUS.INVALIDATED),
+                ),
             )
             .annotate(**{
                 # Coalesce ensures that 0 is returned instead of None, if none
@@ -239,8 +249,7 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
     filter: Callable[..., SubmissionQuerySet]
 
     def get_queryset(self):
-        return super().get_queryset()\
-            .prefetch_related('submitters')
+        return super().get_queryset().prefetch_related('submitters')
 
     def create_from_post(self, exercise, submitters, request):
 
@@ -287,6 +296,9 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
         ))
+
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
 
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
@@ -362,6 +374,7 @@ class Submission(SubmissionProto, models.Model):
         ('READY', 'ready', _('STATUS_READY')), # graded normally
         ('ERROR', 'error', _('STATUS_ERROR')),
         ('REJECTED', 'rejected', _('STATUS_REJECTED')), # missing fields etc
+        ('INVALIDATED', 'invalidated', _('STATUS_INVALIDATED')),
         ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
@@ -472,6 +485,90 @@ class Submission(SubmissionProto, models.Model):
     def __str__(self):
         return str(self.id)
 
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        """Prevent stale saves from overwriting invalidation or revalidation."""
+        using = kwargs.get('using') or (args[2] if len(args) > 2 else None)
+        using = using or router.db_for_write(type(self), instance=self)
+        force_insert = kwargs.get('force_insert') or (args[0] if args else False)
+        update_fields = kwargs.get('update_fields', args[3] if len(args) > 3 else None)
+        # A save that does not write the status cannot overwrite it either.
+        writes_status = update_fields is None or 'status' in update_fields
+        if self.pk is None or force_insert or not writes_status:
+            super().save(*args, **kwargs)
+            self._schedule_post_grading(using)
+            return
+
+        with transaction.atomic(using=using):
+            saved_status = (type(self).objects.using(using)
+                .select_for_update()
+                .filter(pk=self.pk)
+                .values_list('status', flat=True)
+                .first())
+            revalidating = (
+                getattr(self, '_revalidation_requested', False)
+                and self.status == self.STATUS.READY
+            )
+            invalidating = (
+                getattr(self, '_invalidation_requested', False)
+                and self.status == self.STATUS.INVALIDATED
+            )
+            overwrites_invalidation = (
+                saved_status == self.STATUS.INVALIDATED
+                and self.status != self.STATUS.INVALIDATED
+                and not revalidating
+            )
+            overwrites_revalidation = (
+                saved_status is not None
+                and saved_status != self.STATUS.INVALIDATED
+                and self.status == self.STATUS.INVALIDATED
+                and not invalidating
+            )
+            if overwrites_invalidation or overwrites_revalidation:
+                logger.info(
+                    "Discarded a stale save of submission %s (stored status %s, attempted %s)",
+                    self.pk, saved_status, self.status,
+                )
+                self.refresh_from_db(using=using)
+                if self.status == self.STATUS.INVALIDATED:
+                    self.clear_pending()
+                self._invalidation_requested = False
+                self._revalidation_requested = False
+                self._post_grading_requested = False
+                return
+
+            super().save(*args, **kwargs)
+            if self.status == self.STATUS.INVALIDATED:
+                self.clear_pending()
+            self._invalidation_requested = False
+            self._revalidation_requested = False
+
+        self._schedule_post_grading(using)
+
+    def _schedule_post_grading(self, using: str) -> None:
+        requested = getattr(self, '_post_grading_requested', False)
+        self._post_grading_requested = False
+        if requested and self.is_graded:
+            transaction.on_commit(partial(self._run_post_grading, using), using=using)
+
+    def _run_post_grading(self, using: str) -> None:
+        saved_status = (type(self).objects.using(using)
+            .filter(pk=self.pk)
+            .values_list('status', flat=True)
+            .first())
+        if saved_status not in (self.STATUS.READY, self.STATUS.UNOFFICIAL):
+            return
+
+        for hook in self.exercise.course_module.course_instance.course_hooks.filter(hook_type="post-grading"):
+            hook.trigger({
+                "submission_id": self.id,
+                "exercise_id": self.exercise.id,
+                "course_id": self.exercise.course_module.course_instance.id,
+                "site": settings.BASE_URL,
+            })
+
+        if not PendingSubmission.objects.is_grader_stable():
+            retry_submissions()
+
     def ordinal_number(self):
         return self.submitters.first().submissions.exclude_errors().filter(
             exercise=self.exercise,
@@ -479,8 +576,7 @@ class Submission(SubmissionProto, models.Model):
         ).count() + 1
 
     def is_submitter(self, user):
-        return user and user.is_authenticated and \
-            self.submitters.filter(id=user.userprofile.id).exists()
+        return user and user.is_authenticated and self.submitters.filter(id=user.userprofile.id).exists()
 
     def add_files(self, files):
         """
@@ -585,6 +681,8 @@ class Submission(SubmissionProto, models.Model):
         exercise.course_module. If no_penalties is True, the penalty is not
         applied.
         """
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot have their points set")
         exercise = self.exercise
 
         # Evade bad max points in remote service.
@@ -635,36 +733,44 @@ class Submission(SubmissionProto, models.Model):
         self.grade = min(self.grade,self.exercise.max_points)
 
     def set_waiting(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set waiting")
         self.status = self.STATUS.WAITING
         self.mark_pending()
 
     def set_ready(self, approve_unofficial=False):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set ready")
         self.grading_time = timezone.now()
         self.clear_pending()
         if self.status != self.STATUS.UNOFFICIAL or self.force_exercise_points or approve_unofficial:
             self.status = self.STATUS.READY
-
-        # Fire set hooks.
-        for hook in self.exercise.course_module.course_instance \
-                .course_hooks.filter(hook_type="post-grading"):
-            hook.trigger({
-                "submission_id": self.id,
-                "exercise_id": self.exercise.id,
-                "course_id": self.exercise.course_module.course_instance.id,
-                "site": settings.BASE_URL,
-            })
-
-        if not PendingSubmission.objects.is_grader_stable():
-            # We have a successful grading task in the recovery state. It may be a sign that problems
-            # have been resolved, so immediately retry the next pending submission, to speed up recovery
-            retry_submissions()
+        self._post_grading_requested = True
 
     def set_rejected(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be rejected")
         self.status = self.STATUS.REJECTED
         self.clear_pending()
 
     def set_error(self):
+        if self.status == self.STATUS.INVALIDATED:
+            raise ValueError("Invalidated submissions cannot be set to error")
         self.status = self.STATUS.ERROR
+        self.clear_pending()
+
+    def set_invalidated(self):
+        if self.status != self.STATUS.READY:
+            raise ValueError("Only ready submissions can be invalidated")
+        self.status = self.STATUS.INVALIDATED
+        self._invalidation_requested = True
+        self.clear_pending()
+
+    def set_revalidated(self):
+        if self.status != self.STATUS.INVALIDATED:
+            raise ValueError("Only invalidated submissions can be re-validated")
+        self.status = self.STATUS.READY
+        self._revalidation_requested = True
         self.clear_pending()
 
     @property
@@ -687,8 +793,9 @@ class Submission(SubmissionProto, models.Model):
     @property
     def is_approvable(self):
         """Is this submission late or unofficial so that it could be approved?"""
-        return (self.late_penalty_applied is not None
-            or self.status == self.STATUS.UNOFFICIAL)
+        return (self.status != self.STATUS.INVALIDATED
+            and (self.late_penalty_applied is not None
+            or self.status == self.STATUS.UNOFFICIAL))
 
     @property
     def lti_launch_id(self):

@@ -17,6 +17,8 @@ def filter_best_submissions(
     eid = None
 
     for i,s in enumerate(submissions):
+        if s.status == Submission.STATUS.INVALIDATED:
+            continue
         if s.exercise_id != eid:
             eid = s.exercise_id
             best[eid] = {}

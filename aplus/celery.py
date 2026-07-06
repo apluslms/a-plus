@@ -46,16 +46,24 @@ def enroll():
 
 @app.task
 def retry_submissions():
-    # pylint: disable-next=import-outside-toplevel
-    from exercise.submission_models import PendingSubmission
+    from exercise.submission_models import PendingSubmission # pylint: disable=import-outside-toplevel
+    from exercise.submission_models import Submission # pylint: disable=import-outside-toplevel
 
     # Recovery state: only send one grading request to probe the state of grader
     if not PendingSubmission.objects.is_grader_stable():
         # Get ids of all pending submissions and randomly load one to be retried
         # (do not load all the submissions objects to save memory)
-        submission_ids = PendingSubmission.objects.values_list('id',flat=True)
+        submission_ids = list(PendingSubmission.objects.values_list('id',flat=True))
+        if not submission_ids:
+            return
         random_choice = choice(submission_ids)
-        pending = PendingSubmission.objects.get(pk=random_choice)
+        try:
+            pending = PendingSubmission.objects.get(pk=random_choice)
+        except PendingSubmission.DoesNotExist:
+            return
+        if pending.submission.status == Submission.STATUS.INVALIDATED:
+            pending.delete()
+            return
         if pending.num_retries >= settings.SUBMISSION_RETRY_LIMIT and settings.SUBMISSION_RETRY_LIMIT > 0:
             logger.info("Recovery state: submission retry limit exceeded for submission %s - removing from pending",
                         pending.submission)
@@ -76,6 +84,9 @@ def retry_submissions():
     expired = PendingSubmission.objects.filter(submission_time__lt=expiry_time)
 
     for pending in expired:
+        if pending.submission.status == Submission.STATUS.INVALIDATED:
+            pending.delete()
+            continue
         if pending.submission.exercise.can_regrade:
             # Do not retry submission until SUBMISSION_EXPIRY_TIMEOUT * num_retries has passed
             pending_timelimit = datetime.datetime.now(datetime.timezone.utc) - relativedelta(

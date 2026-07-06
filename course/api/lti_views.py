@@ -76,6 +76,8 @@ class CourseLineItemsViewSet(viewsets.ReadOnlyModelViewSet, OAuth2ScopeChecker):
             # If points are not larger than previously, we will just ignore the message.
             # Some LTI tools seem to send scores updates quite frequently.
             sub = sub.first()
+            if sub.status == Submission.STATUS.INVALIDATED:
+                return Response({}, status=200)
             adjusted = (1.0 * exercise.max_points * data.get('scoreGiven') / data.get('scoreMaximum'))
             if sub.grade >= adjusted:
                 return Response({}, status=200)
