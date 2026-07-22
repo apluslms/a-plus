@@ -73,7 +73,5 @@ class MeDetail(APIView):
     def get(self, request, version, format=None): # pylint: disable=unused-argument redefined-builtin
         userinstance = self.request.user.userprofile
 
-        serializer = UserSerializer(userinstance, context={
-                        'request': request,
-                        })
+        serializer = UserSerializer(userinstance, context={'request': request})
         return Response(serializer.data)

@@ -2,6 +2,7 @@ import json
 import urllib
 from datetime import datetime, timedelta
 from io import BytesIO, StringIO
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -786,7 +787,8 @@ class ExerciseTest(ExerciseTestBase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(inspect_submission_url)
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(inspect_submission_url, assessment_data)
+        with self.assertLogs('django.request', level='WARNING'):
+            response = self.client.post(inspect_submission_url, assessment_data)
         self.assertEqual(response.status_code, 403)
 
         self.base_exercise.allow_assistant_grading = True
@@ -823,7 +825,11 @@ class ExerciseTest(ExerciseTestBase):
         py_file = StringIO('print("Tekijät ja Hyyppö")')
         py_file.name = 'test.py'
 
-        with png_file, py_file:
+        with png_file, py_file, patch(
+            'exercise.exercise_models.load_feedback_page',
+            autospec=True,
+            return_value=ExercisePage(exercise),
+        ):
             response = self.client.post(exercise.get_absolute_url(), {
                 "key": "value",
                 "file1": png_file,

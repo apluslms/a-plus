@@ -158,8 +158,10 @@ class CourseVisibilityTest(TestCase):
                 submission.submitters.add(cls.student.userprofile)
                 cls.submissions[exercise.id].append(submission)
 
-        # disable all logging
-        logging.disable(logging.CRITICAL)
+    def setUp(self):
+        super().setUp()
+        logging.disable(logging.CRITICAL) # Disable all logging
+        self.addCleanup(logging.disable, logging.NOTSET) # Return previous logging settings
 
     def test_redirect_to_enroll(self):
         url = self.enrolled_course_instance.get_absolute_url()
@@ -758,7 +760,3 @@ class CourseVisibilityTest(TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertFalse(instance.is_student(self.user))
         self.client.logout()
-
-    def tearDown(self):
-        # return previous logging settings
-        logging.disable(logging.NOTSET)

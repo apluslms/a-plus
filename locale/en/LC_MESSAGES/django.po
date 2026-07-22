@@ -4593,7 +4593,7 @@ msgstr "Your submission has been received."
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_SUCCESS"
-msgstr "Succesfully set personalized points goal"
+msgstr "Successfully set personalized points goal"
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_FAILURE"
