@@ -2,6 +2,7 @@ from lib.testdata import CourseTestCase
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from deviations.models import MaxSubmissionsRuleDeviation
 from exercise.tests import ExerciseTestBase
+from .cache.basetypes import ContentDBData
 from .cache.content import CachedContent, InstanceContent, LearningObjectContent, ModuleContent
 from .cache.hierarchy import previous_iterator
 from .cache.points import (
@@ -144,6 +145,22 @@ class CachedModuleContentTest(ExerciseTestBase):
 
 
 class CachedContentTest(CourseTestCase):
+    def test_module_loaded_before_instance_is_not_duplicated(self):
+        prefetched_data = ContentDBData()
+        prefetched_data.add(ModuleContent.proxy(self.module.id))
+        prefetched_data.fetch()
+        prefetched_data.add(InstanceContent.proxy(self.instance.id))
+        prefetched_data.fetch()
+
+        module_ids = [
+            module.id
+            for module in prefetched_data.get_instance_modules(self.instance.id)
+        ]
+        expected_ids = list(
+            self.instance.course_modules.values_list("id", flat=True)
+        )
+        self.assertEqual(module_ids, expected_ids)
+
     def test_no_invalidation(self):
         entry = InstanceContent.get(self.instance)
         entry2 = InstanceContent.get(self.instance)
