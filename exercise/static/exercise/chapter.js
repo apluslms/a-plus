@@ -184,7 +184,7 @@
     response_selector: '.exercise-response',
     navigation_selector: 'ul.nav a[class!="dropdown-toggle"]',
     dropdown_selector: 'ul.nav .dropdown-toggle',
-    last_submission_selector: 'ul.navbar-nav ul.dropdown-menu li:first-child a',
+    last_submission_selector: 'ul.nav ul.dropdown-menu li:first-child a',
     // For active elements:
     active_element_attr: "data-aplus-active-element",
     interactive_code_attr: "data-aplus-interactive-code",
@@ -377,12 +377,8 @@
           .done(function(data) {
             exercise.hideLoader();
             exercise.update($(data));
-            const hasTextarea = exercise.element.find('textarea').length > 0;
-            const hasFieldset = exercise.element.find('fieldset').length > 0;
             if (exercise.active_element) {
               exercise.loadLastSubmission($(data));
-            } else if (hasTextarea && !hasFieldset) { // Identify acceptPost exercises
-              exercise.loadLastSubmission($(data), true);
             } else {
               exercise.renderMath();
               if (!onlyThis) exercise.chapter.nextExercise();
@@ -853,7 +849,7 @@
       }
     },
 
-    loadLastSubmission: function(input, fillInputs = false) {
+    loadLastSubmission: function(input) {
       var link = input.find(this.settings.last_submission_selector);
       var exercise = this;
       if (link.length > 0) {
@@ -861,7 +857,7 @@
 
         if (url && url !== "#") {
           var data_type = "html";
-          if (exercise.active_element || fillInputs) {
+          if (exercise.active_element) {
             // Active element input values are retrieved from the API, so
             // we must extract the submission number from the submission url
             var submission = url.match(/submissions\/\d+/)[0].split('/')[1];
@@ -879,30 +875,20 @@
 
               if (!exercise.active_element) {
                 const responseElement = exercise.element.find(exercise.settings.response_selector);
-                if (!fillInputs) {
-                  // Remove only the exercise content, not the alerts above it
-                  responseElement.children().not('.alert').remove();
-                  responseElement.append(
-                    $(data).filter(exercise.settings.exercise_selector).contents()
-                  );
-                  exercise.dom_element.dispatchEvent(
-                    new CustomEvent("aplus:exercise-loaded",
-                      {bubbles: true, detail: {type: exercise.exercise_type}}));
-                  // TODO: remove magic constant (variable defined in group.js)
-                  responseElement.removeClass('group-augmented');
-                  exercise.bindFormEvents(exercise.element);
-                  exercise.dom_element.dispatchEvent(
-                    new CustomEvent("aplus:exercise-ready",
-                      {bubbles: true, detail: {type: exercise.exercise_type}}));
-                } else {
-                  // Fill textareas with last submission inputs
-                  const lastInputs = data.submission_data.map((x) => x[1]);
-                  const textareas = responseElement.find('textarea');
-                  textareas.each(function(index) {
-                    $(this).val(lastInputs[index]);
-                  });
-                }
-
+                // Remove only the exercise content, not the alerts above it
+                responseElement.children().not('.alert').remove();
+                responseElement.append(
+                  $(data).filter(exercise.settings.exercise_selector).contents()
+                );
+                exercise.dom_element.dispatchEvent(
+                  new CustomEvent("aplus:exercise-loaded",
+                    {bubbles: true, detail: {type: exercise.exercise_type}}));
+                // TODO: remove magic constant (variable defined in group.js)
+                responseElement.removeClass('group-augmented');
+                exercise.bindFormEvents(exercise.element);
+                exercise.dom_element.dispatchEvent(
+                  new CustomEvent("aplus:exercise-ready",
+                    {bubbles: true, detail: {type: exercise.exercise_type}}));
               } else {
                 // Update the output box values
                 exercise.updateOutput(data.feedback);
