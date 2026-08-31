@@ -350,7 +350,7 @@
         exercise.hideLoader();
         var input_form = exercise.makeInputForm(exercise.chapterID, title, type, def_val);
         exercise.update(input_form);
-        exercise.loadLastSubmission(input_form);
+        // exercise.loadLastSubmission(input_form);
         if (!onlyThis) exercise.chapter.nextExercise();
       } else {
         var loadUrl = this.url;
@@ -384,9 +384,9 @@
             const hasFieldset = exercise.element.find('fieldset').length > 0;
             const isFeedback = exercise.element.hasClass("feedback");
             if (exercise.active_element) {
-              exercise.loadLastSubmission($(data));
+              // exercise.loadLastSubmission($(data));
             } else if (hasTextarea && !hasFieldset && !isFeedback) { // Identify acceptPost exercises
-              exercise.loadLastSubmission($(data), true);
+              // exercise.loadLastSubmission($(data), true);
             } else {
               exercise.renderMath();
               if (!onlyThis) exercise.chapter.nextExercise();
