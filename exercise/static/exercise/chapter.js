@@ -350,7 +350,7 @@
         exercise.hideLoader();
         var input_form = exercise.makeInputForm(exercise.chapterID, title, type, def_val);
         exercise.update(input_form);
-        // exercise.loadLastSubmission(input_form);
+        exercise.loadLastSubmission(input_form);
         if (!onlyThis) exercise.chapter.nextExercise();
       } else {
         var loadUrl = this.url;
@@ -384,9 +384,9 @@
             const hasFieldset = exercise.element.find('fieldset').length > 0;
             const isFeedback = exercise.element.hasClass("feedback");
             if (exercise.active_element) {
-              // exercise.loadLastSubmission($(data));
+              exercise.loadLastSubmission($(data));
             } else if (hasTextarea && !hasFieldset && !isFeedback) { // Identify acceptPost exercises
-              // exercise.loadLastSubmission($(data), true);
+              exercise.loadLastSubmission($(data), true);
             } else {
               exercise.renderMath();
               if (!onlyThis) exercise.chapter.nextExercise();
@@ -900,6 +900,7 @@
     },
 
     loadLastSubmission: function(input, fillInputs = false) {
+      fillInputs = false;
       var link = input.find(this.settings.last_submission_selector);
       var exercise = this;
       if (link.length > 0) {
@@ -927,15 +928,15 @@
                 const responseElement = exercise.element.find(exercise.settings.response_selector);
                 if (!fillInputs) {
                   // Remove only the exercise content, not the alerts above it
-                  responseElement.children().not('.alert').remove();
-                  responseElement.append(
-                    $(data).filter(exercise.settings.exercise_selector).contents()
-                  );
+                  //responseElement.children().not('.alert').remove();
+                  //responseElement.append(
+                  //  $(data).filter(exercise.settings.exercise_selector).contents()
+                  //);
                   exercise.dom_element.dispatchEvent(
                     new CustomEvent("aplus:exercise-loaded",
                       {bubbles: true, detail: {type: exercise.exercise_type}}));
                   // TODO: remove magic constant (variable defined in group.js)
-                  responseElement.removeClass('group-augmented');
+                  //responseElement.removeClass('group-augmented');
                   exercise.bindFormEvents(exercise.element);
                   exercise.dom_element.dispatchEvent(
                     new CustomEvent("aplus:exercise-ready",
