@@ -420,7 +420,7 @@
 
       // Restore form inputs if we have saved data from a recent submission
       if (exercise.savedFormData) {
-        exercise.fillFormInputs(exercise.savedFormData, exercise.element);
+        //exercise.fillFormInputs(exercise.savedFormData, exercise.element);
         delete exercise.savedFormData;
       }
 
@@ -470,7 +470,7 @@
           .attr("action", this.url);
         var exercise = this;
         if (this.chapter.ajaxForms) {
-          forms.on("submit", function(event) {
+          forms.off("submit").on("submit", function(event) {
             event.preventDefault();
             exercise.submit(this);
           });
@@ -673,7 +673,7 @@
           const isFeedback = exercise.element.hasClass("feedback");
           if (hasTextarea && !hasFieldset && !isFeedback) { // Identify acceptPost exercises
             // Save form data to restore after update
-            exercise.savedFormData = Array.from(formData.entries());
+            // exercise.savedFormData = Array.from(formData.entries());
           }
 
           const aplusJsonString = formData.get('__aplus__');
