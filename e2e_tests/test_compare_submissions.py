@@ -84,10 +84,7 @@ def test_compare_submissions(page: Page) -> None: # pylint: disable=too-many-sta
     expect(page.locator('.site-message')).to_contain_text(
         "The review was saved successfully and the submitters were notified.")
 
-    page.goto(
-        "http://localhost:8010/def/current/programming_exercises/graderutils" +
-        "/programming_exercises_graderutils_iotester_exercise2/submissions/2/inspect/?compare_to=invalid"
-    )
+    page.goto(page.url + "?compare_to=invalid")
     expect(page.get_by_role("main")).to_contain_text(
         "The file you are attempting to compare to was not found.")
 

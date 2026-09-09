@@ -80,19 +80,29 @@ def test_should_give_full_points_on_correct_submission(page: Page):
     navigate_to_default_course(page)
     page.get_by_role("link", name="5.1 Creating questionnaire exercises").first.click()
 
-    #fill in an correct answer for exercise 5.1.4
-    #fill in different exercise to make the test work independently of the previous test
+    #fill in an correct answer for exercise 5.1.3 (which is also used for previous test)
     # TODO: figure out a way to make the tests independent?
-    exercise = page.locator("#chapter-exercise-4")
-    exercise.get_by_role("textbox", name="Question 1").fill("cat")
-    exercise.get_by_role("textbox", name="Question 2").fill("3.141")
+    exercise = page.locator("#chapter-exercise-3")
+
+    submissions = exercise.get_by_role("button", name=re.compile("My submissions"))
+    testrun = False
+    if "1" in submissions.inner_text():
+        testrun = True
+
+    exercise.get_by_role("textbox", name="Question 1").fill("anothertest")
+    exercise.get_by_role("textbox", name="Question 2").fill("aoi")
     exercise.get_by_role("button", name="Submit").click()
 
     submissions = exercise.get_by_role("button", name=re.compile("My submissions"))
-    expect(submissions).to_contain_text("1 / 5") #correct submission counts
+
+    if testrun:
+        expect(submissions).to_contain_text("2 / 5")
+    else:
+        expect(submissions).to_contain_text("1 / 5")
+    #correct submission counts, accepting either 1 or 2 submissions due to overlapping other tests
 
     points = exercise.get_by_role("button", name=re.compile("Points"))
-    expect(points).to_contain_text("20 / 20")
+    expect(points).to_contain_text("10 / 10")
 
 
 def test_should_not_accept_submission_after_max_submissions_reached(page: Page):
