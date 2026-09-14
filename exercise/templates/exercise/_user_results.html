@@ -81,15 +81,24 @@
 
 					{% endif %}
 					{% if not accessible %}
-					<span class="badge text-primary bg-white float-end text-wrap">
-						{% translate "OPENS ON" %} {{ module.opening_time }}
-					</span>
+						{% if module.reading_opening_time %}
+						<span class="badge text-primary bg-white float-end text-wrap">
+							{% translate "OPENS_FOR_READING_ON" %} {{ module.reading_opening_time }}
+						</span>
+						<span class="badge text-primary bg-white float-end text-wrap">
+							{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
+						</span>
+						{% else %}
+						<span class="badge text-primary bg-white float-end text-wrap">
+							{% translate "OPENS ON" %} {{ module.opening_time }}
+						</span>
+						{% endif %}
 					{% elif not after_open %}
 					<span class="badge text-primary bg-white float-end text-wrap">
-						{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
+						{% translate "OPEN_FOR_READING" %}
 					</span>
 					<span class="badge text-primary bg-white float-end text-wrap">
-						{% translate "OPEN_FOR_READING" %}
+						{% translate "EXERCISES_OPEN_ON" %} {{ module.opening_time }}
 					</span>
 					{% endif %}
 					{% points_badge module "float-end text-primary bg-white" %}
