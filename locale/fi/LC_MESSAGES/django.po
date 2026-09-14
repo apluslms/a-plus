@@ -4458,6 +4458,10 @@ msgid "OPENS ON"
 msgstr "Avautuu"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "OPENS_FOR_READING_ON"
+msgstr "Avautuu luettavaksi"
+
+#: exercise/templates/exercise/_user_results.html
 msgid "EXERCISES_OPEN_ON"
 msgstr "Tehtävät avautuvat"
 

@@ -4445,6 +4445,10 @@ msgid "OPENS ON"
 msgstr "Opens on"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "OPENS_FOR_READING_ON"
+msgstr "Opens for reading on"
+
+#: exercise/templates/exercise/_user_results.html
 msgid "EXERCISES_OPEN_ON"
 msgstr "Exercises open on"
 
