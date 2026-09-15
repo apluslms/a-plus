@@ -41,8 +41,14 @@
       var poller = this;
       $.ajax(this.url, {dataType: "html"})
         .fail(function() {
-          poller.message("error");
-          poller.ready(true);
+          poller.count++;
+          if (poller.element.is(":visible") &&
+              poller.count < poller.settings.poll_delays.length) {
+            poller.schedule();
+          } else {
+            poller.message("error");
+            poller.ready(true);
+          }
         })
         .done(function(data) {
           poller.count++;

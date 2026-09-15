@@ -129,6 +129,38 @@ class TransactionTest(TransactionTestCase):
         newer4 = MockCache.get()
         self.assertEqual(newer._generated_on, newer4._generated_on)
 
+    def test_reused_transaction_id(self):
+        with patch("lib.cache.transact.id", return_value=1, create=True):
+            with transaction.atomic():
+                MockCache.invalidate()
+                first = MockCache.get()
+
+            with transaction.atomic():
+                MockCache.invalidate()
+                second = MockCache.get()
+                self.assertNotEqual(first._generated_on, second._generated_on)
+
+            second_after_commit = MockCache.get()
+            self.assertEqual(second._generated_on, second_after_commit._generated_on)
+
+    def test_reused_transaction_id_after_rollback(self):
+        with patch("lib.cache.transact.id", return_value=1, create=True):
+            original = MockCache.get()
+            try:
+                with transaction.atomic():
+                    MockCache.invalidate()
+                    raise Rollback()
+            except Rollback:
+                pass
+
+            with transaction.atomic():
+                MockCache.invalidate()
+                committed = MockCache.get()
+                self.assertNotEqual(original._generated_on, committed._generated_on)
+
+            committed_after_transaction = MockCache.get()
+            self.assertEqual(committed._generated_on, committed_after_transaction._generated_on)
+
     def test_changed_during_transaction(self):
         original = []
         new = []

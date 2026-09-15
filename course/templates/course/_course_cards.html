@@ -3,7 +3,7 @@
 
 {% for instance in instances %}
 {% with instance_url=instance|url %}
-	<div class="frontpage card">
+	<div class="frontpage card" data-audience="{{ instance.enrollment_audience }}">
 		<div class="card-clickable">
 			<a href="{{ instance_url }}">
 				{% if not condensed %}
@@ -37,7 +37,6 @@
 				</div>
 			</a>
 		</div>
-		{% if not condensed %}
 		<div class="card-footer">
 			{% if instance.enrollment_audience == 1 or instance.enrollment_audience == 3 %}
 				<span class="badge text-bg-success">{{ internal_user_label|safe }}</span>
@@ -46,7 +45,6 @@
 				<span class="badge text-bg-info">{{ external_user_label|safe }}</span>
 			{% endif %}
 		</div>
-		{% endif %}
 	</div>
 {% endwith %}
 {% endfor %}

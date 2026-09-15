@@ -42,6 +42,13 @@ def _savepoint_rollback(original_func):
     return inner
 
 
+def _rollback(original_func):
+    def inner():
+        original_func()
+        CacheTransactionManager()._clear_memos()
+    return inner
+
+
 class CacheTransactionManager(RequestGlobal):
     """Handles cache interaction during database transactions. Cache operations
     are not committed to the cache if the transaction/savepoint is rolled back.
@@ -64,6 +71,8 @@ class CacheTransactionManager(RequestGlobal):
             # monkey patch commit and rollback hooks into the actual methods
             conn.savepoint_commit = _savepoint_commit(conn.savepoint_commit)
             conn.savepoint_rollback =_savepoint_rollback(conn.savepoint_rollback)
+        if "rollback" not in conn.__dict__:
+            conn.rollback = _rollback(conn.rollback)
 
     def get_many(self, keys: Iterable[str]) -> Dict[str, Any]:
         self._update_memos()
@@ -163,6 +172,10 @@ class CacheTransactionManager(RequestGlobal):
         memo_ids = self._get_memo_ids()
         del self.memos[len(memo_ids):]
 
+    def _clear_memos(self) -> None:
+        self.memos.clear()
+        self.commiting = None
+
     def _save_memo(self) -> None:
         if not self.memos:
             # Already saved
@@ -191,4 +204,4 @@ class CacheTransactionManager(RequestGlobal):
 
         _set_many(memo)
 
-        self.memos.clear()
+        self._clear_memos()

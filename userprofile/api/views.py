@@ -3,7 +3,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 
-from lib.api.filters import FieldValuesFilter
 from lib.api.mixins import ListSerializerMixin, MeUserMixin
 from lib.api.constants import REGEX_INT_ME
 
@@ -74,7 +73,5 @@ class MeDetail(APIView):
     def get(self, request, version, format=None): # pylint: disable=unused-argument redefined-builtin
         userinstance = self.request.user.userprofile
 
-        serializer = UserSerializer(userinstance, context={
-                        'request': request,
-                        })
+        serializer = UserSerializer(userinstance, context={'request': request})
         return Response(serializer.data)

@@ -47,6 +47,8 @@ class HomeView(UserProfileView):
         self.welcome_text = settings_text('WELCOME_TEXT')
         self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
         self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.course_tag_choices = [{'value': str(value), 'label': label}
+                                  for value, label in CourseInstance.ENROLLMENT_AUDIENCE.choices]
         self.show_language_toggle = True
         my_instances = []
         all_instances = []
@@ -92,6 +94,7 @@ class HomeView(UserProfileView):
             "all_instances",
             "is_logged_in",
             "show_language_toggle",
+            "course_tag_choices",
         )
 
 
@@ -101,12 +104,21 @@ class ArchiveView(UserProfileView):
 
     def get_common_objects(self):
         super().get_common_objects()
+        self.internal_user_label = settings_text('INTERNAL_USER_LABEL')
+        self.external_user_label = settings_text('EXTERNAL_USER_LABEL')
+        self.course_tag_choices = [{'value': str(value), 'label': label}
+                                  for value, label in CourseInstance.ENROLLMENT_AUDIENCE.choices]
         query = self.request.GET.get("search", "").strip()
         self.instances = CourseInstance.objects.get_visible(self.request.user)
         if query:
             self.instances = self.instances.filter(Q(course__name__icontains=query) | Q(course__code__icontains=query))
         self.show_language_toggle = True
-        self.note("instances", "show_language_toggle")
+        self.note("instances",
+            "show_language_toggle",
+            "course_tag_choices",
+            "internal_user_label",
+            "external_user_label",
+        )
 
 class CourseInstancesView(UserProfileView):
     access_mode = ACCESS.ANONYMOUS

@@ -13,7 +13,7 @@ def test_points_goal_set(page: Page) -> None:
     page.get_by_label("Input personalized goal as").fill("50")
     page.get_by_label("Input personalized goal as").press("Tab")
     page.get_by_role("button", name="Save").click()
-    expect(page.locator("#success-alert")).to_contain_text("Succesfully set personalized points goal")
+    expect(page.locator("#success-alert")).to_contain_text("Successfully set personalized points goal")
     page.get_by_role("button", name="Close", exact=True).click()
     expect(page.get_by_text("Points goal: 50"))
     expect(page.locator("#goal-points"))
@@ -37,7 +37,7 @@ def test_points_goal_reached(page: Page) -> None:
     page.locator("#progress-questionnaires").get_by_role("button", name="Points goal").click()
     page.get_by_label("Input personalized goal as").fill("30")
     page.get_by_role("button", name="Save").click()
-    expect(page.locator("#success-alert")).to_contain_text("Succesfully set personalized points goal")
+    expect(page.locator("#success-alert")).to_contain_text("Successfully set personalized points goal")
     page.get_by_role("button", name="Close", exact=True).click()
     progress_bar_locator = page.locator("#progress-questionnaires .progress > .aplus-progress-bar")
     expect(progress_bar_locator).\

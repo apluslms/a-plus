@@ -389,7 +389,7 @@ class CourseTest(CourseTestCase):
                 'course_slug': self.course.url,
                 'instance_slug': self.current_course_instance.url,
             }),
-            {'user_profiles': [self.user1.id, self.user2.id]}
+            {'user_profiles': f'{self.user1.id},{self.user2.id}'}
         )
         self.assertTrue(self.current_course_instance.is_student(self.user1))
         self.assertTrue(self.current_course_instance.is_student(self.user2))

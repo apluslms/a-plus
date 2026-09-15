@@ -9,6 +9,7 @@ from lib.helpers import extract_form_errors
 from notification.models import Notification
 from lti_tool.utils import send_lti_points
 
+from .cache.exercise import ExerciseCache
 from .forms import SubmissionCallbackForm
 from .models import SubmissionTagging
 
@@ -16,7 +17,8 @@ from .models import SubmissionTagging
 logger = logging.getLogger('aplus.exercise')
 
 
-def _post_async_submission(request, exercise, submission, errors=None): # pylint: disable=too-many-branches # noqa: MC0001
+# pylint: disable-next=too-many-branches too-many-statements too-many-locals
+def _post_async_submission(request, exercise, submission, errors=None): # noqa: MC0001
     """
     Creates or grades a submission.
 
@@ -94,6 +96,15 @@ def _post_async_submission(request, exercise, submission, errors=None): # pylint
         # the LTI Platform.
         if submission.meta_data == "":
             submission.meta_data = {}
+        exercise_version = form.cleaned_data["exercise_version"]
+        if exercise_version:
+            language = submission.lang or exercise.course_instance.default_language
+            cached_version = ExerciseCache.cached_exercise_version(exercise, language)
+            if cached_version and cached_version != exercise_version:
+                ExerciseCache.invalidate(exercise, modifiers=[language])
+            if not isinstance(submission.meta_data, dict):
+                submission.meta_data = {}
+            submission.meta_data["exercise_version"] = exercise_version
         if (form.cleaned_data["lti_launch_id"]
                 and submission.meta_data.get("lti-launch-id") is None):
             submission.meta_data["lti-launch-id"] = form.cleaned_data["lti_launch_id"]

@@ -35,8 +35,7 @@ def upload_submission(page: Page, chapter_name: str, exercise_name: str, files: 
     for file in files:
         page.get_by_label(file.label).set_input_files(os.path.join(assets_path, file.name))
     page.locator(exercise_name).get_by_role("button", name="Submit").click()
-    expect(page.locator("#page-modal")
-           ).to_contain_text("Total points:", timeout=10000)
+    expect(page.locator("#page-modal")).to_contain_text("Total points:", timeout=65000)
     page.get_by_role("button", name="Close", exact=True).click()
 
 def navigate_to_default_course(page: Page):

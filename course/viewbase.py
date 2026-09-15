@@ -4,6 +4,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import get_language, get_language_info
 
 from authorization.permissions import ACCESS
+from aplus.helpers_views import get_context
 from exercise.cache.content import CachedContent
 from exercise.cache.points import CachedPoints
 from lib.helpers import remove_query_param_from_url, update_url_params
@@ -163,6 +164,8 @@ class CourseInstanceBaseMixin:
 
     def handle_exception(self, exc):
         if isinstance(exc, TranslationNotFound):
+            context = get_context(self.request)
+            context["error_msg"] = str(exc)
             instance_languages = self.instance.language.strip("|").split("|")
             url = remove_query_param_from_url(self.request.get_full_path(), 'hl')
             for i, lang in enumerate(instance_languages):
@@ -170,10 +173,11 @@ class CourseInstanceBaseMixin:
                     "name": get_language_info(lang)['name'],
                     "url": update_url_params(url, {'hl' : lang})
                 }
+            context["languages"] = instance_languages
             return render(
                 self.request,
                 '404.html',
-                {'error_msg': str(exc), 'languages': instance_languages},
+                context,
                 status=404
             )
         return super().handle_exception(exc)

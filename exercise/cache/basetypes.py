@@ -83,7 +83,7 @@ class ContentDBData(DBDataManager):
             self.needed_exercises.add(model_id)
 
     def _load_modules_qs(self, module_qs: QuerySet[CourseModule]) -> Iterable[CourseModule]:
-        new_modules = module_qs.prefetch_related(
+        new_modules = module_qs.exclude(id__in=self.modules).prefetch_related(
             Prefetch(
                 "requirements",
                 queryset=(
@@ -106,8 +106,15 @@ class ContentDBData(DBDataManager):
             for module in new_modules
         )
 
+        affected_instances = set()
         for module in new_modules:
             self.instance_modules.setdefault(module.course_instance_id, []).append(module)
+            affected_instances.add(module.course_instance_id)
+
+        for instance_id in affected_instances:
+            self.instance_modules[instance_id].sort(
+                key=lambda module: (module.order, module.closing_time, module.id)
+            )
 
         new_exercises = LearningObject.objects.filter(course_module__in=new_modules).select_related("category")
         self.exercises.update(

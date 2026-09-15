@@ -1,17 +1,14 @@
 from django.shortcuts import render
+from .helpers_views import get_context
 
 # pylint: disable-next=unused-argument
 def error_404(request, exception=None):
-    context = {
-        'show_language_toggle': True,
-    }
+    context = get_context(request)
     return render(request, '404.html', context, status=404)
 
 # pylint: disable-next=unused-argument
 def error_403(request, exception=None):
-    context = {
-        'show_language_toggle': True,
-    }
+    context = get_context(request)
     return render(request, '403.html', context, status=403)
 
 # pylint: disable-next=unused-argument

@@ -2,7 +2,7 @@ from playwright.sync_api import Page, expect
 from e2e_tests.helpers import upload_submission, login, logout, navigate_to_default_course, File
 
 
-def test_compare_submissions(page: Page) -> None:
+def test_compare_submissions(page: Page) -> None: # pylint: disable=too-many-statements
     ASSISTANT_FEEDBACK_TEXT = "ASSISTANT_FEEDBACK"
     FEEDBACK_TEXT = "FEEDBACK"
     POINTS = "5"
@@ -14,12 +14,26 @@ def test_compare_submissions(page: Page) -> None:
     red = "rgb(248, 215, 218)"
     login(page, "student", "student")
     navigate_to_default_course(page)
+
+    first_poll_failed = False
+
+    def fail_first_poll(route):
+        nonlocal first_poll_failed
+        if first_poll_failed:
+            route.continue_()
+        else:
+            first_poll_failed = True
+            route.fulfill(status=503, body="Temporary polling failure")
+
+    page.route("**/poll/**", fail_first_poll)
     upload_submission(
         page,
         chapter_name=chapter_name,
         exercise_name=exercise_name,
         files=(File("wallet.py"), File("wallet_program.py"))
     )
+    page.unroute("**/poll/**", fail_first_poll)
+    assert first_poll_failed
     upload_submission(
         page,
         chapter_name=chapter_name,
@@ -70,10 +84,7 @@ def test_compare_submissions(page: Page) -> None:
     expect(page.locator('.site-message')).to_contain_text(
         "The review was saved successfully and the submitters were notified.")
 
-    page.goto(
-        "http://localhost:8010/def/current/programming_exercises/graderutils" +
-        "/programming_exercises_graderutils_iotester_exercise2/submissions/2/inspect/?compare_to=invalid"
-    )
+    page.goto(page.url + "?compare_to=invalid")
     expect(page.get_by_role("main")).to_contain_text(
         "The file you are attempting to compare to was not found.")
 

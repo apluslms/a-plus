@@ -9,7 +9,10 @@
   <div class="frontpage-panel">
     <div class="page-header d-flex justify-content-between align-items-center flex-column flex-md-row">
       <h1 class="align-self-start">{% translate "COURSE_ARCHIVE" %}</h1>
-      <div class="align-self-stretch mt-md-4">{% include "course/_search_courses_form.html" %}</div>
+      <div class="d-flex gap-2 align-self-stretch mt-md-4">
+        {% include "course/_filter_courses_form.html" %}
+        {% include "course/_search_courses_form.html" %}
+      </div>
     </div>
     {% regroup instances by starting_time|date:"Y" as instances_by_year %}
 

@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load course %}
+
+{% load static %}
+{% block scripts %}
+<script src="{% static 'course/course_filter.js' %}"></script>
+{% endblock %}
+
+<form class="form-inline" id="course-filter-form">
+	<div class="d-flex gap-2">
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+					data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+				{% translate "FILTER_COURSES" %}
+			</button>
+			<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="tag-filter-menu">
+				<li class="p-2">
+					{% for tag in course_tag_choices %}
+						{% comment %} Don't show the "Aalto and MOOC" tag {% endcomment %}
+						{% if tag and tag.value != "3" %}
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" name="audience" value="{{ tag.value }}"
+									id="tag-{{ tag.value }}">
+								{% if tag.value == "1" %}
+									<label class="form-check-label badge text-bg-success" for="tag-{{ tag.value }}">{{ internal_user_label|safe }}</label>
+								{% elif tag.value == "2" %}
+									<label class="form-check-label badge text-bg-info" for="tag-{{ tag.value }}">{{ external_user_label|safe }}</label>
+								{% endif %}
+							</div>
+						{% endif %}
+					{% endfor %}
+				</li>
+			</ul>
+		</div>
+	</div>
+</form>

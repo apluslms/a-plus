@@ -1129,6 +1129,10 @@ msgstr ""
 "Tehtävien palauttaminen vaatii kirjautumisen järjestelmään, mutta voit "
 "selailla kurssimateriaalia tunnistautumatta."
 
+#: course/templates/course/_filter_courses_form.html
+msgid "FILTER_COURSES"
+msgstr "Suodata kursseja"
+
 #: course/templates/course/_group_info.html
 #, python-format
 msgid "GROUP_SUBMITTING_WITH -- %(collaborators)s"
@@ -4456,6 +4460,10 @@ msgid "OPENS ON"
 msgstr "Avautuu"
 
 #: exercise/templates/exercise/_user_results.html
+msgid "OPENS_FOR_READING_ON"
+msgstr "Avautuu luettavaksi"
+
+#: exercise/templates/exercise/_user_results.html
 msgid "EXERCISES_OPEN_ON"
 msgstr "Tehtävät avautuvat"
 
@@ -5069,9 +5077,8 @@ msgstr "Näytä vain palauttaneet opiskelijat"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
 msgstr ""
-"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa "
-"&quot;vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä "
-"asetettuna."
+"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa &quot;"
+"vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä asetettuna."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
@@ -5513,8 +5520,8 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://"
-"icons.getbootstrap.com/"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons."
+"getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5703,8 +5710,8 @@ msgstr ""
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT"
 msgstr ""
-"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa "
-"GDPR:ää tietosuojailmoituksensa perusteella."
+"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa GDPR:"
+"ää tietosuojailmoituksensa perusteella."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"

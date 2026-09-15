@@ -3,6 +3,7 @@ import time
 from typing import Any, Dict, List, Optional, TYPE_CHECKING
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http.request import HttpRequest
 
 from lib.cache import CachedAbstract
@@ -43,7 +44,11 @@ class ExerciseCache(CachedAbstract):
         self.load_args = [language, request, students, url_name, ordinal]
         super().__init__(exercise, modifiers=[language])
 
-    def _needs_generation(self, data: Dict[str, Any]) -> bool:
+    def _needs_generation(self, data: Optional[Dict[str, Any]]) -> bool:
+        if data and 'exercise_version' not in data:
+            # Cache entries created before exercise version stamping was added must be refreshed
+            # so update detection can work.
+            return True
         expires = data['expires'] if data else None
         return not expires or time.time() > expires
     # pylint: disable-next=arguments-differ
@@ -51,7 +56,13 @@ class ExerciseCache(CachedAbstract):
         try:
             page = exercise.load_page(
                 *self.load_args,
-                last_modified=data['last_modified'] if data else None
+                # A versionless cache entry must receive a full response. Reusing
+                # its timestamp could produce a 304 that can not add the version.
+                last_modified=(
+                    data['last_modified']
+                    if data and 'exercise_version' in data
+                    else None
+                )
             )
 
             content = compress(page.content.encode('utf-8'))
@@ -60,6 +71,7 @@ class ExerciseCache(CachedAbstract):
                 'head': page.head,
                 'content': content,
                 'last_modified': page.last_modified,
+                'exercise_version': page.exercise_version,
                 'expires': page.expires if page.is_loaded else 0,
             }
         except RemotePageNotModified as e:
@@ -73,6 +85,24 @@ class ExerciseCache(CachedAbstract):
     def content(self) -> str:
         content = decompress(self.data['content']).decode('utf-8')
         return content
+
+    def exercise_version(self) -> str:
+        return self.data.get('exercise_version') or ''
+
+    @classmethod
+    def cached_exercise_version(
+            cls,
+            exercise: 'BaseExercise | int',
+            language: str,
+            ) -> str:
+        """Return a recently cached version without regenerating exercise HTML."""
+        raw = cache.get(cls._key(exercise, modifiers=[language]))
+        if not isinstance(raw, tuple) or len(raw) != 2:
+            return ''
+        updated, data = raw
+        if updated is None or not isinstance(data, dict):
+            return ''
+        return data.get('exercise_version') or ''
 
 
 def invalidate_instance(instance: 'CourseInstance') -> None:
