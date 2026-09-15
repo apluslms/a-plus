@@ -326,6 +326,8 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             if return_submission and self.profile:
                 submission = (
                     self.exercise.get_submissions_for_student(self.profile)
+                    .exclude_invalidated()
+                    .exclude_errors()
                     .order_by("-submission_time")
                     .first()
                 )

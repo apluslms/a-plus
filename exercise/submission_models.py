@@ -46,8 +46,10 @@ class SubmissionQuerySet(models.QuerySet):
         return self.exclude(status__in=(
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
-            Submission.STATUS.INVALIDATED,
         ))
+
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
 
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
@@ -286,8 +288,10 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
         return self.exclude(status__in=(
             Submission.STATUS.ERROR,
             Submission.STATUS.REJECTED,
-            Submission.STATUS.INVALIDATED,
         ))
+
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
 
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
