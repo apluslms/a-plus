@@ -282,6 +282,7 @@ class CourseAggregateDataViewSet(NestedViewSetMixin,
             .filter(exercise__in=ids, submitters__in=profiles)
             .exclude(status__in=(
                 Submission.STATUS.UNOFFICIAL, Submission.STATUS.ERROR, Submission.STATUS.REJECTED,
+                Submission.STATUS.INVALIDATED,
             ))
             .values('submitters__user_id', 'exercise_id')
             .annotate(count=Count('id'))
@@ -454,7 +455,11 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         ids = [e.id for e in exercises]
         points = CachedPoints(self.instance, request.user, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
-        exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
+        exclude_list = [
+            Submission.STATUS.ERROR,
+            Submission.STATUS.REJECTED,
+            Submission.STATUS.INVALIDATED,
+        ]
         show_unofficial = request.GET.get('show_unofficial') == 'true'
         if not show_unofficial:
             exclude_list.append(Submission.STATUS.UNOFFICIAL)

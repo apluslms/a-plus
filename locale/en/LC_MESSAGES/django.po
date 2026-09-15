@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-22 12:18+0300\n"
+"POT-Creation-Date: 2026-07-17 10:53+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -276,6 +276,10 @@ msgstr "Users"
 #: course/forms.py
 msgid "LABEL_ENROLL_FROM_SIS"
 msgstr "Enrol participants from Student Information System"
+
+#: course/forms.py
+msgid "ERROR_INVALID_USER_IDS"
+msgstr "One or more user IDs are invalid"
 
 #: course/models.py diploma/models.py edit_course/course_forms.py
 #: exercise/exercise_models.py threshold/models.py
@@ -905,7 +909,7 @@ msgstr "Only enrolled students or course staff are allowed."
 
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "SUCCESS_SAVING_CHANGES"
-msgstr "Changes were saved succesfully."
+msgstr "Changes were saved successfully."
 
 #: course/staff_views.py edit_course/views.py exercise/staff_views.py
 msgid "FAILURE_SAVING_CHANGES"
@@ -1460,6 +1464,7 @@ msgstr "All"
 #: course/templates/course/staff/all_submissions_table.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "YES"
@@ -1607,6 +1612,7 @@ msgstr "Enrol students in the course"
 #: exercise/templates/exercise/module_goal_modal.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html templates/ajax_search_select.html
+#: templates/email_user_select.html
 msgid "REMOVE"
 msgstr "Remove"
 
@@ -2134,7 +2140,7 @@ msgstr "Override"
 
 #: deviations/viewbase.py
 msgid "SUCCESS_ADDING_DEVIATIONS"
-msgstr "Deviations were added succesfully."
+msgstr "Deviations were added successfully."
 
 #: deviations/viewbase.py
 #, python-brace-format
@@ -2143,7 +2149,7 @@ msgstr "Invalid assignment or submitter id: {id}"
 
 #: deviations/viewbase.py
 msgid "SUCCESS_OVERRIDING_DEVIATIONS"
-msgstr "Deviations were overriden succesfully."
+msgstr "Deviations were overriden successfully."
 
 #: deviations/viewbase.py
 msgid "NOTHING_REMOVED"
@@ -2294,8 +2300,16 @@ msgid "LABEL_TEACHERS"
 msgstr "Teachers"
 
 #: edit_course/course_forms.py
+msgid "COURSE_TEACHERS_EMAIL_HELPTEXT"
+msgstr "Enter email address of teacher to add"
+
+#: edit_course/course_forms.py
 msgid "LABEL_ASSISTANTS"
 msgstr "Assistants"
+
+#: edit_course/course_forms.py
+msgid "COURSE_ASSISTANTS_EMAIL_HELPTEXT"
+msgstr "Enter email address of assistant to add"
 
 #: edit_course/course_forms.py
 msgid "COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE"
@@ -2310,48 +2324,12 @@ msgid "COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS"
 msgstr "Students will not be able to submit answers after this time."
 
 #: edit_course/course_forms.py
-msgid "COURSE_TEACHERS_EMAIL_HELPTEXT"
-msgstr "Enter email address of teacher to add"
-
-#: edit_course/course_forms.py
-msgid "COURSE_ASSISTANTS_EMAIL_HELPTEXT"
-msgstr "Enter email address of assistant to add"
-
-#: edit_course/course_forms.py
-msgid "COURSE_TEACHER_EMAIL_NOT_FOUND"
-msgstr "No user found with email address: {email}"
-
-#: edit_course/course_forms.py
-msgid "COURSE_ASSISTANT_EMAIL_NOT_FOUND"
-msgstr "No user found with email address: {email}"
-
-#: edit_course/course_forms.py
 msgid "COURSE_TEACHERS_INVALID_USER_IDS"
 msgstr "One or more teacher user IDs are invalid"
 
 #: edit_course/course_forms.py
 msgid "COURSE_ASSISTANTS_INVALID_USER_IDS"
 msgstr "One or more assistant user IDs are invalid"
-
-#: templates/email_user_select.html
-msgid "SELECTED_USERS"
-msgstr "Selected users"
-
-#: templates/email_user_select.html
-msgid "NO_USERS_ADDED_YET"
-msgstr "No users added yet"
-
-#: templates/email_user_select.html
-msgid "ENTER_EMAIL_TO_ADD"
-msgstr "Enter email address and press Enter/Add"
-
-#: templates/email_user_select.html
-msgid "ADD_USER"
-msgstr "Add"
-
-#: course/forms.py
-msgid "ERROR_INVALID_USER_IDS"
-msgstr "One or more user IDs are invalid"
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
@@ -4067,6 +4045,26 @@ msgstr ""
 "{max_points}."
 
 #: exercise/staff_views.py
+msgid "SUBMISSION_ALREADY_INVALIDATED"
+msgstr "Submission is already invalidated."
+
+#: exercise/staff_views.py
+msgid "ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED"
+msgstr "Only ready submissions can be invalidated."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_INVALIDATED"
+msgstr "Submission successfully invalidated."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_NOT_INVALIDATED"
+msgstr "Submission is not invalidated."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_REVALIDATED"
+msgstr "Submission successfully re-validated."
+
+#: exercise/staff_views.py
 msgid "SUBMISSION_APPROVAL_ASSISTANT_PERMISSION_DENIED_MSG"
 msgstr ""
 "Some of the targeted assignments do not allow assistants to grade them."
@@ -4077,6 +4075,10 @@ msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
 msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
 msgstr[0] "{count} late or unofficial submission was successfully approved."
 msgstr[1] "{count} late or unofficial submissions were successfully approved."
+
+#: exercise/submission_models.py
+msgid "STATUS_INVALIDATED"
+msgstr "Invalidated"
 
 #: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
@@ -4620,7 +4622,7 @@ msgstr ""
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
-msgstr "Succesfully removed personalized points goal"
+msgstr "Successfully removed personalized points goal"
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_FAILURE"
@@ -4660,6 +4662,14 @@ msgid "APPROVE_SUBMISSION"
 msgstr "Approve submission"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "REVALIDATE_SUBMISSION"
+msgstr "Re-validate submission"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "INVALIDATE_SUBMISSION"
+msgstr "Invalidate submission"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Submission details"
@@ -4694,6 +4704,14 @@ msgstr "Grader errors"
 #: exercise/templates/exercise/submission_plain.html
 msgid "ASSISTANT_FEEDBACK"
 msgstr "Staff feedback"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "INVALIDATE_SUBMISSION_CONFIRM"
+msgstr "Are you sure you want to invalidate this submission?"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "REVALIDATE_SUBMISSION_CONFIRM"
+msgstr "Are you sure you want to re-validate this submission?"
 
 #: exercise/templates/exercise/staff/_late_submission_approval_modal.html
 msgid "SUBMISSION_APPROVAL_TITLE"
@@ -6078,6 +6096,22 @@ msgstr "Support"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Loading failed!"
+
+#: templates/email_user_select.html
+msgid "SELECTED_USERS"
+msgstr "Selected users"
+
+#: templates/email_user_select.html
+msgid "NO_USERS_ADDED_YET"
+msgstr "No users added yet"
+
+#: templates/email_user_select.html
+msgid "ENTER_EMAIL_TO_ADD"
+msgstr "Enter email address and press Enter/Add"
+
+#: templates/email_user_select.html
+msgid "ADD"
+msgstr "Add"
 
 #: templates/support_channels.html
 msgid "TEACHERS"

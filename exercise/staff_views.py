@@ -654,6 +654,36 @@ class SubmissionApprovalView(SubmissionMixin, BaseRedirectView):
         return self.redirect(self.submission.get_inspect_url())
 
 
+class SubmissionInvalidateView(SubmissionMixin, BaseRedirectView):
+    """A POST-only view that marks a submission as invalidated."""
+    access_mode = ACCESS.TEACHER
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_ALREADY_INVALIDATED'))
+        elif self.submission.status != Submission.STATUS.READY:
+            messages.error(self.request, _('ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED'))
+        else:
+            self.submission.set_invalidated()
+            self.submission.save()
+            messages.success(self.request, _('SUBMISSION_INVALIDATED'))
+        return self.redirect(self.submission.get_inspect_url())
+
+
+class SubmissionRevalidateView(SubmissionMixin, BaseRedirectView):
+    """A POST-only view that restores an invalidated submission to ready."""
+    access_mode = ACCESS.TEACHER
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if self.submission.status != Submission.STATUS.INVALIDATED:
+            messages.info(self.request, _('SUBMISSION_NOT_INVALIDATED'))
+        else:
+            self.submission.set_revalidated()
+            self.submission.save()
+            messages.success(self.request, _('SUBMISSION_REVALIDATED'))
+        return self.redirect(self.submission.get_inspect_url())
+
+
 class SubmissionApprovalByModuleView(CourseInstanceMixin, BaseRedirectView):
     """
     A POST-only view that approves a student's late or unofficial submissions

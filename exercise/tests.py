@@ -800,6 +800,56 @@ class ExerciseTest(ExerciseTestBase):
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_submission_invalidate_view(self):
+        invalidate_submission_url = self.submission.get_url('submission-invalidate')
+        revalidate_submission_url = self.submission.get_url('submission-revalidate')
+        self.submission.feedback = "grader feedback"
+        self.submission.assistant_feedback = "assistant feedback"
+        self.submission.grading_data = {"source": "grader"}
+        self.submission.set_points(7, 10, no_penalties=True)
+        self.submission.set_ready()
+        self.submission.save()
+
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+        self.assertEqual(self.submission.feedback, "grader feedback")
+        self.assertEqual(self.submission.assistant_feedback, "assistant feedback")
+        self.assertEqual(self.submission.grading_data, {"source": "grader"})
+
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.post(revalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(revalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.READY)
+
+        self.submission.set_error()
+        self.submission.save()
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.ERROR)
+
     def test_uploading_and_viewing_file(self):
         exercise = BaseExercise.objects.create(
             order=4,

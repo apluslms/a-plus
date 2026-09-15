@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-22 12:18+0300\n"
+"POT-Creation-Date: 2026-07-17 10:53+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -277,6 +277,10 @@ msgstr "Käyttäjät"
 #: course/forms.py
 msgid "LABEL_ENROLL_FROM_SIS"
 msgstr "Lisää osallistujia opintotietojärjestelmästä"
+
+#: course/forms.py
+msgid "ERROR_INVALID_USER_IDS"
+msgstr "Yksi tai useampi käyttäjätunnus on virheellinen"
 
 #: course/models.py diploma/models.py edit_course/course_forms.py
 #: exercise/exercise_models.py threshold/models.py
@@ -1468,6 +1472,7 @@ msgstr "Kaikki"
 #: course/templates/course/staff/all_submissions_table.html
 #: deviations/templates/deviations/list_dl.html
 #: deviations/templates/deviations/override_dl.html
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submissions_table.html
 #: exercise/templates/exercise/staff/_submitters_table.html
 msgid "YES"
@@ -1615,6 +1620,7 @@ msgstr "Ilmoita opiskelijoita kurssille"
 #: exercise/templates/exercise/module_goal_modal.html
 #: external_services/templates/external_services/list_menu.html
 #: news/templates/news/list.html templates/ajax_search_select.html
+#: templates/email_user_select.html
 msgid "REMOVE"
 msgstr "Poista"
 
@@ -2305,8 +2311,16 @@ msgid "LABEL_TEACHERS"
 msgstr "Opettajat"
 
 #: edit_course/course_forms.py
+msgid "COURSE_TEACHERS_EMAIL_HELPTEXT"
+msgstr "Syötä lisättävän opettajan sähköpostiosoite."
+
+#: edit_course/course_forms.py
 msgid "LABEL_ASSISTANTS"
 msgstr "Assistentit"
+
+#: edit_course/course_forms.py
+msgid "COURSE_ASSISTANTS_EMAIL_HELPTEXT"
+msgstr "Syötä lisättävän assistentin sähköpostiosoite."
 
 #: edit_course/course_forms.py
 msgid "COURSE_URL_IDENTIFIER_LOCKED_WHILE_COURSE_VISIBLE"
@@ -2323,48 +2337,12 @@ msgid "COURSE_REMOVES_SUBMISSION_POSSIBILITY_STUDENTS"
 msgstr "Arkistoinnin jälkeen tehtävien palauttaminen ei ole enää mahdollista."
 
 #: edit_course/course_forms.py
-msgid "COURSE_TEACHERS_EMAIL_HELPTEXT"
-msgstr "Syötä lisättävän opettajan sähköpostiosoite."
-
-#: edit_course/course_forms.py
-msgid "COURSE_ASSISTANTS_EMAIL_HELPTEXT"
-msgstr "Syötä lisättävän assistentin sähköpostiosoite."
-
-#: edit_course/course_forms.py
-msgid "COURSE_TEACHER_EMAIL_NOT_FOUND"
-msgstr "Käyttäjää ei löytynyt sähköpostiosoitteella: {email}"
-
-#: edit_course/course_forms.py
-msgid "COURSE_ASSISTANT_EMAIL_NOT_FOUND"
-msgstr "Käyttäjää ei löytynyt sähköpostiosoitteella: {email}"
-
-#: edit_course/course_forms.py
 msgid "COURSE_TEACHERS_INVALID_USER_IDS"
 msgstr "Yksi tai useampi opettajan käyttäjätunnus on virheellinen"
 
 #: edit_course/course_forms.py
 msgid "COURSE_ASSISTANTS_INVALID_USER_IDS"
 msgstr "Yksi tai useampi assistentin käyttäjätunnus on virheellinen"
-
-#: templates/email_user_select.html
-msgid "SELECTED_USERS"
-msgstr "Valitut käyttäjät"
-
-#: templates/email_user_select.html
-msgid "NO_USERS_ADDED_YET"
-msgstr "Käyttäjiä ei ole vielä lisätty"
-
-#: templates/email_user_select.html
-msgid "ENTER_EMAIL_TO_ADD"
-msgstr "Syötä sähköpostiosoite ja paina Enter/Lisää"
-
-#: templates/email_user_select.html
-msgid "ADD_USER"
-msgstr "Lisää"
-
-#: course/forms.py
-msgid "ERROR_INVALID_USER_IDS"
-msgstr "Yksi tai useampi käyttäjätunnus on virheellinen"
 
 #: edit_course/course_forms.py
 msgid "ERROR_URL_ALREADY_TAKEN"
@@ -4078,6 +4056,26 @@ msgstr ""
 "Palautuksen hyväksyntä onnistui. Uudet pisteet ovat {points}/{max_points}."
 
 #: exercise/staff_views.py
+msgid "SUBMISSION_ALREADY_INVALIDATED"
+msgstr "Palautus on jo mitätöity."
+
+#: exercise/staff_views.py
+msgid "ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED"
+msgstr "Ainoastaan valmiit palautukset voidaan mitätöidä."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_INVALIDATED"
+msgstr "Palautus mitätöity onnistuneesti."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_NOT_INVALIDATED"
+msgstr "Palautus ei ole mitätöity."
+
+#: exercise/staff_views.py
+msgid "SUBMISSION_REVALIDATED"
+msgstr "Palautuksen mitätöinti poistettu onnistuneesti."
+
+#: exercise/staff_views.py
 msgid "SUBMISSION_APPROVAL_ASSISTANT_PERMISSION_DENIED_MSG"
 msgstr "Kaikki valitut tehtävät eivät salli assistentin arvostelevan niitä."
 
@@ -4087,6 +4085,10 @@ msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
 msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
 msgstr[0] "{count} myöhästynyt tai epävirallinen palautus hyväksyttiin."
 msgstr[1] "{count} myöhästynyttä tai epävirallista palautusta hyväksyttiin."
+
+#: exercise/submission_models.py
+msgid "STATUS_INVALIDATED"
+msgstr "Mitätöity"
 
 #: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
@@ -4672,6 +4674,14 @@ msgid "APPROVE_SUBMISSION"
 msgstr "Hyväksy pisteytetyksi"
 
 #: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "REVALIDATE_SUBMISSION"
+msgstr "Poista palautuksen mitätöinti"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "INVALIDATE_SUBMISSION"
+msgstr "Mitätöi palautus"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
 #: exercise/templates/exercise/staff/_submission_data_modal.html
 msgid "SUBMISSION_DETAILS"
 msgstr "Palautuksen lisätiedot"
@@ -4706,6 +4716,14 @@ msgstr "Virheet tarkistimelta"
 #: exercise/templates/exercise/submission_plain.html
 msgid "ASSISTANT_FEEDBACK"
 msgstr "Kurssihenkilökunnan palaute"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "INVALIDATE_SUBMISSION_CONFIRM"
+msgstr "Haluatko varmasti mitätöidä tämän palautuksen?"
+
+#: exercise/templates/exercise/staff/_assessment_panel.html
+msgid "REVALIDATE_SUBMISSION_CONFIRM"
+msgstr "Haluatko varmasti poistaa tämän palautuksen mitätöinnin?"
 
 #: exercise/templates/exercise/staff/_late_submission_approval_modal.html
 msgid "SUBMISSION_APPROVAL_TITLE"
@@ -6098,6 +6116,22 @@ msgstr "Tuki"
 #: templates/base.html
 msgid "LOADING_FAILED"
 msgstr "Lataus epäonnistui!"
+
+#: templates/email_user_select.html
+msgid "SELECTED_USERS"
+msgstr "Valitut käyttäjät"
+
+#: templates/email_user_select.html
+msgid "NO_USERS_ADDED_YET"
+msgstr "Käyttäjiä ei ole vielä lisätty"
+
+#: templates/email_user_select.html
+msgid "ENTER_EMAIL_TO_ADD"
+msgstr "Syötä sähköpostiosoite ja paina Enter/Lisää"
+
+#: templates/email_user_select.html
+msgid "ADD"
+msgstr "Lisää"
 
 #: templates/support_channels.html
 msgid "TEACHERS"

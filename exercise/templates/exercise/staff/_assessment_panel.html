@@ -63,6 +63,17 @@
 								</button>
 							{% endif %}
 						{% endif %}
+						{% if is_teacher %}
+							{% if submission.status == submission.STATUS.INVALIDATED %}
+								<button type="button" class="aplus-button--secondary aplus-button--sm" data-bs-toggle="modal" data-bs-target="#revalidate-submission-modal">
+									{% translate 'REVALIDATE_SUBMISSION' %}
+								</button>
+							{% elif submission.status == submission.STATUS.READY %}
+								<button type="button" class="aplus-button--danger aplus-button--sm" data-bs-toggle="modal" data-bs-target="#invalidate-submission-modal">
+									{% translate 'INVALIDATE_SUBMISSION' %}
+								</button>
+							{% endif %}
+						{% endif %}
 						<button
 							data-bs-toggle="modal"
 							data-bs-target="#details-modal"
@@ -218,6 +229,52 @@
 					</div>
 					{% endif %}
 				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="invalidate-submission-modal" class="modal" tabindex="-1" aria-labelledby="invalidate-submission-modal-label" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 id="invalidate-submission-modal-label" class="modal-title">{% translate 'INVALIDATE_SUBMISSION' %}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'CLOSE' %}"></button>
+			</div>
+			<div class="modal-body">
+				<form id="invalidate-submission-form" class="d-flex flex-nowrap" method="post" action="{{ submission|url:'submission-invalidate' }}">
+					{% csrf_token %}
+					<span>
+						{% translate 'INVALIDATE_SUBMISSION_CONFIRM' %}
+					</span>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'CLOSE' %}</button>
+				<button type="submit" form="invalidate-submission-form" class="btn btn-primary">{% translate 'YES' %}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="revalidate-submission-modal" class="modal" tabindex="-1" aria-labelledby="revalidate-submission-modal-label" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 id="revalidate-submission-modal-label" class="modal-title">{% translate 'REVALIDATE_SUBMISSION' %}</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'CLOSE' %}"></button>
+			</div>
+			<div class="modal-body">
+				<form id="revalidate-submission-form" class="d-flex flex-nowrap" method="post" action="{{ submission|url:'submission-revalidate' }}">
+					{% csrf_token %}
+					<span>
+						{% translate 'REVALIDATE_SUBMISSION_CONFIRM' %}
+					</span>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate 'CLOSE' %}</button>
+				<button type="submit" form="revalidate-submission-form" class="btn btn-primary">{% translate 'YES' %}</button>
 			</div>
 		</div>
 	</div>

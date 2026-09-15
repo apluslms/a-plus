@@ -48,6 +48,9 @@ class SubmissionQuerySet(models.QuerySet):
             Submission.STATUS.REJECTED,
         ))
 
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
+
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
 
@@ -288,6 +291,9 @@ class SubmissionManager(JWTAccessible["Submission"], models.Manager):
             Submission.STATUS.REJECTED,
         ))
 
+    def exclude_invalidated(self):
+        return self.exclude(status=Submission.STATUS.INVALIDATED)
+
     def exclude_unofficial(self):
         return self.exclude(status=Submission.STATUS.UNOFFICIAL)
 
@@ -362,6 +368,7 @@ class Submission(SubmissionProto, models.Model):
         ('READY', 'ready', _('STATUS_READY')), # graded normally
         ('ERROR', 'error', _('STATUS_ERROR')),
         ('REJECTED', 'rejected', _('STATUS_REJECTED')), # missing fields etc
+        ('INVALIDATED', 'invalidated', _('STATUS_INVALIDATED')),
         ('UNOFFICIAL', 'unofficial', _('STATUS_UNOFFICIAL')),
         # unofficial: graded after the deadline or after exceeding the submission limit
     ])
@@ -665,6 +672,18 @@ class Submission(SubmissionProto, models.Model):
 
     def set_error(self):
         self.status = self.STATUS.ERROR
+        self.clear_pending()
+
+    def set_invalidated(self):
+        if self.status != self.STATUS.READY:
+            raise ValueError("Only ready submissions can be invalidated")
+        self.status = self.STATUS.INVALIDATED
+        self.clear_pending()
+
+    def set_revalidated(self):
+        if self.status != self.STATUS.INVALIDATED:
+            raise ValueError("Only invalidated submissions can be re-validated")
+        self.status = self.STATUS.READY
         self.clear_pending()
 
     @property
