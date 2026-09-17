@@ -1,0 +1,44 @@
+name: Deploy A+ Documentation
+
+on:
+  push:
+    branches:
+      - master  # or the branch you want to trigger the deployment
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'  # specify your Python version
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install libxml2-dev libxslt-dev
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -r requirements_testing.txt
+          pip install sphinx sphinx-rtd-theme
+
+      - name: Set environment variables
+        run: echo "BASE_URL=http://localhost:8000/" >> $GITHUB_ENV
+
+      - name: Build documentation
+        env:
+          APLUS_BASE_URL: ${{ env.BASE_URL }}
+        run: |
+          sphinx-build -b html docs/source docs/build/_build/html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/_build/html
+          force_orphan: true

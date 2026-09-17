@@ -465,11 +465,12 @@ class ConfigureTest(TestCase):
         """Remove exercise from the <config>
 
         :param indices: a list of child indices to access the correct chapter. If the
-        exercise to be removed is at the top-level of the module, leave empty. If
-        it is under a chapter that is at the top-level of the module, include the
-        index of the chapter in the module.
+          exercise to be removed is at the top-level of the module, leave empty. If
+          it is under a chapter that is at the top-level of the module, include the
+          index of the chapter in the module.
         :param index: the index of the exercise to be removed. Can be a tuple to
-        indicate a range of indices, or None to remove the last exercise.
+          indicate a range of indices, or None to remove the last exercise.
+
         """
         if indices is None:
             indices = []
