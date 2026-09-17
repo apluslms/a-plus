@@ -124,6 +124,14 @@ class ContentDBData(DBDataManager):
 
         self.needed_exercises.difference_update(e.id for e in new_exercises)
 
+        # Prefetch model_answer_modules for chapters to avoid N+1 queries
+        # Fetch all chapters in these modules with prefetch, then update the cache
+        chapters_with_prefetch = CourseChapter.objects.filter(
+            course_module__in=new_modules
+        ).prefetch_related('model_answer_modules')
+        for chapter in chapters_with_prefetch:
+            self.exercises[chapter.id] = chapter
+
         for exercise in new_exercises:
             if exercise.parent_id is not None:
                 self.exercise_children.setdefault(exercise.parent_id, []).append(exercise)

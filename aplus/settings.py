@@ -618,6 +618,7 @@ if ENABLE_DJANGO_DEBUG_TOOLBAR:
         INTERNAL_IPS = ['127.0.0.1']
     # Configure Debug Toolbar to work under Docker by auto-detecting the gateway IP
     # See: https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#docker
-    DEBUG_TOOLBAR_CONFIG = globals().get('DEBUG_TOOLBAR_CONFIG', {})
+    if 'DEBUG_TOOLBAR_CONFIG' not in globals():
+        DEBUG_TOOLBAR_CONFIG = {}
     # Always use the Docker-aware callback so toolbar shows when accessed via localhost
     DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CALLBACK', 'debug_toolbar.middleware.show_toolbar_with_docker')

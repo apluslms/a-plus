@@ -9,6 +9,8 @@ from django.db.models import (
     Q,
 )
 from django.db.models.aggregates import Count
+from django.db.models import Subquery, Value, Case, When
+from django.db.models.functions import Coalesce
 from django.db.models.query import QuerySet
 from rest_framework import viewsets
 from rest_framework.request import Request
@@ -24,8 +26,9 @@ from lib.api.constants import REGEX_INT_ME
 from course.api.mixins import CourseResourceMixin
 from course.permissions import IsCourseAdminOrUserObjIsSelf
 from exercise.exercise_models import BaseExercise
-from exercise.submission_models import SubmissionQuerySet
+from exercise.submission_models import SubmissionQuerySet, ExerciseUserPoints
 from userprofile.models import UserProfile
+from course.models import Enrollment
 
 from ...cache.points import CachedPoints, ExercisePoints
 from ...models import Submission
@@ -127,9 +130,12 @@ class CourseSubmissionDataViewSet(NestedViewSetMixin,
         points = CachedPoints(self.instance, profile.user, self.is_course_staff)
         ids = points.submission_ids(**search_args)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
-        queryset = Submission.objects.filter(
-            id__in=ids
-        ).prefetch_related('exercise', 'notifications', 'files')
+        queryset = (
+            Submission.objects
+            .filter(id__in=ids, submitters__user_id=profile.user_id)
+            .prefetch_related('exercise', 'notifications', 'files')
+            .distinct()
+        )
         return self.serialize_submissions(request, queryset, revealed_ids)
 
     def serialize_submissions(
@@ -351,7 +357,9 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
 
     def get_queryset(self):
         if self.action == 'list':
+            self._enrollment_scope = 'students'
             return self.instance.students
+        self._enrollment_scope = 'active_all'
         return self.instance.course_staff_and_students
 
     def get_search_args(self, request):
@@ -368,7 +376,8 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         return self.serialize_profiles(request, profiles)
     # pylint: disable-next=arguments-differ unused-argument
     def retrieve(self, request, version=None, course_id=None, user_id=None):
-        return self.serialize_profiles(request, [self.get_object()])
+        # Pass queryset, not list, to avoid subquery duplication concerns
+        return self.serialize_profiles(request, UserProfile.objects.filter(pk=self.get_object().pk))
 
     # pylint: disable-next=too-many-arguments
     def get_submissions_query(
@@ -380,11 +389,23 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             show_unofficial: bool,
             show_unconfirmed: bool,
             ) -> SubmissionQuerySet:
-        query = (
-            Submission.objects
-            .filter(exercise__in=ids, submitters__in=profiles)
-            .exclude(status__in=(exclude_list))
-        )
+        # Build base query: apply course-instance + active status filters directly.
+        query = Submission.objects.filter(exercise__in=ids).exclude(status__in=exclude_list)
+        # If profiles only include students, add role filter; otherwise include all active roles.
+        if profiles.exists() and profiles.filter(enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT).count() == profiles.count():
+            query = query.filter(
+                submitters__enrollment__course_instance=self.instance,
+                submitters__enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                submitters__enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+            )
+        else:
+            query = query.filter(
+                submitters__enrollment__course_instance=self.instance,
+                submitters__enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            )
+        if profiles.count() == 1:
+            # Narrow further to single profile; use user_profile FK field path
+            query = query.filter(submitters__user_profile__id=profiles.first().id)
 
         if not show_unconfirmed:
             # Select mandatory sibling exercises
@@ -441,12 +462,11 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
             query
             .values('submitters__user_id', 'exercise_id')
             .annotate(count=Count('id'))
+            .order_by()
         )
 
-        # Call annotate_best_submitter_points or annotate_submitter_points depending on the selection
-        query = getattr(query, self.point_annotator)('total', revealed_ids, show_unofficial)
-
-        return query.order_by()
+        # Note: total points computed in serialize_profiles to avoid expensive GROUP BY
+        return query
 
     def serialize_profiles(self, request: Request, profiles: QuerySet[UserProfile]) -> Response:
         search_args = self.get_search_args(request)
@@ -454,17 +474,47 @@ class CourseResultsDataViewSet(NestedViewSetMixin,
         ids = [e.id for e in exercises]
         points = CachedPoints(self.instance, request.user, self.is_course_staff)
         revealed_ids = get_revealed_exercise_ids(search_args, points)
-        exclude_list = [Submission.STATUS.ERROR, Submission.STATUS.REJECTED]
-        show_unofficial = request.GET.get('show_unofficial') == 'true'
-        if not show_unofficial:
-            exclude_list.append(Submission.STATUS.UNOFFICIAL)
-        show_unconfirmed = request.GET.get('show_unconfirmed') == 'true'
-        aggr = self.get_submissions_query(ids, profiles, exclude_list, revealed_ids, show_unofficial, show_unconfirmed)
+        # Skip slow submission query - fetch directly from ExerciseUserPoints cache table
+        user_ids = list(profiles.values_list('user_id', flat=True))
+
+        points_qs = ExerciseUserPoints.objects.filter(
+            exercise_id__in=ids,
+            submitter__user_id__in=user_ids
+        ).select_related('submitter')
+
+        # Build aggregate list directly from cache table
+        aggr_list = []
+        for stats in points_qs:
+            # Apply revealed mask
+            if revealed_ids is not None and stats.exercise_id not in revealed_ids:
+                official_best = 0
+                official_last = 0
+                all_best = 0
+                all_last = 0
+            else:
+                # Send both best and last grades - frontend will choose which to use
+                official_best = stats.forced_points or stats.official_best_grade or 0
+                official_last = stats.forced_points or stats.official_last_grade or 0
+                all_best = stats.forced_points or stats.all_best_grade or 0
+                all_last = stats.forced_points or stats.all_last_grade or 0
+
+            # Build compact nested format with both best and last grades
+            aggr_list.append({
+                'submitters__user_id': stats.submitter.user_id,
+                'exercise_id': stats.exercise_id,
+                'official_count': stats.official_count,
+                'all_count': stats.all_count,
+                'official_best': official_best,
+                'official_last': official_last,
+                'all_best': all_best,
+                'all_last': all_last,
+            })
+
         data,fields = aggregate_points(
             profiles,
             self.instance.taggings.all(),
             exercises,
-            aggr,
+            aggr_list,
         )
         self.renderer_fields = fields
         response = Response(data)
@@ -490,6 +540,91 @@ class CourseBestResultsDataViewSet(CourseResultsDataViewSet):
     and the LAST mode is ignored.
     """
     point_annotator = "annotate_best_submitter_points"
+
+    # Override to use precomputed stats from ExerciseUserPoints for speed
+    # pylint: disable=too-many-arguments
+    def get_submissions_query(
+            self,
+            ids: List[int],
+            profiles: QuerySet[UserProfile],
+            exclude_list: List[str], # Submission.STATUS
+            revealed_ids: Iterable[int],
+            show_unofficial: bool,
+            show_unconfirmed: bool,
+            ) -> SubmissionQuerySet:
+        query = Submission.objects.filter(exercise__in=ids).exclude(status__in=exclude_list)
+        if profiles.exists() and profiles.filter(enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT).count() == profiles.count():
+            query = query.filter(
+                submitters__enrollment__course_instance=self.instance,
+                submitters__enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+                submitters__enrollment__role=Enrollment.ENROLLMENT_ROLE.STUDENT,
+            )
+        else:
+            query = query.filter(
+                submitters__enrollment__course_instance=self.instance,
+                submitters__enrollment__status=Enrollment.ENROLLMENT_STATUS.ACTIVE,
+            )
+        if profiles.count() == 1:
+            query = query.filter(submitters__user_profile__id=profiles.first().id)
+
+        if not show_unconfirmed:
+            # Select mandatory sibling exercises
+            need_to_confirm = (
+                BaseExercise.objects
+                .annotate(
+                    # ExpressionWrapper is needed due to https://code.djangoproject.com/ticket/31714
+                    outer_parent_id=ExpressionWrapper(
+                        OuterRef("exercise__parent_id"),
+                        output_field=IntegerField(),
+                    )
+                )
+                .filter(
+                    Q(parent_id=F("outer_parent_id"))
+                    # Exercises directly under a module have NULL parents
+                    | Q(parent_id=None, outer_parent_id=None),
+                )
+                .filter(
+                    course_module__course_instance=self.instance,
+                    category__confirm_the_level=True,
+                    course_module_id=OuterRef("exercise__course_module_id"),
+                )
+            )
+            # Select submissions that pass mandatory sibling exercises
+            confirmed = (
+                Submission.objects
+                .annotate(
+                    # ExpressionWrapper is needed due to https://code.djangoproject.com/ticket/31714
+                    outer_parent_id=ExpressionWrapper(
+                        OuterRef("exercise__parent_id"),
+                        output_field=IntegerField(),
+                    )
+                )
+                .filter(
+                    Q(exercise__parent_id=F("outer_parent_id"))
+                    # Exercises directly under a module have NULL parents
+                    | Q(exercise__parent_id=None, outer_parent_id=None),
+                )
+                .filter(
+                    submitters=OuterRef("submitters"),
+                    exercise__category__confirm_the_level=True,
+                    exercise__course_module_id=OuterRef("exercise__course_module_id"),
+                )
+                .passes()
+            )
+            # Exclude unconfirmed submissions
+            query = query.filter(
+                ~Exists(need_to_confirm) | Exists(confirmed)
+            )
+
+        query = (
+            query
+            .values('submitters__user_id', 'exercise_id')
+            .annotate(count=Count('id'))
+            .order_by()
+        )
+
+        # Note: total points computed in parent serialize_profiles to avoid GROUP BY complex expression
+        return query
 
 
 def int_or_none(value):

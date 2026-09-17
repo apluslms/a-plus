@@ -5031,10 +5031,7 @@ msgid "UNOFFICIAL_POINTS_TOOLTIP"
 msgstr ""
 "Pisteet ovat virallisia, jos palautus on tehty määräajassa ja sallittujen "
 "palautuskertojen sisällä. Epäviralliset palautukset ovat mahdollisia vain, "
-"jos epäviralliset palautukset on sallittu tehtäväkategorian asetuksissa. "
-"TUNNETTU ONGELMA: ÄLÄ PAINA tätä valintaa YLI YHDEN KERRAN. Jos tätä "
-"painetaan useammin kuin kerran, taulukko näyttää kuitenkin aina "
-"EPÄVIRALLISIA pisteitä."
+"jos epäviralliset palautukset on sallittu tehtäväkategorian asetuksissa."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_SHOW_UNOFFICIAL_POINTS"

@@ -465,6 +465,9 @@ class CourseExercisesViewSet(NestedViewSetMixin,
                     'hierarchical_name': child.hierarchical_name,
                     'difficulty': child.difficulty,
                     'has_submittable_files': child.has_submittable_files,
+                    'category': child.category,
+                    'requires_confirmation': child.confirm_the_level,
+                    'parent_id': child.parent.id if child.parent else None,
                 }
                 exercises.append(exercise_dictionary)
 

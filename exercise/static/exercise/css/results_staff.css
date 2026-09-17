@@ -50,11 +50,6 @@
 	max-width: 8em;
 }
 
-#table-heading th.student-id, #table-heading th.student-id input
-{
-	max-width: 6em;
-}
-
 #table-heading th.stick-on-scroll:not(.indicator-heading) {
     left: 0;
     z-index: 3;
@@ -95,4 +90,21 @@ div.dt-note {
     padding-top: 8px;
     white-space: nowrap;
 	text-align: right;
+}
+
+/*
+ * Footer positioning fix for this page only
+ * Override the absolute positioning and sticky behavior to allow footer to appear below content
+ * Also remove the padding-bottom that was meant to accommodate the fixed footer
+ */
+body[data-view-tag="all-results"] .site-content {
+	padding-bottom: 0 !important;
+}
+
+body[data-view-tag="all-results"] .site-footer {
+	position: static !important;
+}
+
+body[data-view-tag="all-results"] .site-footer .navbar.sticky-bottom {
+	position: static !important;
 }

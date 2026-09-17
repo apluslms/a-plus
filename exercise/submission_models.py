@@ -8,8 +8,8 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models, DatabaseError
-from django.db.models import F
-from django.db.models.signals import post_delete
+from django.db.models import F, Max
+from django.db.models.signals import post_delete, post_save, pre_delete, m2m_changed
 from django.http.request import HttpRequest
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
@@ -944,3 +944,136 @@ class PendingSubmission(models.Model):
     class Meta:
         verbose_name = _('MODEL_NAME_PENDING_SUBMISSION')
         verbose_name_plural = _('MODEL_NAME_PENDING_SUBMISSION_PLURAL')
+
+
+class ExerciseUserPoints(models.Model):
+    """
+    Denormalized per-(exercise, submitter) stats for fast result aggregation.
+    Stores official/all best/last grades and counts, and the max forced points.
+    """
+    exercise: exercise_models.BaseExercise = DefaultForeignKey(
+        exercise_models.BaseExercise,
+        verbose_name=_('LABEL_EXERCISE'),
+        on_delete=models.CASCADE,
+        related_name='user_points',
+    )
+    submitter = models.ForeignKey(
+        UserProfile,
+        verbose_name=_('LABEL_SUBMITTER'),
+        on_delete=models.CASCADE,
+        related_name='exercise_points',
+    )
+
+    # Counts
+    official_count = models.PositiveIntegerField(default=0)
+    all_count = models.PositiveIntegerField(default=0)
+
+    # Grades
+    official_best_grade = models.IntegerField(default=0)
+    official_last_grade = models.IntegerField(default=0)
+    all_best_grade = models.IntegerField(default=0)
+    all_last_grade = models.IntegerField(default=0)
+
+    # Overrides
+    forced_points = models.IntegerField(null=True, blank=True)
+
+    # Optional pointers (might help for UI/debugging)
+    last_submission_id = models.IntegerField(null=True, blank=True)
+    best_submission_id = models.IntegerField(null=True, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('MODEL_NAME_EXERCISE_USER_POINTS') if 'MODEL_NAME_EXERCISE_USER_POINTS' in globals() else 'Exercise user points'
+        verbose_name_plural = _('MODEL_NAME_EXERCISE_USER_POINTS_PLURAL') if 'MODEL_NAME_EXERCISE_USER_POINTS_PLURAL' in globals() else 'Exercise user points'
+        app_label = 'exercise'
+        unique_together = ('exercise', 'submitter')
+        indexes = [
+            models.Index(fields=['exercise', 'submitter']),
+            models.Index(fields=['submitter']),
+            models.Index(fields=['exercise']),
+        ]
+
+
+def recompute_exercise_user_points(exercise_id: int, submitter_id: int) -> None:
+    """Recompute stats for a single (exercise, submitter)."""
+    base = Submission.objects.filter(exercise_id=exercise_id, submitters__id=submitter_id)
+    # Forced points: max grade among forced submissions
+    forced = base.filter(force_exercise_points=True).aggregate(m=Max('grade'))['m']
+
+    # Official (READY only)
+    official = base.filter(status=Submission.STATUS.READY)
+    official_count = official.count()
+    official_best = official.aggregate(m=Max('grade'))['m'] or 0
+    official_last_row = official.order_by('-submission_time').values('id', 'grade').first()
+    official_last = official_last_row['grade'] if official_last_row else 0
+    official_last_id = official_last_row['id'] if official_last_row else None
+
+    # All (READY + UNOFFICIAL)
+    all_qs = base.filter(status__in=(Submission.STATUS.READY, Submission.STATUS.UNOFFICIAL))
+    all_count = all_qs.count()
+    all_best = all_qs.aggregate(m=Max('grade'))['m'] or 0
+    all_last_row = all_qs.order_by('-submission_time').values('id', 'grade').first()
+    all_last = all_last_row['grade'] if all_last_row else 0
+    all_last_id = all_last_row['id'] if all_last_row else None
+
+    # Best submission id (tie-break by latest)
+    best_row = all_qs.order_by('-grade', '-submission_time').values('id').first()
+    best_id = best_row['id'] if best_row else None
+
+    ExerciseUserPoints.objects.update_or_create(
+        exercise_id=exercise_id,
+        submitter_id=submitter_id,
+        defaults=dict(
+            official_count=official_count,
+            all_count=all_count,
+            official_best_grade=official_best,
+            official_last_grade=official_last,
+            all_best_grade=all_best,
+            all_last_grade=all_last,
+            forced_points=forced,
+            last_submission_id=all_last_id,
+            best_submission_id=best_id,
+        ),
+    )
+
+
+def _submission_capture_submitters(sender, instance: 'Submission', **kwargs):  # pre_delete
+    try:
+        instance._cached_submitter_ids = list(instance.submitters.values_list('id', flat=True))
+    except Exception:  # pragma: no cover
+        instance._cached_submitter_ids = []
+
+
+def _submission_deleted_update_points(sender, instance: 'Submission', **kwargs):  # post_delete
+    submitter_ids = getattr(instance, '_cached_submitter_ids', [])
+    for sid in submitter_ids:
+        recompute_exercise_user_points(instance.exercise_id, sid)
+
+
+def _submission_points_changed(sender, instance: 'Submission', created: bool, **kwargs):  # post_save
+    # Recompute for current submitters (handles grade/status/force flags)
+    for sid in instance.submitters.values_list('id', flat=True):
+        recompute_exercise_user_points(instance.exercise_id, sid)
+
+
+def _submission_submitters_changed(sender, instance: 'Submission', action: str, pk_set=None, **kwargs):  # m2m_changed
+    if action == 'pre_clear':
+        instance._old_submitter_ids = list(instance.submitters.values_list('id', flat=True))
+        return
+    if action == 'post_clear':
+        for sid in getattr(instance, '_old_submitter_ids', []):
+            recompute_exercise_user_points(instance.exercise_id, sid)
+        if hasattr(instance, '_old_submitter_ids'):
+            delattr(instance, '_old_submitter_ids')
+        return
+    if action in ('post_add', 'post_remove') and pk_set:
+        for sid in pk_set:
+            recompute_exercise_user_points(instance.exercise_id, sid)
+
+
+# Connect signals
+pre_delete.connect(_submission_capture_submitters, sender=Submission)
+post_delete.connect(_submission_deleted_update_points, sender=Submission)
+post_save.connect(_submission_points_changed, sender=Submission)
+m2m_changed.connect(_submission_submitters_changed, sender=Submission.submitters.through)

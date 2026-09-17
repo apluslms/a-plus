@@ -35,6 +35,7 @@
         data-usertags-url="{% url 'api:course-usertags-list' version=2 course_id=instance.id %}"
         data-points-url="{% url 'api:course-resultsdata-list' version=2 course_id=instance.id %}"
         data-points-best-url="{% url 'api:course-resultsdata-best-list' version=2 course_id=instance.id %}"
+        data-user-results-url="{% url 'user-results' user_id=0 course_slug=instance.course.url instance_slug=instance.url %}"
         defer>
     </script>
 {% endif %}
@@ -56,18 +57,18 @@
 		<div class="row">
 			<div class="col-md col-sm-12 mb-3">
 				<!--Selection options for modules and exercises-->
-				<div style="display: flex; flex-direction: column; gap:0.75rem">
-					<div style="display: flex; flex-direction: column">
-						<label for="module-selection">{% translate "SELECT_MODULES" %}</label>
-						<select id="module-selection" multiple="multiple">
-						</select>
-					</div>
-					<div style="display: flex; flex-direction: column">
-						<label for="exercise-collection">{% translate "SELECT_EXERCISES" %}</label>
-						<select id="exercise-selection" multiple="multiple">
-						</select>
-					</div>
+			<div style="display: flex; flex-direction: column; gap:0.75rem">
+				<div style="display: flex; flex-direction: column">
+					<label for="module-selection">{% translate "SELECT_MODULES" %}</label>
+					<select id="module-selection" multiple="multiple" style="display: none;">
+					</select>
 				</div>
+				<div style="display: flex; flex-direction: column">
+					<label for="exercise-collection">{% translate "SELECT_EXERCISES" %}</label>
+					<select id="exercise-selection" multiple="multiple" style="display: none;">
+					</select>
+				</div>
+			</div>
 			</div>
 
 			<div class="col-md-auto col-sm-12 mb-3">
@@ -91,18 +92,16 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-6 col-sm-12">
+			<div class="col-md-4 col-sm-12">
 				<h4>{% translate "OPTIONS" %}</h4>
 				<div style="display: flex; flex-direction: column;">
 					<label data-bs-toggle="tooltip"
-						data-bs-placement="right"
 						title="{% translate 'UNOFFICIAL_POINTS_TOOLTIP' %}">
 						<input type="checkbox" class="unofficial-checkbox form-check-input" value="unofficial">
 						{% translate "RESULTS_SHOW_UNOFFICIAL_POINTS" %}
 						<i class="bi-exclamation-triangle-fill text-danger"></i>
 					</label>
 					<label data-bs-toggle="tooltip"
-						data-bs-placement="right"
 						title="{% translate 'UNCONFIRMED_POINTS_TOOLTIP' %}">
 						<input type="checkbox" class="unconfirmed-checkbox form-check-input" value="unconfirmed">
 						{% translate "RESULTS_SHOW_UNCONFIRMED_POINTS" %}
@@ -121,56 +120,60 @@
 				</div>
 			</div>
 
-			<div class="col-md-6 col-sm-12">
+			<div class="col-md-8 col-sm-12">
 				<!--Checkboxes to select extra information about data-->
 				<h4>{% translate "SUMMARIES" %}</h4>
-				<div style="display: flex; column-gap: 1em; flex-wrap: wrap">
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'SUMMARIES_SELECT_OR_DESELECT_ALL' %}">
-						<input class="form-check-input" type="checkbox" id="summary-all" value="all">
-						{% translate "ALL" %}
-					</label>
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_TOTAL_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-0" class="summary-checkbox form-check-input" value="0">
-						{% translate "TOTAL_SUBMISSIONS" %}
-					</label>
+					<div class="d-flex flex-wrap" style="gap:0.5rem; align-items:flex-start;">
+						<div class="d-flex flex-column" style="flex: 0 0 auto;">
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'SUMMARIES_SELECT_OR_DESELECT_ALL' %}">
+								<input type="checkbox" id="summary-all" value="all">
+								{% translate "ALL" %}
+							</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_TOTAL_SUBMISSIONS_TOOLTIP' %}">
+								<input type="checkbox" id="summary-0" class="summary-checkbox" value="0">
+								{% translate "TOTAL_SUBMISSIONS" %}
+							</label>
 
-					<label class="ml-10 checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_AVERAGE_SUBMISSIONS_PER_STUDENT_TOOLTIP' %}">
-						<input type="checkbox" id="summary-1" class="summary-checkbox form-check-input" value="1">
-						{% translate "AVERAGE_SUBMISSIONS_PER_STUDENT" %}
-					</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_AVERAGE_SUBMISSIONS_PER_STUDENT_TOOLTIP' %}">
+								<input type="checkbox" id="summary-1" class="summary-checkbox" value="1">
+								{% translate "AVERAGE_SUBMISSIONS_PER_STUDENT" %}
+							</label>
 
-					<label class="ml-10 checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_MAXIMUM_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-2" class="summary-checkbox form-check-input" value="2">
-						{% translate "MAXIMUM_SUBMISSIONS" %}
-					</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_MAXIMUM_SUBMISSIONS_TOOLTIP' %}">
+								<input type="checkbox" id="summary-2" class="summary-checkbox" value="2">
+								{% translate "MAXIMUM_SUBMISSIONS" %}
+							</label>
+						</div>
+						<div class="d-flex flex-column" style="flex: 0 0 auto;">
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_STUDENTS_W_SUBMISSIONS_TOOLTIP' %}">
+								<input type="checkbox" id="summary-3" class="summary-checkbox" value="3">
+								{% translate "STUDENTS_W_SUBMISSIONS" %}
+							</label>
 
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_STUDENTS_W_SUBMISSIONS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-3" class="summary-checkbox form-check-input" value="3">
-						{% translate "STUDENTS_W_SUBMISSIONS" %}
-					</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_STUDENTS_W_MAX_POINTS_TOOLTIP' %}">
+								<input type="checkbox" id="summary-4" class="summary-checkbox" value="4">
+								{% translate "STUDENTS_W_MAX_POINTS" %}
+							</label>
 
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_STUDENTS_W_MAX_POINTS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-4" class="summary-checkbox form-check-input" value="4">
-						{% translate "STUDENTS_W_MAX_POINTS" %}
-					</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_AVERAGE_POINTS_PER_STUDENT_TOOLTIP' %}">
+								<input type="checkbox" id="summary-5" class="summary-checkbox" value="5">
+								{% translate "AVERAGE_POINTS_PER_STUDENT" %}
+							</label>
 
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_AVERAGE_POINTS_PER_STUDENT_TOOLTIP' %}">
-						<input type="checkbox" id="summary-5" class="summary-checkbox form-check-input" value="5">
-						{% translate "AVERAGE_POINTS_PER_STUDENT" %}
-					</label>
-
-					<label class="checkbox-inline" data-bs-toggle="tooltip"
-						title="{% translate 'RESULTS_MAX_POINTS_TOOLTIP' %}">
-						<input type="checkbox" id="summary-6" class="summary-checkbox form-check-input" value="6">
-						{% translate "MAX_POINTS" %}
-					</label>
+							<label data-bs-toggle="tooltip"
+								title="{% translate 'RESULTS_MAX_POINTS_TOOLTIP' %}">
+								<input type="checkbox" id="summary-6" class="summary-checkbox" value="6">
+								{% translate "MAX_POINTS" %}
+							</label>
+						</div>
+					</div>
 				</div>
 			</div>
 

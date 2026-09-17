@@ -6,35 +6,39 @@ from django.conf import settings
 from exercise.cache.content import LearningObjectContent
 
 # Generate students' results from this course instance
-# Only exercises in which student has submitted answers will be returned
-# to save bandwidth. Exercise points are returned in the form:
-# xx Count: yy, xx Total: zz
-# where xx is the exercise id, yy the submission count and zz the exercise points.
-# For convenience, we also return the total submission count and points for student
+# Results are returned in a compact nested format with zeros omitted:
+#
+# JSON format example:
+# {
+#   "UserID": 13,
+#   "exercises": {
+#     "22": {"c": 3, "tb": 10, "tl": 8},
+#     "48": {"c": 2, "tb": 2, "tl": 1, "uc": 1, "utb": 5, "utl": 3}
+#   },
+#   "totals": {"c": 12, "tb": 117, "tl": 100, "uc": 1, "utb": 5, "utl": 4}
+# }
+# Keys: c=official_count, tb=official_total_best, tl=official_total_last,
+#       uc=unofficial_count, utb=unofficial_total_best, utl=unofficial_total_last
 
 # pylint: disable-next=too-many-locals
 def aggregate_points(profiles, taggings, exercises: List[LearningObjectContent], aggregate):
     DEFAULT_FIELDS = [
-        'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization', 'Count', 'Total',
+        'UserID', 'StudentID', 'Email', 'Name', 'Tags', 'Organization',
     ]
-    OBJECT_FIELDS = [
-        '{} Count', '{} Total',
-    ]
-
-    exercise_fields = []
-
-    for e in exercises:
-        for n in OBJECT_FIELDS:
-            exercise_fields.append(n.format(e.id))
 
     agg = {}
-    # Gather exercise points per student
+    # Gather exercise points per student (now with official/all counts and best/last grades)
     for row in aggregate:
         ex = row['exercise_id']
-
-        values = [row['count'],row['total']]
         user_row = agg.get(row['submitters__user_id'], {})
-        user_row[ex] = values
+        user_row[ex] = {
+            'official_count': row['official_count'],
+            'official_best': row['official_best'],
+            'official_last': row['official_last'],
+            'all_count': row['all_count'],
+            'all_best': row['all_best'],
+            'all_last': row['all_last'],
+        }
         agg[row['submitters__user_id']] = user_row
 
     # Prefetch all tag_id - user_id pairs at once from DB to avoid multiple queries
@@ -65,27 +69,65 @@ def aggregate_points(profiles, taggings, exercises: List[LearningObjectContent],
             ('Organization', profile.organization),
         ])
 
-        # Add submitted exercise count and points of the user as labeled dictionary items
-        # so for example if agg[uid] is {14: [1,10]}, it is turned into:
-        # "14 Count": 1
-        # "14 Total": 10
-        #
+        # Add exercise data in compact nested format with zeros omitted
+        exercises_nested = {}
         if uid in agg:
-            student_totalsubs = 0
-            student_totalscore = 0
-            try:
-                for e in agg[uid]:
-                    row[str(e) + ' Count'] = agg[uid][e][0]
-                    student_totalsubs += agg[uid][e][0]
-                    row[str(e) + ' Total'] = agg[uid][e][1]
-                    student_totalscore += agg[uid][e][1]
-            except KeyError:
-                pass
+            student_official_count = 0
+            student_official_best = 0
+            student_official_last = 0
+            student_all_count = 0
+            student_all_best = 0
+            student_all_last = 0
 
-            # Add totals per student
-            row['Count'] = student_totalsubs
-            row['Total'] = student_totalscore
+            for ex_id, ex_data in agg[uid].items():
+                student_official_count += ex_data['official_count']
+                student_official_best += ex_data['official_best']
+                student_official_last += ex_data['official_last']
+                student_all_count += ex_data['all_count']
+                student_all_best += ex_data['all_best']
+                student_all_last += ex_data['all_last']
+
+                # Compact nested format: include both best and last grades
+                ex_nested = {
+                    'c': ex_data['official_count'],
+                    'tb': ex_data['official_best'],
+                    'tl': ex_data['official_last']
+                }
+
+                # Only add unofficial fields if they differ from official (omit zeros)
+                unofficial_count = ex_data['all_count'] - ex_data['official_count']
+                unofficial_best = ex_data['all_best'] - ex_data['official_best']
+                unofficial_last = ex_data['all_last'] - ex_data['official_last']
+                if unofficial_count > 0:
+                    ex_nested['uc'] = unofficial_count
+                if unofficial_best > 0:
+                    ex_nested['utb'] = unofficial_best
+                if unofficial_last > 0:
+                    ex_nested['utl'] = unofficial_last
+
+                exercises_nested[str(ex_id)] = ex_nested
+
+            # Add nested exercises object
+            row['exercises'] = exercises_nested
+
+            # Add totals in nested format with both best and last
+            totals_nested = {
+                'c': student_official_count,
+                'tb': student_official_best,
+                'tl': student_official_last
+            }
+            unofficial_total_count = student_all_count - student_official_count
+            unofficial_total_best = student_all_best - student_official_best
+            unofficial_total_last = student_all_last - student_official_last
+            if unofficial_total_count > 0:
+                totals_nested['uc'] = unofficial_total_count
+            if unofficial_total_best > 0:
+                totals_nested['utb'] = unofficial_total_best
+            if unofficial_total_last > 0:
+                totals_nested['utl'] = unofficial_total_last
+
+            row['totals'] = totals_nested
 
         sheet.append(row)
 
-    return sheet, DEFAULT_FIELDS + exercise_fields
+    return sheet, DEFAULT_FIELDS

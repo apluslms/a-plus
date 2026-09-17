@@ -166,6 +166,8 @@ class PointsDBData(DBDataManager):
     module_reveal_rules: Dict[int, RevealRule]
     groups: Dict[Tuple[int, int], List[StudentGroup]]
     fetched: Set[Tuple[int,int]]
+    users: Dict[int, Optional[User]]
+    module_goals: Dict[Tuple[int, int], StudentModuleGoal]
 
     def __init__(self):
         self.exercises = {}
@@ -177,6 +179,8 @@ class PointsDBData(DBDataManager):
         self.module_reveal_rules = {}
         self.groups = {}
         self.fetched = set()
+        self.users = {}
+        self.module_goals = {}
 
     def add(self, proxy: Union[CachedPointsData, ModulePoints, LearningObjectPoints]) -> None:
         model_id, user_id = proxy._params
@@ -184,6 +188,9 @@ class PointsDBData(DBDataManager):
             self.exercises.setdefault(user_id, set()).add(model_id)
         elif isinstance(proxy, ModulePoints):
             self.modules.add(model_id)
+            # Prefetch users for module points generation
+            if user_id is not None and user_id not in self.users:
+                self.users[user_id] = None  # Mark as needed
 
     def fetch(self) -> None:
         modules = (
@@ -197,12 +204,33 @@ class PointsDBData(DBDataManager):
             (m.id, m.active_model_solution_reveal_rule)
             for m in modules
         )
+
+        # Prefetch all users that will be needed
+        user_ids_to_fetch = [uid for uid, cached_user in self.users.items() if cached_user is None]
+        if user_ids_to_fetch:
+            fetched_users = User.objects.filter(id__in=user_ids_to_fetch).select_related('userprofile')
+            self.users.update((u.id, u) for u in fetched_users)
+
+        # Prefetch student module goals for all user/module combinations
+        if self.users and self.modules:
+            goals = StudentModuleGoal.objects.filter(
+                student_id__user_id__in=self.users.keys(),
+                module_id__in=self.modules
+            ).select_related('student')
+            self.module_goals.update(
+                ((goal.student.user_id, goal.module_id), goal)
+                for goal in goals
+            )
+
         self.modules.clear()
 
         for user_id, exercise_ids in self.exercises.items():
             self.fetched.update((user_id, exercise_id) for exercise_id in exercise_ids)
 
-            user = User.objects.get(id=user_id)
+            user = self.users.get(user_id)
+            if user is None:
+                user = User.objects.get(id=user_id)
+                self.users[user_id] = user
             submissions = (
                 Submission.objects
                 .filter(submitters=user.userprofile, exercise_id__in=exercise_ids)
@@ -269,6 +297,12 @@ class PointsDBData(DBDataManager):
 
     def get_groups(self, user_id: int, exercise_id: int) -> List[StudentGroup]:
         return self.groups[(user_id, exercise_id)]
+
+    def get_user(self, user_id: int) -> Optional[User]:
+        return self.users.get(user_id)
+
+    def get_module_goal(self, user_id: int, module_id: int) -> Optional[StudentModuleGoal]:
+        return self.module_goals.get((user_id, module_id))
 
 
 RType = TypeVar("RType")
@@ -947,14 +981,9 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             elif entry.submission_count > 0:
                 self.confirmable_children = True
 
-        try:
-            user = User.objects.get(id=user_id)
-            student_module_goal = StudentModuleGoal.objects.get(module_id=module_id, student_id=user.userprofile)
+        student_module_goal = prefetched_data.get_module_goal(user_id, module_id)
+        if student_module_goal is not None:
             self.module_goal_points = student_module_goal.goal_points
-        except StudentModuleGoal.DoesNotExist:
-            pass
-        except User.DoesNotExist:
-            pass
 
         def add_points(children):
             for entry in children:
