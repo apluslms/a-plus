@@ -12,6 +12,14 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 		margin-bottom: 20px;
 	}
 
+	/* Free text fields with a manually set size (the freetext length option).
+	   Bootstrap's form-control sets width: 100%, which would override the
+	   HTML size/cols attributes, so undo that for these fields. */
+	.form-control.form-field-sized {
+		width: auto;
+		max-width: 100%;
+	}
+
 	.question-area > label:first-of-type {
 		display: inline;
 	}
@@ -112,5 +120,17 @@ $questionnaire-focus-bg: var(--bs-info-bg-subtle, #bce8f1);
 				font-weight: bold;
 			}
 		}
+	}
+}
+
+/* Mooc-jutut exercises are ajax-loaded into the A+ page DOM (see
+   chapter.js update()), so their styles must live in A+ stylesheets. */
+.jutut-exercise form {
+	/* Free text fields with a manually set size (the freetext length option).
+	Bootstrap's form-control sets width: 100%, which would override the
+	HTML size/cols attributes, so undo that for these fields. */
+	.form-control.form-field-sized {
+		width: auto;
+		max-width: 100%;
 	}
 }
