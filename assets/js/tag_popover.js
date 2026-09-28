@@ -184,7 +184,18 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
     mt._aplusTagObserver.observe(mt, { childList: true, subtree: true });
   }
 
-  $(tag_selector).filter(function(){ return !is_hardcoded($(this)); }).each(function(){
+  // Initialize the tags that are already present. Scope the scan to the
+  // observed subtree when a mutation target was given, so that large pages
+  // (e.g. the participants list) don't query every tag element in the DOM.
+  // NOTE: mutation_target thus serves two purposes: it defines both the
+  // MutationObserver's observation root and the scope of this one-time
+  // initialization scan. Any removable .colortag elements outside the target
+  // will NOT get popovers from this call (they would need their own call or
+  // a call without a mutation target, which scans the whole document).
+  const $scope = mt ? $(mt) : $(document);
+  $scope.find(tag_selector).addBack(tag_selector)
+    .filter(function(){ return !is_hardcoded($(this)); })
+    .each(function(){
     const $e = $(this);
     if ($e.data('aplusPopoverInit') === true) return;
     // Dispose any existing Tooltip before creating the Popover (same reason as
