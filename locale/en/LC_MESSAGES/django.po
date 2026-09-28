@@ -662,7 +662,15 @@ msgstr "You cannot use the word '{}' in the URL."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING"
-msgstr "The ending time must be later than the starting time."
+msgstr "The course ending time must be later than the course starting time."
+
+#: course/models.py
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
+msgstr "The enrolment ending time cannot be earlier than the course start time."
+
+#: course/models.py
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START"
+msgstr "The enrolment ending time must be later than the enrolment start time."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING"

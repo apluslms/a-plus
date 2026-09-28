@@ -666,7 +666,15 @@ msgstr "Et voi käyttää sanaa {} URL-osoitteessa."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING"
-msgstr "Päättymisajan tulee olla alkamisajan jälkeen."
+msgstr "Kurssin päättymisajan tulee olla kurssin alkamisajan jälkeen."
+
+#: course/models.py
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
+msgstr "Ilmoittautumisen päättymisaika ei voi olla kurssin alkamisaikaa ennen."
+
+#: course/models.py
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START"
+msgstr "Ilmoittautumisen päättymisajan tulee olla ilmoittautumisen alkamisajan jälkeen."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING"
