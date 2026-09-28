@@ -817,6 +817,14 @@ class CourseInstance(CourseInstanceProto, models.Model):
             errors['url'] = format_lazy(_('COURSE_INSTANCE_ERROR_URL -- {}'), self.url)
         if self.ending_time and self.starting_time and self.ending_time <= self.starting_time:
             errors['ending_time'] = _('COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING')
+        if (
+                self.enrollment_ending_time
+                and self.enrollment_starting_time
+                and self.enrollment_ending_time <= self.enrollment_starting_time
+            ):
+            errors['enrollment_ending_time'] = _('COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START')
+        if self.enrollment_ending_time and self.starting_time and self.enrollment_ending_time < self.starting_time:
+            errors['enrollment_ending_time'] = _('COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING')
         if self.lifesupport_time and self.lifesupport_time < self.ending_time:
             errors['lifesupport_time'] = _('COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING')
         if (self.archive_time and not self.lifesupport_time) \
