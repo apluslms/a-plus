@@ -3428,18 +3428,6 @@ msgid "LEARNING_OBJECT_ERROR_PARENT_CANNOT_BE_SELF"
 msgstr "Cannot select self as a parent."
 
 #: exercise/exercise_models.py
-msgid "LABEL_LEARNING_OBJECT"
-msgstr "learning object"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY"
-msgstr "learning object display"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL"
-msgstr "learning object displays"
-
-#: exercise/exercise_models.py
 msgid "LABEL_GENERATE_TOC"
 msgstr "generate table of contents"
 
@@ -4411,19 +4399,6 @@ msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
 msgstr ""
 "Submitters: %(number)s <small class='text-body-secondary'>%(percentage)s%%</"
 "small>"
-
-#: exercise/templates/exercise/_user_last.html
-#, python-format
-msgid "USER_LAST_VISITED -- %(name)s, %(link)s"
-msgstr "You have last visited <a href=\"%(link)s\">%(name)s</a>"
-
-#: exercise/templates/exercise/_user_last.html
-#, python-format
-msgid "PLACES_TO_START -- %(name)s, %(link)s, %(toc_link)s"
-msgstr ""
-"You can start from\n"
-"<a href=\"%(link)s\">%(name)s</a>\n"
-"or browse the <a href=\"%(toc_link)s\">course materials</a>."
 
 #: exercise/templates/exercise/_user_results.html
 msgid "FILTER_VIEW"
