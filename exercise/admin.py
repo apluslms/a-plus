@@ -18,7 +18,6 @@ from exercise.models import (
     SubmittedFile,
     RevealRule,
     ExerciseTask,
-    LearningObjectDisplay,
     PendingSubmission,
 )
 from exercise.exercisecollection_models import ExerciseCollection
@@ -505,29 +504,6 @@ class ExerciseTaskAdmin(admin.ModelAdmin):
 
     def get_course(self, obj):
         return str(obj.exercise.course_module.course_instance)
-
-
-@admin.register(LearningObjectDisplay)
-class LearningObjectDisplayAdmin(admin.ModelAdmin):
-    search_fields = (
-        'learning_object__name',
-        'learning_object__category__name',
-        'learning_object__course_module__name',
-        'learning_object__course_module__course_instance__instance_name',
-        'learning_object__course_module__course_instance__course__code',
-        'learning_object__course_module__course_instance__course__name',
-    )
-    list_display = (
-        'learning_object',
-        'profile',
-        'timestamp',
-    )
-    raw_id_fields = (
-        'learning_object',
-        'profile',
-    )
-    readonly_fields = ('timestamp',)
-
 
 @admin.register(PendingSubmission)
 class PendingSubmissionAdmin(admin.ModelAdmin):

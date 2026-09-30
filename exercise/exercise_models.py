@@ -489,29 +489,6 @@ def invalidate_exercise(sender, instance, **kwargs): # pylint: disable=unused-ar
 post_save.connect(invalidate_exercise, sender=LearningObject)
 post_delete.connect(invalidate_exercise, sender=LearningObject)
 
-
-class LearningObjectDisplay(models.Model):
-    """
-    Records views of learning objects.
-    """
-    learning_object = DefaultForeignKey(LearningObject,
-        verbose_name=_('LABEL_LEARNING_OBJECT'),
-        on_delete=models.CASCADE,
-    )
-    profile = models.ForeignKey(UserProfile,
-        verbose_name=_('LABEL_PROFILE'),
-        on_delete=models.CASCADE,
-    )
-    timestamp = models.DateTimeField(
-        verbose_name=_('LABEL_TIMESTAMP'),
-        auto_now_add=True,
-    )
-
-    class Meta:
-        verbose_name = _('MODEL_NAME_LEARNING_OBJECT_DISPLAY')
-        verbose_name_plural = _('MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL')
-
-
 class CourseChapter(LearningObject):
     """
     Chapters can offer and organize learning material as one page chapters.

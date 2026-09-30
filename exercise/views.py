@@ -27,7 +27,7 @@ from lib.viewbase import BaseFormView, BaseRedirectMixin, BaseView
 from userprofile.models import UserProfile
 from .cache.exercise import ExerciseCache
 from .cache.points import CachedPoints, ModulePoints, ExercisePoints
-from .models import BaseExercise, LearningObject, LearningObjectDisplay
+from .models import BaseExercise, LearningObject
 from .protocol.exercise_page import ExercisePage
 from .submission_models import SubmittedFile, Submission, SubmissionTagging, PendingSubmission
 from .viewbase import (
@@ -171,9 +171,6 @@ class ExerciseView(BaseRedirectMixin, ExerciseBaseView, EnrollableViewMixin):
             self.note("toc")
 
         page = self.get_page(request, students)
-
-        if self.profile:
-            LearningObjectDisplay.objects.create(learning_object=self.exercise, profile=self.profile)
 
         if isinstance(self.exercise, ExerciseCollection):
             exercisecollection_data = self._load_exercisecollection(request, disable_submit)
