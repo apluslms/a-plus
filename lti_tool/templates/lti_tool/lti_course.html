@@ -17,9 +17,6 @@
 
 <div class="index">
 	{{ instance.description|safe }}
-	{% if instance.index_mode == instance.INDEX_TYPE.LAST %}
-	{% user_last %}
-	{% endif %}
 </div>
 
 <ul class="toc">
