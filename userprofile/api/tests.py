@@ -1,5 +1,13 @@
 from typing import Set
+from aplus_auth.payload import Permission
 from rest_framework.test import APIClient
+
+from authorization.object_permissions import ObjectPermissions
+from course.models import CourseModule
+from exercise.models import BaseExercise, Submission
+from lib.crypto import get_signed_message
+from userprofile.models import GraderUser
+
 from ..tests import UserProfileTestCase
 
 class UserProfileAPITest(UserProfileTestCase):
@@ -118,3 +126,110 @@ class UserProfileAPITest(UserProfileTestCase):
 
         # Check that an empty or missing values list returns an empty result
         check_response('/api/v2/users/', set())
+
+
+class GraderUserAPITest(UserProfileTestCase):
+    """
+    Grader authentication tokens must not grant admin access to the user API.
+    Previously every GraderUser was considered an admin, which allowed any
+    valid grader token (e.g. an exercise token visible in a grader page URL)
+    to read every user profile via /api/v2/users/<user_id>/.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.course_module = CourseModule.objects.create(
+            name="test module",
+            url="test-module",
+            points_to_pass=10,
+            course_instance=cls.course_instance1,
+            opening_time=cls.today,
+            closing_time=cls.tomorrow,
+        )
+        cls.exercise = BaseExercise.objects.create(
+            name="test exercise",
+            course_module=cls.course_module,
+            category=cls.learning_object_category1,
+            url="b1",
+        )
+        # A submission by the student: its token grants access to the
+        # student's profile but no one else's.
+        cls.submission = Submission.objects.create(exercise=cls.exercise)
+        cls.submission.submitters.add(cls.student.userprofile)
+
+    def _submission_token(self):
+        return "s{:x}.{}".format(self.submission.id, self.submission.hash)
+
+    def _exercise_token(self, user):
+        identifier = "{:s}.{:d}".format(str(user.id), self.exercise.id)
+        return "e{:s}".format(get_signed_message(identifier).decode('ascii'))
+
+    def test_submission_token_access(self):
+        """
+        A submission token grants access only to the profile of the user
+        who submitted, not to other users.
+        """
+        client = APIClient()
+        token = self._submission_token()
+        # Student (the submitter) profile is accessible
+        response = client.get(f'/api/v2/users/{self.student.id}/?token={token}')
+        self.assertEqual(response.status_code, 200)
+        # Other users' profiles must not be accessible
+        for other in (self.grader, self.teacher, self.superuser):
+            response = client.get(f'/api/v2/users/{other.id}/?token={token}')
+            self.assertIn(response.status_code, (403, 404),
+                f"User {other.id} should not be accessible with a submission token")
+
+    def test_exercise_token_access(self):
+        """
+        An exercise token grants access only to the profile of the user it
+        was issued for (the submitting user), not to other users.
+        """
+        client = APIClient()
+        token = self._exercise_token(self.student)
+        # The token's user is accessible, as the token allows creating a
+        # submission on their behalf.
+        response = client.get(f'/api/v2/users/{self.student.id}/?token={token}')
+        self.assertEqual(response.status_code, 200)
+        # Other users' profiles must not be accessible
+        for other in (self.grader, self.teacher, self.superuser):
+            response = client.get(f'/api/v2/users/{other.id}/?token={token}')
+            self.assertIn(response.status_code, (403, 404),
+                f"User {other.id} should not be accessible with an exercise token")
+
+    def test_invalid_token_is_rejected(self):
+        client = APIClient()
+        response = client.get(f'/api/v2/users/{self.student.id}/?token=invalidtoken')
+        self.assertIn(response.status_code, (401, 403))
+
+    def test_write_only_permission_grants_no_read_access(self):
+        """
+        A grader with only WRITE access to a submission must not be allowed
+        to read its submitters' user profiles. READ is required for that.
+        """
+        permissions = ObjectPermissions()
+        permissions.submissions.add(Permission.WRITE, self.submission)
+        grader_user = GraderUser("test_grader", permissions)
+
+        client = APIClient()
+        client.force_authenticate(user=grader_user)
+        response = client.get(f'/api/v2/users/{self.student.id}/')
+        self.assertIn(response.status_code, (403, 404),
+            "WRITE-only submission access must not allow reading user profiles")
+
+    def test_token_cannot_list_users(self):
+        """
+        A grader token must not allow listing or searching all users.
+        """
+        client = APIClient()
+        token = self._submission_token()
+        # Searching by another user's email must not reveal that user
+        response = client.get(
+            f'/api/v2/users/?search={self.teacher.email}&token={token}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(), {u['id'] for u in response.data['results']})
+        # Even without a search the full list must not be exposed
+        response = client.get(f'/api/v2/users/?token={token}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(), {u['id'] for u in response.data['results']})
