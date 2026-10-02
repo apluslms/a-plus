@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('args', nargs='+',
-            help='One of exercise/exercises/category/course/json/results '
+            help='One of exercise/exercises/category/course/json '
                  'followed by object id(s)')
 
     def handle(self, *args, **options):

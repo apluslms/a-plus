@@ -50,9 +50,7 @@
   {{ instance.description|safe }}
 </div>
 
-{% if instance.index_mode == instance.INDEX_TYPE.LAST %}
-{% user_news 3 %}
-{% elif instance.index_mode == instance.INDEX_TYPE.TOC %}
+{% if instance.index_mode == instance.INDEX_TYPE.TOC %}
 {% user_news 1 3 %}
 {% user_toc %}
 {% else %}

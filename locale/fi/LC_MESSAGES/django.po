@@ -3449,18 +3449,6 @@ msgid "LEARNING_OBJECT_ERROR_PARENT_CANNOT_BE_SELF"
 msgstr "Kohdetta ei voi valita itsensä 'Parent'-viitteeksi."
 
 #: exercise/exercise_models.py
-msgid "LABEL_LEARNING_OBJECT"
-msgstr "oppimissisältö"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY"
-msgstr "oppimissisällön näyttökerta"
-
-#: exercise/exercise_models.py
-msgid "MODEL_NAME_LEARNING_OBJECT_DISPLAY_PLURAL"
-msgstr "oppimissisältöjen näyttökerrat"
-
-#: exercise/exercise_models.py
 msgid "LABEL_GENERATE_TOC"
 msgstr "luo sisällysluettelo"
 
@@ -4406,21 +4394,6 @@ msgid "SUBMITTER_COUNT -- %(number)s, %(percentage)s"
 msgstr ""
 "Palauttajia: %(number)s <small class=\"text-body-"
 "secondary\">%(percentage)s%%</small>"
-
-#: exercise/templates/exercise/_user_last.html
-#, python-format
-msgid "USER_LAST_VISITED -- %(name)s, %(link)s"
-msgstr ""
-"Olet ollut oppimateriaalissa viimeksi kohdassa <a "
-"href=\"%(link)s\">%(name)s</a>"
-
-#: exercise/templates/exercise/_user_last.html
-#, python-format
-msgid "PLACES_TO_START -- %(name)s, %(link)s, %(toc_link)s"
-msgstr ""
-"Voit aloittaa täältä\n"
-"<a href=\"%(link)s\">%(name)s</a>\n"
-"tai selata <a href=\"%(toc_link)s\">kurssimateriaalia</a>."
 
 #: exercise/templates/exercise/_user_results.html
 msgid "FILTER_VIEW"
