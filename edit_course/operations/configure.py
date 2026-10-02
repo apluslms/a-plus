@@ -663,7 +663,6 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
             index_mode = parse_choices(config["index_mode"], {
                     'results': CourseInstance.INDEX_TYPE.RESULTS,
                     'toc': CourseInstance.INDEX_TYPE.TOC,
-                    'last': CourseInstance.INDEX_TYPE.LAST,
                     'experimental': CourseInstance.INDEX_TYPE.EXPERIMENT,
                 }, "index_mode", errors)
             if index_mode is not None:

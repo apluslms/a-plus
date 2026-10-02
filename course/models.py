@@ -645,7 +645,6 @@ class CourseInstance(CourseInstanceProto, models.Model):
     INDEX_TYPE = Enum([
         ('RESULTS', 0, _('USER_RESULTS')),
         ('TOC', 1, _('TABLE_OF_CONTENTS')),
-        ('LAST', 2, _('LAST_VISITED_LINK')),
         ('EXPERIMENT', 10, _('EXPERIMENTAL_SETUP')),
     ])
     CONTENT_NUMBERING = Enum([

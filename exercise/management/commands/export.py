@@ -4,7 +4,7 @@ import re
 from django.core.management.base import BaseCommand, CommandError
 
 from course.models import CourseInstance, LearningObjectCategory
-from ...models import BaseExercise, LearningObjectDisplay
+from ...models import BaseExercise
 
 
 class Command(BaseCommand):
@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('args', nargs='+',
-            help='One of exercise/exercises/category/course/json/views/results '
+            help='One of exercise/exercises/category/course/json '
                  'followed by object id(s)')
 
     def handle(self, *args, **options):
@@ -28,8 +28,6 @@ class Command(BaseCommand):
             self.export_course(args[1])
         elif args[0] == 'json':
             self.export_json(args[1])
-        elif args[0] == 'views':
-            self.export_views(args[1])
         else:
             raise CommandError('Unknown argument!')
 
@@ -144,30 +142,6 @@ class Command(BaseCommand):
                     'Grading data': submission.grading_data or {},
                 })
         self.stdout.write(json.dumps(data))
-
-    def export_views(self, cid):
-        instance = CourseInstance.objects.filter(id=cid).first()
-        if not instance:
-            raise CommandError('Course instance not found.')
-
-        students = [u['id'] for u in instance.students.values('id')]
-        displays = [d for d in (LearningObjectDisplay.objects
-            .prefetch_related('profile', 'learning_object')
-            .all()
-        ) if d.profile.id in students]
-
-        self.print_row(['Time', 'UID', 'Email', 'MID', 'Module', 'EID', 'Exercise'])
-        for d in displays:
-            module = d.learning_object.course_module
-            self.print_row([
-                str(d.timestamp),
-                str(d.profile.id),
-                d.profile.user.email,
-                str(module.id),
-                str(module),
-                str(d.learning_object.id),
-                str(d.learning_object),
-            ])
 
     def print_row(self, fields, quote=False):
         if quote:

@@ -24,7 +24,7 @@ from ..cache.points import (
     SubmissionEntry,
     ExercisePoints,
 )
-from ..models import LearningObjectDisplay, LearningObject, Submission, BaseExercise
+from ..models import LearningObject, Submission, BaseExercise
 
 
 register = template.Library()
@@ -116,28 +116,6 @@ def user_results(context: Context, student: Optional[User] = None) -> Dict[str, 
 @register.inclusion_tag("exercise/_user_toc.html", takes_context=True)
 def user_toc(context, student=None):
     return _get_toc(context, student)
-
-
-@register.inclusion_tag("exercise/_user_last.html", takes_context=True)
-def user_last(context):
-    user = context['request'].user
-    points = _prepare_context(context)
-    if user.is_authenticated:
-        last = LearningObjectDisplay.objects.filter(
-            profile=user.userprofile,
-            learning_object__status=LearningObject.STATUS.READY,
-            learning_object__course_module__course_instance=context['instance'],
-        ).select_related('learning_object').order_by('-timestamp').first()
-        if last:
-            entry = points.get_exercise(last.learning_object.id)
-            return {
-                'last': entry,
-                'last_time': last.timestamp,
-            }
-    return {
-        'begin': points.begin(),
-        'instance': context['instance'],
-    }
 
 
 @register.inclusion_tag("exercise/_category_points.html", takes_context=True)
