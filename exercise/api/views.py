@@ -584,6 +584,11 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
     def resubmit(self, request, *args, **kwargs):
         if not self.submission.exercise.is_submittable:
             return self.http_method_not_allowed(request, *args, **kwargs)
+        if self.submission.status == Submission.STATUS.INVALIDATED:
+            return Response(
+                {'detail': 'Invalidated submissions cannot be regraded.'},
+                status=status.HTTP_409_CONFLICT,
+            )
 
         data = None
 

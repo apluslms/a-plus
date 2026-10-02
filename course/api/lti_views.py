@@ -69,13 +69,18 @@ class CourseLineItemsViewSet(viewsets.ReadOnlyModelViewSet, OAuth2ScopeChecker):
             return Response('Invalid user ID', status=400)
 
         logger.info("Received LTI 1.3 'scores' request for exercise %s, user %s", str(exercise), str(user))
-        sub = Submission.objects.filter(exercise=exercise, submitters=user.userprofile)
+        sub = (
+            Submission.objects
+            .filter(exercise=exercise, submitters=user.userprofile)
+        )
         if sub.exists():
             # When points come from LTI, we assume there is only one submission per exercise per user,
             # that can be updated if LTI delivers larger points than previously.
             # If points are not larger than previously, we will just ignore the message.
             # Some LTI tools seem to send scores updates quite frequently.
             sub = sub.first()
+            if sub.status == Submission.STATUS.INVALIDATED:
+                return Response({}, status=200)
             adjusted = (1.0 * exercise.max_points * data.get('scoreGiven') / data.get('scoreMaximum'))
             if sub.grade >= adjusted:
                 return Response({}, status=200)

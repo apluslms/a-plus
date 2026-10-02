@@ -8,6 +8,7 @@ from django.utils.translation import override
 from lib.remote_page import RemotePageNotModified
 from .async_views import _post_async_submission
 from .cache.exercise import ExerciseCache
+from .models import Submission
 from .protocol.aplus import load_feedback_page
 from .views import ExerciseView
 
@@ -87,6 +88,27 @@ class FeedbackVersionTest(SimpleTestCase):
         invalidate.assert_called_once_with(exercise, modifiers=["en"])
         submission.save.assert_called_once_with()
 
+    def test_remote_feedback_does_not_revive_invalidated_submission(self):
+        exercise = Mock()
+        submission = Mock(status=Submission.STATUS.READY)
+        submission.STATUS = Submission.STATUS
+        submission.get_post_parameters.return_value = ({}, {})
+
+        def invalidate_during_request(page, _remote_page, _exercise):
+            page.is_loaded = True
+            page.is_rejected = True
+            submission.status = Submission.STATUS.INVALIDATED
+
+        with (
+            patch("exercise.protocol.aplus.RemotePage"),
+            patch("exercise.protocol.aplus.parse_page_content", side_effect=invalidate_during_request),
+        ):
+            load_feedback_page(Mock(), "https://grader.example/exercise", exercise, submission)
+
+        submission.refresh_from_db.assert_called_once_with(fields=['status'])
+        submission.set_rejected.assert_not_called()
+        submission.save.assert_not_called()
+
     def test_async_grader_response_version_is_stored(self):
         exercise = Mock()
         exercise.course_instance.default_language = "en"
@@ -113,6 +135,112 @@ class FeedbackVersionTest(SimpleTestCase):
         self.assertTrue(result["success"])
         self.assertEqual(submission.meta_data["exercise_version"], "new version")
         invalidate.assert_called_once_with(exercise, modifiers=["en"])
+        submission.save.assert_called_once_with()
+
+    def test_async_grader_does_not_save_if_invalidated_during_processing(self):
+        exercise = Mock()
+        exercise.course_instance.default_language = "en"
+        submission = Mock(
+            status=Submission.STATUS.READY,
+            lang="en",
+            meta_data={"lang": "en"},
+        )
+        submission.STATUS = Submission.STATUS
+        request = Mock()
+        request.POST = {
+            "points": "1",
+            "max_points": "1",
+            "feedback": "feedback",
+            "exercise_version": "new version",
+        }
+
+        def invalidate_during_cache_lookup(*_args):
+            submission.status = Submission.STATUS.INVALIDATED
+
+        with patch.object(ExerciseCache, "cached_exercise_version", side_effect=invalidate_during_cache_lookup):
+            result = _post_async_submission(request, exercise, submission)
+
+        self.assertFalse(result["success"])
+        submission.refresh_from_db.assert_called_once_with(fields=['status'])
+        submission.set_ready.assert_not_called()
+        submission.save.assert_not_called()
+
+    def test_async_grader_stops_side_effects_if_invalidation_wins_save(self) -> None:
+        exercise = Mock()
+        submission = Mock(
+            status=Submission.STATUS.READY,
+            lti_launch_id="launch-id",
+            meta_data={"lang": "en"},
+        )
+        submission.STATUS = Submission.STATUS
+        submission.save.side_effect = lambda: setattr(submission, 'status', Submission.STATUS.INVALIDATED)
+        request = Mock()
+        request.POST = {
+            "points": "1",
+            "max_points": "1",
+            "feedback": "feedback",
+            "notify": "yes",
+        }
+
+        with (
+            patch("exercise.async_views.Notification.send") as notify,
+            patch("exercise.async_views.send_lti_points") as send_points,
+        ):
+            result = _post_async_submission(request, exercise, submission)
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["errors"], ["Submission has been invalidated and cannot be graded."])
+        notify.assert_not_called()
+        send_points.assert_not_called()
+
+    def test_remote_grader_does_not_send_lti_points_if_invalidation_wins_save(self) -> None:
+        exercise = Mock(max_points=1)
+        submission = Mock(status=Submission.STATUS.READY, lti_launch_id="launch-id")
+        submission.STATUS = Submission.STATUS
+        submission.get_post_parameters.return_value = ({}, {})
+        submission.save.side_effect = lambda: setattr(submission, 'status', Submission.STATUS.INVALIDATED)
+
+        def set_page_data(page, _remote_page, _exercise):
+            page.is_loaded = True
+            page.is_accepted = True
+            page.points = 1
+            page.max_points = 1
+            page.clean_content = "feedback"
+
+        with (
+            patch("exercise.protocol.aplus.RemotePage"),
+            patch("exercise.protocol.aplus.parse_page_content", side_effect=set_page_data),
+            patch("exercise.protocol.aplus.send_lti_points") as send_points,
+        ):
+            load_feedback_page(Mock(), "https://grader.example/exercise", exercise, submission)
+
+        send_points.assert_not_called()
+
+    def test_async_grader_preserves_unofficial_status(self):
+        exercise = Mock()
+        submission = Mock(
+            status=Submission.STATUS.INITIALIZED,
+            lti_launch_id=None,
+            meta_data={"lang": "en"},
+        )
+        submission.STATUS = Submission.STATUS
+        submission.set_points.side_effect = lambda *_args: setattr(
+            submission, 'status', Submission.STATUS.UNOFFICIAL
+        )
+        submission.refresh_from_db.side_effect = lambda **_kwargs: setattr(
+            submission, 'status', Submission.STATUS.INITIALIZED
+        )
+        request = Mock()
+        request.POST = {
+            "points": "1",
+            "max_points": "1",
+            "feedback": "feedback",
+        }
+
+        result = _post_async_submission(request, exercise, submission)
+
+        self.assertTrue(result["success"])
+        self.assertEqual(submission.status, Submission.STATUS.UNOFFICIAL)
         submission.save.assert_called_once_with()
 
 

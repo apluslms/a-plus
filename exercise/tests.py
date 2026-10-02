@@ -2,16 +2,18 @@ import json
 import urllib
 from datetime import datetime, timedelta
 from io import BytesIO, StringIO
-from unittest.mock import patch
+from unittest.mock import MagicMock, Mock, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.test.client import RequestFactory
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
+from rest_framework.test import APIClient
 
 from course.models import Course, CourseInstance, CourseHook, CourseModule, \
     LearningObjectCategory
@@ -19,13 +21,73 @@ from deviations.models import DeadlineRuleDeviation, \
     MaxSubmissionsRuleDeviation
 from exercise.cache.points import ExercisePoints
 from exercise.exercise_models import build_upload_dir
+from exercise.exercisecollection_models import ExerciseCollection
 from exercise.models import BaseExercise, StaticExercise, \
     ExerciseWithAttachment, Submission, SubmittedFile, LearningObject, \
     RevealRule, CourseChapter
 from exercise.protocol.exercise_page import ExercisePage
 from exercise.reveal_states import ExerciseRevealState, ModuleRevealState
+from exercise.submission_models import PendingSubmission
 from exercise.submission_models import build_upload_dir as build_upload_dir_for_submission_model
+from exercise.tasks import regrade_exercises
 from lib.helpers import build_aplus_url
+from aplus.celery import retry_submissions
+
+
+class InvalidatedSubmissionRetryTest(SimpleTestCase):
+    def test_invalidated_pending_submission_is_not_retried(self):
+        submission = Mock(status=Submission.STATUS.INVALIDATED)
+        submission.STATUS = Submission.STATUS
+        pending = Mock(submission=submission)
+
+        for stable in (False, True):
+            with self.subTest(stable=stable), patch('exercise.submission_models.PendingSubmission.objects') as manager:
+                manager.is_grader_stable.return_value = stable
+                manager.values_list.return_value = [1]
+                manager.get.return_value = pending
+                manager.filter.return_value = [pending]
+                retry_submissions()
+
+            pending.delete.assert_called_once_with()
+            submission.set_error.assert_not_called()
+            submission.exercise.grade.assert_not_called()
+            pending.reset_mock()
+
+    def test_retry_handles_empty_or_concurrently_removed_pending_submissions(self) -> None:
+        for submission_ids in ([], [1]):
+            with (
+                self.subTest(submission_ids=submission_ids),
+                patch('exercise.submission_models.PendingSubmission.objects') as manager,
+            ):
+                manager.is_grader_stable.return_value = False
+                manager.values_list.return_value = submission_ids
+                manager.get.side_effect = PendingSubmission.DoesNotExist
+
+                retry_submissions()
+
+                if submission_ids:
+                    manager.get.assert_called_once_with(pk=1)
+                else:
+                    manager.get.assert_not_called()
+
+    def test_bulk_regrade_skips_submission_invalidated_after_selection(self):
+        submission = Mock(status=Submission.STATUS.READY)
+        submission.refresh_from_db.side_effect = lambda **_kwargs: setattr(
+            submission, 'status', Submission.STATUS.INVALIDATED
+        )
+        exercise = Mock()
+        queryset = MagicMock()
+        queryset.__iter__.return_value = iter([submission])
+        exercise.submissions.exclude.return_value.defer.return_value = queryset
+
+        with (
+            patch('exercise.tasks.BaseExercise.objects.get', return_value=exercise),
+            patch('exercise.tasks.ExerciseTask.objects.get'),
+        ):
+            regrade_exercises.run(1, 'all')
+
+        submission.refresh_from_db.assert_called_once_with(fields=['status'])
+        exercise.grade.assert_not_called()
 
 class ExerciseTestBase(TestCase):
     @classmethod
@@ -799,6 +861,218 @@ class ExerciseTest(ExerciseTestBase):
         self.course_instance.clear_assistants()
         response = self.client.get(list_submissions_url)
         self.assertEqual(response.status_code, 403)
+
+    def test_stale_grading_save_does_not_revive_invalidated_submission(self) -> None:
+        self.submission.feedback = "original feedback"
+        self.submission.set_ready()
+        self.submission.save()
+        stale_submission = Submission.objects.get(pk=self.submission.pk)
+
+        self.submission.set_invalidated()
+        self.submission.save()
+
+        stale_submission.feedback = "stale grading feedback"
+        stale_submission.set_ready()
+        stale_submission.save()
+
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+        self.assertEqual(self.submission.feedback, "original feedback")
+
+    def test_stale_invalidated_save_does_not_undo_revalidation(self) -> None:
+        self.submission.feedback = "original feedback"
+        self.submission.set_ready()
+        self.submission.save()
+        self.submission.set_invalidated()
+        self.submission.save()
+        stale_submission = Submission.objects.get(pk=self.submission.pk)
+
+        self.submission.set_revalidated()
+        self.submission.save()
+
+        stale_submission.feedback = "stale aggregate feedback"
+        stale_submission.save()
+
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.READY)
+        self.assertEqual(self.submission.feedback, "original feedback")
+
+    def test_stale_invalidated_save_preserves_revalidated_pending_grading(self) -> None:
+        self.submission.set_ready()
+        self.submission.save()
+        self.submission.set_invalidated()
+        self.submission.save()
+
+        current_submission = Submission.objects.get(pk=self.submission.pk)
+        current_submission.set_revalidated()
+        current_submission.save()
+        current_submission.set_waiting()
+        current_submission.save()
+        pending, _created = PendingSubmission.objects.get_or_create(submission=current_submission)
+
+        self.submission.save()
+
+        current_submission.refresh_from_db()
+        self.assertEqual(current_submission.status, Submission.STATUS.WAITING)
+        self.assertTrue(PendingSubmission.objects.filter(pk=pending.pk).exists())
+
+    def test_invalidated_collection_grading_is_frozen_until_revalidation(self) -> None:
+        collection = ExerciseCollection.objects.create(
+            name="Exercise collection",
+            url="exercise-collection",
+            course_module=self.course_module,
+            category=self.hidden_learning_object_category,
+            target_category=self.learning_object_category,
+            max_points=10,
+            max_submissions=1,
+        )
+        submission = Submission.objects.create(
+            exercise=collection,
+            status=Submission.STATUS.READY,
+            grade=4,
+            grading_time=self.yesterday,
+            grading_data={"source": "original"},
+            feedback="original feedback",
+        )
+        submission.submitters.add(self.user.userprofile)
+        submission.set_invalidated()
+        submission.save()
+        original_values = Submission.objects.values().get(pk=submission.pk)
+
+        with (
+            patch.object(ExerciseCollection, 'get_points', return_value=8),
+            patch.object(ExerciseCollection, '_generate_grading_data', return_value=(
+                {"source": "updated"}, "updated feedback",
+            )),
+        ):
+            for forced in (False, True):
+                with self.subTest(forced=forced):
+                    collection.check_submission(self.user, forced=forced)
+                    self.assertEqual(Submission.objects.values().get(pk=submission.pk), original_values)
+
+            submission.set_revalidated()
+            submission.save()
+            collection.check_submission(self.user)
+
+        submission.refresh_from_db()
+        self.assertEqual(Submission.objects.filter(exercise=collection).count(), 1)
+        self.assertEqual(submission.status, Submission.STATUS.READY)
+        self.assertEqual(submission.grade, 8)
+        self.assertEqual(submission.grading_data, {"source": "updated"})
+        self.assertEqual(submission.feedback, "updated feedback")
+
+    def test_invalidated_submission_can_be_saved_without_revalidation(self) -> None:
+        self.submission.set_ready()
+        self.submission.save()
+        self.submission.set_invalidated()
+        self.submission.save()
+
+        self.submission.feedback = "updated aggregate feedback"
+        self.submission.save()
+
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+        self.assertEqual(self.submission.feedback, "updated aggregate feedback")
+
+    def test_assistants_cannot_mutate_invalidated_submissions(self) -> None:
+        self.base_exercise.allow_assistant_grading = True
+        self.base_exercise.save()
+        self.submission.feedback = "original feedback"
+        self.submission.late_penalty_applied = 0.2
+        self.submission.set_ready()
+        self.submission.save()
+        self.submission.set_invalidated()
+        self.submission.save()
+        self.assertFalse(self.submission.is_approvable)
+
+        self.client.login(username="grader", password="graderPassword")
+        for url_name in ('submission-inspect', 'submission-approve', 'submission-re-submit'):
+            with self.subTest(url_name=url_name):
+                response = self.client.post(self.submission.get_url(url_name), {
+                    "points": 3,
+                    "feedback": "replacement feedback",
+                    "assistant_feedback": "replacement assistant feedback",
+                })
+                self.assertEqual(response.status_code, 302)
+                self.submission.refresh_from_db()
+                self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+                self.assertEqual(self.submission.feedback, "original feedback")
+
+        api_client = APIClient()
+        api_client.force_authenticate(user=self.grader)
+        response = api_client.post(reverse(
+            'api:submission-re-submit', kwargs={'version': 2, 'submission_id': self.submission.id},
+        ))
+        self.assertEqual(response.status_code, 409)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+
+    def test_submission_invalidate_view(self):
+        invalidate_submission_url = self.submission.get_url('submission-invalidate')
+        revalidate_submission_url = self.submission.get_url('submission-revalidate')
+        self.submission.feedback = "grader feedback"
+        self.submission.assistant_feedback = "assistant feedback"
+        self.submission.grading_data = {"source": "grader"}
+        self.submission.set_points(7, 10, no_penalties=True)
+        self.submission.set_ready()
+        self.submission.force_exercise_points = True
+        self.submission.save()
+
+        self.client.login(username="testUser", password="testPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+        self.assertFalse(self.submission.force_exercise_points)
+        self.assertEqual(self.submission.feedback, "grader feedback")
+        self.assertEqual(self.submission.assistant_feedback, "assistant feedback")
+        self.assertEqual(self.submission.grading_data, {"source": "grader"})
+
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+
+        response = self.client.post(self.submission.get_url('submission-re-submit'))
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+
+        response = self.client.post(self.submission.get_url('submission-inspect'), {
+            "points": 3,
+            "feedback": "new feedback",
+            "assistant_feedback": "new assistant feedback",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.INVALIDATED)
+        self.assertEqual(self.submission.feedback, "grader feedback")
+
+        self.client.login(username="grader", password="graderPassword")
+        response = self.client.post(revalidate_submission_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="staff", password="staffPassword")
+        response = self.client.post(revalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.READY)
+
+        self.submission.set_error()
+        self.submission.save()
+        response = self.client.post(invalidate_submission_url)
+        self.assertEqual(response.status_code, 302)
+        self.submission.refresh_from_db()
+        self.assertEqual(self.submission.status, Submission.STATUS.ERROR)
 
     def test_uploading_and_viewing_file(self):
         exercise = BaseExercise.objects.create(

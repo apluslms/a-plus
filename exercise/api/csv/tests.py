@@ -111,6 +111,45 @@ class CourseResultsDataViewSetTest(TestCase):
         cls.course_instance1.enroll_student(cls.student_profile.user)
         cls.course_instance1.enroll_student(cls.student_profile2.user)
 
+    def test_invalidated_submissions_do_not_confirm_sibling_points(self) -> None:
+        view = CourseResultsDataViewSet()
+        view.instance = self.course_instance1
+
+        def query(show_unconfirmed: bool) -> set[int]:
+            rows = view.get_submissions_query(
+                [exercise.id],
+                self.course_instance1.students,
+                [Submission.STATUS.INVALIDATED],
+                [exercise.id],
+                False,
+                show_unconfirmed,
+            )
+            return {row["exercise_id"] for row in rows}
+
+        for exercise, mandatory_exercise in (
+            (self.learning_object1, self.mandatory_learning_object1),
+            (self.c1_learning_object1, self.c1_mandatory_learning_object1),
+        ):
+            with self.subTest(exercise=exercise.id):
+                submission = Submission.objects.create(
+                    exercise=exercise, grade=1, status=Submission.STATUS.READY,
+                )
+                submission.submitters.add(self.student_profile)
+                confirmation = Submission.objects.create(
+                    exercise=mandatory_exercise, grade=2, status=Submission.STATUS.READY,
+                )
+                confirmation.submitters.add(self.student_profile)
+                self.assertEqual(query(False), {exercise.id})
+
+                confirmation.set_invalidated()
+                confirmation.save()
+                self.assertEqual(query(False), set())
+                self.assertEqual(query(True), {exercise.id})
+
+                confirmation.set_revalidated()
+                confirmation.save()
+                self.assertEqual(query(False), {exercise.id})
+
     def test_get_submissions_query_unconfirmed_points(self):
         def query(unconfirmed: bool):
             qset = view.get_submissions_query(
