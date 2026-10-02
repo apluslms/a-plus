@@ -2,6 +2,13 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   // Ensure predictable order by student id
   participants.sort(function(a, b) { return a.id.localeCompare(b.id); });
 
+  // Fast user_id -> participant lookup (avoids O(N) scans on large lists)
+  const participantById = new Map();
+  participants.forEach(function(p){ participantById.set(p.user_id, p); });
+
+  // Translate helper that tolerates the catalog loading late
+  function t(key) { return (typeof _ === 'function') ? _(key) : key; }
+
   // Minimal HTML escape helper
   function escapeHtml(str) {
     return String(str)
@@ -105,18 +112,36 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   // Render the tags cell for a row (use tag_slugs only)
   function renderTagsCell(row) {
     const slugs = ensureTagSlugs(row);
-    if (!slugs || !slugs.length) return '';
-    return slugs.map(renderTagLabel).join(' ');
+    let html = (!slugs || !slugs.length) ? '' : slugs.map(renderTagLabel).join(' ');
+    if (is_teacher) {
+      html += ' <button type="button" class="add-tag-inline aplus-button--secondary aplus-button--xs ms-1">'
+        + '<i class="bi-tag" aria-hidden="true"></i> ' + escapeHtml(t('Add new tagging')) + '</button>';
+    }
+    return html;
+  }
+
+  // Render the Remove/Ban buttons for a row (handled via delegated click events).
+  // Re-evaluated on every draw, so terminal-status rows get disabled buttons.
+  function renderActions(_data, _type, row) {
+    const isTerminal = row.enrollment_status === 'REMOVED' || row.enrollment_status === 'BANNED';
+    const dis = isTerminal ? ' disabled' : '';
+    return '<div>'
+      + '<button type="button" class="aplus-button--danger aplus-button--xs" data-row-action="remove"' + dis + '>'
+      + '<i class="bi-x-lg" aria-hidden="true"></i> ' + escapeHtml(t('Remove')) + '</button> '
+      + '<button type="button" class="aplus-button--danger aplus-button--xs" data-row-action="ban"' + dis + '>'
+      + '<i class="bi-ban" aria-hidden="true"></i> ' + escapeHtml(t('Ban')) + '</button>'
+      + '</div>';
   }
 
   // Open Add Tag modal for provided user IDs
   function openAddTagModal(userIds, preselectSlug) {
-    const allTags = getAllPageTags().filter(function(t){
-      return t.id !== null && t.id !== undefined;
+    const allTags = getAllPageTags().filter(function(tag){
+      return tag.id !== null && tag.id !== undefined;
     });
-    const selectedParticipants = participants.filter(function(p){ return userIds.indexOf(p.user_id) !== -1; });
     let commonSlugs = null;
-    selectedParticipants.forEach(function(p){
+    userIds.forEach(function(uid){
+      const p = participantById.get(uid);
+      if (!p) return;
       const set = new Set(ensureTagSlugs(p));
       if (commonSlugs === null) {
         commonSlugs = new Set(set);
@@ -150,10 +175,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
 
   function collectTagSlugsForUsers(userIds) {
     const set = new Set();
-    participants.forEach(function(p){
-      if (userIds.indexOf(p.user_id) !== -1) {
-        ensureTagSlugs(p).forEach(function(s){ set.add(s); });
-      }
+    userIds.forEach(function(uid){
+      const p = participantById.get(uid);
+      if (p) ensureTagSlugs(p).forEach(function(s){ set.add(s); });
     });
     return Array.from(set).filter(function(slug){
       return slug !== 'user-external' && slug !== 'user-internal';
@@ -210,7 +234,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
     // Update data model
     const map = getTagMapBySlug();
     userIds.forEach(function(uid){
-      const p = participants.find(function(x){ return x.user_id === uid; });
+      const p = participantById.get(uid);
       if (!p) return;
       const slugs = ensureTagSlugs(p);
       if (slugs.indexOf(tagSlug) === -1) slugs.push(tagSlug);
@@ -218,7 +242,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       if (map[tagSlug]) upsertTagMeta(map[tagSlug]);
     });
     if (dt) {
-      // Redraw affected rows' tag cells via invalidation
+      // Redraw affected rows' tag cells via invalidation.
+      // Popovers for the new tag spans are picked up by the MutationObserver
+      // installed by add_colortag_buttons, so no manual re-init is needed.
       userIds.forEach(function(uid){
         const row = dt.row('#participant-' + uid);
         if (row && row.node()) {
@@ -227,16 +253,12 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         }
       });
       dt.draw(false);
-      // Re-init tag buttons/popovers
-      try {
-        add_colortag_buttons(api_url, document.getElementById('table-participants'), participants);
-      } catch (e) {}
     }
   }
 
   function applyRemovedTag(userIds, tagSlug) {
     userIds.forEach(function(uid){
-      const p = participants.find(function(x){ return x.user_id === uid; });
+      const p = participantById.get(uid);
       if (!p) return;
       const slugs = ensureTagSlugs(p);
       p.tag_slugs = slugs.filter(function(s){ return s !== tagSlug; });
@@ -247,9 +269,6 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         if (row && row.node()) dt.row(row).invalidate('data');
       });
       dt.draw(false);
-      try {
-        add_colortag_buttons(api_url, document.getElementById('table-participants'), participants);
-      } catch (e) {}
     }
   }
 
@@ -271,7 +290,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   // Apply enrollment status change locally and refresh the row + counters
   function applyEnrollmentStatusChange(userId, newStatusName) {
     try {
-      const p = participants.find(function(x){ return x.user_id === userId; });
+      const p = participantById.get(userId);
       if (p) p.enrollment_status = newStatusName;
       if (dt) {
         const row = dt.row('#participant-' + userId);
@@ -397,6 +416,49 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       } catch (e) {}
     }
 
+    function shouldAddFilterInput(idx) {
+      return (!is_teacher && idx >= 0 && idx <= 4) ||
+             (is_teacher && idx >= 1 && idx <= 6);
+    }
+
+    // Add the per-column filter inputs to a set of filters-row th cells
+    function fillFilterCells($filterThs) {
+      $filterThs.each(function(idx){
+        const $th = $(this);
+        $th.removeAttr('aria-sort').removeClass('sorting sorting_asc sorting_desc');
+        $th.off(); // no sort click handlers on the filter row
+        $th.empty();
+        if (shouldAddFilterInput(idx)) {
+          const placeholderKey = 'Search';
+          $th.append($('<input type="text" class="form-control form-control-sm" />')
+            .attr('data-column', idx)
+            .attr('placeholder-i18n-key', placeholderKey)
+            .attr('placeholder', placeholderKey));
+        }
+      });
+    }
+
+    // Ensure the given thead has a filters row, building it if missing
+    function ensureFiltersRow(theadEl){
+      try {
+        const $thead = $(theadEl);
+        if (!$thead.length || !$thead.is('thead')) return;
+        if (!$thead.attr('id')) $thead.attr('id', 'table-heading');
+        if ($thead.find('tr.aplus-filters').length !== 0) return;
+        const $labels = $thead.find('tr').first();
+        const $filters = $labels.clone(false).addClass('aplus-filters');
+        // If cloning produced no cells (rebuilt header), build bare th cells
+        if ($filters.find('th').length === 0) {
+          const colCount = $labels.find('th').length || columns.length;
+          for (let idx = 0; idx < colCount; idx++) $filters.append($('<th></th>'));
+        }
+        fillFilterCells($filters.find('th'));
+        $thead.append($filters);
+        try { updateHeaderTranslations(); } catch (e) {}
+        try { updateStickyOffsets(); } catch (e) {}
+      } catch (e) {}
+    }
+
     function renderCheckbox(_data, _type, row) {
       return '<input type="checkbox" name="students" value="' + row.user_id + '">';
     }
@@ -418,7 +480,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       cols.push({ title: '<span data-i18n-key="Email">Email</span>', data: 'email', name: 'Email:name', className: "col-2", render: renderMail, type: 'html' });
       cols.push({ title: '<span data-i18n-key="Status">Status</span>', data: 'enrollment_status', className: 'col-1 status', render: function(data, _type, row){ return '<a href="' + escapeHtml(row.link) + '">' + escapeHtml(enrollment_statuses[data]) + '</a>'; }, type: 'html' });
       cols.push({ title: '<span data-i18n-key="Tags">Tags</span>', data: null, className: 'user-tags col-3', render: function(_data, _type, row){ return renderTagsCell(row); }, type: 'html' });
-      if (is_teacher) cols.push({ title: '', data: null, orderable: false, searchable: false, className: 'actions-container', type: 'html' });
+      if (is_teacher) cols.push({ title: '', data: null, orderable: false, searchable: false, className: 'actions-container', render: renderActions, type: 'html' });
       return cols;
     })();
 
@@ -432,33 +494,8 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         $thead.append($labels);
         $table.prepend($thead);
       }
-      if (!$thead.attr('id')) $thead.attr('id', 'table-heading');
-      if ($thead.find('tr.aplus-filters').length === 0) {
-        const $labels = $thead.find('tr').first();
-        const $filters = $labels.clone(false).addClass('aplus-filters');
-        // Clear label text and insert inputs per column
-        $filters.find('th').each(function(idx){
-          const $th = $(this);
-          $th.removeAttr('aria-sort').removeClass('sorting sorting_asc sorting_desc');
-          $th.off(); // no click handlers for sort on filter row
-          $th.empty();
-          const addInput = (
-            (!is_teacher && idx >= 0 && idx <= 4) ||
-            (is_teacher && idx >= 1 && idx <= 6)
-          );
-          if (addInput) {
-            const placeholderKey = 'Search';
-            const $inp = $('<input type="text" class="form-control form-control-sm" />')
-              .attr('data-column', idx)
-              .attr('placeholder-i18n-key', placeholderKey)
-              .attr('placeholder', placeholderKey);
-            $th.append($inp);
-          }
-        });
-        $thead.append($filters);
-        // Update sticky offset after filters row exists
-        try { updateStickyOffsets(); } catch (e) {}
-      }
+      // Add the filters row if it is missing
+      ensureFiltersRow($thead);
     })();
 
     // Track translation readiness to update labels after DT builds DOM
@@ -476,9 +513,18 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
 
     function removeHtmlFromColumns(data, row, column/*, node */) {
       if (typeof data === 'string') {
-        return column === tagsColIndex
-          ? data.replace(/(<[^>]*>)+/g, ',').slice(1,-1)
-          : $.fn.dataTable.util.stripHtml(data);
+        if (column === tagsColIndex) {
+          // Drop the inline "Add tag" button (part of the rendered cell),
+          // strip the tag spans and join the non-empty tag names with commas.
+          return data
+            .replace(/<button[^>]*add-tag-inline[\s\S]*?<\/button>/g, '')
+            .replace(/<[^>]*>/g, '\u0000')
+            .split('\u0000')
+            .map(function(s){ return s.trim(); })
+            .filter(function(s){ return s.length > 0; })
+            .join(',');
+        }
+        return $.fn.dataTable.util.stripHtml(data);
       }
       return data;
     }
@@ -523,35 +569,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       rowId: function(row) { return 'participant-' + row.user_id; },
       headerCallback: function(thead /*, data, start, end, display */) {
         // Ensure thead has id and filters row exists even if DT rebuilt the header
-        try {
-          const $thead = $(thead);
-          if (!$thead.attr('id')) $thead.attr('id', 'table-heading');
-          if ($thead.find('tr.aplus-filters').length === 0) {
-            const $labels = $thead.find('tr').first();
-            const $filters = $labels.clone(false).addClass('aplus-filters');
-            $filters.find('th').each(function(idx){
-              const $th = $(this);
-              $th.removeAttr('aria-sort').removeClass('sorting sorting_asc sorting_desc');
-              $th.off();
-              $th.empty();
-              const addInput = (
-                (!is_teacher && idx >= 0 && idx <= 4) ||
-                (is_teacher && idx >= 1 && idx <= 6)
-              );
-              if (addInput) {
-                const placeholderKey = 'Search';
-                const $inp = $('<input type="text" class="form-control form-control-sm" />')
-                  .attr('data-column', idx)
-                  .attr('placeholder-i18n-key', placeholderKey)
-                  .attr('placeholder', placeholderKey);
-                $th.append($inp);
-              }
-            });
-            $thead.append($filters);
-            try { updateHeaderTranslations(); } catch (e) {}
-            try { updateStickyOffsets(); } catch (e) {}
-          }
-        } catch (e) {}
+        ensureFiltersRow(thead);
       },
       createdRow: function(row, data) {
         const tagCellIndex = is_teacher ? 6 : 4;
@@ -578,33 +596,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           try { updateResetFiltersButtonText(); } catch (e) {}
         }
         // If the second header row (filters) was removed/rebuilt by DT, ensure it exists
-        try {
-          const $thead = $table.find('thead#table-heading');
-          if ($thead.length && $thead.find('tr.aplus-filters').length === 0) {
-            const $filters = $('<tr class="aplus-filters"></tr>');
-            const colCount = this.api().columns().count();
-            for (let idx = 0; idx < colCount; idx++) {
-              const $thFilter = $('<th></th>');
-              const addInput = (
-                (!is_teacher && idx >= 0 && idx <= 4) ||
-                (is_teacher && idx >= 1 && idx <= 6)
-              );
-              if (addInput) {
-                const placeholderKey = 'Search';
-                const $inp = $('<input type="text" class="form-control form-control-sm" />')
-                  .attr('data-column', idx)
-                  .attr('placeholder-i18n-key', placeholderKey)
-                  .attr('placeholder', placeholderKey);
-                $thFilter.append($inp);
-              }
-              $filters.append($thFilter);
-            }
-            $thead.append($filters);
-            // Re-apply translations for placeholders
-            try { updateHeaderTranslations(); } catch (e) {}
-            try { updateStickyOffsets(); } catch (e) {}
-          }
-        } catch (e) {}
+        ensureFiltersRow($table.find('thead#table-heading'));
       },
       dom: "<'row'<'col-md-3 col-sm-6'l><'col-md-6 col-sm-6'B><'col-md-3 col-sm-12'f>>" +
            "<'row'<'col-sm-12 mt-3'i>>" +
@@ -630,9 +622,28 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       ]
     });
 
-    // Keep sticky offset up-to-date on draw, column sizing and window resize
+    // Single draw handler: terminal-status row highlighting, checkbox sync and
+    // sticky header offsets. All of these scale with the page size, not the
+    // total number of participants, and run in one row traversal.
     if (dt && typeof dt.on === 'function') {
-      dt.on('draw.aplusSticky column-sizing.aplusSticky', function(){
+      dt.on('draw.aplusMain', function(){
+        try {
+          dt.rows({ page: 'current' }).every(function(){
+            const row = this.data();
+            const $node = $(this.node());
+            const isTerminal = row.enrollment_status === 'REMOVED' || row.enrollment_status === 'BANNED';
+            $node.toggleClass('table-danger', isTerminal);
+            if (is_teacher) {
+              $node.find('input[type="checkbox"][name="students"]')
+                .prop('checked', selectedIds.has(row.user_id));
+            }
+          });
+          if (is_teacher) updateHeaderAndGlobal();
+        } catch (e) {}
+        try { updateStickyOffsets(); } catch (e) {}
+      });
+      // Keep sticky offset up-to-date on column resizing
+      dt.on('column-sizing.aplusSticky', function(){
         try { updateStickyOffsets(); } catch (e) {}
       });
     }
@@ -705,23 +716,35 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
 
     initFilterButtonDescriptions();
 
+    // Selection helpers (teacher only; called from the shared draw handler too,
+    // so they must live in the outer scope)
+    function filteredUserIds() {
+      const data = dt.rows({ search: 'applied', page: 'current' }).data();
+      const ids = []; for (let i=0;i<data.length;i++) ids.push(data[i].user_id); return ids;
+    }
+    function selectedFilteredUserIds() {
+      const ids = [];
+      const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
+      for (let i = 0; i < filtered.length; i++) {
+        const uid = filtered[i].user_id;
+        if (selectedIds.has(uid)) ids.push(uid);
+      }
+      return ids;
+    }
+    function updateHeaderAndGlobal() {
+      const ids = filteredUserIds();
+      let selectedFiltered = 0; ids.forEach(function(id){ if (selectedIds.has(id)) selectedFiltered++; });
+      const totalFiltered = ids.length;
+      const allChecked = totalFiltered > 0 && selectedFiltered === totalFiltered;
+      const atLeastOne = selectedFiltered > 0 && selectedFiltered < totalFiltered;
+      const $all_box = $('#students-select-all');
+      $all_box.prop('checked', allChecked).prop('indeterminate', atLeastOne);
+      $('#selected-number').text(selectedFiltered);
+      $('#add-tag-selected, #remove-tag-selected, #batch-assess-selected').prop('disabled', selectedFiltered === 0);
+    }
+
     // Selection (teacher only)
     if (is_teacher) {
-      function filteredUserIds() {
-        const data = dt.rows({ search: 'applied', page: 'current' }).data();
-        const ids = []; for (let i=0;i<data.length;i++) ids.push(data[i].user_id); return ids;
-      }
-      function updateHeaderAndGlobal() {
-        const ids = filteredUserIds();
-        let selectedFiltered = 0; ids.forEach(function(id){ if (selectedIds.has(id)) selectedFiltered++; });
-        const totalFiltered = ids.length;
-        const allChecked = totalFiltered > 0 && selectedFiltered === totalFiltered;
-        const atLeastOne = selectedFiltered > 0 && selectedFiltered < totalFiltered;
-        const $all_box = $('#students-select-all');
-        $all_box.prop('checked', allChecked).prop('indeterminate', atLeastOne);
-        $('#selected-number').text(selectedFiltered);
-        $('#add-tag-selected, #remove-tag-selected, #batch-assess-selected').prop('disabled', selectedFiltered === 0);
-      }
       // Toggle per-row checkbox updates selection store
       $table.on('change', 'input[type="checkbox"][name="students"]', function(){
         const uid = parseInt(this.value, 10);
@@ -741,94 +764,43 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         updateHeaderAndGlobal();
         return false;
       });
-      // On every draw, sync checkboxes to selection store and update header/global
-      dt.on('draw', function(){
-        $(dt.rows({ page: 'current' }).nodes()).find('input[type="checkbox"][name="students"]').each(function(){
-          const uid = parseInt(this.value, 10);
-          $(this).prop('checked', selectedIds.has(uid));
-        });
-        updateHeaderAndGlobal();
+      // Row action buttons are rendered by the columns' render functions, so
+      // their clicks are handled via delegation instead of per-draw bindings
+      $table.on('click.aplusRowActions', 'button[data-row-action]', function(){
+        if (this.disabled) return;
+        const $rowNode = $(this).closest('tr');
+        const rowData = dt.row($rowNode).data();
+        if (!rowData) return;
+        const isBan = this.getAttribute('data-row-action') === 'ban';
+        confirm_remove_participant(rowData, $rowNode, isBan ? 'BANNED' : 'REMOVED', isBan ? t('Ban') : t('Remove'));
+      });
+      $table.on('click.aplusRowActions', 'button.add-tag-inline', function(){
+        const rowData = dt.row($(this).closest('tr')).data();
+        if (rowData) openAddTagModal([rowData.user_id]);
       });
     }
 
-    // After translations are ready, init tag popovers/buttons and actions
+    // After translations are ready, init tag popovers and refresh row content
     $(document).off('aplus:translation-ready.aplusTags').on('aplus:translation-ready.aplusTags', function(){
+      // Installs the MutationObserver that initializes tag popovers on rows
+      // added by later draws; no per-draw call is needed afterwards.
       try { add_colortag_buttons(api_url, document.getElementById('table-participants'), participants); } catch (e) {}
-      if (dt && typeof dt.on === 'function' && !dt._aplusTagDrawHandler) {
-        dt.on('draw.aplusTagPopovers', function(){
-          try { add_colortag_buttons(api_url, document.getElementById('table-participants'), participants); } catch (e) {}
-        });
-        dt._aplusTagDrawHandler = true;
-      }
+      // Re-render visible rows so renderer-built labels use translated strings
+      if (dt) { try { dt.draw(false); } catch (e) {} }
       if (is_teacher) {
-        const renderActionBtn = function(label, icon, onClick, extraClasses, disabled){
-          const $btn = $('<button></button>')
-            .append($('<i></i>').addClass('bi-' + icon).attr('aria-hidden', true))
-            .append(' ' + label)
-            .addClass((extraClasses || 'aplus-button--danger aplus-button--xs'))
-            .prop('disabled', !!disabled);
-          if (!disabled) $btn.on('click', onClick);
-          return $btn;
-        };
-        dt.on('draw.aplusActions', function(){
-          dt.rows({page:'current'}).every(function(){
-            const row = this.data();
-            const $node = $(this.node());
-            const $cell = $node.find('td.actions-container');
-            const rowRef = $node; // for closures
-            const actions = $('<div/>');
-            const isTerminal = row.enrollment_status === 'REMOVED' || row.enrollment_status === 'BANNED';
-            actions.append(
-              renderActionBtn(_('Remove'), 'x-lg', function(){
-                confirm_remove_participant(row, rowRef, 'REMOVED', _('Remove'));
-              }, undefined, isTerminal)
-            ).append(' ').append(
-              renderActionBtn(_('Ban'), 'ban', function(){
-                confirm_remove_participant(row, rowRef, 'BANNED', _('Ban'));
-              }, undefined, isTerminal)
-            );
-            $cell.empty().append(actions);
-            // Add "Add tag" inline button into the Tags column
-            const $tagsCell = $node.find('td.usertags-container');
-            if ($tagsCell.length && !$tagsCell.find('.add-tag-inline').length) {
-              const $btn = $('<button type="button" />')
-                .addClass('add-tag-inline aplus-button--secondary aplus-button--xs ms-1')
-                .append($('<i/>').addClass('bi-tag').attr('aria-hidden', true))
-                .append(' ' + _('Add new tagging'))
-                .on('click', function(){ openAddTagModal([row.user_id]); });
-              $tagsCell.append(' ').append($btn);
-            }
-          });
-        });
-        dt.draw(false);
         // Global "Add tag to selected" button
         $('#add-tag-selected').off('click.aplusAddSel').on('click.aplusAddSel', function(){
-          const ids = [];
-          const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
-          for (let i = 0; i < filtered.length; i++) {
-            const uid = filtered[i].user_id;
-            if (selectedIds.has(uid)) ids.push(uid);
-          }
+          const ids = selectedFilteredUserIds();
           if (ids.length) openAddTagModal(ids);
         });
         // Global "Remove tag from selected" button
         $('#remove-tag-selected').off('click.aplusRmSel').on('click.aplusRmSel', function(){
-          const ids = [];
-          const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
-          for (let i = 0; i < filtered.length; i++) {
-            const uid = filtered[i].user_id;
-            if (selectedIds.has(uid)) ids.push(uid);
-          }
+          const ids = selectedFilteredUserIds();
           if (ids.length) openRemoveTagModal(ids);
         });
         // Global "Batch assess to selected" button
         $('#batch-assess-selected').off('click.aplusBatchSubmit').on('click.aplusBatchSubmit', function(){
-          const ids = [];
-          const filtered = dt.rows({ search: 'applied', page: 'all' }).data();
-          for (let i = 0; i < filtered.length; i++) {
-            const uid = filtered[i].user_id;
-            if (selectedIds.has(uid)) ids.push(uid);
-          }
+          const ids = selectedFilteredUserIds();
           if (ids.length) {
             $('#batch-assess-confirm').data('targetUserIds', ids);
             const bsModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('batch-assess-modal'));
@@ -989,7 +961,7 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
           // Find participant names for the submitted students
           const studentsList = [];
           userIds.forEach(userId => {
-            const participant = participants.find(p => p.user_id === userId);
+            const participant = participantById.get(userId);
             if (participant) {
               studentsList.push(participant);
             }
