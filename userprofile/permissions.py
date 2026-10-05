@@ -1,10 +1,11 @@
 from aplus_auth.payload import Permission as AccessPermission
+from django.contrib.auth.models import User
 
 from authorization.permissions import SAFE_METHODS, Permission, FilterBackend
 from exercise.models import Submission
+from course.models import CourseInstance
 
 from .models import UserProfile, GraderUser, LTIServiceUser
-from course.models import CourseInstance
 
 class IsAdminOrUserObjIsSelf(Permission, FilterBackend):
     def is_super(self, user):
@@ -111,11 +112,11 @@ class IsTeacherOrAdminOrSelf(IsAdminOrUserObjIsSelf):
             # individual views/object permissions. There is no need (and it
             # would be an expensive full-table scan) to probe every course.
             return False
-        # FIXME: inefficient database query
-        # Loop over every course instance in the database to check if the user
-        # is a teacher on any course instance.
-        every_course = CourseInstance.objects.all()
-        return any(course.is_teacher(user) for course in every_course)
+        if not (user and user.is_authenticated and isinstance(user, User)):
+            return False
+        # Check with a single query if the user is a teacher on any course
+        # instance, instead of looping over every course in the database.
+        return CourseInstance.objects.get_teaching(user.userprofile).exists()
 
 
 class GraderUserCanOnlyRead(Permission):
