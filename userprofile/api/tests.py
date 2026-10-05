@@ -1,13 +1,16 @@
 from typing import Set
+
 from aplus_auth.payload import Permission
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.test import APIClient
 
 from authorization.object_permissions import ObjectPermissions
-from course.models import CourseModule
+from course.models import CourseInstance, CourseModule, Enrollment
 from exercise.models import BaseExercise, Submission
 from lib.crypto import get_signed_message
 from userprofile.models import GraderUser
 
+from ..permissions import IsTeacherOrAdminOrSelf
 from ..tests import UserProfileTestCase
 
 class UserProfileAPITest(UserProfileTestCase):
@@ -233,3 +236,109 @@ class GraderUserAPITest(UserProfileTestCase):
         response = client.get(f'/api/v2/users/?token={token}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(), {u['id'] for u in response.data['results']})
+
+
+class IsTeacherOrAdminOrSelfTest(UserProfileTestCase):
+    """
+    Tests for the is_super() decision paths of IsTeacherOrAdminOrSelf after
+    the full-table scan was replaced with a single course-instances query.
+    Each path must use exactly the expected number of database queries.
+    """
+
+    def setUp(self):
+        self.permission = IsTeacherOrAdminOrSelf()
+
+    def test_superuser_is_super_without_queries(self):
+        # Handled by the base is_super (is_staff/is_superuser), so the
+        # teacher lookup must not run any queries.
+        with self.assertNumQueries(0):
+            self.assertTrue(self.permission.is_super(self.superuser))
+
+    def test_active_teacher_is_super_with_single_query(self):
+        # The teacher has active teacher enrollments on both course
+        # instances. Add extra instances to prove the query count does not
+        # grow with the number of course instances in the database.
+        for i in range(3):
+            CourseInstance.objects.create(
+                instance_name=f"Extra instance {i}",
+                starting_time=self.today,
+                ending_time=self.tomorrow,
+                course=self.course,
+                url=f"T-00.1000_extra_{i}",
+            )
+        with self.assertNumQueries(1):
+            self.assertTrue(self.permission.is_super(self.teacher))
+
+    def test_teacher_role_must_be_active(self):
+        # A removed teacher enrollment must not grant super status.
+        enrollment = Enrollment.objects.get(
+            course_instance=self.course_instance1,
+            user_profile=self.teacher_profile,
+            role=Enrollment.ENROLLMENT_ROLE.TEACHER,
+        )
+        enrollment.status = Enrollment.ENROLLMENT_STATUS.REMOVED
+        enrollment.save()
+        # The enrollment on course_instance2 is still active, so remove it too.
+        Enrollment.objects.filter(
+            course_instance=self.course_instance2,
+            user_profile=self.teacher_profile,
+        ).update(status=Enrollment.ENROLLMENT_STATUS.REMOVED)
+        with self.assertNumQueries(1):
+            self.assertFalse(self.permission.is_super(self.teacher))
+
+    def test_normal_user_is_not_super_with_single_query(self):
+        with self.assertNumQueries(1):
+            self.assertFalse(self.permission.is_super(self.student))
+
+    def test_anonymous_user_is_not_super_without_queries(self):
+        # The authentication guard must short-circuit before any query.
+        with self.assertNumQueries(0):
+            self.assertFalse(self.permission.is_super(AnonymousUser()))
+        # Anonymous HTTP access must be denied without the teacher lookup.
+        client = APIClient()
+        response = client.get(f'/api/v2/users/{self.student.id}/')
+        self.assertIn(response.status_code, (401, 403))
+
+    def test_grader_user_is_not_super_without_queries(self):
+        # GraderUser has no userprofile attribute, so a missing guard would
+        # raise AttributeError here. The grader branch must return False
+        # without touching the database.
+        permissions = ObjectPermissions()
+        permissions.submissions.add(Permission.READ, Submission.objects.create(
+            exercise=BaseExercise.objects.create(
+                name="test exercise",
+                course_module=CourseModule.objects.create(
+                    name="test module",
+                    url="test-module",
+                    points_to_pass=10,
+                    course_instance=self.course_instance1,
+                    opening_time=self.today,
+                    closing_time=self.tomorrow,
+                ),
+                category=self.learning_object_category1,
+                url="b1",
+            )
+        ))
+        grader_user = GraderUser("test_grader", permissions)
+        with self.assertNumQueries(0):
+            self.assertFalse(self.permission.is_super(grader_user))
+
+    def test_teacher_can_access_other_profiles_via_api(self):
+        client = APIClient()
+        client.force_authenticate(user=self.teacher)
+        for other in (self.student, self.grader, self.superuser):
+            response = client.get(f'/api/v2/users/{other.id}/')
+            self.assertEqual(response.status_code, 200,
+                f"Teacher should be able to read profile of user {other.id}")
+
+    def test_normal_user_cannot_access_other_profiles_via_api(self):
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        # Own profile is accessible ...
+        response = client.get(f'/api/v2/users/{self.student.id}/')
+        self.assertEqual(response.status_code, 200)
+        # ... but other profiles are not.
+        for other in (self.teacher, self.superuser):
+            response = client.get(f'/api/v2/users/{other.id}/')
+            self.assertIn(response.status_code, (403, 404),
+                f"Normal user should not be able to read profile of user {other.id}")
