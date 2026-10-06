@@ -100,6 +100,17 @@ class TransactionTest(TransactionTestCase):
             new = MockCache.get()
             self.assertNotEqual(original._generated_on, new._generated_on)
 
+    def test_first_cache_write_in_nested_transaction_is_committed(self) -> None:
+        original = MockCache.get()
+        with transaction.atomic():
+            with transaction.atomic():
+                MockCache.invalidate()
+                updated = MockCache.get()
+                self.assertNotEqual(original._generated_on, updated._generated_on)
+
+        after_commit = MockCache.get()
+        self.assertEqual(updated._generated_on, after_commit._generated_on)
+
     def test_nested_transaction(self):
         original = MockCache.get()
         with transaction.atomic():
