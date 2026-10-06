@@ -2,6 +2,8 @@ from typing import Any, Type
 
 from aplus_auth.payload import Payload, Permission as AccessPermission
 from django.http.request import HttpRequest
+from django.utils import timezone
+from django.utils.formats import date_format
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -145,8 +147,11 @@ class CourseVisiblePermissionBase(ObjectVisibleBasePermission):
         show_for = course.view_content_to
         VA = course.VIEW_ACCESS
 
-        # FIXME: we probably should test if access_mode is ANONYMOUS (public), but that
-        # would break api permissiosn (requires get_access_mode)
+        # Do not test view.get_access_mode() == ANONYMOUS here: for UI views the
+        # mode is loosened to ANONYMOUS only when view_content_to is PUBLIC
+        # (CourseInstanceBaseMixin.get_access_mode), so it adds nothing, and API
+        # resources hard-code ANONYMOUS regardless of the course visibility, which
+        # would incorrectly treat all API courses as public.
         if show_for != VA.PUBLIC:
             if not user.is_authenticated:
                 self.error_msg(_('COURSE_VISIBILITY_ERROR_NOT_PUBLIC'))
@@ -257,10 +262,9 @@ class CourseModulePermissionBase(MessageMixin, Permission):
             return True
 
         if not module.is_after_open():
-            # FIXME: use format from django settings
             self.error_msg(
                 _('MODULE_PERMISSION_ERROR_NOT_OPEN_YET -- {date}'),
-                format={'date': module.opening_time},
+                format={'date': date_format(timezone.localtime(module.opening_time), "DATETIME_FORMAT")},
                 delim=' ',
             )
             return False
