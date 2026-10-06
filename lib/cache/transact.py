@@ -167,6 +167,7 @@ class CacheTransactionManager(RequestGlobal):
 
         self.memos[num_ids-1][1].update(self.memos[num_ids][1])
         del self.memos[num_ids:]
+        self._set_on_commit()
 
     def _discard_memo(self) -> None:
         memo_ids = self._get_memo_ids()
