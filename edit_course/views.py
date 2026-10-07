@@ -141,11 +141,10 @@ class ModelBaseMixin(CourseInstanceMixin):
             raise Http404()
         self.manager = MANAGERS[self.model]()
         self.model_name = self.manager.name
-        # FIXME: model is passed from kwargs in View.dispatch and from
-        # BaseMixin/BaseTemplateMixin to template context. As the value is
-        # same, this should break anything, but is still a problematic thing.
-        # Should be fixed one day.
-        self.note("model", "model_name")
+        # Do not note "model": URL kwargs are also injected into the template
+        # context by Django's generic views, which would duplicate this value.
+        # Templates must use the noted attributes instead.
+        self.note("model_name")
 
     def get_success_url(self):
         return self.instance.get_edit_url()
@@ -227,7 +226,8 @@ class ModelDeleteView(ModelBaseMixin, BaseRedirectMixin, BaseTemplateView):
     def get_common_objects(self):
         super().get_common_objects()
         self.empty = self.manager.can_delete(self.object)
-        self.note("object", "empty")
+        self.is_exercise = self.model == "exercise"
+        self.note("object", "empty", "is_exercise")
 
     def post(self, request, *args, **kwargs):
         if self.empty:

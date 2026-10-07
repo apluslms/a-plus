@@ -30,7 +30,7 @@
 					REMOVE_MODEL_CONFIRMATION_ALERT -- {{ model }}, {{ name }}
 				{% endblocktranslate %}
 
-				{% if model == "exercise" %}
+				{% if is_exercise %}
 				<p>
 					{% blocktranslate trimmed with num=object.submissions.count %}
 						REMOVE_EXERCISE_MODEL_CONFIRMATION_ALERT -- {{ num }}
