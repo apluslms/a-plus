@@ -1385,10 +1385,20 @@ class CourseModule(CourseModuleProto, models.Model):
         help_text=_('MODULE_CLOSING_TIME_HELPTEXT'),
     )
 
-    # early_submissions_allowed= models.BooleanField(default=False)
-    # early_submissions_start = models.DateTimeField(default=timezone.now, blank=True, null=True)
-    # early_submission_bonus  = PercentField(default=0.1,
-    #   help_text=_("Multiplier of points to reward, as decimal. 0.1 = 10%"))
+    early_submission_bonus_in_use = models.BooleanField(
+        verbose_name=_('LABEL_EARLY_SUBMISSION_BONUS_IN_USE'),
+        default=False,
+    )
+    early_submission_deadline = models.DateTimeField(
+        verbose_name=_('LABEL_EARLY_SUBMISSION_DEADLINE'),
+        default=timezone.now,
+    )
+    early_submission_bonus = PercentField(
+        verbose_name=_('LABEL_EARLY_SUBMISSION_BONUS'),
+        default=0.0,
+        help_text=_('MODULE_EARLY_SUBMISSION_BONUS_HELPTEXT'),
+    )
+    bonus_time_step_hours = models.PositiveIntegerField(default=0)
 
     late_submissions_allowed = models.BooleanField(
         verbose_name=_('LABEL_LATE_SUBMISSIONS_ALLOWED'),
