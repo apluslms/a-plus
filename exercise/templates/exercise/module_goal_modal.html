@@ -33,12 +33,12 @@
 			data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL' %}"
 			data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
 			data-points="{{ points }}"
-			data-points-goal={{ points_goal }}
+			data-points-goal="{{ points_goal }}"
 		>
 			{% csrf_token %}
 			<div class="form-group">
 				{{ form.module_goal_input.label_tag }}
-				<div style="display: flex;">
+				<div class="d-flex mt-2">
 					{{ form.module_goal_input }} <span style="margin-top: 5px; margin-left: 5px;">/<span id="max-points"> {{ max_points }}</span></span>
 				</div>
 				{% if module.points_to_pass %}
@@ -47,7 +47,11 @@
 			</div>
 			<div style="display: flex;">
 				<input type="hidden" name="method" value="post">
-				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px; value="Post;">{% translate "SAVE" %}</button>
+				<button type="submit" class="aplus-button--default aplus-button--md" style="margin-top: 10px;">{% translate "SAVE" %}</button>
+				{% if points_goal != None %}
+				<button type="submit" form="deletePointsGoalForm" id="remove-points-goal-button" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;">{% translate "REMOVE" %}</button>
+				{% endif %}
+			</div>
 		</form>
 				{% if points_goal != None %}
 					<form id="deletePointsGoalForm" method="DELETE"
@@ -56,13 +60,11 @@
 					data-personalized-points-goal-text="{% translate 'PERSONALIZED_POINTS_GOAL' %}"
 					data-personalized-points-goal-tooltip-text="{% translate 'POINTS_GOAL' %}"
 					data-points="{{ points }}"
-					data-points-goal={{ points_goal }}
+					data-points-goal="{{ points_goal }}"
 					>
 						{% csrf_token %}
 						<input type="hidden" name="method" value="delete">
-						<button type="submit" class="aplus-button--danger aplus-button--md" style="margin-top: 10px; margin-left: 5px;" value="Delete;">{% translate "REMOVE" %}</button>
 					</form>
 				{% endif %}
-			</div>
 
 </div>
