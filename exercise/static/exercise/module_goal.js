@@ -140,6 +140,12 @@
                     $('#danger-alert').show();
                     hideAfterTimeout('#danger-alert', 5000);
                 }
+                else if (xhr.responseJSON.error === 'greater_than_max') {
+                    $('#max-points-alert').show();
+                    setTimeout(function() {
+                        $('#max-points-alert').hide();
+                    }, 5000);
+                }
                 else {
                     $('#warning-alert').show();
                     hideAfterTimeout('#warning-alert', 5000);

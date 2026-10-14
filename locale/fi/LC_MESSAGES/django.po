@@ -4620,6 +4620,11 @@ msgstr ""
 "Pistetavoite ei voi olla vähemmän kuin moduulin läpäisyyn vaaditut pisteet"
 
 #: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_GREATER_THAN_MAX"
+msgstr ""
+"Pistetavoite ei voi olla suurempi kuin moduulin enimmäispisteet"
+
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
 msgstr "Pistetavoite poistettu onnistuneesti"
 

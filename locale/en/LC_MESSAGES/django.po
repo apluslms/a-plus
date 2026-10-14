@@ -4610,6 +4610,12 @@ msgstr ""
 "required to pass the module"
 
 #: exercise/templates/exercise/module_goal_modal.html
+msgid "PERSONALIZED_POINTS_MODAL_GREATER_THAN_MAX"
+msgstr ""
+"You cannot set the personalized points goal to be higher than the maximum "
+"points of the module"
+
+#: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
 msgstr "Successfully removed personalized points goal"
 

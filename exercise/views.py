@@ -760,6 +760,9 @@ class StudentModuleGoalFormView(CourseModuleBaseView, BaseFormView):
         else:
             points_goal = int(points_goal)
 
+        if cached_module.max_points <= 0 or points_goal > cached_module.max_points:
+            return JsonResponse({"error": "greater_than_max"}, status=400)
+
         goal_percentage = points_goal / cached_module.max_points * 100
 
         if points_goal < self.module.points_to_pass:
