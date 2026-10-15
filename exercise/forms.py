@@ -69,6 +69,16 @@ class SubmissionReviewForm(forms.Form):
         help_texts_to_tooltips = kwargs.pop('help_texts_to_tooltips', False)
         super().__init__(*args, **kwargs)
 
+        # Provide the maximum points and the translated error message for
+        # client-side validation in the assessment bar (see assessment.js).
+        # The max attribute enables native browser validation, but the same
+        # limit is enforced by clean() on the server as well.
+        self.fields['points'].widget.attrs.update({
+            'max': self.exercise.max_points,
+            'data-max-points': self.exercise.max_points,
+            'data-max-points-error': self.max_points_error_message(),
+        })
+
         if help_texts_to_tooltips:
             # Turn the help texts into tooltips instead of static text blocks
             for field in self.fields.values():
@@ -82,17 +92,18 @@ class SubmissionReviewForm(forms.Form):
                 })
                 field.help_text = None
 
+    def max_points_error_message(self) -> str:
+        return str(format_lazy(
+            _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}'),
+            max=self.exercise.max_points
+        ))
+
     def clean(self):
         super().clean()
         points = self.cleaned_data.get("points")
         max_points = self.exercise.max_points
         if points is not None and points > max_points:
-            raise forms.ValidationError(
-                format_lazy(
-                    _('SUBMISSION_REVIEW_ERROR_POINTS_GREATER_THAN_MAX_POINTS -- {max:d}'),
-                    max=self.exercise.max_points
-                )
-            )
+            raise forms.ValidationError(self.max_points_error_message())
         return self.cleaned_data
 
 
