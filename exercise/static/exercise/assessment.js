@@ -65,6 +65,46 @@ $(function () {
       return `${href}&previous=${currentPath}`;
     });
 
+    // Validate the manual grading points field against the exercise's maximum
+    // points before submitting. The limits and the error message are provided
+    // by the form as data attributes (see SubmissionReviewForm in
+    // exercise/forms.py). The server validates the same limit in form.clean().
+    $('.assessment-panel input[name="points"]').each(function () {
+      const pointsInput = $(this).on('input change', function () {
+        const input = this;
+        const minPoints = parseInt(input.min, 10) || 0;
+        const maxPoints = parseInt(input.dataset.maxPoints, 10);
+        const value = parseInt(input.value, 10);
+        input.setCustomValidity('');
+        let isOutOfRange = false;
+        if (input.value !== '' && !isNaN(value)) {
+          if (!isNaN(maxPoints) && value > maxPoints) {
+            // Show the translated server error instead of the native message
+            input.setCustomValidity(input.dataset.maxPointsError || '');
+            isOutOfRange = true;
+          } else if (value < minPoints) {
+            // Below the minimum: the native validation message is kept
+            isOutOfRange = true;
+          }
+        }
+        $(input).toggleClass('is-invalid', isOutOfRange);
+      });
+      // Block submitting while the field is invalid (the native validation
+      // message shows the translated error from the data attribute) and mark
+      // the field visibly on a prevented submit attempt.
+      pointsInput.closest('form').on('submit', function (event) {
+        const input = pointsInput.get(0);
+        if (input && !input.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+          input.reportValidity();
+          $(input).addClass('is-invalid');
+        }
+      });
+      // Validate the initial value in case the form re-renders with errors
+      pointsInput.trigger('input');
+    });
+
     // Activate the first tab
     $('.grader-container-tabs').find('li a').first().tab('show');
 
