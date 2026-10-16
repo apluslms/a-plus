@@ -90,7 +90,7 @@ class ContentDBData(DBDataManager):
                     CourseModuleRequirement.objects
                     .select_related("threshold")
                     .prefetch_related(
-                        "passed_modules"
+                        "passed_modules",
                         "passed_categories",
                         Prefetch(
                             "passed_exercises",
