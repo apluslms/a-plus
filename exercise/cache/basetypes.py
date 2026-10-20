@@ -4,13 +4,22 @@ from datetime import datetime
 from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Set, Type, TypeVar, Union
 
 from django.db.models import Prefetch, QuerySet
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseInstanceProto, CourseModule, CourseModuleProto
 from lib.cache.cached import CacheBase, DBDataManager, Dependencies, ProxyManager
-from threshold.models import CourseModuleRequirement
-from .invalidate_util import category_learning_objects, module_learning_objects
+from threshold.models import CourseModuleRequirement, Threshold, ThresholdPoints
+from .invalidate_util import (
+    category_learning_objects,
+    module_learning_objects,
+    previous_requirement_module,
+    previous_threshold_point_modules,
+    threshold_m2m_modules,
+    threshold_modules,
+    threshold_modules_for_target,
+    threshold_point_modules,
+)
 from ..models import BaseExercise, CourseChapter, LearningObject, LearningObjectCategory, LearningObjectProto
 
 
@@ -90,13 +99,13 @@ class ContentDBData(DBDataManager):
                     CourseModuleRequirement.objects
                     .select_related("threshold")
                     .prefetch_related(
-                        "passed_modules",
-                        "passed_categories",
+                        "threshold__passed_modules",
+                        "threshold__passed_categories",
                         Prefetch(
-                            "passed_exercises",
+                            "threshold__passed_exercises",
                             queryset=BaseExercise.objects.select_related("parent"),
                         ),
-                        "points",
+                        "threshold__points",
                     )
                 )
             ),
@@ -357,11 +366,34 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
         (CourseModule, [post_delete, post_save], ("id",)),
+        (CourseModule, [pre_delete], threshold_modules_for_target),
         (LearningObject, [post_delete, post_save], ("course_module_id",)),
         (
             LearningObjectCategory,
             [post_delete, post_save],
             category_learning_objects(lambda lobj: [lobj.course_module_id]),
+        ),
+        (LearningObjectCategory, [pre_delete], threshold_modules_for_target),
+        (BaseExercise, [pre_delete], threshold_modules_for_target),
+        (CourseModuleRequirement, [pre_save], previous_requirement_module),
+        (CourseModuleRequirement, [post_delete, post_save], ("module_id",)),
+        (Threshold, [pre_delete, post_save], threshold_modules),
+        (ThresholdPoints, [pre_save], previous_threshold_point_modules),
+        (ThresholdPoints, [post_delete, post_save], threshold_point_modules),
+        (
+            Threshold.passed_modules.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("pk_set", "reverse")),
+        ),
+        (
+            Threshold.passed_categories.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("pk_set", "reverse")),
+        ),
+        (
+            Threshold.passed_exercises.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("pk_set", "reverse")),
         ),
     ]
     type: ClassVar[Literal['module']] = 'module'
@@ -374,6 +406,7 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
     introduction: str
     link: str
     requirements: List[str]
+    requirement_rules: List[CourseModuleRequirement]
     opening_time: datetime
     reading_opening_time: Optional[datetime]
     closing_time: datetime
@@ -422,7 +455,8 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
         self.number = str(module.order)
         self.introduction = module.introduction
         self.link = module.get_absolute_url()
-        self.requirements = [str(r) for r in module.requirements.all()]
+        self.requirement_rules = list(module.requirements.all())
+        self.requirements = [str(r) for r in self.requirement_rules]
         self.opening_time = module.opening_time
         self.reading_opening_time = module.reading_opening_time
         self.closing_time = module.closing_time

@@ -177,7 +177,7 @@
 				{% if entry.submittable and entry.is_visible or entry.submittable and is_teacher %}
 				<tr data-category="{{ entry.category_id }}">
 					<td>
-						{% if exercise_accessible and entry.is_revealed or is_course_staff %}
+						{% if entry.is_accessible or is_course_staff %}
 						<a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a>
 						{% if entry|deadline_extended_exercise_open %}
 							<span
@@ -264,11 +264,11 @@
 				{% elif entry.type == 'exercise' and entry.is_visible or entry.type == 'exercise' and is_teacher %}
 				<tr>
 					<td colspan="5">
-						{% if accessible and entry.is_revealed %}
+						{% if entry.is_reading_accessible %}
 						<strong><a href="{{ entry.link }}" class="{% if entry.is_in_maintenance %}maintenance{% endif %}">{{ entry.name|parse_localization }}</a></strong>
 						{% else %}
 						<strong>{{ entry.name|parse_localization }}</strong>
-						{% if not entry.is_revealed and accessible %}
+						{% if not entry.is_reading_accessible and accessible %}
 						<span
 							data-bs-toggle="tooltip"
 							title="{% translate 'MODULE_MODEL_ANSWER_NOT_VISIBLE' %}"

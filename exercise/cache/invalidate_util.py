@@ -6,8 +6,68 @@ from django.db.models import Model
 from course.models import CourseModule
 from deviations.models import SubmissionRuleDeviation
 from notification.models import Notification
+from threshold.models import CourseModuleRequirement, Threshold, ThresholdPoints
 from userprofile.models import UserProfile
 from ..models import BaseExercise, Submission, RevealRule, LearningObject, LearningObjectCategory
+
+
+def modules_using_thresholds(threshold_ids: Iterable[int]) -> Generator[int, None, None]:
+    yield from CourseModuleRequirement.objects.filter(
+        threshold_id__in=threshold_ids
+    ).values_list("module_id", flat=True)
+
+
+def threshold_modules(threshold: Threshold) -> Generator[int, None, None]:
+    yield from modules_using_thresholds([threshold.id])
+
+
+def previous_requirement_module(requirement: CourseModuleRequirement) -> Generator[int, None, None]:
+    if requirement.pk is not None:
+        module_id = CourseModuleRequirement.objects.filter(
+            pk=requirement.pk
+        ).values_list("module_id", flat=True).first()
+        if module_id is not None and module_id != requirement.module_id:
+            yield module_id
+
+
+def previous_threshold_point_modules(points: ThresholdPoints) -> Generator[int, None, None]:
+    if points.pk is not None:
+        threshold_id = ThresholdPoints.objects.filter(
+            pk=points.pk
+        ).values_list("threshold_id", flat=True).first()
+        if threshold_id is not None and threshold_id != points.threshold_id:
+            yield from modules_using_thresholds([threshold_id])
+
+
+def threshold_point_modules(points: ThresholdPoints) -> Generator[int, None, None]:
+    yield from modules_using_thresholds([points.threshold_id])
+
+
+def threshold_m2m_modules(
+        instance: Union[CourseModule, LearningObjectCategory, BaseExercise, Threshold],
+        pk_set: Optional[Iterable[int]],
+        reverse: bool,
+        ) -> Generator[int, None, None]:
+    if reverse:
+        if pk_set is None:
+            threshold_ids = getattr(instance, "threshold_set").values_list("id", flat=True)
+        else:
+            threshold_ids = pk_set
+    else:
+        threshold_ids = [instance.id]
+    yield from modules_using_thresholds(threshold_ids)
+
+
+def threshold_modules_for_target(
+        target: Union[CourseModule, LearningObjectCategory, BaseExercise],
+        ) -> Generator[int, None, None]:
+    if isinstance(target, CourseModule):
+        threshold_ids = Threshold.objects.filter(passed_modules=target).values_list("id", flat=True)
+    elif isinstance(target, LearningObjectCategory):
+        threshold_ids = Threshold.objects.filter(passed_categories=target).values_list("id", flat=True)
+    else:
+        threshold_ids = Threshold.objects.filter(passed_exercises=target).values_list("id", flat=True)
+    yield from modules_using_thresholds(threshold_ids)
 
 
 def category_learning_objects(generator: Callable[[LearningObject], Iterable[int]]):

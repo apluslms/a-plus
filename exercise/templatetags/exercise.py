@@ -64,16 +64,6 @@ def _get_toc(context, student=None):
     return context
 
 
-def _is_accessible(context, entry, t):
-    if t and t > _prepare_now(context):
-        return False
-    if entry.requirements:
-        points = _prepare_context(context)
-        module = CourseModule.objects.get(id=entry['id'])
-        return module.are_requirements_passed(points)
-    return True
-
-
 @register.simple_tag
 def check_exercise_deadline_extensions(children, entry_name, is_module_specific=None):
     output = ''
@@ -317,16 +307,17 @@ def format_points(points: int, is_revealed: bool, is_container: bool) -> str:
 
 @register.simple_tag(takes_context=True)
 def module_accessible(context, entry):
-    t = entry.reading_opening_time
-    if t:
-        return _is_accessible(context, entry, t)
-    return exercise_accessible(context, entry)
+    return entry.is_reading_accessible(_prepare_now(context))
 
 
 @register.simple_tag(takes_context=True)
 def exercise_accessible(context, entry):
-    t = entry.opening_time
-    return _is_accessible(context, entry, t)
+    return entry.is_exercise_accessible(_prepare_now(context))
+
+
+@register.simple_tag
+def exercise_entry_accessible(entry, accessible: bool, exercise_accessible: bool) -> bool:
+    return entry.is_accessible(accessible, exercise_accessible)
 
 
 @register.simple_tag
