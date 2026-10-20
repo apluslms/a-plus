@@ -2,6 +2,7 @@ from lib.testdata import CourseTestCase
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from deviations.models import MaxSubmissionsRuleDeviation
 from exercise.tests import ExerciseTestBase
+from threshold.models import CourseModuleRequirement, Threshold, ThresholdPoints
 from .cache.basetypes import ContentDBData
 from .cache.content import CachedContent, InstanceContent, LearningObjectContent, ModuleContent
 from .cache.hierarchy import previous_iterator
@@ -142,6 +143,29 @@ class CachedModuleContentTest(ExerciseTestBase):
         self.learning_object_category.delete()
         entry2 = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, entry2._generated_on)
+
+    def test_requirement_rules_are_cached_and_invalidated(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.course_instance,
+            name="Required points",
+        )
+        CourseModuleRequirement.objects.create(
+            module=self.course_module,
+            threshold=threshold,
+        )
+
+        entry = ModuleContent.get(self.course_module)
+        self.assertEqual(len(entry.requirement_rules), 1)
+        generated_on = entry._generated_on
+
+        ThresholdPoints.objects.create(threshold=threshold, limit=10)
+        entry = ModuleContent.get(self.course_module)
+        self.assertNotEqual(entry._generated_on, generated_on)
+        generated_on = entry._generated_on
+
+        threshold.passed_exercises.add(self.base_exercise)
+        entry = ModuleContent.get(self.course_module)
+        self.assertNotEqual(entry._generated_on, generated_on)
 
 
 class CachedContentTest(CourseTestCase):
@@ -640,6 +664,53 @@ class CachedPointsTest(CourseTestCase):
         self.assertFalse(entry.is_revealed)
         self.assertTrue(entry2.is_revealed)
         self.assertFalse(chapter_entry.is_revealed)
+        self.assertTrue(entry0.is_accessible(when=self.now))
+        self.assertFalse(entry.is_accessible(when=self.now))
+        self.assertTrue(entry2.is_accessible(when=self.now))
+        self.assertFalse(chapter_entry.is_reading_accessible(self.now))
+
+    def test_reading_and_exercise_accessibility(self):
+        self.module2.reading_opening_time = self.yesterday
+        self.module2.opening_time = self.tomorrow
+        self.module2.save()
+
+        points = CachedPoints(self.instance, self.student)
+        module = points.entry_for_module(self.module2)
+        exercise = points.entry_for_exercise(self.exercise3)
+
+        self.assertTrue(module.is_reading_accessible(self.now))
+        self.assertFalse(module.is_exercise_accessible(self.now))
+        self.assertTrue(exercise.is_reading_accessible(self.now))
+        self.assertFalse(exercise.is_accessible(when=self.now))
+
+    def test_accessibility_uses_cached_requirement_rules(self):
+        total_points = CachedPoints(self.instance, self.student).total().points
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Required points",
+        )
+        threshold_point = ThresholdPoints.objects.create(
+            threshold=threshold,
+            limit=total_points + 100,
+        )
+        CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+        self.module2.opening_time = self.yesterday
+        self.module2.save()
+
+        points = CachedPoints(self.instance, self.student)
+        module = points.entry_for_module(self.module2)
+        with self.assertNumQueries(0):
+            self.assertFalse(module.is_exercise_accessible(self.now))
+
+        threshold_point.limit = 0
+        threshold_point.save()
+        points = CachedPoints(self.instance, self.student)
+        module = points.entry_for_module(self.module2)
+        with self.assertNumQueries(0):
+            self.assertTrue(module.is_exercise_accessible(self.now))
 
 class ExercisePointsTest(ExerciseTestBase):
     def test_forced_points(self) -> None:

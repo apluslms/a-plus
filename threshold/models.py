@@ -149,10 +149,10 @@ class ThresholdPoints(models.Model):
     def __str__(self):
         if self.difficulty:
             return "{} {:d}".format(self.difficulty, self.limit)
-        return format_lazy(
+        return str(format_lazy(
             _('POINTS -- {:d}'),
             self.limit
-        )
+        ))
 
 
 class CourseModuleRequirement(models.Model):
