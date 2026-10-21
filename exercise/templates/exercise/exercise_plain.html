@@ -190,6 +190,26 @@
 									</span>
 								</small>
 							</div>
+							{% if module.early_submission_bonus_available %}
+							<div class="exercise-nav-info">
+								<small>
+									{% blocktranslate trimmed with bonus=module.early_submission_bonus|percent deadline=module.early_submission_deadline %}
+										EARLY_SUBMISSION_BONUS_AVAILABLE -- {{ bonus }}, {{ deadline }}
+									{% endblocktranslate %}
+								</small>
+							</div>
+							{% with bonus_info=module.current_early_submission_bonus_info %}
+							{% if bonus_info %}
+							<div class="exercise-nav-info">
+								<small>
+									{% blocktranslate trimmed with bonus=bonus_info.percentage|floatformat:"1" deadline=bonus_info.end_deadline %}
+										CURRENT_EARLY_SUBMISSION_BONUS -- {{ bonus }}, {{ deadline }}
+									{% endblocktranslate %}
+								</small>
+							</div>
+							{% endif %}
+							{% endwith %}
+							{% endif %}
 						{% endif %}
 					</div>
 				{% endif %}

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-22 12:18+0300\n"
+"POT-Creation-Date: 2026-10-19 11:33+0300\n"
 "PO-Revision-Date: 2021-05-27 14:47+0300\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: English<>\n"
@@ -315,8 +315,7 @@ msgstr "Reserved words include: {}"
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "course instance"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
-#: notification/models.py
+#: course/models.py exercise/submission_models.py notification/models.py
 msgid "LABEL_TIMESTAMP"
 msgstr "timestamp"
 
@@ -500,10 +499,6 @@ msgid "TABLE_OF_CONTENTS"
 msgstr "Table of contents"
 
 #: course/models.py
-msgid "LAST_VISITED_LINK"
-msgstr "Link to last visited content"
-
-#: course/models.py
 msgid "EXPERIMENTAL_SETUP"
 msgstr "Experimental setup (hard-coded)"
 
@@ -669,12 +664,13 @@ msgid "COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING"
 msgstr "The course ending time must be later than the course starting time."
 
 #: course/models.py
-msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
-msgstr "The enrolment ending time cannot be earlier than the course start time."
-
-#: course/models.py
 msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START"
 msgstr "The enrolment ending time must be later than the enrolment start time."
+
+#: course/models.py
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
+msgstr ""
+"The enrolment ending time cannot be earlier than the course start time."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING"
@@ -764,6 +760,22 @@ msgid "MODULE_CLOSING_TIME_HELPTEXT"
 msgstr "The default closing time of the assignments in this module."
 
 #: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_IN_USE"
+msgstr "early submission bonus enabled"
+
+#: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_DEADLINE"
+msgstr "early submission bonus deadline"
+
+#: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS"
+msgstr "early submission bonus"
+
+#: course/models.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_HELPTEXT"
+msgstr "Bonus fraction between 0 and 1; for example, 0.1 adds 10%."
+
+#: course/models.py
 msgid "LABEL_LATE_SUBMISSIONS_ALLOWED"
 msgstr "late submissions allowed"
 
@@ -798,6 +810,16 @@ msgstr "course modules"
 #: course/models.py
 msgid "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME"
 msgstr "The opening time must be earlier than the closing time."
+
+#: course/models.py
+#, fuzzy
+#| msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"
+msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME"
+msgstr "The early submission deadline must be earlier than the closing time."
+
+#: course/models.py
+msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"
+msgstr "The early submission deadline must be earlier than the closing time."
 
 #: course/models.py
 msgid "MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME"
@@ -1450,6 +1472,11 @@ msgstr "Error"
 #: exercise/submission_models.py
 msgid "STATUS_REJECTED"
 msgstr "Rejected"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_INVALIDATED"
+msgstr "Invalidated"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: edit_course/course_forms.py
@@ -2239,7 +2266,7 @@ msgstr "course diploma designs"
 msgid "LABEL_DESIGN"
 msgstr "design"
 
-#: diploma/models.py exercise/exercise_models.py
+#: diploma/models.py
 msgid "LABEL_PROFILE"
 msgstr "user"
 
@@ -2285,6 +2312,47 @@ msgstr "Username"
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
 msgstr "Category"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS"
+msgstr "early bonus step (hours)"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT"
+msgstr ""
+"Set to 0 to disable tapering. Positive values are hours per step, with the "
+"bonus decreasing to zero before the module deadline."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP"
+msgstr "Tapering is currently disabled because the step length is 0 hours."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP"
+msgstr ""
+"No complete bonus step currently fits between the early bonus deadline and the module "
+"deadline, so submissions after the early bonus deadline receive no bonus."
+
+#: edit_course/course_forms.py
+#, python-format
+msgid "%(count)s step"
+msgid_plural "%(count)s steps"
+msgstr[0] "%(count)s step"
+msgstr[1] "%(count)s steps"
+
+#: edit_course/course_forms.py
+#, python-format
+msgid "%(count)s hour"
+msgid_plural "%(count)s hours"
+msgstr[0] "%(count)s hour"
+msgstr[1] "%(count)s hours"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
+msgstr ""
+"The tapering currently uses %(steps)s, each lasting %(step_hours)s. The bonus "
+"decreases by %(decrease)s percentage points per step from %(bonus)s%% to 0%"
+"%; any remaining time before the module deadline has no bonus."
 
 #: edit_course/course_forms.py edit_course/exercise_forms.py
 msgid "HIERARCHY"
@@ -3295,15 +3363,15 @@ msgstr "Assignment caches have been cleared."
 msgid "REAL_CLASS"
 msgstr "Real class"
 
+#: exercise/admin.py userprofile/templates/userprofile/teachers.html
+msgid "COURSE_INSTANCE"
+msgstr "Course instance"
+
 #: exercise/admin.py
 msgid "SUBMISSION_INVALIDATION_NOT_ALLOWED_IN_ADMIN"
 msgstr ""
 "The status cannot be changed to or from Invalidated here. Use the invalidate "
 "and re-validate buttons on the submission inspection page."
-
-#: exercise/admin.py userprofile/templates/userprofile/teachers.html
-msgid "COURSE_INSTANCE"
-msgstr "Course instance"
 
 #: exercise/admin.py exercise/forms.py exercise/submission_models.py
 msgid "LABEL_SUBMITTERS"
@@ -3991,6 +4059,10 @@ msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Grading mode: {}"
 
 #: exercise/staff_views.py
+msgid "SUBMISSION_ALREADY_INVALIDATED"
+msgstr "Submission is already invalidated."
+
+#: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "The review was saved successfully and the submitters were notified."
 
@@ -4047,10 +4119,6 @@ msgstr ""
 "{max_points}."
 
 #: exercise/staff_views.py
-msgid "SUBMISSION_ALREADY_INVALIDATED"
-msgstr "Submission is already invalidated."
-
-#: exercise/staff_views.py
 msgid "ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED"
 msgstr "Only ready submissions can be invalidated."
 
@@ -4077,10 +4145,6 @@ msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
 msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
 msgstr[0] "{count} late or unofficial submission was successfully approved."
 msgstr[1] "{count} late or unofficial submissions were successfully approved."
-
-#: exercise/submission_models.py
-msgid "STATUS_INVALIDATED"
-msgstr "Invalidated"
 
 #: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
@@ -4432,16 +4496,16 @@ msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
 msgstr "Assignments with personal deadline extensions"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "OPENS ON"
-msgstr "Opens on"
-
-#: exercise/templates/exercise/_user_results.html
 msgid "OPENS_FOR_READING_ON"
 msgstr "Opens for reading on"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "EXERCISES_OPEN_ON"
 msgstr "Exercises open on"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "OPENS ON"
+msgstr "Opens on"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "OPEN_FOR_READING"
@@ -4584,6 +4648,18 @@ msgstr "To be submitted in groups of %(size)s"
 #, python-format
 msgid "TO_BE_SUBMITTED_GROUPS -- %(min)s, %(max)s"
 msgstr "To be submitted in groups of %(min)s-%(max)s"
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "EARLY_SUBMISSION_BONUS_AVAILABLE -- %(bonus)s, %(deadline)s"
+msgstr ""
+"Early submission bonus in use. %(bonus)s%% more points are available if "
+"submitted before %(deadline)s."
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "CURRENT_EARLY_SUBMISSION_BONUS -- %(bonus)s, %(deadline)s"
+msgstr "Current early submission bonus: %(bonus)s%% until %(deadline)s."
 
 #: exercise/templates/exercise/exercise_plain.html
 #: exercise/templates/exercise/submission.html
@@ -4979,7 +5055,9 @@ msgstr "There is another submission that is marked as final."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_INVALIDATED_SUBMISSION_REPLACED"
-msgstr "This submission has been invalidated. Another submission determines the grade for this assignment."
+msgstr ""
+"This submission has been invalidated. Another submission determines the "
+"grade for this assignment."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_BETTER_SUBMISSIONS"

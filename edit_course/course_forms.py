@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from typing import Any
 import urllib.parse
 
@@ -8,7 +9,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, ngettext
 from django_colortag.forms import ColorTagForm
 
 from aplus.api import api_reverse
@@ -71,17 +72,61 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submissions_allowed',
             'late_submission_deadline',
             'late_submission_penalty',
+            'early_submission_bonus_in_use',
+            'early_submission_deadline',
+            'early_submission_bonus',
+            'bonus_time_step_hours',
             'model_answer',
         ]
         widgets = {
             'opening_time': DateTimeLocalInput,
             'reading_opening_time': DateTimeLocalInput,
+            'early_submission_deadline': DateTimeLocalInput,
             'closing_time': DateTimeLocalInput,
             'late_submission_deadline': DateTimeLocalInput,
+        }
+        labels = {
+            'bonus_time_step_hours': _('LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS'),
+        }
+        help_texts = {
+            'bonus_time_step_hours': _('MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT'),
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+        step_hours = self.instance.bonus_time_step_hours
+        if step_hours <= 0:
+            taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP')
+        else:
+            taper_duration = self.instance.closing_time - self.instance.early_submission_deadline
+            step_duration = timedelta(hours=step_hours)
+            full_steps = taper_duration // step_duration
+            if full_steps <= 0:
+                taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP')
+            else:
+                bonus_percentage = self.instance.early_submission_bonus * 100
+                decrease = bonus_percentage / full_steps
+                steps_text = ngettext(
+                    '%(count)s step',
+                    '%(count)s steps',
+                    full_steps,
+                ) % {'count': full_steps}
+                hours_text = ngettext(
+                    '%(count)s hour',
+                    '%(count)s hours',
+                    step_hours,
+                ) % {'count': step_hours}
+                taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP') % {
+                    'steps': steps_text,
+                    'step_hours': hours_text,
+                    'decrease': f'{decrease:.2f}'.rstrip('0').rstrip('.'),
+                    'bonus': f'{bonus_percentage:.2f}'.rstrip('0').rstrip('.'),
+                }
+        self.fields['bonus_time_step_hours'].widget.attrs.update({
+            'data-bs-toggle': 'tooltip',
+            'title': taper_tooltip,
+        })
 
         from .exercise_forms import RevealRuleForm # pylint: disable=import-outside-toplevel
         self.model_solution_form = RevealRuleForm(
@@ -99,8 +144,11 @@ class CourseModuleForm(FieldsetModelForm):
             { 'legend':_('CONTENT'), 'fields':
              self.get_fields('name','introduction','points_to_pass', 'model_answer') },
             { 'legend':_('REVEAL_MODEL_SOLUTIONS'), 'fields': self.model_solution_form },
-            { 'legend':_('SCHEDULE'), 'fields':self.get_fields('reading_opening_time','opening_time','closing_time',
-                'late_submissions_allowed','late_submission_deadline', 'late_submission_penalty') },
+            { 'legend':_('SCHEDULE'), 'fields':self.get_fields(
+                'reading_opening_time', 'opening_time',
+                'closing_time', 'late_submissions_allowed', 'late_submission_deadline',
+                'late_submission_penalty', 'early_submission_bonus_in_use',
+                'early_submission_deadline', 'early_submission_bonus', 'bonus_time_step_hours') },
         ]
 
     def is_valid(self) -> bool:
