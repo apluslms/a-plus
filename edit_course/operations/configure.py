@@ -901,6 +901,20 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
             if "read-open" in m:
                 module.reading_opening_time = parse_date(m["read-open"], errors, allow_null=True)
 
+            if "early_close" in m:
+                dt = parse_date(m["early_close"], errors)
+                if dt:
+                    module.early_submission_deadline = dt
+            if "early_bonus" in m:
+                f = parse_float(m["early_bonus"], errors)
+                if f is not None:
+                    module.early_submission_bonus = f
+            module.early_submission_bonus_in_use = parse_bool(m.get("early_bonus_in_use", False))
+            if "bonus_time_step_hours" in m:
+                i = parse_int(m["bonus_time_step_hours"], errors)
+                if i is not None:
+                    module.bonus_time_step_hours = i
+
             if "late_close" in m:
                 dt = parse_date(m["late_close"], errors)
                 if dt:

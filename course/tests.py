@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.test.client import Client
@@ -271,6 +272,24 @@ class CourseTest(CourseTestCase):
     def test_course_module_late_submission_point_worth(self):
         self.assertEqual(0, self.course_module.get_late_submission_point_worth())
         self.assertEqual(80, self.course_module_with_late_submissions_allowed.get_late_submission_point_worth())
+
+    def test_course_module_early_submission_deadline(self):
+        module = self.course_module
+        module.early_submission_bonus_in_use = True
+        module.early_submission_deadline = self.today
+        with self.assertRaises(ValidationError):
+            module.full_clean()
+
+        module.early_submission_deadline = self.tomorrow
+        with self.assertRaises(ValidationError):
+            module.full_clean()
+
+        module.early_submission_deadline = self.today + (self.tomorrow - self.today) / 2
+        module.full_clean()
+
+        module.early_submission_bonus_in_use = False
+        module.early_submission_deadline = self.today
+        module.full_clean()
 
     def test_course_module_open(self):
         self.assertFalse(self.course_module.is_open(self.yesterday))
