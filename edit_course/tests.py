@@ -1,9 +1,68 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from json import dumps
 from django.test import override_settings
+from django.utils.translation import override as translation_override
 from course.models import CourseInstance
 from exercise.models import BaseExercise
+from edit_course.course_forms import CourseModuleForm
 from lib.testdata import CourseTestCase
+
+
+class CourseModuleEditTest(CourseTestCase):
+
+    def test_early_bonus_taper_tooltip_reflects_configuration(self):
+        self.module.early_submission_deadline = self.now
+        self.module.closing_time = self.now + timedelta(hours=29)
+        self.module.early_submission_bonus = 0.15
+        self.module.bonus_time_step_hours = 8
+
+        with translation_override('en'):
+            form = CourseModuleForm(instance=self.module)
+
+        step_field = form.fields['bonus_time_step_hours']
+        self.assertEqual(step_field.widget.attrs['data-bs-toggle'], 'tooltip')
+        self.assertIn('3 steps, each lasting 8 hours', step_field.widget.attrs['title'])
+        self.assertIn('decreases by 5 percentage points', step_field.widget.attrs['title'])
+        self.assertIn('remaining time before the module deadline has no bonus', step_field.widget.attrs['title'])
+
+    def test_edit_page_includes_early_submission_deadline(self):
+        self.client.login(username='testTeacher', password='testPassword')
+        url = self.instance.get_url(
+            'model-edit',
+            model='module',
+            id=self.module.id,
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        for field_name in (
+            'early_submission_deadline',
+            'early_submission_bonus_in_use',
+            'early_submission_bonus',
+            'bonus_time_step_hours',
+        ):
+            self.assertContains(response, f'name="{field_name}"')
+        self.assertEqual(
+            response.context['form'].fields['early_submission_bonus_in_use'].widget.input_type,
+            'checkbox',
+        )
+        schedule_fields = response.context['form'].get_fieldsets()[-1]['fields']
+        self.assertEqual(
+            [field.name for field in schedule_fields],
+            [
+                'reading_opening_time',
+                'opening_time',
+                'closing_time',
+                'late_submissions_allowed',
+                'late_submission_deadline',
+                'late_submission_penalty',
+                'early_submission_bonus_in_use',
+                'early_submission_deadline',
+                'early_submission_bonus',
+                'bonus_time_step_hours',
+            ],
+        )
 
 
 class CourseCloneTest(CourseTestCase):
