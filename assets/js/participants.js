@@ -239,6 +239,9 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
   // DataTables instance handle (set after init)
   let dt = null;
 
+  // Flag - set to true once dataTables have been completely initialized.
+  let dtReady = false;
+
   function applyAddedTag(userIds, tagSlug) {
     // Update data model
     const map = getTagMapBySlug();
@@ -604,6 +607,8 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
         url: pageLanguageUrl
       },
       initComplete: function(){
+        dtReady = true; // used by asynchronous events to avoid accessing data early
+
         if (aplusTranslationsReady) {
           try { updateHeaderTranslations(); } catch (e) {}
           try { updateResetFiltersButtonText(); } catch (e) {}
@@ -803,12 +808,11 @@ function participants_list(participants, api_url, is_teacher, enrollment_statuse
       // TR/TD nodes and only re-renders cells whose data changed, so labels baked
       // in before the catalog loaded would stay untranslated. Clearing and
       // re-adding the data forces DataTables to rebuild every row from scratch.
-      if (dt) {
+      if (dt && dtReady) {
         try {
-          dt.clear();
-          dt.rows.add(participants);
+          dt.rows().invalidate('data');
           dt.draw(false);
-        } catch (e) {}
+        } catch (e) { console.error(e); }
       }
       if (is_teacher) {
         // Global "Add tag to selected" button
