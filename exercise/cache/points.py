@@ -46,6 +46,7 @@ from .invalidate_util import (
     model_module,
     with_user_ids,
 )
+from .exceptions import NoSuchContent
 from ..exercise_models import LearningObject
 from ..models import BaseExercise, Submission, SubmissionProto, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
@@ -418,6 +419,30 @@ class LearningObjectPoints(CommonPointData, LearningObjectEntryBase["ModulePoint
             return False
 
         return all(entry.is_model_answer_revealed for entry in self.model_answer_modules)
+
+    def is_reading_accessible(self, when: Optional[datetime.datetime] = None) -> bool:
+        return self.is_revealed and self.module.is_reading_accessible(when)
+
+    def is_exercise_accessible(self, when: Optional[datetime.datetime] = None) -> bool:
+        return self.is_revealed and self.module.is_exercise_accessible(when)
+
+    def is_accessible(
+            self,
+            accessible: Optional[bool] = None,
+            exercise_accessible: Optional[bool] = None,
+            when: Optional[datetime.datetime] = None,
+            ) -> bool:
+        if not self.is_revealed:
+            return False
+        if self.submittable:
+            if exercise_accessible is None:
+                exercise_accessible = self.module.is_exercise_accessible(when)
+            return exercise_accessible
+        if accessible is None:
+            accessible = self.module.is_reading_accessible(when)
+        if exercise_accessible is None:
+            exercise_accessible = self.module.is_exercise_accessible(when)
+        return accessible or exercise_accessible
 
     @property
     def _true_unconfirmed(self) -> bool:
@@ -913,6 +938,23 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
                 LearningObjectPoints, *params._params, user_id, modifiers=modifiers
             )
 
+    def _requirements_passed(self) -> bool:
+        if not self.requirement_rules:
+            return True
+        if not isinstance(self.instance, CachedPointsData):
+            raise RuntimeError("ModulePoints must belong to CachedPointsData to check accessibility")
+        cached_points = _CachedPointsDataView(self.instance)
+        return all(rule.is_passed(cached_points) for rule in self.requirement_rules)
+
+    def is_reading_accessible(self, when: Optional[datetime.datetime] = None) -> bool:
+        when = timezone.now() if when is None else when
+        opening_time = self.reading_opening_time or self.opening_time
+        return opening_time <= when and self._requirements_passed()
+
+    def is_exercise_accessible(self, when: Optional[datetime.datetime] = None) -> bool:
+        when = timezone.now() if when is None else when
+        return self.opening_time <= when and self._requirements_passed()
+
     def _generate_data(
             self,
             precreated: ProxyManager,
@@ -1082,6 +1124,32 @@ class CachedPointsData(CachedDataBase[ModulePoints, EitherExerciseEntry, Categor
             CachedDataBase: [self._params[:1]],
             ModulePoints: [proxy._params for proxy in self.modules],
         }
+
+
+class _CachedPointsDataView:
+    def __init__(self, data: CachedPointsData) -> None:
+        self.data = data
+
+    def entry_for_module(self, module: CourseModule) -> ModulePoints:
+        try:
+            return self.data.module_index[module.id]
+        except KeyError:
+            raise NoSuchContent() from None
+
+    def entry_for_exercise(self, exercise: BaseExercise) -> EitherExerciseEntry:
+        try:
+            return self.data.exercise_index[exercise.id]
+        except KeyError:
+            raise NoSuchContent() from None
+
+    def find_category(self, category_id: int) -> CategoryPoints:
+        try:
+            return self.data.categories[category_id]
+        except KeyError:
+            raise NoSuchContent() from None
+
+    def total(self) -> Totals:
+        return self.data.total
 
 
 class CachedPoints(ContentMixin[ModulePoints, EitherExerciseEntry, CategoryPoints, Totals]):
