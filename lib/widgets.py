@@ -3,6 +3,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from django import forms
 from django.template import Variable
 
+from userprofile.models import UserProfile
+
 
 class DateTimeLocalInput(forms.DateTimeInput):
     """
@@ -208,9 +210,14 @@ class EmailUserSelect(forms.TextInput):
 
         context = super().get_context(name, value, attrs)
 
-        # When bound, the field value is a raw string; don't iterate it as "selected users".
-        if value is None or isinstance(value, str):
+        # When bound, the field value is a raw comma-separated string of user
+        # IDs. Resolve them to UserProfile objects so the badges and hidden
+        # field value stay after re-rendering after a validation error.
+        if value is None or isinstance(value, str) and not value.strip():
             context['selected_users'] = []
+        elif isinstance(value, str):
+            user_ids = [int(item) for item in value.split(',') if item.strip().isdigit()]
+            context['selected_users'] = list(UserProfile.objects.filter(user_id__in=user_ids))
         else:
             context['selected_users'] = value
         # Use the input ID, not the wrapper ID
