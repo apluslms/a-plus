@@ -7,7 +7,7 @@ from typing import Any, Iterable, List, Optional, Union, Tuple
 from django.test import TestCase
 from django.utils import timezone
 
-from .configure import configure, parse_bool
+from .configure import configure, parse_bool, parse_date
 from course.models import Course, CourseInstance, CourseModule, LearningObjectCategory
 from exercise.models import LearningObject, CourseChapter, BaseExercise, LTIExercise
 from external_services.models import LTIService
@@ -118,6 +118,12 @@ class ConfigureTest(TestCase):
             "key": "url",
             "title": "name",
             "children": None,
+            "open": ("opening_time", lambda value: parse_date(value, [])),
+            "close": ("closing_time", lambda value: parse_date(value, [])),
+            "early_close": ("early_submission_deadline", lambda value: parse_date(value, [])),
+            "early_bonus": "early_submission_bonus",
+            "early_bonus_in_use": "early_submission_bonus_in_use",
+            "bonus_time_step_hours": "bonus_time_step_hours",
         }
         self.lobject_field_map = {
             "key": "url",
@@ -274,6 +280,36 @@ class ConfigureTest(TestCase):
         self.set_category(self.config, "cat1", category_configs["cat2"])
 
         self.configure_and_test()
+
+    def test_early_submission_bonus(self):
+        self.configure_and_test()
+        module = self.instance.course_modules.get(url=self.config["modules"][0]["key"])
+        self.assertEqual(module.bonus_time_step_hours, 0)
+
+        module_config = self.config["modules"][0]
+        early_deadline = self.today + timedelta(hours=12)
+        early_deadline_text = early_deadline.strftime("%Y-%m-%d %H:%M:%S")
+        module_config.update({
+            "open": self.today.strftime("%Y-%m-%d %H:%M:%S"),
+            "close": self.tomorrow.strftime("%Y-%m-%d %H:%M:%S"),
+            "early_close": early_deadline_text,
+            "early_bonus": 0.1,
+            "early_bonus_in_use": True,
+            "bonus_time_step_hours": 48,
+        })
+
+        self.configure_and_test()
+
+        module = self.instance.course_modules.get(url=module_config["key"])
+        self.assertEqual(module.early_submission_deadline, parse_date(early_deadline_text, []))
+        self.assertEqual(module.early_submission_bonus, 0.1)
+        self.assertTrue(module.early_submission_bonus_in_use)
+        self.assertEqual(module.bonus_time_step_hours, 48)
+
+        module_config.pop("early_bonus_in_use")
+        self.configure_and_test()
+        module.refresh_from_db()
+        self.assertFalse(module.early_submission_bonus_in_use)
 
     def configure_and_test(self):
         success, errors = configure(self.instance, self.config)

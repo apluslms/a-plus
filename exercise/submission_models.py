@@ -678,8 +678,9 @@ class Submission(SubmissionProto, models.Model):
 
         The method also checks if the submission is late and if it is, by
         default applies the late_submission_penalty set for the
-        exercise.course_module. If no_penalties is True, the penalty is not
-        applied.
+        exercise.course_module. An enabled early submission bonus is applied
+        based on the submission timestamp. If no_penalties is True, the late
+        penalty is not applied.
         """
         if self.status == self.STATUS.INVALIDATED:
             raise ValueError("Invalidated submissions cannot have their points set")
@@ -707,6 +708,15 @@ class Submission(SubmissionProto, models.Model):
         else:
             adjusted_grade = 0.0
 
+        early_bonus_applied = False
+
+        module = exercise.course_module
+        bonus_fraction, _ = module.get_early_submission_bonus_tier(self.submission_time)
+
+        if bonus_fraction > 0:
+            adjusted_grade *= 1.0 + module.early_submission_bonus * bonus_fraction
+            early_bonus_applied = True
+
         if not no_penalties:
             timing,_ = exercise.get_timing(self.submitters.all(), self.submission_time)
             if timing in (exercise.TIMING.LATE, exercise.TIMING.CLOSED_AFTER):
@@ -725,12 +735,14 @@ class Submission(SubmissionProto, models.Model):
         self.grade = round(adjusted_grade)
 
         # Finally check that the grade is in bounds after all the math.
-        assert 0 <= self.grade <= self.exercise.max_points
+        if early_bonus_applied:
+            assert 0 <= self.grade <= round(self.exercise.max_points * (1.0 + module.early_submission_bonus))
+        else:
+            assert 0 <= self.grade <= self.exercise.max_points
 
     def scale_grade_to(self, percentage):
         percentage = float(percentage)/100
         self.grade = round(max(self.grade*percentage,0))
-        self.grade = min(self.grade,self.exercise.max_points)
 
     def set_waiting(self):
         if self.status == self.STATUS.INVALIDATED:

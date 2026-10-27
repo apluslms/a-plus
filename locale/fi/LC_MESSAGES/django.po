@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-22 12:18+0300\n"
+"POT-Creation-Date: 2026-10-19 11:33+0300\n"
 "PO-Revision-Date: 2019-08-14 12:16+0200\n"
 "Last-Translator: Jimmy Lumiaho <jimmy.lumiaho@aalto.fi>\n"
 "Language-Team: Finnish <>\n"
@@ -316,8 +316,7 @@ msgstr "Varatut sanat: {}"
 msgid "LABEL_COURSE_INSTANCE"
 msgstr "kurssikerta"
 
-#: course/models.py exercise/exercise_models.py exercise/submission_models.py
-#: notification/models.py
+#: course/models.py exercise/submission_models.py notification/models.py
 msgid "LABEL_TIMESTAMP"
 msgstr "aikaleima"
 
@@ -501,10 +500,6 @@ msgid "TABLE_OF_CONTENTS"
 msgstr "Sisällysluettelo"
 
 #: course/models.py
-msgid "LAST_VISITED_LINK"
-msgstr "Linkki viimeksi vierailtuun sisältöön"
-
-#: course/models.py
 msgid "EXPERIMENTAL_SETUP"
 msgstr "Koeasetelma (kovakoodattu)"
 
@@ -673,12 +668,14 @@ msgid "COURSE_INSTANCE_ERROR_ENDING_TIME_BEFORE_STARTING"
 msgstr "Kurssin päättymisajan tulee olla kurssin alkamisajan jälkeen."
 
 #: course/models.py
-msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
-msgstr "Ilmoittautumisen päättymisaika ei voi olla kurssin alkamisaikaa ennen."
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START"
+msgstr ""
+"Ilmoittautumisen päättymisajan tulee olla ilmoittautumisen alkamisajan "
+"jälkeen."
 
 #: course/models.py
-msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_ENROLLMENT_START"
-msgstr "Ilmoittautumisen päättymisajan tulee olla ilmoittautumisen alkamisajan jälkeen."
+msgid "COURSE_INSTANCE_ERROR_ENROLLMENT_END_BEFORE_STARTING"
+msgstr "Ilmoittautumisen päättymisaika ei voi olla kurssin alkamisaikaa ennen."
 
 #: course/models.py
 msgid "COURSE_INSTANCE_ERROR_LIFESUPPORT_TIME_BEFORE_ENDING"
@@ -768,6 +765,22 @@ msgid "MODULE_CLOSING_TIME_HELPTEXT"
 msgstr "Tätä aikaa käytetään oletuksena moduulin tehtävien määräajoille."
 
 #: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_IN_USE"
+msgstr "aikaisen palautuksen bonus käytössä"
+
+#: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_DEADLINE"
+msgstr "aikaisen palautuksen bonuksen määräaika"
+
+#: course/models.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS"
+msgstr "aikaisen palautuksen bonus"
+
+#: course/models.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_HELPTEXT"
+msgstr "Bonuksen osuus väliltä 0–1. Esimerkiksi 0,1 lisää pisteitä 10 %."
+
+#: course/models.py
 msgid "LABEL_LATE_SUBMISSIONS_ALLOWED"
 msgstr "salli myöhästyneet palautukset"
 
@@ -802,6 +815,18 @@ msgstr "kurssimoduulit"
 #: course/models.py
 msgid "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME"
 msgstr "Avautumisajan tulee olla aikaisempi kuin sulkeutumisaika."
+
+#: course/models.py
+#, fuzzy
+#| msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"
+msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME"
+msgstr ""
+"Aikaisen palautuksen määräajan tulee olla ennen moduulin sulkeutumisaikaa."
+
+#: course/models.py
+msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"
+msgstr ""
+"Aikaisen palautuksen määräajan tulee olla ennen moduulin sulkeutumisaikaa."
 
 #: course/models.py
 msgid "MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME"
@@ -1458,6 +1483,11 @@ msgstr "Virhe"
 #: exercise/submission_models.py
 msgid "STATUS_REJECTED"
 msgstr "Hylätty"
+
+#: course/templates/course/staff/all_submissions_table.html
+#: exercise/submission_models.py
+msgid "STATUS_INVALIDATED"
+msgstr "Mitätöity"
 
 #: course/templates/course/staff/all_submissions_table.html
 #: edit_course/course_forms.py
@@ -2250,7 +2280,7 @@ msgstr "kurssidiplomien pohjat"
 msgid "LABEL_DESIGN"
 msgstr "pohja"
 
-#: diploma/models.py exercise/exercise_models.py
+#: diploma/models.py
 msgid "LABEL_PROFILE"
 msgstr "käyttäjä"
 
@@ -2296,6 +2326,52 @@ msgstr "Käyttäjätunnus"
 #: edit_course/course_forms.py exercise/templates/exercise/_user_results.html
 msgid "CATEGORY_capitalized"
 msgstr "Kategoria"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS"
+msgstr "bonuksen porrastuksen pituus (tunteina)"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT"
+msgstr ""
+"Aseta arvoksi 0, jos porrastusta ei käytetä. Positiivinen arvo tarkoittaa "
+"portaiden pituutta tunteina; bonus pienenee nollaan ennen moduulin "
+"määräaikaa."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP"
+msgstr ""
+"Porrastusta ei tällä hetkellä käytetä, koska portaan pituudeksi on asetettu "
+"0 tuntia."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP"
+msgstr ""
+"Aikaisen palautuksen bonuksen määräajan ja moduulin määräajan väliin ei "
+"tällä hetkellä mahdu yhtään kokonaista porrasta, joten aikaisen palautuksen "
+"määräajan jälkeen palautetuista tehtävistä ei saa bonusta."
+
+#: edit_course/course_forms.py
+#, python-format
+msgid "%(count)s step"
+msgid_plural "%(count)s steps"
+msgstr[0] "%(count)s porras"
+msgstr[1] "%(count)s porrasta"
+
+#: edit_course/course_forms.py
+#, python-format
+msgid "%(count)s hour"
+msgid_plural "%(count)s hours"
+msgstr[0] "%(count)s tunti"
+msgstr[1] "%(count)s tuntia"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
+msgstr ""
+"Porrastuksessa on tällä hetkellä %(steps)s, joiden pituus on %(step_hours)s. "
+"Bonus pienenee jokaisella portaalla %(decrease)s prosenttiyksikköä "
+"alkuperäisestä %(bonus)s%%:sta nollaan; mahdolliselta jäljelle jäävältä "
+"ajalta ennen moduulin määräaikaa ei saa bonusta."
 
 #: edit_course/course_forms.py edit_course/exercise_forms.py
 msgid "HIERARCHY"
@@ -3309,15 +3385,15 @@ msgstr "Tehtävien välimuisti on tyhjennetty."
 msgid "REAL_CLASS"
 msgstr "Oikea luokka"
 
+#: exercise/admin.py userprofile/templates/userprofile/teachers.html
+msgid "COURSE_INSTANCE"
+msgstr "Kurssikerta"
+
 #: exercise/admin.py
 msgid "SUBMISSION_INVALIDATION_NOT_ALLOWED_IN_ADMIN"
 msgstr ""
 "Tilaa ei voi tässä vaihtaa mitätöidyksi tai pois mitätöidystä tilasta. Käytä "
 "palautuksen tarkastelusivun painikkeita mitätöintiin ja sen poistamiseen."
-
-#: exercise/admin.py userprofile/templates/userprofile/teachers.html
-msgid "COURSE_INSTANCE"
-msgstr "Kurssikerta"
 
 #: exercise/admin.py exercise/forms.py exercise/submission_models.py
 msgid "LABEL_SUBMITTERS"
@@ -4004,6 +4080,10 @@ msgid "GRADING_MODE_TITLE -- {}"
 msgstr "Arvostelutapa: {}"
 
 #: exercise/staff_views.py
+msgid "SUBMISSION_ALREADY_INVALIDATED"
+msgstr "Palautus on jo mitätöity."
+
+#: exercise/staff_views.py
 msgid "ASSESS_SUBMISSION_REVIEW_SAVED_SUCCESS"
 msgstr "Palaute on tallennettu, ja opiskelijoille on lähetetty ilmoitus."
 
@@ -4058,10 +4138,6 @@ msgstr ""
 "Palautuksen hyväksyntä onnistui. Uudet pisteet ovat {points}/{max_points}."
 
 #: exercise/staff_views.py
-msgid "SUBMISSION_ALREADY_INVALIDATED"
-msgstr "Palautus on jo mitätöity."
-
-#: exercise/staff_views.py
 msgid "ONLY_READY_SUBMISSIONS_CAN_BE_INVALIDATED"
 msgstr "Ainoastaan valmiit palautukset voidaan mitätöidä."
 
@@ -4087,10 +4163,6 @@ msgid "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS -- {count}"
 msgid_plural "SUBMISSION_APPROVAL_MULTIPLE_SUCCESS_PLURAL -- {count}"
 msgstr[0] "{count} myöhästynyt tai epävirallinen palautus hyväksyttiin."
 msgstr[1] "{count} myöhästynyttä tai epävirallista palautusta hyväksyttiin."
-
-#: exercise/submission_models.py
-msgid "STATUS_INVALIDATED"
-msgstr "Mitätöity"
 
 #: exercise/submission_models.py
 msgid "STATUS_UNOFFICIAL"
@@ -4443,16 +4515,16 @@ msgid "ASSIGNMENTS_WITH_PERSONAL_DEADLINE_DEVIATION"
 msgstr "Tehtäviä henkilökohtaisella määräaikapidennyksellä"
 
 #: exercise/templates/exercise/_user_results.html
-msgid "OPENS ON"
-msgstr "Avautuu"
-
-#: exercise/templates/exercise/_user_results.html
 msgid "OPENS_FOR_READING_ON"
 msgstr "Avautuu luettavaksi"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "EXERCISES_OPEN_ON"
 msgstr "Tehtävät avautuvat"
+
+#: exercise/templates/exercise/_user_results.html
+msgid "OPENS_ON"
+msgstr "Avautuu"
 
 #: exercise/templates/exercise/_user_results.html
 msgid "OPEN_FOR_READING"
@@ -4596,6 +4668,20 @@ msgid "TO_BE_SUBMITTED_GROUPS -- %(min)s, %(max)s"
 msgstr "Palautetaan %(min)s-%(max)s hengen ryhmissä"
 
 #: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "EARLY_SUBMISSION_BONUS_AVAILABLE -- %(bonus)s, %(deadline)s"
+msgstr ""
+"Aikaisen palautuksen bonus on käytössä. %(bonus)s%% enemmän pisteitä, jos "
+"palautus tehdään ennen %(deadline)s."
+
+#: exercise/templates/exercise/exercise_plain.html
+#, python-format
+msgid "CURRENT_EARLY_SUBMISSION_BONUS -- %(bonus)s, %(deadline)s"
+msgstr ""
+"Tällä hetkellä aikaisen palautuksen bonus on %(bonus)s%%, ja se on voimassa "
+"määräaikaan %(deadline)s asti."
+
+#: exercise/templates/exercise/exercise_plain.html
 #: exercise/templates/exercise/submission.html
 #: exercise/templates/exercise/submission_plain.html
 msgid "SUBMISSION_ACCEPTED_FOR_GRADING"
@@ -4621,8 +4707,7 @@ msgstr ""
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_GREATER_THAN_MAX"
-msgstr ""
-"Pistetavoite ei voi olla suurempi kuin moduulin enimmäispisteet"
+msgstr "Pistetavoite ei voi olla suurempi kuin moduulin enimmäispisteet"
 
 #: exercise/templates/exercise/module_goal_modal.html
 msgid "PERSONALIZED_POINTS_MODAL_REMOVE_SUCCESS"
@@ -4990,7 +5075,9 @@ msgstr "Toinen palautus on merkitty opiskelijan lopulliseksi palautukseksi."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_INVALIDATED_SUBMISSION_REPLACED"
-msgstr "Tämä palautus on mitätöity. Toinen palautus määrittää tämän tehtävän arvosanan."
+msgstr ""
+"Tämä palautus on mitätöity. Toinen palautus määrittää tämän tehtävän "
+"arvosanan."
 
 #: exercise/templates/exercise/staff/inspect_submission.html
 msgid "NOTE_BETTER_SUBMISSIONS"
@@ -5075,8 +5162,9 @@ msgstr "Näytä vain palauttaneet opiskelijat"
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST_TOOLTIP"
 msgstr ""
-"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa &quot;"
-"vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä asetettuna."
+"Jos tämä on valittuna, näytetyt pisteet eivät huomioi arvostelutapaa "
+"&quot;vain viimeinen palautus&quot;, vaikka se olisi jossain tehtävässä "
+"asetettuna."
 
 #: exercise/templates/exercise/staff/results.html
 msgid "RESULTS_IGNORE_GRADING_MODE_LAST"
@@ -5518,8 +5606,8 @@ msgstr "Nimi (muuten palvelun oletus)."
 #: external_services/models.py
 msgid "MENU_ITEM_MENU_ICON_CLASS_HELPTEXT"
 msgstr ""
-"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://icons."
-"getbootstrap.com/"
+"Ikonin tyyli (muuten palvelun oletus), esim. star katso https://"
+"icons.getbootstrap.com/"
 
 #: external_services/models.py
 msgid "LABEL_MENU_WEIGHT"
@@ -5708,8 +5796,8 @@ msgstr ""
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GDPR_COMPLIANT"
 msgstr ""
-"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa GDPR:"
-"ää tietosuojailmoituksensa perusteella."
+"Palvelu sijaitsee Euroopan talousalueen ulkopuolella, mutta noudattaa "
+"GDPR:ää tietosuojailmoituksensa perusteella."
 
 #: external_services/templates/external_services/_privacy.html
 msgid "EXTERNAL_SERVICE_PRIVACY_GLOBAL"

@@ -1463,6 +1463,11 @@ class CourseModule(CourseModuleProto, models.Model):
             )
         if self.opening_time > self.closing_time:
             errors['opening_time'] = _('MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME')
+        if self.early_submission_bonus_in_use:
+            if self.early_submission_deadline <= self.opening_time:
+                errors['early_submission_deadline'] = _('MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME')
+            elif self.early_submission_deadline >= self.closing_time:
+                errors['early_submission_deadline'] = _('MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME')
         if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:
             errors['late_submission_deadline'] = _('MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME')
         if self.reading_opening_time and self.reading_opening_time > self.opening_time:
@@ -1471,6 +1476,60 @@ class CourseModule(CourseModuleProto, models.Model):
             errors['model_answer'] = _('MODULE_ERROR_MODEL_ANSWER_CHAPTER_IN_DIFFERENT_COURSE')
         if errors:
             raise ValidationError(errors)
+
+    def get_early_submission_bonus_tier(self, at_time):
+        if not self.early_submission_bonus_in_use:
+            return 0.0, None
+        if at_time < self.early_submission_deadline:
+            return 1.0, self.early_submission_deadline
+        if self.bonus_time_step_hours <= 0:
+            return 0.0, None
+
+        bonus_duration = self.closing_time - self.early_submission_deadline
+        step_duration = datetime.timedelta(hours=self.bonus_time_step_hours)
+        if bonus_duration <= datetime.timedelta(0):
+            return 0.0, self.closing_time
+
+        full_steps = bonus_duration // step_duration
+        if not full_steps:
+            return 0.0, self.closing_time
+
+        current_step = (at_time - self.early_submission_deadline) // step_duration
+        bonus_fraction = max(0.0, (full_steps - current_step - 1) / full_steps)
+        if bonus_fraction == 0:
+            return 0.0, self.closing_time
+
+        tier_end = self.early_submission_deadline + (current_step + 1) * step_duration
+        return bonus_fraction, min(tier_end, self.closing_time)
+
+    @property
+    def early_submission_bonus_available(self):
+        if not self.early_submission_bonus_in_use or self.early_submission_bonus <= 0:
+            return False
+        bonus_fraction, _ = self.get_early_submission_bonus_tier(timezone.now())
+        return bonus_fraction > 0
+
+    @property
+    def current_early_submission_bonus_info(self):
+        if not self.early_submission_bonus_in_use or self.bonus_time_step_hours <= 0:
+            return None
+
+        current_time = timezone.now()
+        if current_time >= self.closing_time:
+            return None
+
+        bonus_fraction, end_deadline = self.get_early_submission_bonus_tier(current_time)
+        if (
+            end_deadline is None
+            or bonus_fraction <= 0
+            or bonus_fraction >= 1
+            or self.early_submission_bonus <= 0
+        ):
+            return None
+        return {
+            'percentage': self.early_submission_bonus * bonus_fraction * 100,
+            'end_deadline': end_deadline,
+        }
 
     @property
     def default_model_solution_reveal_rule(self):
