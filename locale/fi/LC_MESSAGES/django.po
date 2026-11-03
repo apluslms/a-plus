@@ -817,11 +817,8 @@ msgid "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME"
 msgstr "Avautumisajan tulee olla aikaisempi kuin sulkeutumisaika."
 
 #: course/models.py
-#, fuzzy
-#| msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"
 msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME"
-msgstr ""
-"Aikaisen palautuksen määräajan tulee olla ennen moduulin sulkeutumisaikaa."
+msgstr "Aikaisen palautuksen määräajan tulee olla moduulin avautumisajan jälkeen."
 
 #: course/models.py
 msgid "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME"

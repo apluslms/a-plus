@@ -308,8 +308,6 @@ class ConfigureTest(TestCase):
 
         module_config.pop("early_bonus_in_use")
         self.configure_and_test()
-        module.refresh_from_db()
-        self.assertFalse(module.early_submission_bonus_in_use)
 
     def configure_and_test(self):
         success, errors = configure(self.instance, self.config)

@@ -1477,6 +1477,17 @@ class CourseModule(CourseModuleProto, models.Model):
         if errors:
             raise ValidationError(errors)
 
+    def get_early_submission_bonus_taper_steps(self):
+        if self.bonus_time_step_hours <= 0:
+            return 0
+
+        bonus_duration = self.closing_time - self.early_submission_deadline
+        step_duration = datetime.timedelta(hours=self.bonus_time_step_hours)
+        if bonus_duration <= datetime.timedelta(0):
+            return 0
+
+        return bonus_duration // step_duration
+
     def get_early_submission_bonus_tier(self, at_time):
         if not self.early_submission_bonus_in_use:
             return 0.0, None
@@ -1485,12 +1496,8 @@ class CourseModule(CourseModuleProto, models.Model):
         if self.bonus_time_step_hours <= 0:
             return 0.0, None
 
-        bonus_duration = self.closing_time - self.early_submission_deadline
         step_duration = datetime.timedelta(hours=self.bonus_time_step_hours)
-        if bonus_duration <= datetime.timedelta(0):
-            return 0.0, self.closing_time
-
-        full_steps = bonus_duration // step_duration
+        full_steps = self.get_early_submission_bonus_taper_steps()
         if not full_steps:
             return 0.0, self.closing_time
 

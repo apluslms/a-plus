@@ -909,7 +909,8 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                 f = parse_float(m["early_bonus"], errors)
                 if f is not None:
                     module.early_submission_bonus = f
-            module.early_submission_bonus_in_use = parse_bool(m.get("early_bonus_in_use", False))
+            if "early_bonus_in_use" in m:
+                module.early_submission_bonus_in_use = parse_bool(m["early_bonus_in_use"])
             if "bonus_time_step_hours" in m:
                 i = parse_int(m["bonus_time_step_hours"], errors)
                 if i is not None:

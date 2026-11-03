@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 from typing import Any
 import urllib.parse
 
@@ -99,9 +98,7 @@ class CourseModuleForm(FieldsetModelForm):
         if step_hours <= 0:
             taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP')
         else:
-            taper_duration = self.instance.closing_time - self.instance.early_submission_deadline
-            step_duration = timedelta(hours=step_hours)
-            full_steps = taper_duration // step_duration
+            full_steps = self.instance.get_early_submission_bonus_taper_steps()
             if full_steps <= 0:
                 taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP')
             else:

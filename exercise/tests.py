@@ -34,9 +34,22 @@ from exercise.reveal_states import ExerciseRevealState, ModuleRevealState
 from exercise.submission_models import PendingSubmission
 from exercise.submission_models import build_upload_dir as build_upload_dir_for_submission_model
 from exercise.tasks import regrade_exercises
+from exercise.templatetags.exercise import percent
 from lib.api.authentication import get_graderauth_submission_params
 from lib.helpers import build_aplus_url, update_url_params
 from aplus.celery import retry_submissions
+
+
+class PercentFilterTest(SimpleTestCase):
+    def test_whole_percentages_are_not_truncated_by_float_precision(self):
+        for percentage in range(101):
+            with self.subTest(percentage=percentage):
+                self.assertEqual(percent(percentage / 100), percentage)
+
+    def test_fractional_percentages_round_to_nearest_integer(self):
+        for value, expected in ((0.294, 29), (0.296, 30)):
+            with self.subTest(value=value):
+                self.assertEqual(percent(value), expected)
 
 
 class InvalidatedSubmissionRetryTest(SimpleTestCase):
@@ -1035,7 +1048,7 @@ class ExerciseTest(ExerciseTestBase):
     def test_exercise_current_bonus_step_hidden_when_full_bonus_is_available(self):
         early_deadline = timezone.now() + timedelta(hours=1)
         self.course_module.early_submission_bonus_in_use = True
-        self.course_module.early_submission_bonus = 0.1
+        self.course_module.early_submission_bonus = 0.29
         self.course_module.bonus_time_step_hours = 6
         self.course_module.early_submission_deadline = early_deadline
         self.course_module.closing_time = early_deadline + timedelta(hours=18)
@@ -1051,7 +1064,7 @@ class ExerciseTest(ExerciseTestBase):
         response_module = response.context["module"]
         self.assertTrue(response_module.early_submission_bonus_available)
         self.assertIsNone(response_module.current_early_submission_bonus_info)
-        self.assertContains(response, "10% more points are available")
+        self.assertContains(response, "29% more points are available")
         self.assertNotContains(response, "Current early submission bonus:")
 
     def test_exercise_early_submission_bonus_not_shown_when_unavailable(self):
