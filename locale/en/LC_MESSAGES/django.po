@@ -749,11 +749,11 @@ msgstr ""
 
 #: course/models.py
 msgid "LABEL_EXERCISE_OPENING_TIME"
-msgstr "opening time for the assignments"
+msgstr "exercises opening time"
 
 #: course/models.py
 msgid "LABEL_CLOSING_TIME"
-msgstr "closing time"
+msgstr "submissions deadline"
 
 #: course/models.py
 msgid "MODULE_CLOSING_TIME_HELPTEXT"
@@ -2311,19 +2311,6 @@ msgstr "Username"
 msgid "CATEGORY_capitalized"
 msgstr "Category"
 
-#: edit_course/course_forms.py
-msgid "LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS"
-msgstr "early bonus step (hours)"
-
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT"
-msgstr ""
-"Set to 0 to disable tapering. Positive values are hours per step, with the "
-"bonus decreasing to zero before the module deadline."
-
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP"
-msgstr "Tapering is currently disabled because the step length is 0 hours."
 
 #: edit_course/course_forms.py
 msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP"
@@ -2345,13 +2332,6 @@ msgid "%(count)s hour"
 msgid_plural "%(count)s hours"
 msgstr[0] "%(count)s hour"
 msgstr[1] "%(count)s hours"
-
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
-msgstr ""
-"The tapering currently uses %(steps)s, each lasting %(step_hours)s. The "
-"bonus decreases by %(decrease)s percentage points per step from %(bonus)s%% "
-"to 0%%; any remaining time before the module deadline has no bonus."
 
 #: edit_course/course_forms.py edit_course/exercise_forms.py
 msgid "HIERARCHY"
@@ -6459,3 +6439,97 @@ msgstr "No system-wide accessibility statement found."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "No support page. Please notify administration!"
+
+#: templates for edit_course/edit_model.html and assets/js/early_submission_bonus.js
+msgid "MODULE_SCHEDULE_TIMELINE_TITLE"
+msgstr "Module schedule and points accumulation preview"
+
+#: templates for edit_course/edit_model.html and assets/js/early_submission_bonus.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_INVALID"
+msgstr "Fill in the opening and closing times. The closing time must be after the opening time."
+
+#: assets/js/module_schedule.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_NOW"
+msgstr "now"
+
+#: assets/js/module_schedule.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_POINTS_TITLE"
+msgstr "Points by submission time"
+
+
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT"
+msgstr "Shift all dates:"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_BACK"
+msgstr "Move all dates one hour earlier"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_FORWARD"
+msgstr "Move all dates one hour later"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_BACK"
+msgstr "Move all dates one day earlier"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_FORWARD"
+msgstr "Move all dates one day later"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_RESET"
+msgstr "Reset all times to"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_RESET_APPLY"
+msgstr "Set the time of all dates to the selected time"
+
+#: edit_course/course_forms.py
+msgid "LABEL_READING_OPENING_IN_USE"
+msgstr "Open the reading material before the assignments"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_FULL_UNTIL"
+msgstr "Early submission deadline"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_LINEAR_TOOLTIP"
+msgstr "The bonus decays linearly from the early submission deadline to the module deadline."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
+msgstr "The bonus decreases in %(steps)s from %(bonus)s%% to 0%% between the early submission deadline and the module deadline."
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_COPY_FROM"
+msgstr "Copy schedule from another module:"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_COPY_APPLY"
+msgstr "Copy the schedule of the selected module"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_BACK"
+msgstr "Move all dates one week earlier"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_FORWARD"
+msgstr "Move all dates one week later"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_LABEL"
+msgstr "Bonus after early deadline"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_PREFIX"
+msgstr "Decays to zero in"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_SUFFIX"
+msgstr "steps"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_HELPTEXT"
+msgstr "1 = no bonus after early deadline\n0 = linear decay to zero"

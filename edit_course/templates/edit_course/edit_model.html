@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load course %}
 {% load django_bootstrap5 %}
+{% load static %}
 
 {% block edittitle %}{% if object.id %}{% blocktranslate trimmed with model=model_name id=object.id %}EDIT_MODEL -- {{ model }}, {{ id }}{% endblocktranslate %}{% else %}{% blocktranslate trimmed with model=model_name %}ADD_NEW_MODEL -- {{ model }}{% endblocktranslate %}{% endif %}{% endblock %}
 
@@ -58,7 +59,38 @@
             <legend>{{ fieldset.legend }}</legend>
             {% endif %}
             {% for field in fieldset.fields %}
-            {% bootstrap_field field layout="horizontal" %}
+                {% if field.name %}
+                    {% bootstrap_field field %}
+                {% elif field.bordered %}
+                    {# A bordered group of related settings. #}
+                    <div class="border rounded p-3 mb-3">
+                        {% for subfield in field.fields %}
+                            {% if subfield.name %}
+                                {% bootstrap_field subfield %}
+                            {% else %}
+                                <div class="row row-cols-1 row-cols-md-3">
+                                    {% for groupfield in subfield %}
+                                    <div class="col">
+                                        {% bootstrap_field groupfield %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% elif field.fields %}
+                    {# A nested form (e.g. the reveal rule form). #}
+                    {% bootstrap_field field %}
+                {% else %}
+                    {# A group of related fields rendered side by side. #}
+                    <div class="row row-cols-1 row-cols-md-3">
+                        {% for subfield in field %}
+                        <div class="col">
+                            {% bootstrap_field subfield %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endfor %}
         </fieldset>
         {% endfor %}
@@ -76,6 +108,104 @@
 
 {% block scripts %}
 {{ block.super }}
+{% if form.early_submission_bonus_in_use %}
+{% translate "MODULE_SCHEDULE_TIMELINE_TITLE" as eb_title %}
+{% translate "MODULE_EARLY_BONUS_TIMELINE_INVALID" as eb_invalid %}
+{% translate "MODULE_EARLY_BONUS_TIMELINE_NOW" as eb_now %}
+{% translate "MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME" as eb_err_opening_after_closing %}
+{% translate "MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME" as eb_err_early_before_opening %}
+{% translate "MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME" as eb_err_early_after_closing %}
+{% translate "MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME" as eb_err_late_before_closing %}
+{% translate "MODULE_ERROR_READING_OPENING_TIME_AFTER_EXERCISE_OPENING" as eb_err_reading_after_opening %}
+{% translate "LABEL_READING_OPENING_TIME" as eb_reading_label %}
+{% translate "LABEL_EXERCISE_OPENING_TIME" as eb_opening_label %}
+{% translate "LABEL_EARLY_SUBMISSION_BONUS_FULL_UNTIL" as eb_early_label %}
+{% translate "LABEL_CLOSING_TIME" as eb_closing_label %}
+{% translate "LABEL_LATE_SUBMISSION_DEADLINE" as eb_late_label %}
+{% translate "MODULE_EARLY_BONUS_TIMELINE_POINTS_TITLE" as eb_points_title %}
+{% translate "MODULE_SCHEDULE_DECAY_LABEL" as eb_decay_label %}
+{% translate "MODULE_SCHEDULE_DECAY_PREFIX" as eb_decay_prefix %}
+{% translate "MODULE_SCHEDULE_DECAY_SUFFIX" as eb_decay_suffix %}
+{% translate "MODULE_SCHEDULE_DECAY_HELPTEXT" as eb_decay_help %}
+<div id="module-schedule-copy" class="d-flex align-items-center gap-1 flex-nowrap mb-1" hidden>
+    <span class="text-body-secondary text-nowrap">{% translate "MODULE_SCHEDULE_COPY_FROM" %}</span>
+    <select id="module-copy-source" class="form-select form-select-sm w-auto"></select>
+    <button type="button" id="module-copy-apply" class="btn btn-outline-primary btn-sm"
+        title="{% translate 'MODULE_SCHEDULE_COPY_APPLY' %}" aria-label="{% translate 'MODULE_SCHEDULE_COPY_APPLY' %}">
+        <i class="bi-check-lg" aria-hidden="true"></i>
+    </button>
+</div>
+<div id="module-schedule-charts" class="border rounded p-2 mb-3 bg-body-tertiary" hidden>
+    <div class="d-flex align-items-center justify-content-between flex-wrap mb-1">
+        <strong>{% translate "MODULE_SCHEDULE_TIMELINE_TITLE" %}</strong>
+        <div id="module-schedule-shift" class="d-flex align-items-center gap-1 flex-nowrap" hidden>
+            <span class="small text-body-secondary me-1 text-nowrap">{% translate "MODULE_EARLY_BONUS_TIMELINE_SHIFT" %}</span>
+            <button type="button" id="module-shift-week-back" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_BACK' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_BACK' %}">
+                <i class="bi-chevron-double-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="module-shift-day-back" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_BACK' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_BACK' %}">
+                <i class="bi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="module-shift-hour-back" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_BACK' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_BACK' %}">
+                <i class="bi-chevron-compact-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="module-shift-hour-forward" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_FORWARD' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_FORWARD' %}">
+                <i class="bi-chevron-compact-right" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="module-shift-day-forward" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_FORWARD' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_FORWARD' %}">
+                <i class="bi-chevron-right" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="module-shift-week-forward" class="btn btn-outline-secondary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_FORWARD' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_FORWARD' %}">
+                <i class="bi-chevron-double-right" aria-hidden="true"></i>
+            </button>
+            <span class="small text-body-secondary ms-2 me-1 text-nowrap">{% translate "MODULE_EARLY_BONUS_TIMELINE_RESET" %}</span>
+            <input type="time" id="module-reset-time" class="form-control form-control-sm text-nowrap"
+                aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_RESET' %}" style="min-width: 6.5rem;">
+            <button type="button" id="module-reset-apply" class="btn btn-outline-primary btn-sm"
+                title="{% translate 'MODULE_EARLY_BONUS_TIMELINE_RESET_APPLY' %}" aria-label="{% translate 'MODULE_EARLY_BONUS_TIMELINE_RESET_APPLY' %}">
+                <i class="bi-check-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+    <div id="module-schedule-timeline" class="mb-2"></div>
+    <div id="module-schedule-points"></div>
+</div>
+{{ form.other_module_schedules|json_script:"module-schedule-copy-data" }}
+<script type="application/json" id="module-schedule-messages">
+{
+  "timelineTitle": "{{ eb_title|escapejs }}",
+  "pointsTitle": "{{ eb_points_title|escapejs }}",
+  "decayLabel": "{{ eb_decay_label|escapejs }}",
+  "decayPrefix": "{{ eb_decay_prefix|escapejs }}",
+  "decaySuffix": "{{ eb_decay_suffix|escapejs }}",
+  "decayHelp": "{{ eb_decay_help|escapejs }}",
+  "invalid": "{{ eb_invalid|escapejs }}",
+  "now": "{{ eb_now|escapejs }}",
+  "readingLabel": "{{ eb_reading_label|escapejs }}",
+  "openingLabel": "{{ eb_opening_label|escapejs }}",
+  "earlyLabel": "{{ eb_early_label|escapejs }}",
+  "closingLabel": "{{ eb_closing_label|escapejs }}",
+  "lateLabel": "{{ eb_late_label|escapejs }}",
+  "errors": {
+    "opening_time": "{{ eb_err_opening_after_closing|escapejs }}",
+    "early_submission_deadline": [
+      "{{ eb_err_early_before_opening|escapejs }}",
+      "{{ eb_err_early_after_closing|escapejs }}"
+    ],
+    "late_submission_deadline": "{{ eb_err_late_before_closing|escapejs }}",
+    "reading_opening_time": "{{ eb_err_reading_after_opening|escapejs }}"
+  }
+}
+</script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="{% static 'js/module_schedule.js' %}"></script>
+{% endif %}
 {% if form.service_url %}
 <script type="text/javascript">
 $(function() {

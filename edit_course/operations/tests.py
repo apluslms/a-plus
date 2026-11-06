@@ -123,7 +123,7 @@ class ConfigureTest(TestCase):
             "early_close": ("early_submission_deadline", lambda value: parse_date(value, [])),
             "early_bonus": "early_submission_bonus",
             "early_bonus_in_use": "early_submission_bonus_in_use",
-            "bonus_time_step_hours": "bonus_time_step_hours",
+            "bonus_decay_steps": "bonus_decay_steps",
         }
         self.lobject_field_map = {
             "key": "url",
@@ -284,7 +284,7 @@ class ConfigureTest(TestCase):
     def test_early_submission_bonus(self):
         self.configure_and_test()
         module = self.instance.course_modules.get(url=self.config["modules"][0]["key"])
-        self.assertEqual(module.bonus_time_step_hours, 0)
+        self.assertEqual(module.bonus_decay_steps, 0)
 
         module_config = self.config["modules"][0]
         early_deadline = self.today + timedelta(hours=12)
@@ -295,7 +295,7 @@ class ConfigureTest(TestCase):
             "early_close": early_deadline_text,
             "early_bonus": 0.1,
             "early_bonus_in_use": True,
-            "bonus_time_step_hours": 48,
+            "bonus_decay_steps": 48,
         })
 
         self.configure_and_test()
@@ -304,7 +304,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(module.early_submission_deadline, parse_date(early_deadline_text, []))
         self.assertEqual(module.early_submission_bonus, 0.1)
         self.assertTrue(module.early_submission_bonus_in_use)
-        self.assertEqual(module.bonus_time_step_hours, 48)
+        self.assertEqual(module.bonus_decay_steps, 48)
 
         module_config.pop("early_bonus_in_use")
         self.configure_and_test()

@@ -758,7 +758,7 @@ msgstr "tehtävien avautumisaika"
 
 #: course/models.py
 msgid "LABEL_CLOSING_TIME"
-msgstr "sulkeutumisaika"
+msgstr "palautusten määräaika"
 
 #: course/models.py
 msgid "MODULE_CLOSING_TIME_HELPTEXT"
@@ -2324,22 +2324,6 @@ msgstr "Käyttäjätunnus"
 msgid "CATEGORY_capitalized"
 msgstr "Kategoria"
 
-#: edit_course/course_forms.py
-msgid "LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS"
-msgstr "bonuksen porrastuksen pituus (tunteina)"
-
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT"
-msgstr ""
-"Aseta arvoksi 0, jos porrastusta ei käytetä. Positiivinen arvo tarkoittaa "
-"portaiden pituutta tunteina; bonus pienenee nollaan ennen moduulin "
-"määräaikaa."
-
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP"
-msgstr ""
-"Porrastusta ei tällä hetkellä käytetä, koska portaan pituudeksi on asetettu "
-"0 tuntia."
 
 #: edit_course/course_forms.py
 msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_NO_STEPS_TOOLTIP"
@@ -2362,13 +2346,6 @@ msgid_plural "%(count)s hours"
 msgstr[0] "%(count)s tunti"
 msgstr[1] "%(count)s tuntia"
 
-#: edit_course/course_forms.py
-msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
-msgstr ""
-"Porrastuksessa on tällä hetkellä %(steps)s, joiden pituus on %(step_hours)s. "
-"Bonus pienenee jokaisella portaalla %(decrease)s prosenttiyksikköä "
-"alkuperäisestä %(bonus)s%%:sta nollaan; mahdolliselta jäljelle jäävältä "
-"ajalta ennen moduulin määräaikaa ei saa bonusta."
 
 #: edit_course/course_forms.py edit_course/exercise_forms.py
 msgid "HIERARCHY"
@@ -6490,3 +6467,97 @@ msgstr "Järjestelmätason saavutettavuusselostetta ei löytynyt."
 #: userprofile/views.py
 msgid "NO_SUPPORT_PAGE"
 msgstr "Ei tukisivua. Ota yhteys ylläpitäjään!"
+
+#: templates for edit_course/edit_model.html and assets/js/early_submission_bonus.js
+msgid "MODULE_SCHEDULE_TIMELINE_TITLE"
+msgstr "Moduulin aikataulun ja pisteiden kertymän esikatselu"
+
+#: templates for edit_course/edit_model.html and assets/js/early_submission_bonus.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_INVALID"
+msgstr "Täytä avautumis- ja määräajat. Määräajan tulee olla avautumisajan jälkeen."
+
+#: assets/js/module_schedule.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_NOW"
+msgstr "nyt"
+
+#: assets/js/module_schedule.js
+msgid "MODULE_EARLY_BONUS_TIMELINE_POINTS_TITLE"
+msgstr "Pisteet palautusajankohdan mukaan"
+
+
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT"
+msgstr "Siirrä kaikkia määräaikoja:"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_BACK"
+msgstr "Siirrä kaikkia määräaikoja tunti taaksepäin"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_HOUR_FORWARD"
+msgstr "Siirrä kaikkia määräaikoja tunti eteenpäin"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_BACK"
+msgstr "Siirrä kaikkia määräaikoja päivä taaksepäin"
+
+#: assets/js/module_schedule.js edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_DAY_FORWARD"
+msgstr "Siirrä kaikkia määräaikoja päivä eteenpäin"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_RESET"
+msgstr "Aseta kaikki kellonajat"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_RESET_APPLY"
+msgstr "Aseta kaikkien määräaikojen kellonajaksi valittu aika"
+
+#: edit_course/course_forms.py
+msgid "LABEL_READING_OPENING_IN_USE"
+msgstr "Avaa lukumateriaali ennen tehtäviä"
+
+#: edit_course/course_forms.py
+msgid "LABEL_EARLY_SUBMISSION_BONUS_FULL_UNTIL"
+msgstr "Aikaisen palautuksen määräaika"
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_LINEAR_TOOLTIP"
+msgstr "Bonus pienenee lineaarisesti aikaisen palautuksen määräajasta moduulin määräaikaan."
+
+#: edit_course/course_forms.py
+msgid "MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP"
+msgstr "Bonus pienenee %(steps)s verrattuna %(bonus)s%%:sta 0%%:iin aikaisen palautuksen määräajan ja moduulin määräajan välillä."
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_COPY_FROM"
+msgstr "Kopioi aikataulu toisesta moduulista:"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_COPY_APPLY"
+msgstr "Kopioi valitun moduulin aikataulu"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_BACK"
+msgstr "Siirrä kaikki määräaikoja viikolla aikaisemmaksi"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_EARLY_BONUS_TIMELINE_SHIFT_WEEK_FORWARD"
+msgstr "Siirrä kaikki määräaikoja viikolla myöhemmäksi"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_LABEL"
+msgstr "Bonus aikaisen määräajan jälkeen"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_PREFIX"
+msgstr "Putoaa nollaan"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_SUFFIX"
+msgstr "portaassa"
+
+#: edit_course/templates/edit_course/edit_model.html
+msgid "MODULE_SCHEDULE_DECAY_HELPTEXT"
+msgstr "1 = putoaa heti nollaan\n0 = pienenee lineaarisesti"

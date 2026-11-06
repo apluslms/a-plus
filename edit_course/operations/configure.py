@@ -911,10 +911,10 @@ def configure(instance: CourseInstance, new_config: dict) -> Tuple[bool, List[st
                     module.early_submission_bonus = f
             if "early_bonus_in_use" in m:
                 module.early_submission_bonus_in_use = parse_bool(m["early_bonus_in_use"])
-            if "bonus_time_step_hours" in m:
-                i = parse_int(m["bonus_time_step_hours"], errors)
+            if "bonus_decay_steps" in m:
+                i = parse_int(m["bonus_decay_steps"], errors)
                 if i is not None:
-                    module.bonus_time_step_hours = i
+                    module.bonus_decay_steps = i
 
             if "late_close" in m:
                 dt = parse_date(m["late_close"], errors)

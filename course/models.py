@@ -1398,7 +1398,11 @@ class CourseModule(CourseModuleProto, models.Model):
         default=0.0,
         help_text=_('MODULE_EARLY_SUBMISSION_BONUS_HELPTEXT'),
     )
-    bonus_time_step_hours = models.PositiveIntegerField(default=0)
+    # Number of equal bonus decay steps between the early submission
+    # deadline and the module deadline. Zero means the bonus decays
+    # linearly; one step means the bonus drops to zero immediately at the
+    # early submission deadline.
+    bonus_decay_steps = models.IntegerField(default=0)
 
     late_submissions_allowed = models.BooleanField(
         verbose_name=_('LABEL_LATE_SUBMISSIONS_ALLOWED'),
@@ -1478,30 +1482,44 @@ class CourseModule(CourseModuleProto, models.Model):
             raise ValidationError(errors)
 
     def get_early_submission_bonus_taper_steps(self):
-        if self.bonus_time_step_hours <= 0:
+        if self.bonus_decay_steps <= 0:
             return 0
 
         bonus_duration = self.closing_time - self.early_submission_deadline
-        step_duration = datetime.timedelta(hours=self.bonus_time_step_hours)
         if bonus_duration <= datetime.timedelta(0):
             return 0
 
-        return bonus_duration // step_duration
+        return self.bonus_decay_steps
 
     def get_early_submission_bonus_tier(self, at_time):
         if not self.early_submission_bonus_in_use:
             return 0.0, None
         if at_time < self.early_submission_deadline:
             return 1.0, self.early_submission_deadline
-        if self.bonus_time_step_hours <= 0:
-            return 0.0, None
+        if self.bonus_decay_steps <= 0:
+            # The bonus decays linearly from the early submission deadline
+            # to the module deadline.
+            if at_time >= self.closing_time:
+                return 0.0, None
+            bonus_duration = self.closing_time - self.early_submission_deadline
+            if bonus_duration <= datetime.timedelta(0):
+                return 0.0, None
+            fraction = 1.0 - (
+                (at_time - self.early_submission_deadline).total_seconds()
+                / bonus_duration.total_seconds()
+            )
+            return max(0.0, fraction), self.closing_time
 
-        step_duration = datetime.timedelta(hours=self.bonus_time_step_hours)
+        # Decay in a fixed number of equal steps between the early
+        # submission deadline and the module deadline. One step means the
+        # bonus drops to zero immediately at the early submission deadline.
         full_steps = self.get_early_submission_bonus_taper_steps()
         if not full_steps:
             return 0.0, self.closing_time
 
-        current_step = (at_time - self.early_submission_deadline) // step_duration
+        bonus_duration = self.closing_time - self.early_submission_deadline
+        step_duration = bonus_duration / full_steps
+        current_step = int((at_time - self.early_submission_deadline) // step_duration)
         bonus_fraction = max(0.0, (full_steps - current_step - 1) / full_steps)
         if bonus_fraction == 0:
             return 0.0, self.closing_time
@@ -1518,7 +1536,7 @@ class CourseModule(CourseModuleProto, models.Model):
 
     @property
     def current_early_submission_bonus_info(self):
-        if not self.early_submission_bonus_in_use or self.bonus_time_step_hours <= 0:
+        if not self.early_submission_bonus_in_use:
             return None
 
         current_time = timezone.now()
