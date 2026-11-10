@@ -64,7 +64,7 @@ def retry_submissions():
         if pending.submission.status == Submission.STATUS.INVALIDATED:
             pending.delete()
             return
-        if pending.num_retries >= settings.SUBMISSION_RETRY_LIMIT and settings.SUBMISSION_RETRY_LIMIT > 0:
+        if 0 < settings.SUBMISSION_RETRY_LIMIT <= pending.num_retries:
             logger.info("Recovery state: submission retry limit exceeded for submission %s - removing from pending",
                         pending.submission)
             pending.submission.set_error()
