@@ -681,7 +681,9 @@ class ExerciseTest(ExerciseTestBase):
         module = self.course_module
         module.early_submission_bonus_in_use = True
         module.early_submission_bonus = 0.2
-        module.bonus_time_step_hours = 24
+        # Decay in 3 equal steps over 3 days: 15% bonus the first day,
+        # 10% the second day, 5% the third day.
+        module.bonus_decay_steps = 3
         module.early_submission_deadline = self.today
         module.closing_time = self.today + timedelta(days=3)
 
@@ -697,11 +699,6 @@ class ExerciseTest(ExerciseTestBase):
         self.submission.set_points(5, 10, no_penalties=True)
         self.assertEqual(self.submission.grade, 53)
 
-        self.submission.submission_time = self.today + timedelta(days=2)
-        self.submission.set_points(5, 10, no_penalties=True)
-        self.assertEqual(self.submission.grade, 50)
-
-        module.closing_time = self.today + timedelta(days=3, hours=12)
         self.submission.submission_time = self.today + timedelta(days=2)
         self.submission.set_points(5, 10, no_penalties=True)
         self.assertEqual(self.submission.grade, 50)
@@ -1022,7 +1019,7 @@ class ExerciseTest(ExerciseTestBase):
         early_deadline = timezone.now() - timedelta(hours=1)
         self.course_module.early_submission_bonus_in_use = True
         self.course_module.early_submission_bonus = 0.1
-        self.course_module.bonus_time_step_hours = 6
+        self.course_module.bonus_decay_steps = 3
         self.course_module.early_submission_deadline = early_deadline
         self.course_module.closing_time = early_deadline + timedelta(hours=18)
         self.course_module.save()
@@ -1032,7 +1029,7 @@ class ExerciseTest(ExerciseTestBase):
 
         self.assertEqual(response.status_code, 200)
         response_module = response.context["module"]
-        self.assertEqual(response_module.bonus_time_step_hours, 6)
+        self.assertEqual(response_module.bonus_decay_steps, 3)
         self.assertTrue(response_module.early_submission_bonus_available)
         self.assertIsNotNone(response_module.current_early_submission_bonus_info)
         self.assertContains(response, "Early submission bonus in use.")
@@ -1049,7 +1046,7 @@ class ExerciseTest(ExerciseTestBase):
         early_deadline = timezone.now() + timedelta(hours=1)
         self.course_module.early_submission_bonus_in_use = True
         self.course_module.early_submission_bonus = 0.29
-        self.course_module.bonus_time_step_hours = 6
+        self.course_module.bonus_decay_steps = 6
         self.course_module.early_submission_deadline = early_deadline
         self.course_module.closing_time = early_deadline + timedelta(hours=18)
         self.course_module.save()
@@ -1070,12 +1067,16 @@ class ExerciseTest(ExerciseTestBase):
     def test_exercise_early_submission_bonus_not_shown_when_unavailable(self):
         self.client.force_login(self.user)
 
-        for step_hours, hours_after_early_deadline in ((0, 1), (6, 13)):
-            with self.subTest(step_hours=step_hours):
+        # No bonus after the early deadline (-1): unavailable immediately.
+        # Linear decay (0) is available until the module deadline, so it is
+        # covered by the other tests; here only the immediate-unavailable
+        # mode is relevant.
+        for decay_steps, hours_after_early_deadline in ((1, 1),):
+            with self.subTest(decay_steps=decay_steps):
                 early_deadline = timezone.now() - timedelta(hours=hours_after_early_deadline)
                 self.course_module.early_submission_bonus_in_use = True
                 self.course_module.early_submission_bonus = 0.1
-                self.course_module.bonus_time_step_hours = step_hours
+                self.course_module.bonus_decay_steps = decay_steps
                 self.course_module.early_submission_deadline = early_deadline
                 self.course_module.closing_time = early_deadline + timedelta(hours=18)
                 self.course_module.save()

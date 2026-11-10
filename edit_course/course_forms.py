@@ -8,6 +8,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _, ngettext
 from django_colortag.forms import ColorTagForm
 
@@ -72,9 +73,9 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submission_deadline',
             'late_submission_penalty',
             'early_submission_bonus_in_use',
-            'early_submission_deadline',
             'early_submission_bonus',
-            'bonus_time_step_hours',
+            'early_submission_deadline',
+            'bonus_decay_steps',
             'model_answer',
         ]
         widgets = {
@@ -85,18 +86,15 @@ class CourseModuleForm(FieldsetModelForm):
             'late_submission_deadline': DateTimeLocalInput,
         }
         labels = {
-            'bonus_time_step_hours': _('LABEL_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS'),
-        }
-        help_texts = {
-            'bonus_time_step_hours': _('MODULE_EARLY_SUBMISSION_BONUS_TIME_STEP_HOURS_HELPTEXT'),
+            'early_submission_deadline': _('LABEL_EARLY_SUBMISSION_BONUS_FULL_UNTIL'),
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-        step_hours = self.instance.bonus_time_step_hours
-        if step_hours <= 0:
-            taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_DISABLED_TOOLTIP')
+        decay_steps = self.instance.bonus_decay_steps
+        if decay_steps == 0:
+            taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_LINEAR_TOOLTIP')
         else:
             full_steps = self.instance.get_early_submission_bonus_taper_steps()
             if full_steps <= 0:
@@ -109,21 +107,77 @@ class CourseModuleForm(FieldsetModelForm):
                     '%(count)s steps',
                     full_steps,
                 ) % {'count': full_steps}
-                hours_text = ngettext(
-                    '%(count)s hour',
-                    '%(count)s hours',
-                    step_hours,
-                ) % {'count': step_hours}
                 taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_TAPER_TOOLTIP') % {
                     'steps': steps_text,
-                    'step_hours': hours_text,
                     'decrease': f'{decrease:.2f}'.rstrip('0').rstrip('.'),
                     'bonus': f'{bonus_percentage:.2f}'.rstrip('0').rstrip('.'),
                 }
-        self.fields['bonus_time_step_hours'].widget.attrs.update({
+        self.fields['bonus_decay_steps'].widget.attrs.update({
             'data-bs-toggle': 'tooltip',
             'title': taper_tooltip,
+            'min': '0',
+            'step': '1',
         })
+        # The bonus is a fraction between 0 and 1; step in 0.1 increments.
+        self.fields['early_submission_bonus'].widget.attrs.update({
+            'step': '0.1',
+            'min': '0',
+            'max': '1',
+        })
+        # The late penalty is also a fraction between 0 and 1.
+        self.fields['late_submission_penalty'].widget.attrs.update({
+            'step': '0.1',
+            'min': '0',
+            'max': '1',
+        })
+        # Marks for module_schedule.js: these rows are hidden until the
+        # bonus checkbox is checked, and the late penalty rows until late
+        # submissions are allowed.
+        for field_name in ('early_submission_deadline', 'early_submission_bonus', 'bonus_decay_steps'):
+            self.fields[field_name].widget.attrs['data-early-bonus-dependent'] = 'true'
+        for field_name in ('late_submission_deadline', 'late_submission_penalty'):
+            self.fields[field_name].widget.attrs['data-late-penalty-dependent'] = 'true'
+        for field_name in ('reading_opening_time',):
+            self.fields[field_name].widget.attrs['data-reading-opening-dependent'] = 'true'
+
+        self.order_fields([
+            'early_submission_bonus_in_use',
+            'early_submission_bonus',
+            'early_submission_deadline',
+            'bonus_decay_steps',
+        ])
+
+        # Form-only checkbox that reveals the reading opening time field.
+        # The model stores only the nullable datetime; the checkbox is
+        # checked when a reading opening time is set.
+        self.fields['reading_opening_in_use'] = forms.BooleanField(
+            label=_('LABEL_READING_OPENING_IN_USE'),
+            required=False,
+            initial=self.instance.reading_opening_time is not None,
+        )
+        self.order_fields(['reading_opening_in_use', 'reading_opening_time'])
+
+        # Schedules of the other modules in this course instance, for the
+        # "copy schedule from another module" helper. Serialized for
+        # module_schedule.js; only names and schedule fields are included.
+        self.other_module_schedules = [
+            {
+                'id': module.id,
+                'name': force_str(module),
+                'reading_opening_time': module.reading_opening_time,
+                'opening_time': module.opening_time,
+                'early_submission_bonus_in_use': module.early_submission_bonus_in_use,
+                'early_submission_bonus': module.early_submission_bonus,
+                'early_submission_deadline': module.early_submission_deadline,
+                'bonus_decay_steps': module.bonus_decay_steps,
+                'closing_time': module.closing_time,
+                'late_submissions_allowed': module.late_submissions_allowed,
+                'late_submission_deadline': module.late_submission_deadline,
+                'late_submission_penalty': module.late_submission_penalty,
+            }
+            for module in self.instance.course_instance.course_modules.exclude(
+                id=self.instance.id)
+        ]
 
         from .exercise_forms import RevealRuleForm # pylint: disable=import-outside-toplevel
         self.model_solution_form = RevealRuleForm(
@@ -141,11 +195,22 @@ class CourseModuleForm(FieldsetModelForm):
             { 'legend':_('CONTENT'), 'fields':
              self.get_fields('name','introduction','points_to_pass', 'model_answer') },
             { 'legend':_('REVEAL_MODEL_SOLUTIONS'), 'fields': self.model_solution_form },
-            { 'legend':_('SCHEDULE'), 'fields':self.get_fields(
-                'reading_opening_time', 'opening_time',
-                'closing_time', 'late_submissions_allowed', 'late_submission_deadline',
-                'late_submission_penalty', 'early_submission_bonus_in_use',
-                'early_submission_deadline', 'early_submission_bonus', 'bonus_time_step_hours') },
+            { 'legend':_('SCHEDULE'), 'fields': [
+                *self.get_fields('reading_opening_in_use', 'reading_opening_time'),
+                { 'bordered': True, 'fields': [
+                    self.get_fields('opening_time',
+                                    'early_submission_bonus_in_use'),
+                    self.get_fields('early_submission_bonus',
+                                    'early_submission_deadline',
+                                    'bonus_decay_steps'),
+                ] },
+                { 'bordered': True, 'fields': [
+                    self.get_fields('closing_time',
+                                    'late_submissions_allowed'),
+                    self.get_fields('late_submission_penalty',
+                                    'late_submission_deadline'),
+                ] },
+            ] },
         ]
 
     def is_valid(self) -> bool:
@@ -153,6 +218,14 @@ class CourseModuleForm(FieldsetModelForm):
             super().is_valid()
             and self.model_solution_form.is_valid()
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # The reading opening checkbox only controls the visibility of the
+        # datetime field; when unchecked, no reading opening time is stored.
+        if not cleaned_data.get('reading_opening_in_use'):
+            cleaned_data['reading_opening_time'] = None
+        return cleaned_data
 
     def save(self, *args: Any, **kwargs: Any) -> Any:
         if self.model_solution_form.has_changed():
