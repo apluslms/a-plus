@@ -2,9 +2,8 @@ import itertools
 import json
 import logging
 from functools import partial
-from mimetypes import guess_type
 import os
-from typing import IO, Any, Dict, Iterable, List, Tuple, TYPE_CHECKING, Callable
+from typing import IO, Any, Dict, Iterable, List, Optional, Tuple, TYPE_CHECKING, Callable
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -967,18 +966,29 @@ class SubmittedFile(UrlMixin, models.Model):
         except OSError:
             return False
 
-    def get_mime(self):
-        return guess_type(self.file_object.path)[0]
+    @staticmethod
+    def inline_preview_mime(data: bytes) -> Optional[str]:
+        # Signatures select a preview type; response headers must still prevent MIME sniffing.
+        if data.startswith(b'\x89PNG\r\n\x1a\n'):
+            return 'image/png'
+        if data.startswith(b'\xff\xd8\xff'):
+            return 'image/jpeg'
+        if data.startswith((b'GIF87a', b'GIF89a')):
+            return 'image/gif'
+        if data.startswith(b'RIFF') and data[8:12] == b'WEBP':
+            return 'image/webp'
+        if data.startswith(b'%PDF-'):
+            return 'application/pdf'
+        return None
 
     def is_passed(self):
         if self.file_object.path.endswith(".pdf"):
             return True
-        # Simple magic bytes check
         path = self.file_object.path
         try:
             with open(path, 'rb') as f:
                 chunk = f.read(1024)
-            return b'\x00' in chunk
+            return self.inline_preview_mime(chunk) is not None or b'\x00' in chunk
         except OSError:
             return False
 

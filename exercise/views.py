@@ -679,18 +679,21 @@ class SubmittedFileView(SubmissionMixin, BaseView):
             diff_text = ''.join([line for line in diff if line[0] != '?'])
             bytedata = diff_text.encode('utf-8')
 
-        # Download the file.
-        if request.GET.get("download", False):
+        preview_mime = self.file.inline_preview_mime(bytedata)
+        if request.GET.get("download", False) or (not preview_mime and self.file.is_passed()):
             response = HttpResponse(bytedata,
                 content_type="application/octet-stream")
             response["Content-Disposition"] = 'attachment; filename="{}"'.format(self.file.filename)
-            return response
+        elif preview_mime:
+            response = HttpResponse(bytedata, content_type=preview_mime)
+        else:
+            response = HttpResponse(bytedata.decode('utf-8', 'ignore'),
+                content_type='text/plain; charset="UTF-8"')
 
-        if self.file.is_passed():
-            return HttpResponse(bytedata, content_type=self.file.get_mime())
-
-        return HttpResponse(bytedata.decode('utf-8', 'ignore'),
-            content_type='text/plain; charset="UTF-8"')
+        response["X-Content-Type-Options"] = "nosniff"
+        if "Content-Disposition" not in response:
+            response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+        return response
 
 
 class SubmissionDraftView(SubmissionDraftBaseView):

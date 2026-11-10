@@ -2,7 +2,6 @@ import json
 import threading
 import urllib
 from datetime import datetime, timedelta
-from io import BytesIO, StringIO
 from unittest.mock import MagicMock, Mock, patch
 
 from django.conf import settings
@@ -10,8 +9,9 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, transaction
-from django.test import SimpleTestCase, TestCase, TransactionTestCase, skipUnlessDBFeature
+from django.test import SimpleTestCase, TestCase, TransactionTestCase, override_settings, skipUnlessDBFeature
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -1354,6 +1354,7 @@ class ExerciseTest(ExerciseTestBase):
         self.submission.refresh_from_db()
         self.assertEqual(self.submission.status, Submission.STATUS.ERROR)
 
+    @override_settings(SECURE_CONTENT_TYPE_NOSNIFF=False)
     def test_uploading_and_viewing_file(self):
         exercise = BaseExercise.objects.create(
             order=4,
@@ -1370,49 +1371,91 @@ class ExerciseTest(ExerciseTestBase):
         self.course_instance.enroll_student(self.user)
         self.client.login(username="testUser", password="testPassword")
 
-        png_file = BytesIO(
+        png_data = (
             b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x05\x00\x00\x00\x05\x08\x02\x00\x00\x00\x02\r'
             b'\xb1\xb2\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x15IDAT\x08\xd7c`\xc0\n\xfe\xff'
             b'\xff\x8f\xce\xc1"\x84\x05\x00\x00\xde\x7f\x0b\xf5<|+\x98\x00\x00\x00\x00IEND\xaeB`\x82'
         )
-        png_file.name = 'test.png'
-        py_file = StringIO('print("Tekijät ja Hyyppö")')
-        py_file.name = 'test.py'
+        text_data = 'print("Tekijät ja Hyyppö")'.encode()
+        html_data = b'<!doctype html><script>document.title="executed"</script>'
+        cases = [
+            ("png", "test.png", png_data, "image/png", False),
+            ("jpeg", "test.jpg", b'\xff\xd8\xfftest', "image/jpeg", False),
+            ("gif87", "test.gif", b'GIF87atest', "image/gif", False),
+            ("gif89", "test.gif", b'GIF89atest', "image/gif", False),
+            ("webp", "test.webp", b'RIFF\x04\x00\x00\x00WEBPtest', "image/webp", False),
+            ("pdf", "test.pdf", b'%PDF-1.7\nexample', "application/pdf", False),
+            ("text", "test.py", text_data, 'text/plain; charset="UTF-8"', False),
+            ("html_text", "test.html", html_data, 'text/plain; charset="UTF-8"', False),
+            ("html_binary", "test.html", html_data + b'\x00', "application/octet-stream", True),
+            ("fake_png", "test.png", html_data, 'text/plain; charset="UTF-8"', False),
+            ("fake_jpeg", "test.jpg", html_data + b'\x00', "application/octet-stream", True),
+            ("fake_pdf", "test.pdf", html_data, "application/octet-stream", True),
+            ("svg", "test.svg", b'<svg><script>document.title="executed"</script></svg>',
+                'text/plain; charset="UTF-8"', False),
+            ("svg_binary", "test.svg", b'<svg></svg>\x00', "application/octet-stream", True),
+            ("binary", "test.bin", b'\x00\x01\x02', "application/octet-stream", True),
+            ("polyglot_png", "test.png", b'\x89PNG\r\n\x1a\n' + html_data, "image/png", False),
+            ("polyglot_pdf", "test.pdf", b'%PDF-1.7\n' + html_data, "application/pdf", False),
+            ("renamed_png", "test.html", png_data, "image/png", False),
+        ]
+        uploads = {
+            key: SimpleUploadedFile(name, data)
+            for key, name, data, _, _ in cases
+        }
 
-        with png_file, py_file, patch(
+        with patch(
             'exercise.exercise_models.load_feedback_page',
             autospec=True,
             return_value=ExercisePage(exercise),
         ):
-            response = self.client.post(exercise.get_absolute_url(), {
-                "key": "value",
-                "file1": png_file,
-                "file2": py_file,
-            })
+            response = self.client.post(exercise.get_absolute_url(), {"key": "value", **uploads})
         self.assertEqual(response.status_code, 302)
 
-        subs = self.user.userprofile.submissions.filter(exercise=exercise.id)
-        self.assertEqual(subs.count(), 1)
-        sub = subs.first()
+        sub = self.user.userprofile.submissions.get(exercise=exercise.id)
 
         self.assertEqual(sub.submission_data[0], ["key", "value"])
-        self.assertEqual(sub.files.count(), 2)
-        files = sub.files.all().order_by("param_name")
+        self.assertEqual(sub.files.count(), len(cases))
+        files = {file.param_name: file for file in sub.files.all()}
 
-        self.assertEqual(files[0].param_name, "file1")
-        response = self.client.get(files[0].get_absolute_url())
+        response = self.client.get(files["png"].get_absolute_url())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "image/png")
+        self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 
-        self.assertEqual(files[1].param_name, "file2")
-        response = self.client.get(files[1].get_absolute_url())
+        self.client.force_login(self.teacher)
+
+        for key, _, data, content_type, attachment in cases:
+            with self.subTest(key=key):
+                file = files[key]
+                response = self.client.get(file.get_absolute_url())
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response["Content-Type"], content_type)
+                self.assertEqual(response["X-Content-Type-Options"], "nosniff")
+                self.assertEqual(response.content, data)
+                if attachment:
+                    self.assertTrue(response["Content-Disposition"].startswith("attachment; filename="))
+                else:
+                    self.assertNotIn("Content-Disposition", response)
+                    self.assertEqual(response["Content-Security-Policy"], "sandbox; default-src 'none'")
+                if content_type.startswith(("image/", "application/pdf")):
+                    self.assertTrue(file.is_passed())
+
+        for key in ("png", "pdf", "text", "fake_pdf"):
+            with self.subTest(download=key):
+                response = self.client.get(files[key].get_absolute_url() + "?download=1")
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response["Content-Type"], "application/octet-stream")
+                self.assertEqual(response["X-Content-Type-Options"], "nosniff")
+                self.assertTrue(response["Content-Disposition"].startswith("attachment; filename="))
+                self.assertEqual(response.content, next(case[2] for case in cases if case[0] == key))
+
+        with patch('exercise.views.SubmittedFileView.get_model_answer_file_data', return_value='model answer'):
+            response = self.client.get(files["text"].get_absolute_url() + "?compare_to=model")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], 'text/plain; charset="UTF-8"')
-
-        response = self.client.get(files[1].get_absolute_url() + "?download=1")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "application/octet-stream")
-        self.assertTrue(response["Content-Disposition"].startswith("attachment; filename="))
+        self.assertIn(b'model answer', response.content)
+        self.assertIn(text_data, response.content)
 
         exercise.delete()
 
