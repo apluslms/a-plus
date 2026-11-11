@@ -56,6 +56,27 @@
         }, timeout);
     }
 
+    // The personalized points goal block in the progress bar tooltip markup,
+    // as rendered by the _points_progress.html template or built by
+    // buildGoalPointsTooltipBlock() below. The block always ends with the
+    // closing tags of its two nested spans.
+    const goalPointsBlockRegexp = /<span class=["']personalized-points-full-text[^>]*>[\s\S]*?<\/span>\s*<\/span>/;
+
+    // Build the tooltip markup for a personalized points goal with DOM APIs so
+    // that the label and the points value are inserted as text and cannot
+    // introduce HTML into the tooltip.
+    function buildGoalPointsTooltipBlock(label, goalPoints) {
+        const block = document.createElement('span');
+        block.className = 'personalized-points-full-text text-nowrap';
+        block.appendChild(document.createElement('br'));
+        block.appendChild(document.createTextNode(label + ': '));
+        const pointsSpan = document.createElement('span');
+        pointsSpan.className = 'personalized-points-text text-nowrap';
+        pointsSpan.textContent = goalPoints;
+        block.appendChild(pointsSpan);
+        return block.outerHTML;
+    }
+
     $(document).on("submit", "#pointsGoalForm", function(event) {
         event.preventDefault();
 
@@ -79,8 +100,10 @@
             url: $pointsGoalForm.attr('action'),
             data: $pointsGoalForm.serialize(),
             success: function(response) {
-                // Update page dynamically
-                const $progressElement = $('#progress-' + $pointsGoalForm.data('module-url'));
+                // Update page dynamically. The module URL may contain dots,
+                // which would be misparsed as CSS classes in a selector, so
+                // the element is looked up by its literal id.
+                const $progressElement = $(document.getElementById('progress-' + $pointsGoalForm.data('module-url')));
                 const $progressDiv = $progressElement.find('.progress');
 
                 // Update goal indicator
@@ -100,25 +123,24 @@
                     $goalPointsElement.css('left', response.goal_percentage + '%');
                 }
 
-                // Update tooltip
+                // Update tooltip. The tooltip markup is treated as an opaque
+                // string: the goal points block is replaced with markup built
+                // via DOM APIs (see buildGoalPointsTooltipBlock), so no DOM
+                // text is ever reinterpreted as HTML.
                 if ($progressDiv.length) {
                     const tooltipTitle = $progressDiv.attr('data-bs-original-title');
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(tooltipTitle, 'text/html');
-
-                    let spanElement = doc.querySelector('span.personalized-points-text');
-                    // If the span element does not exist, create it
-                    if (spanElement == null) {
-                        spanElement = doc.createElement('span');
-                        spanElement.className = 'personalized-points-full-text text-nowrap';
-                        doc.body.appendChild(spanElement);
-                        spanElement.innerHTML = "<br>" + $pointsGoalForm.data('personalized-points-goal-tooltip-text') + ": " + "<span class=\"personalized-points-text text-nowrap\">" + response.goal_points + "</span>";
+                    const goalPointsBlock = buildGoalPointsTooltipBlock(
+                        $pointsGoalForm.data('personalized-points-goal-tooltip-text'),
+                        response.goal_points
+                    );
+                    let updatedTooltipTitle;
+                    if (goalPointsBlockRegexp.test(tooltipTitle)) {
+                        // Use a function replacement so that "$" sequences in
+                        // the block are not interpreted as replacement patterns.
+                        updatedTooltipTitle = tooltipTitle.replace(goalPointsBlockRegexp, () => goalPointsBlock);
+                    } else {
+                        updatedTooltipTitle = tooltipTitle + ' ' + goalPointsBlock;
                     }
-                    else {
-                        spanElement.textContent = response.goal_points;
-                    }
-
-                    const updatedTooltipTitle = doc.body.innerHTML;
                     $progressDiv.attr('data-bs-original-title', updatedTooltipTitle);
 
                     // Update progress-bar style
@@ -163,29 +185,29 @@
             url: $(this).attr('action'),
             data: $(this).serialize() + '&delete=true',
             success: function(response) {
-                // Update page dynamically
-                const $progressElement = $('#progress-' + $pointsGoalForm.data('module-url'));
+                // Update page dynamically. As in the save handler above, the
+                // element is looked up by its literal id because the module
+                // URL may contain dots.
+                const $progressElement = $(document.getElementById('progress-' + $pointsGoalForm.data('module-url')));
                 const $progressDiv = $progressElement.find('.progress');
 
                 // Remove goal indicator
                 const $goalPointsElement = $progressElement.find('.goal-points');
                 $goalPointsElement.remove();
 
-                // Update tooltip
-                const tooltipTitle = $progressDiv.attr('data-bs-original-title');
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(tooltipTitle, 'text/html');
+                // Update tooltip. As in the save handler above, the tooltip
+                // markup is treated as an opaque string and only the goal
+                // points block is removed from it.
+                if ($progressDiv.length) {
+                    const tooltipTitle = $progressDiv.attr('data-bs-original-title');
+                    if (typeof tooltipTitle === 'string') {
+                        const updatedTooltipTitle = tooltipTitle.replace(goalPointsBlockRegexp, '');
+                        $progressDiv.attr('data-bs-original-title', updatedTooltipTitle);
+                    }
 
-                let spanElement = doc.querySelector('span.personalized-points-full-text');
-                if (spanElement) {
-                    spanElement.remove();
+                    // Update progress-bar style
+                    $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
                 }
-
-                const updatedTooltipTitle = doc.body.innerHTML;
-                $progressDiv.attr('data-bs-original-title', updatedTooltipTitle);
-
-                // Update progress-bar style
-                $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
 
                 // The Remove button lives in the save form's button row (it is
                 // associated with the delete form via the "form" attribute), so

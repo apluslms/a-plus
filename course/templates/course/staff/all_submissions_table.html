@@ -288,7 +288,7 @@
 				<td>
 				{% format_points summary.submission.grade True True %}
 				</td>
-				<td id="submission_tags">
+				<td class="submission-tags">
 				{% for tagging in summary.submission.submission_taggings.all %}
 					{{ tagging.tag|colortag:"size=xs" }}
 				{% endfor %}
