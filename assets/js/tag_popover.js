@@ -41,16 +41,7 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
       text: _('Remove tagging'),
       onclick: function () {
         const user_ids = get_users_for_user(user_id)();
-        // Split the user ids into chunks of ten ids.
-        const split_uids = [];
-        let s = 0, e = 10;
-        while (s < user_ids.length) {
-          split_uids.push(user_ids.slice(s, e));
-          s = e;
-          e += 10;
-        }
         const remove_taggings = function () {
-          let pendingChunks = split_uids.length;
           // Resolve numeric tag id (if any) from page filter buttons
           let removedTagId = null;
           try {
@@ -58,69 +49,44 @@ function add_colortag_buttons(api_url, mutation_target, participants) {
             const parsed = parseInt(idAttr, 10);
             removedTagId = isNaN(parsed) ? null : parsed;
           } catch (e) { /* ignore */ }
-          split_uids.forEach(function (user_ids_chunk) {
-            const uids_param = 'user_id=' + user_ids_chunk.join('&user_id=');
-            $.ajax({
-              type: 'DELETE',
-              url: api_url + 'taggings/?tag_slug=' + tag_slug + '&' + uids_param,
-            }).done(function () {
-              user_ids_chunk.forEach(function (user_id) {
-                $('[data-user-id="' + user_id + '"] ' +
-                  '.colortag[data-tagslug="' + tag_slug +'"]'
-                ).remove();
-                // Remove tag from tag_slugs
-                const tag_slugs = participants_
-                  .find(function (p) { return p.user_id === user_id; })
-                  .tag_slugs;
-                const slug_index = tag_slugs.findIndex(function (t) {return t === tag_slug});
-                if (slug_index > -1) {
-                  tag_slugs.splice(slug_index, 1);
+          const uids_param = 'user_id=' + user_ids.join('&user_id=');
+          $.ajax({
+            type: 'DELETE',
+            url: api_url + 'taggings/?tag_slug=' + tag_slug + '&' + uids_param,
+          }).done(function () {
+            user_ids.forEach(function (user_id) {
+              $('[data-user-id="' + user_id + '"] ' +
+                '.colortag[data-tagslug="' + tag_slug +'"]'
+              ).remove();
+              // Remove tag from tag_slugs
+              const tag_slugs = participants_
+                .find(function (p) { return p.user_id === user_id; })
+                .tag_slugs;
+              const slug_index = tag_slugs.findIndex(function (t) {return t === tag_slug});
+              if (slug_index > -1) {
+                tag_slugs.splice(slug_index, 1);
+              }
+              // Remove Id from tag_ids if present
+              if (removedTagId !== null) {
+                const p = participants_.find(function (pp) { return pp.user_id === user_id; });
+                if (p && Array.isArray(p.tag_ids)) {
+                  const idIdx = p.tag_ids.indexOf(removedTagId);
+                  if (idIdx > -1) p.tag_ids.splice(idIdx, 1);
                 }
-                // Remove Id from tag_ids if present
-                if (removedTagId !== null) {
-                  const p = participants_.find(function (pp) { return pp.user_id === user_id; });
-                  if (p && Array.isArray(p.tag_ids)) {
-                    const idIdx = p.tag_ids.indexOf(removedTagId);
-                    if (idIdx > -1) p.tag_ids.splice(idIdx, 1);
-                  }
-                }
-              });
-              // When all chunks have completed, announce change and refresh filters
-              pendingChunks -= 1;
-              if (pendingChunks === 0) {
-                try {
-                  $(document).trigger('aplus:tags-changed', { type: 'remove', tag_slug: tag_slug, user_ids: user_ids });
-                } catch (e) { /* ignore */ }
-                // Fallback: if DataTables is present, force a redraw
-                try {
-                  if ($.fn.dataTable && $('#table-participants').length) {
-                    $('#table-participants').DataTable().draw(false);
-                  }
-                } catch (e) { /* ignore */ }
               }
             });
+            try {
+              $(document).trigger('aplus:tags-changed', { type: 'remove', tag_slug: tag_slug, user_ids: user_ids });
+            } catch (e) { /* ignore */ }
+            // Fallback: if DataTables is present, force a redraw
+            try {
+              if ($.fn.dataTable && $('#table-participants').length) {
+                $('#table-participants').DataTable().draw(false);
+              }
+            } catch (e) { /* ignore */ }
           });
         };
-        if (user_ids.length === 1) {
-          remove_taggings();
-        } else {
-          const user_li = participants_.filter(function (p) {
-            return user_ids.indexOf(p.user_id) > -1;
-          }).map(function (p) {
-            return $('<li>' + p.last_name + ' ' + p.first_name +
-              ' &lt;' + (p.email || p.username) + '&gt;</li>'
-            )
-          });
-          // Show confirmation modal
-          $('#tag-remove-modal-tagging')
-            .html($elem.clone().attr('data-tag-removable', 'false'));
-          $('#tag-remove-modal-amount').text(user_ids.length);
-          $('#tag-remove-modal-users').empty().append(user_li);
-          $('#tag-remove-modal-button')
-            .off('click')
-            .on('click', remove_taggings);
-          $('#tag-remove-modal').modal();
-        }
+        remove_taggings();
         return false;
       },
     };
