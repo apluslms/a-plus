@@ -1328,17 +1328,6 @@ msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "However, points are only worth %(percent)s%%. "
 
 #: course/templates/course/staff/_tag_remove_modal.html
-msgid "UNTAG_MULTIPLE_USERS"
-msgstr "Untag multiple users"
-
-#: course/templates/course/staff/_tag_remove_modal.html
-msgid "REMOVE_TAGGING_FROM_USERS_MODAL"
-msgstr ""
-"Remove tagging <span id=\"tag-remove-modal-tagging\"></span> \n"
-"from <span id=\"tag-remove-modal-amount\"></span> users: <ul id=\"tag-remove-"
-"modal-users\"></ul> "
-
-#: course/templates/course/staff/_tag_remove_modal.html
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/_remove_modal.html

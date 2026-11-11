@@ -1336,17 +1336,6 @@ msgid "LATE_SUBMISSION_POINTS_WORTH -- %(percent)s"
 msgstr "Pisteiden arvo on %(percent)s%% ajoissa palautetusta."
 
 #: course/templates/course/staff/_tag_remove_modal.html
-msgid "UNTAG_MULTIPLE_USERS"
-msgstr "Poista merkintä usealta käyttäjältä"
-
-#: course/templates/course/staff/_tag_remove_modal.html
-msgid "REMOVE_TAGGING_FROM_USERS_MODAL"
-msgstr ""
-"Poistetaan merkintä <span id=\"tag-remove-modal-tagging\"></span>\n"
-"<span id=\"tag-remove-modal-amount\"></span> käyttäjältä: <ul id=\"tag-"
-"remove-modal-users\"></ul> "
-
-#: course/templates/course/staff/_tag_remove_modal.html
 #: course/templates/course/staff/group_delete.html
 #: course/templates/course/staff/participants.html
 #: deviations/templates/deviations/_remove_modal.html
