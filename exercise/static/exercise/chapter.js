@@ -405,12 +405,16 @@
         new CustomEvent("aplus:exercise-loaded", {bubbles: true, detail: {type: this.exercise_type}}));
 
       if (exercise.active_element && !exercise.interactive_code) {
-        var title = "";
-        if (exercise.element.attr("data-title"))
-          title = "<p><b>" + exercise.element.attr("data-title") + "</b></p>";
         exercise.element.find(exercise.settings.summary_selector).remove();
         $('.exercise-nav-info').parent().remove();
-        $(title).prependTo(exercise.element.find(".exercise-response"));
+        const dataTitle = exercise.element.attr("data-title");
+        if (dataTitle) {
+          const title = document.createElement("p");
+          const bold = document.createElement("b");
+          bold.textContent = dataTitle;
+          title.appendChild(bold);
+          $(title).prependTo(exercise.element.find(".exercise-response"));
+        }
       }
 
       if (exercise.interactive_code && !exercise.interactive_code_graded) {
@@ -823,14 +827,21 @@
         content = content.find("#feedback");
       }
 
-      if (type == "text") {
-        content = content.text();
-      } else if (type == "image") {
-        content = '<img src="data:image/png;base64, ' + content.text() + '" />';
-      }
-
       var output_container = exercise.element.find(exercise.settings.ae_result_selector);
-      output_container.html(content);
+      if (type == "text") {
+        // Insert as text: the extracted text must not be reinterpreted as HTML.
+        output_container.text(content.text());
+      } else if (type == "image") {
+        // Strip HTML meta-characters from the base64 data. Valid base64 never
+        // contains them, so this is a no-op for well-formed data, but it
+        // guarantees the src value cannot break out of the attribute.
+        const data = content.text().replace(/[<>'"]/g, "");
+        const img = document.createElement("img");
+        img.src = "data:image/png;base64, " + data;
+        output_container.empty().append(img);
+      } else {
+        output_container.html(content);
+      }
       exercise.element.data('evaluating', false);
       // Some result divs should scale to match the content
       if (typeof exercise.element.data("scale") != "undefined" ) {
