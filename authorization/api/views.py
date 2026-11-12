@@ -20,13 +20,13 @@ class RemoteAuthenticationView(RemoteAuthenticator, APIView):
     Relevant payload fields:
 
     - exp: expiration time. If present, either a NumericDate integer, or a string
-    in ISO calendar format (expire at) or HH:MM:SS format (expire in)
+      in ISO calendar format (expire at) or HH:MM:SS format (expire in)
     - turl/taud: taud is the public key of the target service (with whom this token
-    is supposed to be used), alternatively, one can give turl which is the target's
-    alias or URL known by A+.
+      is supposed to be used), alternatively, one can give turl which is the target's
+      alias or URL known by A+.
     - permissions: list of permissions to be included.
-    See [AUTH.md](https://github.com/apluslms/a-plus/blob/master/doc/AUTH.md#permission-claims).
-    For example, [["instance", 1, {"id": 5}]] where "5" is the id of the course instance.
+      See [AUTH.md](https://github.com/apluslms/a-plus/blob/master/doc/AUTH.md#permission-claims).
+      For example, [["instance", 1, {"id": 5}]] where "5" is the id of the course instance.
 
     GET assumes the payload is sent as a part of a JWT token.
 
