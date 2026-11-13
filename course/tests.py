@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.test.client import Client
@@ -271,6 +272,79 @@ class CourseTest(CourseTestCase):
     def test_course_module_late_submission_point_worth(self):
         self.assertEqual(0, self.course_module.get_late_submission_point_worth())
         self.assertEqual(80, self.course_module_with_late_submissions_allowed.get_late_submission_point_worth())
+
+    def test_course_module_early_submission_bonus_tier(self):
+        module = self.course_module
+        module.early_submission_bonus_in_use = True
+        module.early_submission_bonus = 0.2
+        module.early_submission_deadline = self.today
+        module.closing_time = self.today + timedelta(days=2)
+
+        # Linear decay (bonus_decay_steps = 0): half the bonus halfway
+        # to the module deadline.
+        module.bonus_decay_steps = 0
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(days=1))
+        self.assertAlmostEqual(fraction, 0.5)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(hours=6))
+        self.assertAlmostEqual(fraction, 0.875)
+        fraction, _ = module.get_early_submission_bonus_tier(self.today)
+        self.assertEqual(fraction, 1.0)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(days=2))
+        self.assertEqual(fraction, 0.0)
+
+        # Decay in 1 step: the bonus drops to zero immediately at the
+        # early deadline.
+        module.bonus_decay_steps = 1
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(hours=1))
+        self.assertAlmostEqual(fraction, 0.0)
+
+        # Decay in 2 steps: the first deduction happens immediately at the
+        # early deadline, so the bonus is half during the first day and
+        # zero during the second day.
+        module.bonus_decay_steps = 2
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(hours=12))
+        self.assertAlmostEqual(fraction, 0.5)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(days=1, hours=12))
+        self.assertAlmostEqual(fraction, 0.0)
+
+        # Decay in 4 steps: quarters, dropping at each quarter boundary.
+        # The first deduction is immediate at the early deadline.
+        module.bonus_decay_steps = 4
+        fraction, _ = module.get_early_submission_bonus_tier(self.today)
+        self.assertAlmostEqual(fraction, 0.75)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(hours=12))
+        self.assertAlmostEqual(fraction, 0.5)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(days=1))
+        self.assertAlmostEqual(fraction, 0.25)
+        fraction, _ = module.get_early_submission_bonus_tier(
+            self.today + timedelta(days=2))
+        self.assertAlmostEqual(fraction, 0.0)
+
+    def test_course_module_early_submission_deadline(self):
+        module = self.course_module
+        module.early_submission_bonus_in_use = True
+        module.early_submission_deadline = self.today
+        with self.assertRaises(ValidationError):
+            module.full_clean()
+
+        module.early_submission_deadline = self.tomorrow
+        with self.assertRaises(ValidationError):
+            module.full_clean()
+
+        module.early_submission_deadline = self.today + (self.tomorrow - self.today) / 2
+        module.full_clean()
+
+        module.early_submission_bonus_in_use = False
+        module.early_submission_deadline = self.today
+        module.full_clean()
 
     def test_course_module_open(self):
         self.assertFalse(self.course_module.is_open(self.yesterday))

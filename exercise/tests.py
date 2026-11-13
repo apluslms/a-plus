@@ -34,9 +34,22 @@ from exercise.reveal_states import ExerciseRevealState, ModuleRevealState
 from exercise.submission_models import PendingSubmission
 from exercise.submission_models import build_upload_dir as build_upload_dir_for_submission_model
 from exercise.tasks import regrade_exercises
+from exercise.templatetags.exercise import percent
 from lib.api.authentication import get_graderauth_submission_params
 from lib.helpers import build_aplus_url, update_url_params
 from aplus.celery import retry_submissions
+
+
+class PercentFilterTest(SimpleTestCase):
+    def test_whole_percentages_are_not_truncated_by_float_precision(self):
+        for percentage in range(101):
+            with self.subTest(percentage=percentage):
+                self.assertEqual(percent(percentage / 100), percentage)
+
+    def test_fractional_percentages_round_to_nearest_integer(self):
+        for value, expected in ((0.294, 29), (0.296, 30)):
+            with self.subTest(value=value):
+                self.assertEqual(percent(value), expected)
 
 
 class InvalidatedSubmissionRetryTest(SimpleTestCase):
@@ -636,6 +649,64 @@ class ExerciseTest(ExerciseTestBase):
         self.late_late_submission_when_late_allowed.set_points(5, 10)
         self.assertAlmostEqual(self.late_late_submission_when_late_allowed.late_penalty_applied, 0.2)
 
+    def test_submission_early_bonus_applied(self):
+        module = self.course_module
+        module.early_submission_bonus_in_use = True
+        module.early_submission_bonus = 0.2
+        module.early_submission_deadline = self.today + (self.tomorrow - self.today) / 2
+
+        self.submission.submission_time = self.today
+        self.submission.set_points(5, 10)
+        self.assertEqual(self.submission.grade, 60)
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 60)
+
+        self.submission.submission_time = module.early_submission_deadline
+        self.submission.set_points(5, 10)
+        self.assertEqual(self.submission.grade, 50)
+
+        self.submission.submission_time = self.today
+        module.early_submission_bonus_in_use = False
+        self.submission.set_points(5, 10)
+        self.assertEqual(self.submission.grade, 50)
+
+        module.early_submission_bonus_in_use = True
+        self.submission.set_points(10, 10)
+        expected_grade = round(self.base_exercise.max_points * 1.2)
+        self.assertEqual(self.submission.grade, expected_grade)
+        self.submission.scale_grade_to(100)
+        self.assertEqual(self.submission.grade, expected_grade)
+
+    def test_submission_early_bonus_time_steps(self):
+        module = self.course_module
+        module.early_submission_bonus_in_use = True
+        module.early_submission_bonus = 0.2
+        # Decay in 3 equal steps over 3 days: 15% bonus the first day,
+        # 10% the second day, 5% the third day.
+        module.bonus_decay_steps = 3
+        module.early_submission_deadline = self.today
+        module.closing_time = self.today + timedelta(days=3)
+
+        self.submission.submission_time = self.today - timedelta(seconds=1)
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 60)
+
+        self.submission.submission_time = self.today
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 57)
+
+        self.submission.submission_time = self.today + timedelta(days=1)
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 53)
+
+        self.submission.submission_time = self.today + timedelta(days=2)
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 50)
+
+        self.submission.submission_time = self.today + timedelta(days=3)
+        self.submission.set_points(5, 10, no_penalties=True)
+        self.assertEqual(self.submission.grade, 50)
+
     def test_submission_late_conversion(self):
         convert_submission_url = self.late_submission.get_url('submission-approve')
         response = self.client.get(convert_submission_url)
@@ -943,6 +1014,84 @@ class ExerciseTest(ExerciseTestBase):
         self.assertEqual(self.submission.late_penalty_applied, 0.2)
         self.assertIsNone(approved_submission.late_penalty_applied)
         self.assertEqual(success.call_args.args[1], "Approved 1")
+
+    def test_exercise_early_submission_bonus_notice(self):
+        early_deadline = timezone.now() - timedelta(hours=1)
+        self.course_module.early_submission_bonus_in_use = True
+        self.course_module.early_submission_bonus = 0.1
+        self.course_module.bonus_decay_steps = 3
+        self.course_module.early_submission_deadline = early_deadline
+        self.course_module.closing_time = early_deadline + timedelta(hours=18)
+        self.course_module.save()
+        self.client.login(username="testUser", password="testPassword")
+
+        response = self.client.get(self.static_exercise.get_absolute_url(), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
+        self.assertEqual(response.status_code, 200)
+        response_module = response.context["module"]
+        self.assertEqual(response_module.bonus_decay_steps, 3)
+        self.assertTrue(response_module.early_submission_bonus_available)
+        self.assertIsNotNone(response_module.current_early_submission_bonus_info)
+        self.assertContains(response, "Early submission bonus in use.")
+        self.assertContains(response, "10% more points are available")
+        self.assertRegex(
+            response.content.decode(),
+            r"Current early submission bonus: 6[,.]7% until",
+        )
+        bonus_info = response.context["module"].current_early_submission_bonus_info
+        self.assertAlmostEqual(bonus_info["percentage"], 100 * 0.1 * (2 / 3))
+        self.assertEqual(bonus_info["end_deadline"], early_deadline + timedelta(hours=6))
+
+    def test_exercise_current_bonus_step_hidden_when_full_bonus_is_available(self):
+        early_deadline = timezone.now() + timedelta(hours=1)
+        self.course_module.early_submission_bonus_in_use = True
+        self.course_module.early_submission_bonus = 0.29
+        self.course_module.bonus_decay_steps = 6
+        self.course_module.early_submission_deadline = early_deadline
+        self.course_module.closing_time = early_deadline + timedelta(hours=18)
+        self.course_module.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            self.static_exercise.get_absolute_url(),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        response_module = response.context["module"]
+        self.assertTrue(response_module.early_submission_bonus_available)
+        self.assertIsNone(response_module.current_early_submission_bonus_info)
+        self.assertContains(response, "29% more points are available")
+        self.assertNotContains(response, "Current early submission bonus:")
+
+    def test_exercise_early_submission_bonus_not_shown_when_unavailable(self):
+        self.client.force_login(self.user)
+
+        # No bonus after the early deadline (-1): unavailable immediately.
+        # Linear decay (0) is available until the module deadline, so it is
+        # covered by the other tests; here only the immediate-unavailable
+        # mode is relevant.
+        for decay_steps, hours_after_early_deadline in ((1, 1),):
+            with self.subTest(decay_steps=decay_steps):
+                early_deadline = timezone.now() - timedelta(hours=hours_after_early_deadline)
+                self.course_module.early_submission_bonus_in_use = True
+                self.course_module.early_submission_bonus = 0.1
+                self.course_module.bonus_decay_steps = decay_steps
+                self.course_module.early_submission_deadline = early_deadline
+                self.course_module.closing_time = early_deadline + timedelta(hours=18)
+                self.course_module.save()
+
+                response = self.client.get(
+                    self.static_exercise.get_absolute_url(),
+                    HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+                )
+
+                self.assertEqual(response.status_code, 200)
+                response_module = response.context["module"]
+                self.assertFalse(response_module.early_submission_bonus_available)
+                self.assertIsNone(response_module.current_early_submission_bonus_info)
+                self.assertNotContains(response, "10% more points are available")
+                self.assertNotContains(response, "Current early submission bonus:")
 
     def test_exercise_staff_views(self) -> None:
         self.other_instance = CourseInstance.objects.create(

@@ -137,7 +137,8 @@ def latest_submissions(context):
 
 @register.filter
 def percent(decimal):
-    return int(decimal * 100)
+    """Convert a fraction to the nearest whole percentage."""
+    return round(decimal * 100)
 
 
 @register.filter
