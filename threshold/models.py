@@ -1,4 +1,4 @@
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, Iterable, Sequence, Tuple, TYPE_CHECKING
 
 from django.db import models
 from django.utils.text import format_lazy
@@ -14,6 +14,74 @@ from exercise.models import BaseExercise
 
 if TYPE_CHECKING:
     from exercise.cache.points import CachedPoints
+
+
+def are_threshold_points_passed(
+        point_limits: Sequence[Tuple[str, int]],
+        consume_harder_points: bool,
+        points: int,
+        points_by_difficulty: Dict[str, int],
+        ) -> bool:
+    if not point_limits:
+        return True
+    d_points = points_by_difficulty.copy()
+    ds, ls = zip(*point_limits)
+    for i, d in enumerate(ds): # pylint: disable=too-many-nested-blocks
+        if d:
+
+            if consume_harder_points:
+                p = d_points.get(d, 0)
+                l = ls[i] # noqa: E741
+                if p < l:
+                    for j in range(i + 1, len(ds)):
+                        jd = ds[j]
+                        jp = d_points.get(jd, 0)
+                        if jp > l - p:
+                            d_points[jd] -= l - p
+                            d_points[d] = l
+                            break
+                        p += jp
+                        d_points[d] = p
+                        d_points[jd] = 0
+                else:
+                    continue
+
+            if d_points.get(d, 0) < ls[i]:
+                return False
+
+        elif points < ls[i]:
+            return False
+
+    return True
+
+
+def format_threshold_points(difficulty: str, limit: int) -> str:
+    if difficulty:
+        return "{} {:d}".format(difficulty, limit)
+    return str(format_lazy(
+        _('POINTS -- {:d}'),
+        limit
+    ))
+
+
+def format_requirement_description(
+        passed_modules: Iterable[str],
+        passed_categories: Iterable[str],
+        passed_exercises: Iterable[str],
+        points: Iterable[Tuple[str, int]],
+        negative: bool = False,
+        ) -> str:
+    checks = [
+        " ".join(passed_modules),
+        " ".join(passed_categories),
+        " ".join(passed_exercises),
+        " ".join(format_threshold_points(difficulty, limit) for difficulty, limit in points),
+    ]
+    checks_str = " ".join(checks)
+    if negative:
+        return "< " + checks_str
+    return checks_str
+
 
 class Threshold(models.Model):
     """
@@ -53,13 +121,12 @@ class Threshold(models.Model):
         return self.name + " " + self.checks_str()
 
     def checks_str(self):
-        checks = [
-            " ".join(str(m) for m in self.passed_modules.all()),
-            " ".join(str(c) for c in self.passed_categories.all()),
-            " ".join(str(e) for e in self.passed_exercises.all()),
-            " ".join(str(p) for p in self.points.all()),
-        ]
-        return " ".join(checks)
+        return format_requirement_description(
+            (str(m) for m in self.passed_modules.all()),
+            (str(c) for c in self.passed_categories.all()),
+            (str(e) for e in self.passed_exercises.all()),
+            ((p.difficulty, p.limit) for p in self.points.all()),
+        )
 
     def is_passed(self, cached_points: "CachedPoints", unconfirmed: bool = False) -> bool:
         try:
@@ -89,37 +156,12 @@ class Threshold(models.Model):
         return self._are_points_passed(total.points, d_points)
 
     def _are_points_passed(self, points: int, points_by_difficulty: Dict[str, int]) -> bool:
-        if not self.points.exists():
-            return True
-        d_points = points_by_difficulty.copy()
-        ds,ls = zip(*list((p.difficulty,p.limit) for p in self.points.all()))
-        for i,d in enumerate(ds): # pylint: disable=too-many-nested-blocks
-            if d:
-
-                if self.consume_harder_points:
-                    p = d_points.get(d, 0)
-                    l = ls[i] # noqa: E741
-                    if p < l:
-                        for j in range(i + 1, len(ds)):
-                            jd = ds[j]
-                            jp = d_points.get(jd, 0)
-                            if jp > l - p:
-                                d_points[jd] -= l - p
-                                d_points[d] = l
-                                break
-                            p += jp
-                            d_points[d] = p
-                            d_points[jd] = 0
-                    else:
-                        continue
-
-                if d_points.get(d, 0) < ls[i]:
-                    return False
-
-            elif points < ls[i]:
-                return False
-
-        return True
+        return are_threshold_points_passed(
+            [(p.difficulty, p.limit) for p in self.points.all()],
+            self.consume_harder_points,
+            points,
+            points_by_difficulty,
+        )
 
 
 class ThresholdPoints(models.Model):
@@ -147,12 +189,7 @@ class ThresholdPoints(models.Model):
         ordering = ['threshold', 'order']
 
     def __str__(self):
-        if self.difficulty:
-            return "{} {:d}".format(self.difficulty, self.limit)
-        return format_lazy(
-            _('POINTS -- {:d}'),
-            self.limit
-        )
+        return format_threshold_points(self.difficulty, self.limit)
 
 
 class CourseModuleRequirement(models.Model):
