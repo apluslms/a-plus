@@ -46,7 +46,6 @@ from .invalidate_util import (
     model_module,
     with_user_ids,
 )
-from .exceptions import NoSuchContent
 from ..exercise_models import LearningObject
 from ..models import BaseExercise, Submission, SubmissionProto, RevealRule
 from ..reveal_states import ExerciseRevealState, ModuleRevealState
@@ -943,8 +942,7 @@ class ModulePoints(DifficultyStats, ModuleEntryBase[LearningObjectPoints]):
             return True
         if not isinstance(self.instance, CachedPointsData):
             raise RuntimeError("ModulePoints must belong to CachedPointsData to check accessibility")
-        cached_points = _CachedPointsDataView(self.instance)
-        return all(rule.is_passed(cached_points) for rule in self.requirement_rules)
+        return all(rule.is_passed(self.instance) for rule in self.requirement_rules)
 
     def is_reading_accessible(self, when: Optional[datetime.datetime] = None) -> bool:
         when = timezone.now() if when is None else when
@@ -1124,32 +1122,6 @@ class CachedPointsData(CachedDataBase[ModulePoints, EitherExerciseEntry, Categor
             CachedDataBase: [self._params[:1]],
             ModulePoints: [proxy._params for proxy in self.modules],
         }
-
-
-class _CachedPointsDataView:
-    def __init__(self, data: CachedPointsData) -> None:
-        self.data = data
-
-    def entry_for_module(self, module: CourseModule) -> ModulePoints:
-        try:
-            return self.data.module_index[module.id]
-        except KeyError:
-            raise NoSuchContent() from None
-
-    def entry_for_exercise(self, exercise: BaseExercise) -> EitherExerciseEntry:
-        try:
-            return self.data.exercise_index[exercise.id]
-        except KeyError:
-            raise NoSuchContent() from None
-
-    def find_category(self, category_id: int) -> CategoryPoints:
-        try:
-            return self.data.categories[category_id]
-        except KeyError:
-            raise NoSuchContent() from None
-
-    def total(self) -> Totals:
-        return self.data.total
 
 
 class CachedPoints(ContentMixin[ModulePoints, EitherExerciseEntry, CategoryPoints, Totals]):

@@ -1,9 +1,9 @@
 from __future__ import annotations
-from typing import Callable, Generator, Iterable, List, Optional, Tuple, Union
+from typing import Any, Callable, Generator, Iterable, List, Optional, Tuple, Type, Union
 
-from django.db.models import Model
+from django.db.models import Model, Q
 
-from course.models import CourseModule
+from course.models import CourseInstance, CourseModule
 from deviations.models import SubmissionRuleDeviation
 from notification.models import Notification
 from threshold.models import CourseModuleRequirement, Threshold, ThresholdPoints
@@ -14,43 +14,80 @@ from ..models import BaseExercise, Submission, RevealRule, LearningObject, Learn
 def modules_using_thresholds(threshold_ids: Iterable[int]) -> Generator[int, None, None]:
     yield from CourseModuleRequirement.objects.filter(
         threshold_id__in=threshold_ids
-    ).values_list("module_id", flat=True)
+    ).values_list("module_id", flat=True).distinct()
 
 
 def threshold_modules(threshold: Threshold) -> Generator[int, None, None]:
     yield from modules_using_thresholds([threshold.id])
 
 
-def previous_requirement_module(requirement: CourseModuleRequirement) -> Generator[int, None, None]:
-    if requirement.pk is not None:
-        module_id = CourseModuleRequirement.objects.filter(
-            pk=requirement.pk
-        ).values_list("module_id", flat=True).first()
-        if module_id is not None and module_id != requirement.module_id:
-            yield module_id
+def capture_previous_requirement_module( # pylint: disable=unused-argument
+        sender: Type[CourseModuleRequirement],
+        instance: CourseModuleRequirement,
+        **kwargs: Any,
+        ) -> None:
+    if instance.pk is None:
+        instance._previous_module_id = None
+        return
+    instance._previous_module_id = (
+        CourseModuleRequirement.objects
+        .filter(pk=instance.pk)
+        .values_list("module_id", flat=True)
+        .first()
+    )
 
 
-def previous_threshold_point_modules(points: ThresholdPoints) -> Generator[int, None, None]:
-    if points.pk is not None:
-        threshold_id = ThresholdPoints.objects.filter(
-            pk=points.pk
-        ).values_list("threshold_id", flat=True).first()
-        if threshold_id is not None and threshold_id != points.threshold_id:
-            yield from modules_using_thresholds([threshold_id])
+def requirement_modules(requirement: CourseModuleRequirement) -> Generator[int, None, None]:
+    previous_module_id = getattr(requirement, "_previous_module_id", None)
+    if previous_module_id is not None and previous_module_id != requirement.module_id:
+        yield previous_module_id
+    yield requirement.module_id
+
+
+def capture_previous_threshold_point_owner( # pylint: disable=unused-argument
+        sender: Type[ThresholdPoints],
+        instance: ThresholdPoints,
+        **kwargs: Any,
+        ) -> None:
+    if instance.pk is None:
+        instance._previous_threshold_id = None
+        return
+    instance._previous_threshold_id = (
+        ThresholdPoints.objects
+        .filter(pk=instance.pk)
+        .values_list("threshold_id", flat=True)
+        .first()
+    )
 
 
 def threshold_point_modules(points: ThresholdPoints) -> Generator[int, None, None]:
     yield from modules_using_thresholds([points.threshold_id])
 
 
+def saved_threshold_point_modules(points: ThresholdPoints) -> Generator[int, None, None]:
+    threshold_ids = {points.threshold_id}
+    previous_threshold_id = getattr(points, "_previous_threshold_id", None)
+    if previous_threshold_id is not None:
+        threshold_ids.add(previous_threshold_id)
+    yield from modules_using_thresholds(threshold_ids)
+
+
 def threshold_m2m_modules(
         instance: Union[CourseModule, LearningObjectCategory, BaseExercise, Threshold],
+        action: str,
         pk_set: Optional[Iterable[int]],
         reverse: bool,
         ) -> Generator[int, None, None]:
+    if action == "pre_clear" and reverse:
+        instance._cleared_threshold_ids = list(
+            getattr(instance, "threshold_set").values_list("id", flat=True)
+        )
+        return
+    if action not in ("post_add", "post_remove", "post_clear"):
+        return
     if reverse:
         if pk_set is None:
-            threshold_ids = getattr(instance, "threshold_set").values_list("id", flat=True)
+            threshold_ids = getattr(instance, "_cleared_threshold_ids", ())
         else:
             threshold_ids = pk_set
     else:
@@ -62,11 +99,46 @@ def threshold_modules_for_target(
         target: Union[CourseModule, LearningObjectCategory, BaseExercise],
         ) -> Generator[int, None, None]:
     if isinstance(target, CourseModule):
-        threshold_ids = Threshold.objects.filter(passed_modules=target).values_list("id", flat=True)
+        # Requirement text numbers the exercises of a passed module by the module's order
+        threshold_ids = Threshold.objects.filter(
+            Q(passed_modules=target) | Q(passed_exercises__course_module=target)
+        ).values_list("id", flat=True)
     elif isinstance(target, LearningObjectCategory):
         threshold_ids = Threshold.objects.filter(passed_categories=target).values_list("id", flat=True)
     else:
         threshold_ids = Threshold.objects.filter(passed_exercises=target).values_list("id", flat=True)
+    yield from modules_using_thresholds(threshold_ids)
+
+
+def threshold_modules_for_learning_object(learning_object: LearningObject) -> Generator[int, None, None]:
+    # Requirement text numbers an exercise by its chapters and module, so saving or deleting
+    # a learning object can change the text of any passed exercise in the same module
+    threshold_ids = Threshold.objects.filter(
+        passed_exercises__course_module=learning_object.course_module_id
+    ).values_list("id", flat=True)
+    yield from modules_using_thresholds(threshold_ids)
+
+
+def capture_previous_numbering( # pylint: disable=unused-argument
+        sender: Type[CourseInstance],
+        instance: CourseInstance,
+        **kwargs: Any,
+        ) -> None:
+    instance._previous_numbering = (
+        CourseInstance.objects
+        .filter(pk=instance.pk)
+        .values_list("content_numbering", "module_numbering")
+        .first()
+    )
+
+
+def threshold_modules_for_numbering(instance: CourseInstance) -> Generator[int, None, None]:
+    # Requirement text numbers passed modules and exercises, so only a numbering change can make it stale
+    if getattr(instance, "_previous_numbering", None) == (instance.content_numbering, instance.module_numbering):
+        return
+    threshold_ids = Threshold.objects.filter(
+        Q(passed_modules__course_instance=instance) | Q(passed_exercises__course_module__course_instance=instance)
+    ).values_list("id", flat=True)
     yield from modules_using_thresholds(threshold_ids)
 
 

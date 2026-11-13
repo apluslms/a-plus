@@ -1,9 +1,15 @@
+from unittest.mock import patch
+
+from django.db.models.signals import pre_save
+from django.template import Context, Template
+from django.utils import translation
+
 from lib.testdata import CourseTestCase
 from course.models import CourseInstance, CourseModule, LearningObjectCategory
 from deviations.models import MaxSubmissionsRuleDeviation
 from exercise.tests import ExerciseTestBase
 from threshold.models import CourseModuleRequirement, Threshold, ThresholdPoints
-from .cache.basetypes import ContentDBData
+from .cache.basetypes import CachedRequirementRule, ContentDBData
 from .cache.content import CachedContent, InstanceContent, LearningObjectContent, ModuleContent
 from .cache.hierarchy import previous_iterator
 from .cache.points import (
@@ -148,24 +154,61 @@ class CachedModuleContentTest(ExerciseTestBase):
         threshold = Threshold.objects.create(
             course_instance=self.course_instance,
             name="Required points",
+            consume_harder_points=True,
         )
         CourseModuleRequirement.objects.create(
             module=self.course_module,
             threshold=threshold,
+            negative=True,
         )
 
         entry = ModuleContent.get(self.course_module)
         self.assertEqual(len(entry.requirement_rules), 1)
+        self.assertIsInstance(entry.requirement_rules[0], CachedRequirementRule)
+        self.assertTrue(entry.requirement_rules[0].consume_harder_points)
+        self.assertTrue(entry.requirement_rules[0].negative)
         generated_on = entry._generated_on
 
         ThresholdPoints.objects.create(threshold=threshold, limit=10)
         entry = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, generated_on)
+        self.assertEqual(entry.requirement_rules[0].points, (("", 10),))
         generated_on = entry._generated_on
 
         threshold.passed_exercises.add(self.base_exercise)
         entry = ModuleContent.get(self.course_module)
         self.assertNotEqual(entry._generated_on, generated_on)
+        self.assertEqual(entry.requirement_rules[0].passed_exercise_ids, (self.base_exercise.id,))
+
+    def test_cached_requirements_use_active_language(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.course_instance,
+            name="Required points",
+        )
+        ThresholdPoints.objects.create(threshold=threshold, limit=10)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.course_module,
+            threshold=threshold,
+        )
+        with translation.override("fi"):
+            expected_fi = [str(requirement)]
+            module_entry = ModuleContent.get(self.course_module)
+            exercise_entry = LearningObjectContent.get(self.base_exercise)
+            self.assertIn("pisteet", module_entry.requirements[0])
+            self.assertEqual(module_entry.requirements, expected_fi)
+            self.assertEqual(exercise_entry.requirements, expected_fi)
+
+        with translation.override("en"):
+            expected_en = [str(requirement)]
+        self.assertNotEqual(expected_fi, expected_en)
+
+        with translation.override("en"):
+            module_entry = ModuleContent.get(self.course_module)
+            exercise_entry = LearningObjectContent.get(self.base_exercise)
+            with self.assertNumQueries(0):
+                self.assertIn("points", module_entry.requirements[0])
+                self.assertEqual(module_entry.requirements, expected_en)
+                self.assertEqual(exercise_entry.requirements, expected_en)
 
 
 class CachedContentTest(CourseTestCase):
@@ -711,6 +754,389 @@ class CachedPointsTest(CourseTestCase):
         module = points.entry_for_module(self.module2)
         with self.assertNumQueries(0):
             self.assertTrue(module.is_exercise_accessible(self.now))
+
+    def _assert_cached_module_accessible(self, module_obj: CourseModule, expected: bool) -> None:
+        points = CachedPoints(self.instance, self.student)
+        module_entry = points.entry_for_module(module_obj)
+        with self.assertNumQueries(0):
+            self.assertEqual(module_entry.is_exercise_accessible(self.now), expected)
+
+    def test_prerequisite_relation_changes_invalidate_warm_cache(self):
+        self.module2.opening_time = self.yesterday
+        self.module2.save()
+        unpassed_category = LearningObjectCategory.objects.create(
+            course_instance=self.instance,
+            name="Unpassed Category",
+            points_to_pass=200,
+        )
+        StaticExercise.objects.create(
+            course_module=self.module,
+            category=unpassed_category,
+            url="unpassed_cat_ex",
+            name="Category Exercise",
+            exercise_page_content="content",
+            submission_page_content="received",
+            points_to_pass=10,
+            max_points=100,
+            order=10,
+        )
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Prerequisites",
+        )
+        CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+
+        self._assert_cached_module_accessible(self.module2, True)
+
+        threshold.passed_modules.add(self.module0)
+        self._assert_cached_module_accessible(self.module2, False)
+        self.module0.threshold_set.clear()
+        self._assert_cached_module_accessible(self.module2, True)
+
+        threshold.passed_categories.add(unpassed_category)
+        self._assert_cached_module_accessible(self.module2, False)
+        unpassed_category.threshold_set.clear()
+        self._assert_cached_module_accessible(self.module2, True)
+
+        threshold.passed_exercises.add(self.exercise2)
+        self._assert_cached_module_accessible(self.module2, False)
+        self.exercise2.threshold_set.clear()
+        self._assert_cached_module_accessible(self.module2, True)
+
+    def test_moving_requirements_and_points_rules_invalidates_both_owners(self):
+        self.module2.opening_time = self.yesterday
+        self.module2.save()
+        module3 = CourseModule.objects.create(
+            course_instance=self.instance,
+            url="module3",
+            name="Test Module 3",
+            points_to_pass=0,
+            opening_time=self.yesterday,
+            closing_time=self.two_days_after,
+        )
+        threshold_a = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Threshold A",
+        )
+        threshold_b = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Threshold B",
+        )
+        points_rule = ThresholdPoints.objects.create(
+            threshold=threshold_a,
+            limit=500,
+        )
+        CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold_a,
+        )
+        requirement_b = CourseModuleRequirement.objects.create(
+            module=module3,
+            threshold=threshold_b,
+        )
+
+        self._assert_cached_module_accessible(self.module2, False)
+        self._assert_cached_module_accessible(module3, True)
+
+        # Simulate a concurrent reader rebuilding the old owner during pre_save before the DB write.
+        def rebuild_old_threshold_owner(sender, instance, **kwargs): # pylint: disable=unused-argument
+            ModuleContent.get(self.module2)
+
+        pre_save.connect(rebuild_old_threshold_owner, sender=ThresholdPoints)
+        try:
+            points_rule.threshold = threshold_b
+            points_rule.save()
+        finally:
+            pre_save.disconnect(rebuild_old_threshold_owner, sender=ThresholdPoints)
+
+        self._assert_cached_module_accessible(self.module2, True)
+        self._assert_cached_module_accessible(module3, False)
+
+        def rebuild_old_requirement_owner(sender, instance, **kwargs): # pylint: disable=unused-argument
+            ModuleContent.get(module3)
+
+        pre_save.connect(rebuild_old_requirement_owner, sender=CourseModuleRequirement)
+        try:
+            requirement_b.module = self.module2
+            requirement_b.save()
+        finally:
+            pre_save.disconnect(rebuild_old_requirement_owner, sender=CourseModuleRequirement)
+
+        self._assert_cached_module_accessible(module3, True)
+        self._assert_cached_module_accessible(self.module2, False)
+
+    def test_deleting_prerequisite_targets_and_thresholds_invalidates_warm_cache(self):
+        self.module2.opening_time = self.yesterday
+        self.module2.save()
+        prereq_module = CourseModule.objects.create(
+            course_instance=self.instance,
+            url="prereq_module",
+            name="Prereq Module",
+            points_to_pass=100,
+            opening_time=self.yesterday,
+            closing_time=self.tomorrow,
+        )
+        prereq_category = LearningObjectCategory.objects.create(
+            course_instance=self.instance,
+            name="Prereq Category",
+            points_to_pass=200,
+        )
+        prereq_exercise = StaticExercise.objects.create(
+            course_module=self.module,
+            category=prereq_category,
+            url="prereq_ex",
+            name="Prereq Exercise",
+            exercise_page_content="content",
+            submission_page_content="received",
+            points_to_pass=50,
+            max_points=100,
+            order=20,
+        )
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Deletable prerequisites",
+        )
+        CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+
+        threshold.passed_modules.add(prereq_module)
+        self._assert_cached_module_accessible(self.module2, False)
+        prereq_module.delete()
+        self._assert_cached_module_accessible(self.module2, True)
+
+        threshold.passed_exercises.add(prereq_exercise)
+        self._assert_cached_module_accessible(self.module2, False)
+        prereq_exercise.delete()
+        self._assert_cached_module_accessible(self.module2, True)
+
+        threshold.passed_categories.add(prereq_category)
+        self._assert_cached_module_accessible(self.module2, False)
+        prereq_category.delete()
+        self._assert_cached_module_accessible(self.module2, True)
+
+        ThresholdPoints.objects.create(threshold=threshold, limit=500)
+        self._assert_cached_module_accessible(self.module2, False)
+        threshold.delete()
+        self._assert_cached_module_accessible(self.module2, True)
+
+    def test_prerequisite_renames_and_reorders_refresh_requirement_text(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Prerequisite text",
+        )
+        threshold.passed_modules.add(self.module0)
+        threshold.passed_categories.add(self.category)
+        threshold.passed_exercises.add(self.exercise2)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+
+        def rename(obj, name):
+            obj.name = name
+            obj.save()
+
+        def reorder(obj, order):
+            obj.order = order
+            obj.save()
+
+        def assert_text_refreshed_after(change):
+            ModuleContent.get(self.module2)
+            text_before = str(requirement)
+            change()
+            self.assertNotEqual(str(requirement), text_before)
+            self.assertEqual(ModuleContent.get(self.module2).requirements, [str(requirement)])
+
+        assert_text_refreshed_after(lambda: rename(self.module0, "Renamed Past Module"))
+        assert_text_refreshed_after(lambda: rename(self.category, "Renamed Category"))
+        assert_text_refreshed_after(lambda: rename(self.exercise2, "Renamed Exercise 2"))
+        assert_text_refreshed_after(lambda: reorder(self.module, 9))
+        assert_text_refreshed_after(lambda: reorder(self.exercise2, 5))
+
+    def test_deleting_chapter_refreshes_child_requirement_text(self):
+        chapter = CourseChapter.objects.create(
+            name="Chapter",
+            course_module=self.module,
+            category=self.category,
+            url="chapter",
+            order=3,
+        )
+        child = StaticExercise.objects.create(
+            course_module=self.module,
+            category=self.category,
+            url="child",
+            name="Child",
+            exercise_page_content="content",
+            submission_page_content="received",
+            points_to_pass=0,
+            max_points=10,
+            order=1,
+            parent=chapter,
+        )
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Chapter child",
+        )
+        threshold.passed_exercises.add(child)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+        ModuleContent.get(self.module2)
+        text_before = str(requirement)
+
+        chapter.delete()
+
+        self.assertNotEqual(str(requirement), text_before)
+        self.assertEqual(ModuleContent.get(self.module2).requirements, [str(requirement)])
+
+    def test_numbering_change_refreshes_requirement_text(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Numbering",
+        )
+        threshold.passed_modules.add(self.module0)
+        threshold.passed_exercises.add(self.exercise2)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+
+        def set_numbering_and_save(field, value):
+            ModuleContent.get(self.module2)
+            text_before = str(requirement)
+            setattr(self.instance, field, value)
+            self.instance.save()
+            self.assertNotEqual(str(requirement), text_before)
+            self.assertEqual(ModuleContent.get(self.module2).requirements, [str(requirement)])
+
+        set_numbering_and_save("module_numbering", CourseInstance.CONTENT_NUMBERING.ROMAN)
+        set_numbering_and_save("content_numbering", CourseInstance.CONTENT_NUMBERING.ROMAN)
+
+        # A save that leaves the numbering alone must not rebuild the cached requirement text
+        expected = [str(requirement)]
+        self.instance.save()
+        with self.assertNumQueries(0):
+            self.assertEqual(ModuleContent.get(self.module2).requirements, expected)
+
+    def test_other_instance_numbering_refreshes_requirement_text(self):
+        other_instance = CourseInstance.objects.create(
+            course=self.course,
+            url="other-instance",
+            instance_name="Other",
+            starting_time=self.now,
+            ending_time=self.tomorrow,
+        )
+        other_module = CourseModule.objects.create(
+            course_instance=other_instance,
+            url="other-module",
+            name="Other Module",
+            points_to_pass=0,
+            opening_time=self.yesterday,
+            closing_time=self.tomorrow,
+        )
+        other_category = LearningObjectCategory.objects.create(
+            course_instance=other_instance,
+            name="Other Category",
+            points_to_pass=0,
+        )
+        other_exercise = StaticExercise.objects.create(
+            course_module=other_module,
+            category=other_category,
+            url="other-exercise",
+            name="Other Exercise",
+            exercise_page_content="content",
+            submission_page_content="received",
+            points_to_pass=0,
+            max_points=10,
+            order=1,
+        )
+        threshold = Threshold.objects.create(
+            course_instance=self.instance,
+            name="Other instance",
+        )
+        threshold.passed_modules.add(other_module)
+        threshold.passed_exercises.add(other_exercise)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.module2,
+            threshold=threshold,
+        )
+        ModuleContent.get(self.module2)
+        text_before = str(requirement)
+
+        other_instance.module_numbering = CourseInstance.CONTENT_NUMBERING.ROMAN
+        other_instance.save()
+
+        self.assertNotEqual(str(requirement), text_before)
+        self.assertEqual(ModuleContent.get(self.module2).requirements, [str(requirement)])
+
+    def test_user_results_reuses_module_accessibility_flags(self):
+        self.module2.reading_opening_time = self.yesterday
+        self.module2.opening_time = self.tomorrow
+        self.module2.save()
+        revealed_chapter = CourseChapter.objects.create(
+            name="Revealed Chapter",
+            course_module=self.module2,
+            category=self.category,
+            url="ch-open",
+            order=2,
+        )
+        hidden_chapter = CourseChapter.objects.create(
+            name="Hidden Model Answer Chapter",
+            course_module=self.module2,
+            category=self.category,
+            url="ch-hidden",
+            order=3,
+        )
+        reveal_rule = RevealRule.objects.create(
+            trigger=RevealRule.TRIGGER.TIME,
+            time=self.tomorrow,
+        )
+        self.module0.model_answer = hidden_chapter
+        self.module0.model_solution_reveal_rule = reveal_rule
+        self.module0.save()
+
+        points = CachedPoints(self.instance, self.student)
+        template = Template("{% load exercise %}{% user_results %}")
+        context = Context({
+            "instance": self.instance,
+            "course": self.course,
+            "points": points,
+            "user": self.student,
+            "is_course_staff": False,
+            "is_teacher": False,
+            "now": self.now,
+        })
+
+        with (
+            patch.object(
+                ModulePoints,
+                "is_reading_accessible",
+                autospec=True,
+                wraps=ModulePoints.is_reading_accessible,
+            ) as reading_mock,
+            patch.object(
+                ModulePoints,
+                "is_exercise_accessible",
+                autospec=True,
+                wraps=ModulePoints.is_exercise_accessible,
+            ) as exercise_mock,
+        ):
+            rendered = template.render(context)
+
+        visible_module_count = sum(1 for m in points.modules() if m.is_visible())
+        self.assertEqual(reading_mock.call_count, visible_module_count)
+        self.assertEqual(exercise_mock.call_count, visible_module_count)
+        self.assertNotIn(f'href="{self.exercise3.get_display_url()}"', rendered)
+        self.assertIn(f'href="{revealed_chapter.get_display_url()}"', rendered)
+        self.assertNotIn(f'href="{hidden_chapter.get_display_url()}"', rendered)
+        self.assertIn("Hidden Model Answer Chapter", rendered)
+        self.assertIn("bi-info-sign", rendered)
 
 class ExercisePointsTest(ExerciseTestBase):
     def test_forced_points(self) -> None:
