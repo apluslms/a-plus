@@ -100,8 +100,10 @@
             url: $pointsGoalForm.attr('action'),
             data: $pointsGoalForm.serialize(),
             success: function(response) {
-                // Update page dynamically
-                const $progressElement = $('#progress-' + $pointsGoalForm.data('module-url'));
+                // Update page dynamically. The module URL may contain dots,
+                // which would be misparsed as CSS classes in a selector, so
+                // the element is looked up by its literal id.
+                const $progressElement = $(document.getElementById('progress-' + $pointsGoalForm.data('module-url')));
                 const $progressDiv = $progressElement.find('.progress');
 
                 // Update goal indicator
@@ -183,8 +185,10 @@
             url: $(this).attr('action'),
             data: $(this).serialize() + '&delete=true',
             success: function(response) {
-                // Update page dynamically
-                const $progressElement = $('#progress-' + $pointsGoalForm.data('module-url'));
+                // Update page dynamically. As in the save handler above, the
+                // element is looked up by its literal id because the module
+                // URL may contain dots.
+                const $progressElement = $(document.getElementById('progress-' + $pointsGoalForm.data('module-url')));
                 const $progressDiv = $progressElement.find('.progress');
 
                 // Remove goal indicator
@@ -194,12 +198,16 @@
                 // Update tooltip. As in the save handler above, the tooltip
                 // markup is treated as an opaque string and only the goal
                 // points block is removed from it.
-                const tooltipTitle = $progressDiv.attr('data-bs-original-title');
-                const updatedTooltipTitle = tooltipTitle.replace(goalPointsBlockRegexp, '');
-                $progressDiv.attr('data-bs-original-title', updatedTooltipTitle);
+                if ($progressDiv.length) {
+                    const tooltipTitle = $progressDiv.attr('data-bs-original-title');
+                    if (typeof tooltipTitle === 'string') {
+                        const updatedTooltipTitle = tooltipTitle.replace(goalPointsBlockRegexp, '');
+                        $progressDiv.attr('data-bs-original-title', updatedTooltipTitle);
+                    }
 
-                // Update progress-bar style
-                $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
+                    // Update progress-bar style
+                    $progressDiv.find('.aplus-progress-bar').removeClass('aplus-progress-bar-primary');
+                }
 
                 // The Remove button lives in the save form's button row (it is
                 // associated with the delete form via the "form" attribute), so
