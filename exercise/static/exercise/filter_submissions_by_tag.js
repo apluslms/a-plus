@@ -25,13 +25,10 @@ function filterSubmissions(checked_buttons) {
 	let submissionTags = [];
 
 	for (let i = 0; i < trs.length; i++) {
-		let tagTd = trs[i].getElementsByTagName('td')['submission_tags'];
+		let tagTd = trs[i].querySelector('td.submission-tags');
 
 		if (tagTd) {
-			let parser = new DOMParser();
-			let doc = parser.parseFromString(tagTd.innerHTML, "text/html");
-
-			let tagSlugs = Array.from(doc.getElementsByTagName('span')).map((el) => el.getAttribute('data-tagslug'));
+			let tagSlugs = Array.from(tagTd.getElementsByTagName('span')).map((el) => el.getAttribute('data-tagslug'));
 
 			submissionTags.push(...tagSlugs);
 
