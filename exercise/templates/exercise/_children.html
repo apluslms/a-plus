@@ -10,7 +10,8 @@
 		{% endif %}
 	{% elif entry.is_listed %}
 		<li>
-		{% if accessible and not entry.submittable and entry.is_revealed or exercise_accessible and entry.is_revealed %}
+		{% exercise_entry_accessible entry accessible exercise_accessible as entry_accessible %}
+		{% if entry_accessible %}
 			{% if entry.is_empty %}
 				{{ entry.name|parse_localization }}
 			{% else %}

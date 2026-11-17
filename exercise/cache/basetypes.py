@@ -1,16 +1,36 @@
 from __future__ import annotations
 from dataclasses import dataclass, field, InitVar
 from datetime import datetime
-from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Set, Type, TypeVar, Union
+from typing import Any, ClassVar, Dict, Generic, Iterable, List, Literal, Optional, Set, Tuple, Type, TypeVar, Union
 
 from django.db.models import Prefetch, QuerySet
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.utils import timezone
 
 from course.models import CourseInstance, CourseInstanceProto, CourseModule, CourseModuleProto
 from lib.cache.cached import CacheBase, DBDataManager, Dependencies, ProxyManager
-from threshold.models import CourseModuleRequirement
-from .invalidate_util import category_learning_objects, module_learning_objects
+from threshold.models import (
+    are_threshold_points_passed,
+    CourseModuleRequirement,
+    format_requirement_description,
+    Threshold,
+    ThresholdPoints,
+)
+from .invalidate_util import (
+    capture_previous_numbering,
+    capture_previous_requirement_module,
+    capture_previous_threshold_point_owner,
+    category_learning_objects,
+    module_learning_objects,
+    requirement_modules,
+    saved_threshold_point_modules,
+    threshold_m2m_modules,
+    threshold_modules,
+    threshold_modules_for_learning_object,
+    threshold_modules_for_numbering,
+    threshold_modules_for_target,
+    threshold_point_modules,
+)
 from ..models import BaseExercise, CourseChapter, LearningObject, LearningObjectCategory, LearningObjectProto
 
 
@@ -39,6 +59,92 @@ class EqById:
         if type(self) != type(other): # pylint: disable=unidiomatic-typecheck # noqa: E721
             return False
         return self.id == other.id
+
+
+@dataclass(frozen=True)
+class CachedRequirementDescription:
+    passed_modules: Tuple[str, ...] = ()
+    passed_categories: Tuple[str, ...] = ()
+    passed_exercises: Tuple[str, ...] = ()
+    points: Tuple[Tuple[str, int], ...] = ()
+    negative: bool = False
+
+    @classmethod
+    def from_requirement(cls, requirement: CourseModuleRequirement) -> CachedRequirementDescription:
+        threshold = requirement.threshold
+        return cls(
+            passed_modules=tuple(str(m) for m in threshold.passed_modules.all()),
+            passed_categories=tuple(str(c) for c in threshold.passed_categories.all()),
+            passed_exercises=tuple(str(e) for e in threshold.passed_exercises.all()),
+            points=tuple((p.difficulty, p.limit) for p in threshold.points.all()),
+            negative=requirement.negative,
+        )
+
+    def format(self) -> str:
+        return format_requirement_description(
+            self.passed_modules,
+            self.passed_categories,
+            self.passed_exercises,
+            self.points,
+            negative=self.negative,
+        )
+
+    def __str__(self) -> str:
+        return self.format()
+
+
+@dataclass(frozen=True)
+class CachedRequirementRule:
+    passed_module_ids: Tuple[int, ...] = ()
+    passed_category_ids: Tuple[int, ...] = ()
+    passed_exercise_ids: Tuple[int, ...] = ()
+    points: Tuple[Tuple[str, int], ...] = ()
+    consume_harder_points: bool = False
+    negative: bool = False
+
+    @classmethod
+    def from_requirement(cls, requirement: CourseModuleRequirement) -> CachedRequirementRule:
+        threshold = requirement.threshold
+        return cls(
+            passed_module_ids=tuple(m.id for m in threshold.passed_modules.all()),
+            passed_category_ids=tuple(c.id for c in threshold.passed_categories.all()),
+            passed_exercise_ids=tuple(e.id for e in threshold.passed_exercises.all()),
+            points=tuple((p.difficulty, p.limit) for p in threshold.points.all()),
+            consume_harder_points=threshold.consume_harder_points,
+            negative=requirement.negative,
+        )
+
+    def _is_threshold_passed(self, data: Any) -> bool:
+        for module_id in self.passed_module_ids:
+            module_entry = data.module_index.get(module_id)
+            if module_entry is None or not module_entry.passed:
+                return False
+        for category_id in self.passed_category_ids:
+            category_entry = data.categories.get(category_id)
+            if category_entry is None or not category_entry.passed:
+                return False
+        for exercise_id in self.passed_exercise_ids:
+            exercise_entry = data.exercise_index.get(exercise_id)
+            if exercise_entry is None or not exercise_entry.passed:
+                return False
+
+        total = data.total
+        d_points = total.points_by_difficulty.copy()
+        for key, value in total.unconfirmed_points_by_difficulty.items():
+            if key in d_points:
+                d_points[key] += value
+            else:
+                d_points[key] = value
+        return are_threshold_points_passed(
+            self.points,
+            self.consume_harder_points,
+            total.points,
+            d_points,
+        )
+
+    def is_passed(self, data: Any) -> bool:
+        passed = self._is_threshold_passed(data)
+        return not passed if self.negative else passed
 
 
 LearningObjectEntry = TypeVar("LearningObjectEntry", bound="LearningObjectEntryBase")
@@ -90,13 +196,40 @@ class ContentDBData(DBDataManager):
                     CourseModuleRequirement.objects
                     .select_related("threshold")
                     .prefetch_related(
-                        "passed_modules",
-                        "passed_categories",
                         Prefetch(
-                            "passed_exercises",
-                            queryset=BaseExercise.objects.select_related("parent"),
+                            "threshold__passed_modules",
+                            queryset=CourseModule.objects.only(
+                                "id",
+                                "order",
+                                "name",
+                                "course_instance__module_numbering",
+                                "course_instance__course_id",
+                            ),
                         ),
-                        "points",
+                        Prefetch(
+                            "threshold__passed_categories",
+                            queryset=LearningObjectCategory.objects.only("id", "name"),
+                        ),
+                        Prefetch(
+                            "threshold__passed_exercises",
+                            queryset=BaseExercise.bare_objects.select_related(
+                                "course_module__course_instance",
+                                "parent",
+                            ).only(
+                                "id",
+                                "order",
+                                "name",
+                                "parent_id",
+                                "course_module_id",
+                                "course_module__order",
+                                "course_module__course_instance__content_numbering",
+                                "course_module__course_instance__module_numbering",
+                                "parent__id",
+                                "parent__order",
+                                "parent__parent_id",
+                            ),
+                        ),
+                        "threshold__points",
                     )
                 )
             ),
@@ -227,7 +360,7 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
     number: str
     link: str
     submissions_link: str
-    requirements: List[str]
+    requirement_descriptions: List[CachedRequirementDescription]
     opening_time: datetime
     reading_opening_time: Optional[datetime]
     closing_time: datetime
@@ -249,6 +382,12 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
     @property
     def course_module(self):
         return self.module
+
+    @property
+    def requirements(self) -> List[str]:
+        if self.module._resolved:
+            return self.module.requirements
+        return [description.format() for description in self.requirement_descriptions]
 
     def parent_list(self):
         if self.parent is None:
@@ -306,7 +445,10 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
         self.number = str(module.order) + '.' + lobj.number()
         self.link = lobj.get_display_url()
         self.submissions_link = lobj.get_submission_list_url()
-        self.requirements = [str(r) for r in module.requirements.all()]
+        self.requirement_descriptions = [
+            CachedRequirementDescription.from_requirement(r)
+            for r in module.requirements.all()
+        ]
         self.opening_time = module.opening_time
         self.reading_opening_time = module.reading_opening_time
         self.closing_time = module.closing_time
@@ -357,11 +499,37 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
     NUM_PARAMS: ClassVar[int] = 1
     INVALIDATORS = [
         (CourseModule, [post_delete, post_save], ("id",)),
+        (CourseModule, [pre_delete, post_save], threshold_modules_for_target),
+        (CourseInstance, [post_save], threshold_modules_for_numbering),
         (LearningObject, [post_delete, post_save], ("course_module_id",)),
+        # Exercise saves reach LearningObject receivers through LearningObject.save(); BaseExercise misses subclasses
+        (LearningObject, [post_delete, post_save], threshold_modules_for_learning_object),
         (
             LearningObjectCategory,
             [post_delete, post_save],
             category_learning_objects(lambda lobj: [lobj.course_module_id]),
+        ),
+        (LearningObjectCategory, [pre_delete, post_save], threshold_modules_for_target),
+        (BaseExercise, [pre_delete], threshold_modules_for_target),
+        (CourseModuleRequirement, [post_delete], ("module_id",)),
+        (CourseModuleRequirement, [post_save], requirement_modules),
+        (Threshold, [pre_delete, post_save], threshold_modules),
+        (ThresholdPoints, [post_delete], threshold_point_modules),
+        (ThresholdPoints, [post_save], saved_threshold_point_modules),
+        (
+            Threshold.passed_modules.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("action", "pk_set", "reverse")),
+        ),
+        (
+            Threshold.passed_categories.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("action", "pk_set", "reverse")),
+        ),
+        (
+            Threshold.passed_exercises.through,
+            [m2m_changed],
+            (threshold_m2m_modules, ("action", "pk_set", "reverse")),
         ),
     ]
     type: ClassVar[Literal['module']] = 'module'
@@ -373,7 +541,8 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
     number: str
     introduction: str
     link: str
-    requirements: List[str]
+    requirement_descriptions: List[CachedRequirementDescription]
+    requirement_rules: List[CachedRequirementRule]
     opening_time: datetime
     reading_opening_time: Optional[datetime]
     closing_time: datetime
@@ -390,6 +559,10 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
     @property
     def course_instance(self) -> "CachedDataBase":
         return self.instance
+
+    @property
+    def requirements(self) -> List[str]:
+        return [description.format() for description in self.requirement_descriptions]
 
     def is_visible(self) -> bool:
         return self.status != CourseModule.STATUS.HIDDEN
@@ -422,7 +595,9 @@ class ModuleEntryBase(CourseModuleProto, CacheBase, EqById, Generic[LearningObje
         self.number = str(module.order)
         self.introduction = module.introduction
         self.link = module.get_absolute_url()
-        self.requirements = [str(r) for r in module.requirements.all()]
+        requirements = list(module.requirements.all())
+        self.requirement_rules = [CachedRequirementRule.from_requirement(r) for r in requirements]
+        self.requirement_descriptions = [CachedRequirementDescription.from_requirement(r) for r in requirements]
         self.opening_time = module.opening_time
         self.reading_opening_time = module.reading_opening_time
         self.closing_time = module.closing_time
@@ -592,3 +767,8 @@ class CachedDataBase(CourseInstanceProto, CacheBase, Generic[ModuleEntry, Learni
         # We rely on the instance of a module never changing, so the invalidators do the work
         # without the need for dependencies
         return {}
+
+
+pre_save.connect(capture_previous_requirement_module, sender=CourseModuleRequirement, weak=False)
+pre_save.connect(capture_previous_threshold_point_owner, sender=ThresholdPoints, weak=False)
+pre_save.connect(capture_previous_numbering, sender=CourseInstance, weak=False)

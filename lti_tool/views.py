@@ -155,7 +155,7 @@ class LtiInstanceView(LtiSessionMixin, InstanceView):
         # Edit links to point to LTI views
         module_model_objs = CourseModule.objects.filter(course_instance=self.instance)
         learningobjects = LearningObject.objects.filter(course_module__course_instance=self.instance)
-        for module in self.content.data.modules:
+        for module in self.points.data.modules:
             module_model_obj = next((x for x in module_model_objs if x.id == module.id), None)
             module.link = module_model_obj.get_url('lti-module')
             for exercise in module.children:
