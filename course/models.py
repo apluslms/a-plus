@@ -1398,7 +1398,11 @@ class CourseModule(CourseModuleProto, models.Model):
         default=0.0,
         help_text=_('MODULE_EARLY_SUBMISSION_BONUS_HELPTEXT'),
     )
-    bonus_time_step_hours = models.PositiveIntegerField(default=0)
+    # Number of equal bonus decay steps between the early submission
+    # deadline and the module deadline. Zero means the bonus decays
+    # linearly; one step means the bonus drops to zero immediately at the
+    # early submission deadline.
+    bonus_decay_steps = models.IntegerField(default=0)
 
     late_submissions_allowed = models.BooleanField(
         verbose_name=_('LABEL_LATE_SUBMISSIONS_ALLOWED'),
@@ -1463,6 +1467,11 @@ class CourseModule(CourseModuleProto, models.Model):
             )
         if self.opening_time > self.closing_time:
             errors['opening_time'] = _('MODULE_ERROR_OPENING_TIME_AFTER_CLOSING_TIME')
+        if self.early_submission_bonus_in_use:
+            if self.early_submission_deadline <= self.opening_time:
+                errors['early_submission_deadline'] = _('MODULE_ERROR_EARLY_SUBMISSION_DL_BEFORE_OPENING_TIME')
+            elif self.early_submission_deadline >= self.closing_time:
+                errors['early_submission_deadline'] = _('MODULE_ERROR_EARLY_SUBMISSION_DL_AFTER_CLOSING_TIME')
         if self.late_submissions_allowed and self.late_submission_deadline <= self.closing_time:
             errors['late_submission_deadline'] = _('MODULE_ERROR_LATE_SUBMISSION_DL_BEFORE_CLOSING_TIME')
         if self.reading_opening_time and self.reading_opening_time > self.opening_time:
@@ -1471,6 +1480,81 @@ class CourseModule(CourseModuleProto, models.Model):
             errors['model_answer'] = _('MODULE_ERROR_MODEL_ANSWER_CHAPTER_IN_DIFFERENT_COURSE')
         if errors:
             raise ValidationError(errors)
+
+    def get_early_submission_bonus_taper_steps(self):
+        if self.bonus_decay_steps <= 0:
+            return 0
+
+        bonus_duration = self.closing_time - self.early_submission_deadline
+        if bonus_duration <= datetime.timedelta(0):
+            return 0
+
+        return self.bonus_decay_steps
+
+    def get_early_submission_bonus_tier(self, at_time):
+        if not self.early_submission_bonus_in_use:
+            return 0.0, None
+        if at_time < self.early_submission_deadline:
+            return 1.0, self.early_submission_deadline
+        if self.bonus_decay_steps <= 0:
+            # The bonus decays linearly from the early submission deadline
+            # to the module deadline.
+            if at_time >= self.closing_time:
+                return 0.0, None
+            bonus_duration = self.closing_time - self.early_submission_deadline
+            if bonus_duration <= datetime.timedelta(0):
+                return 0.0, None
+            fraction = 1.0 - (
+                (at_time - self.early_submission_deadline).total_seconds()
+                / bonus_duration.total_seconds()
+            )
+            return max(0.0, fraction), self.closing_time
+
+        # Decay in a fixed number of equal steps between the early
+        # submission deadline and the module deadline. One step means the
+        # bonus drops to zero immediately at the early submission deadline.
+        full_steps = self.get_early_submission_bonus_taper_steps()
+        if not full_steps:
+            return 0.0, self.closing_time
+
+        bonus_duration = self.closing_time - self.early_submission_deadline
+        step_duration = bonus_duration / full_steps
+        current_step = int((at_time - self.early_submission_deadline) // step_duration)
+        bonus_fraction = max(0.0, (full_steps - current_step - 1) / full_steps)
+        if bonus_fraction == 0:
+            return 0.0, self.closing_time
+
+        tier_end = self.early_submission_deadline + (current_step + 1) * step_duration
+        return bonus_fraction, min(tier_end, self.closing_time)
+
+    @property
+    def early_submission_bonus_available(self):
+        if not self.early_submission_bonus_in_use or self.early_submission_bonus <= 0:
+            return False
+        bonus_fraction, _ = self.get_early_submission_bonus_tier(timezone.now())
+        return bonus_fraction > 0
+
+    @property
+    def current_early_submission_bonus_info(self):
+        if not self.early_submission_bonus_in_use:
+            return None
+
+        current_time = timezone.now()
+        if current_time >= self.closing_time:
+            return None
+
+        bonus_fraction, end_deadline = self.get_early_submission_bonus_tier(current_time)
+        if (
+            end_deadline is None
+            or bonus_fraction <= 0
+            or bonus_fraction >= 1
+            or self.early_submission_bonus <= 0
+        ):
+            return None
+        return {
+            'percentage': self.early_submission_bonus * bonus_fraction * 100,
+            'end_deadline': end_deadline,
+        }
 
     @property
     def default_model_solution_reveal_rule(self):
