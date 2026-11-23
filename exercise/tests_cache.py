@@ -210,6 +210,25 @@ class CachedModuleContentTest(ExerciseTestBase):
                 self.assertEqual(module_entry.requirements, expected_en)
                 self.assertEqual(exercise_entry.requirements, expected_en)
 
+    def test_warm_exercise_entry_refreshes_requirement_text_after_module_change(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.course_instance,
+            name="Required points",
+        )
+        points = ThresholdPoints.objects.create(threshold=threshold, limit=10)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.course_module,
+            threshold=threshold,
+        )
+        self.assertEqual(LearningObjectContent.get(self.base_exercise).requirements, [str(requirement)])
+
+        points.limit = 20
+        points.save()
+        self.assertEqual(LearningObjectContent.get(self.base_exercise).requirements, [str(requirement)])
+
+        requirement.delete()
+        self.assertEqual(LearningObjectContent.get(self.base_exercise).requirements, [])
+
 
 class CachedContentTest(CourseTestCase):
     def test_module_loaded_before_instance_is_not_duplicated(self):
@@ -501,6 +520,23 @@ class CachedExercisePointsTest(ExerciseTestBase):
         LearningObjectPoints.invalidate(self.base_exercise, self.user)
         lobj_entry = LearningObjectPoints.get(self.learning_object, self.user)
         self.assertNotEqual(lobj_entry._generated_on, lobj_entry2._generated_on)
+
+    def test_requirements_read_content_module_without_student_module_points(self):
+        threshold = Threshold.objects.create(
+            course_instance=self.course_instance,
+            name="Required points",
+        )
+        ThresholdPoints.objects.create(threshold=threshold, limit=10)
+        requirement = CourseModuleRequirement.objects.create(
+            module=self.course_module,
+            threshold=threshold,
+        )
+        expected = [str(requirement)]
+        ModuleContent.get(self.course_module)
+        entry = ExercisePoints.get(self.base_exercise, self.user)
+
+        with self.assertNumQueries(0):
+            self.assertEqual(entry.requirements, expected)
 
 
 class CachedModulePointsTest(ExerciseTestBase):

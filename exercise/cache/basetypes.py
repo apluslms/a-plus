@@ -360,7 +360,6 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
     number: str
     link: str
     submissions_link: str
-    requirement_descriptions: List[CachedRequirementDescription]
     opening_time: datetime
     reading_opening_time: Optional[datetime]
     closing_time: datetime
@@ -385,9 +384,9 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
 
     @property
     def requirements(self) -> List[str]:
-        if self.module._resolved:
-            return self.module.requirements
-        return [description.format() for description in self.requirement_descriptions]
+        # Requirement changes only invalidate the module entry, so read it instead of caching the text here.
+        # self.module is per-student for points entries, so look up the shared module by id.
+        return ModuleEntryBase.get(self.module_id).requirements
 
     def parent_list(self):
         if self.parent is None:
@@ -445,10 +444,6 @@ class LearningObjectEntryBase(LearningObjectProto, CacheBase, EqById, Generic[Mo
         self.number = str(module.order) + '.' + lobj.number()
         self.link = lobj.get_display_url()
         self.submissions_link = lobj.get_submission_list_url()
-        self.requirement_descriptions = [
-            CachedRequirementDescription.from_requirement(r)
-            for r in module.requirements.all()
-        ]
         self.opening_time = module.opening_time
         self.reading_opening_time = module.reading_opening_time
         self.closing_time = module.closing_time
