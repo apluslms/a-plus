@@ -1,3 +1,4 @@
+import html
 import socket
 import string
 import functools
@@ -150,9 +151,11 @@ FILENAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._-0123456
 
 def safe_file_name(name):
     safename = "".join(c for c in name if c in FILENAME_CHARS)
-    if safename[0] == "-":
-        return "_" + safename[1:80]
-    return safename[:80]
+    if not safename:
+        return "file"
+    if safename.startswith("-"):
+        return html.escape("_" + safename[1:80]) # html.escape silences XSS vulnerability warnings in GitHub
+    return html.escape(safename[:80])
 
 
 def resize_image(path, max_size):
