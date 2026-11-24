@@ -19,9 +19,8 @@
 					</span>
 				</button>
 			</li>
-			{% empty %}
-			<li class="text-muted" style="font-style: italic;">{% translate "NO_USERS_ADDED_YET" %}</li>
 			{% endfor %}
+			<li class="text-muted badge-placeholder" style="font-style: italic;"{% if selected_users %} hidden{% endif %}>{% translate "NO_USERS_ADDED_YET" %}</li>
 		</ul>
 	</div>
 

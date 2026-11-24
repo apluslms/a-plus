@@ -53,13 +53,13 @@
 
         const email = widget.input.value.trim();
         if (!email) {
-            showError(widgetId, 'Please enter an email address');
+            showError(widgetId, _('Please enter an email address'));
             return;
         }
 
         // Check if user already exists in the list
         if (userExists(widgetId, email)) {
-            showError(widgetId, `User with email "${email}" is already in the list`);
+            showError(widgetId, _('User with email "%{email}" is already in the list', { email }));
             widget.input.value = '';
             return;
         }
@@ -67,55 +67,48 @@
         try {
             // Find user by email against backend
             const users = await findUserByEmail(widgetId, email);
-            
-            if (!users || users.length === 0) {
-                showError(widgetId, `No user found with email "${email}"`);
+
+            if (users.length === 0) {
+                showError(widgetId, _('No user found with email "%{email}"', { email }));
                 return;
             }
-            
+
             if (users.length === 1) {
                 const user = users[0];
                 addBadge(widgetId, user);
             } else {
                 // If multiple users found, show error
                 const userList = users.map(u => `${u.full_name || u.username} (${u.email})`).join(', ');
-                showError(widgetId, `Multiple users found for email "${email}": ${userList}`);
+                showError(widgetId, _('Multiple users found for email "%{email}": %{users}', { email, users: userList }));
                 return;
             }
 
             // Clear input and hide error
             widget.input.value = '';
             hideError(widgetId);
-            
+
         } catch (error) {
-            showError(widgetId, `Error validating email: ${error.message}`);
+            showError(widgetId, _('Error validating email: %{error}', { error: error.message }));
         }
     }
 
     /**
-     * Validate email against the backend API
-     * Uses the UserViewSet search endpoint with exact email match
+     * Find users by exact email address using the search parameter of the API
      * @param {string} widgetId - The widget ID
-     * @param {string} email - The email to validate
-     * @returns {boolean} - True if user exists with this email
+     * @param {string} email - The email address to search for
+     * @returns {Promise<Object[]>} - The users with this email address
+     * @throws {Error} - If the API request fails
      */
     async function findUserByEmail(widgetId, email) {
         const widget = widgets.get(widgetId);
-        
-        try {
-            // Use the search parameter - the API now uses =user__email for exact match
-            const response = await fetch(`${widget.apiUrl}?search=${encodeURIComponent(email)}`);
-            
-            if (!response.ok) {
-                console.error('API response error:', response.status);
-                return false;
-            }
 
-            return (await response.json()).results;
-        } catch (error) {
-            console.error('Error validating email:', error);
-            return false;
+        // Use the search parameter - the API now uses =user__email for exact match
+        const response = await fetch(`${widget.apiUrl}?search=${encodeURIComponent(email)}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
         }
+
+        return (await response.json()).results;
     }
 
     /**
@@ -171,6 +164,7 @@
 
         widget.badgeList.appendChild(li);
         updateHiddenField(widgetId);
+        updatePlaceholder(widgetId);
     }
 
     /**
@@ -186,6 +180,7 @@
         if (badge) {
             badge.remove();
             updateHiddenField(widgetId);
+            updatePlaceholder(widgetId);
         }
     };
 
@@ -209,6 +204,18 @@
 
         // Store as comma-separated user IDs
         widget.hiddenField.value = userIds.join(', ');
+    }
+
+    /**
+     * Show the placeholder text only while no users have been added
+     * @param {string} widgetId - The widget ID
+     */
+    function updatePlaceholder(widgetId) {
+        const widget = widgets.get(widgetId);
+        if (!widget) return;
+
+        const placeholder = widget.badgeList.querySelector('.badge-placeholder');
+        placeholder.hidden = widget.badgeList.querySelector('.badge-item') !== null;
     }
 
     /**

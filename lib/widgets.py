@@ -220,6 +220,13 @@ class EmailUserSelect(forms.TextInput):
             context['selected_users'] = list(UserProfile.objects.filter(user_id__in=user_ids))
         else:
             context['selected_users'] = value
-        # Use the input ID, not the wrapper ID
+        # The wrapper element takes this ID and the inner elements are suffixed with it
         context['widget_id'] = context['widget']['attrs'].get('id', '')
         return context
+
+    def id_for_label(self, id_: Optional[str]) -> Optional[str]:
+        """
+        Get the ID of the element that a label refers to.
+        Overrides `Widget.id_for_label`.
+        """
+        return f'{id_}_input' if id_ else id_

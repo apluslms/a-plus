@@ -15,5 +15,20 @@
   "Nollaa suodattimet",
 
   "Copied!":
-  "Kopioitu!"
+  "Kopioitu!",
+
+  "Please enter an email address":
+  "Anna sähköpostiosoite",
+
+  "User with email \"%{email}\" is already in the list":
+  "Sähköpostiosoitteella \"%{email}\" oleva käyttäjä on jo listalla",
+
+  "No user found with email \"%{email}\"":
+  "Sähköpostiosoitteella \"%{email}\" ei löytynyt käyttäjää",
+
+  "Multiple users found for email \"%{email}\": %{users}":
+  "Sähköpostiosoitteella \"%{email}\" löytyi useita käyttäjiä: %{users}",
+
+  "Error validating email: %{error}":
+  "Sähköpostiosoitteen tarkistus epäonnistui: %{error}"
 }

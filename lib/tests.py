@@ -1,9 +1,11 @@
 from typing import Optional
 
-from django.test import SimpleTestCase
+from django.contrib.auth.models import User
+from django.test import SimpleTestCase, TestCase
 from django.http import HttpResponse
 
 from .request_globals import RequestGlobal
+from .widgets import EmailUserSelect
 
 
 class TestGlobal(RequestGlobal):
@@ -69,3 +71,17 @@ class RequestGlobalTest(SimpleTestCase):
     def test_init_called(self):
         obj = TestGlobal()
         self.assertEqual(obj.test, "test")
+
+
+class EmailUserSelectTest(TestCase):
+
+    def setUp(self) -> None:
+        self.user = User.objects.create_user(username='teacher', email='teacher@example.com')
+
+    def test_label_refers_to_search_input(self):
+        self.assertEqual(EmailUserSelect().id_for_label('id_teachers'), 'id_teachers_input')
+
+    def test_bound_value_renders_selected_users(self):
+        html = EmailUserSelect().render('teachers', str(self.user.id), attrs={'id': 'id_teachers'})
+        self.assertIn(f'data-user-id="{self.user.id}"', html)
+        self.assertIn('teacher@example.com', html)
