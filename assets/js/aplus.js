@@ -124,6 +124,9 @@ $(function () {
     $('.site-content > .site-messages').toggleClass('sidebar-collapsed', collapsed);
     $('.site-content > .site-alert').toggleClass('sidebar-collapsed', collapsed);
     $('#bs-navbar-collapse').toggleClass('minimised', collapsed);
+    // Close the expander's tooltip before hiding the button, as hiding it does not
+    // reliably fire the events that would otherwise close the tooltip
+    $('.course-sidebar-expander').tooltip('hide');
     $('.course-sidebar-expander').toggleClass('d-none', !collapsed);
     $('.course-sidebar-collapser').toggleClass('d-none', collapsed);
     $('#sidebar-lang-dropdown-label').toggleClass('d-none', collapsed);
