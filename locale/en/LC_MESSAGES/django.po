@@ -4756,14 +4756,6 @@ msgstr "Approve multiple submissions"
 msgid "APPROVE_THIS_SUBMISSION"
 msgstr "Approve this submission"
 
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-msgid "REGRADE_DESCRIPTION"
-msgstr "Regrade all or incomplete submissions for this assignment."
-
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-msgid "START_REGRADE"
-msgstr "Start regrading"
-
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE"
 msgstr "Re-submit to service"
