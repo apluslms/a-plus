@@ -6,9 +6,34 @@
 <div class="clearfix">
 	<div class="float-end">
 		{% if allow_regrade %}
-			<button type="button" class="aplus-button--secondary aplus-button--xs" data-bs-toggle="modal" data-bs-target="#regrade-modal">
-				{{ regrade_button }}
-			</button>
+			<span class="dropdown">
+				<button
+					class="aplus-button--secondary aplus-button--xs dropdown-toggle"
+					type="button"
+					data-bs-toggle="dropdown"
+					id="regrade-options"
+				>
+					{{ regrade_button }} <span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" aria-labeledby="regrade-options">
+					{% get_regrade_info_list "all incomplete" as regrade_options %}
+					{% for option in regrade_options %}
+					<li>
+						<form method="post" action="{{ exercise|url:'submission-mass-regrade' }}">
+							{% csrf_token %}
+							<button
+								class="dropdown-item"
+								type="submit"
+								name="regrade_type"
+								value="{{ option.name }}"
+							>
+								{{ option.verbose_name }}
+							</button>
+						</form>
+					</li>
+					{% endfor %}
+				</ul>
+			</span>
 		{% endif %}
 
 		<a class="aplus-button--secondary aplus-button--xs" href="{{ exercise|url:'submission-next-unassessed' }}">
@@ -146,5 +171,3 @@
 		{% endfor %}
 	</tbody>
 </table>
-
-{% include "exercise/staff/_regrade_submissions.html" %}

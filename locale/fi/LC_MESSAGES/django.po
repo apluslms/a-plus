@@ -4779,14 +4779,6 @@ msgstr "Hyväksy useita palautuksia pisteytetyiksi"
 msgid "APPROVE_THIS_SUBMISSION"
 msgstr "Hyväksy tämä palautus pisteytetyksi"
 
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-msgid "REGRADE_DESCRIPTION"
-msgstr "Arvioi uudelleen kaikki tai kesken jääneet palautukset."
-
-#: exercise/templates/exercise/staff/_regrade_submissions.html
-msgid "START_REGRADE"
-msgstr "Aloita uudelleenarviointi"
-
 #: exercise/templates/exercise/staff/_resubmit_modal.html
 msgid "RE-SUBMIT_TO_SERVICE"
 msgstr "Lähetä arvosteltavaksi uudelleen"
