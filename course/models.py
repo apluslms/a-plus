@@ -1402,7 +1402,7 @@ class CourseModule(CourseModuleProto, models.Model):
     # deadline and the module deadline. Zero means the bonus decays
     # linearly; one step means the bonus drops to zero immediately at the
     # early submission deadline.
-    bonus_decay_steps = models.IntegerField(default=0)
+    bonus_decay_steps = models.IntegerField(default=1)
 
     late_submissions_allowed = models.BooleanField(
         verbose_name=_('LABEL_LATE_SUBMISSIONS_ALLOWED'),

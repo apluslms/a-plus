@@ -284,7 +284,7 @@ class ConfigureTest(TestCase):
     def test_early_submission_bonus(self):
         self.configure_and_test()
         module = self.instance.course_modules.get(url=self.config["modules"][0]["key"])
-        self.assertEqual(module.bonus_decay_steps, 0)
+        self.assertEqual(module.bonus_decay_steps, 1)
 
         module_config = self.config["modules"][0]
         early_deadline = self.today + timedelta(hours=12)

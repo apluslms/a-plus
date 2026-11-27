@@ -92,6 +92,16 @@ class CourseModuleForm(FieldsetModelForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+        bonus_enabled_field = self.fields['early_submission_bonus_in_use']
+        bonus_enabled = (
+            bonus_enabled_field.to_python(
+                self.data.get(self.add_prefix('early_submission_bonus_in_use'))
+            )
+            if self.is_bound
+            else self.instance.early_submission_bonus_in_use
+        )
+        self.fields['bonus_decay_steps'].required = bonus_enabled
+
         decay_steps = self.instance.bonus_decay_steps
         if decay_steps == 0:
             taper_tooltip = _('MODULE_EARLY_SUBMISSION_BONUS_LINEAR_TOOLTIP')
@@ -118,15 +128,15 @@ class CourseModuleForm(FieldsetModelForm):
             'min': '0',
             'step': '1',
         })
-        # The bonus is a fraction between 0 and 1; step in 0.1 increments.
+        # The bonus is a fraction between 0 and 1; step in 0.01 increments.
         self.fields['early_submission_bonus'].widget.attrs.update({
-            'step': '0.1',
+            'step': '0.01',
             'min': '0',
             'max': '1',
         })
         # The late penalty is also a fraction between 0 and 1.
         self.fields['late_submission_penalty'].widget.attrs.update({
-            'step': '0.1',
+            'step': '0.01',
             'min': '0',
             'max': '1',
         })
@@ -221,6 +231,8 @@ class CourseModuleForm(FieldsetModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get('bonus_decay_steps') is None:
+            cleaned_data['bonus_decay_steps'] = self.instance.bonus_decay_steps
         # The reading opening checkbox only controls the visibility of the
         # datetime field; when unchecked, no reading opening time is stored.
         if not cleaned_data.get('reading_opening_in_use'):

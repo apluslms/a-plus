@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from playwright.sync_api import Page, expect
 from e2e_tests.helpers import login, navigate_to_default_course
 
@@ -21,6 +23,12 @@ def test_edit_module_page(page: Page) -> None:
     page.get_by_placeholder("Name").fill(exerciseName)
     page.get_by_placeholder("Introduction").fill(introduction)
     page.get_by_placeholder("Points to pass").fill(pointsToPass)
+    closing_time = datetime.fromisoformat(page.locator("#id_closing_time").input_value())
+    late_submission_deadline = closing_time + timedelta(days=1)
+    page.get_by_label("Late submissions allowed").check()
+    page.locator("#id_late_submission_deadline").fill(
+        late_submission_deadline.strftime("%Y-%m-%dT%H:%M")
+    )
     page.get_by_placeholder("Late submission penalty").fill('0.33')
     page.locator('id=id_model_solution-currently_revealed').check()
     page.locator('id=id_model_solution-show_zero_points_immediately').check()
@@ -37,5 +45,7 @@ def test_edit_module_page(page: Page) -> None:
     expect(page.get_by_placeholder("Introduction")).to_have_value(introduction)
     expect(page.get_by_placeholder("Points to pass")).to_have_value(pointsToPass)
     expect(page.get_by_placeholder("Late submission penalty")).to_have_value('0.33')
+    expect(page.locator("#id_early_submission_bonus_in_use")).not_to_be_checked()
+    expect(page.get_by_label("Late submissions allowed")).to_be_checked()
     expect(page.locator('id=id_model_solution-currently_revealed')).to_be_checked()
     expect(page.locator('id=id_model_solution-show_zero_points_immediately')).to_be_checked()

@@ -25,11 +25,22 @@ class CourseModuleEditTest(CourseTestCase):
         self.assertIn('from 15% to 0%', step_field.widget.attrs['title'])
 
     def test_early_bonus_decay_steps_field(self):
+        self.assertEqual(self.module.bonus_decay_steps, 1)
+        with translation_override('en'):
+            default_form = CourseModuleForm(instance=self.module)
+        self.assertEqual(default_form['bonus_decay_steps'].initial, 1)
+
         self.module.bonus_decay_steps = 8
         with translation_override('en'):
             form = CourseModuleForm(instance=self.module)
         self.assertEqual(form['bonus_decay_steps'].initial, 8)
         self.assertNotIn('required', form.fields['bonus_decay_steps'].widget.attrs)
+
+    def test_submission_bonus_and_penalty_steps(self):
+        form = CourseModuleForm(instance=self.module)
+
+        self.assertEqual(form.fields['early_submission_bonus'].widget.attrs['step'], '0.01')
+        self.assertEqual(form.fields['late_submission_penalty'].widget.attrs['step'], '0.01')
 
     def test_edit_page_includes_early_submission_deadline(self):
         self.client.login(username='testTeacher', password='testPassword')
